@@ -12,7 +12,7 @@ ms.custom: data-managemt
 ## Storage resiliency code samples 
 
 
-In this set of files we provide sample Powershell scripts for creating a snapshot of a blob and a File share, we also include the ARM tmeplate to deploy the storage account and related resources.
+In this set of files we provide sample Powershell scripts for creating a snapshot of a blob and a File share, as well as a sample script for copying blobs from one storage account to another; we also include the ARM tmeplate to deploy the storage account and related resources.
 
 These samples are related to this section:
 
