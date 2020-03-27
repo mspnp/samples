@@ -1,6 +1,6 @@
 ---
 title: AAF resiliency pillar - Data management - storage resiliency code samples 
-description: Samples for creating staorage snapshots for resiliency
+description: Sample scripts for creating storage snapshots for resiliency
 ms.date: 03/19/2020
 author: Magrande
 ms.topic: guide
