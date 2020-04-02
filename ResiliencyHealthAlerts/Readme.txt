@@ -37,10 +37,13 @@ Instructions
 
 Create an action group
 
-You need to create or reuse an [Action Group](https://docs.microsoft.com/azure/azure-monitor/platform/action-groups) configured to notify you.
+You need to create or reuse an Action Group  configured to notify you. 
+
+See https://docs.microsoft.com/azure/azure-monitor/platform/action-groups for instructions.
 
 
 Deploy the template
+
 
 To start a new deployment using the template provided in this sample, use this powershell command (provide you resource group name):
 
@@ -56,4 +59,4 @@ If you want, you can get hte ActionGroupResourceId with this powershell command:
 
 (Get-AzActionGroup -ResourceGroupName mgrande-dev -Name TestActionGroup).Id
 
-You'll get a confirmation in PowerShell if everything worked
+You'll get a confirmation in PowerShell if everything worked ok
