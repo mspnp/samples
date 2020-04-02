@@ -20,11 +20,18 @@ Use this command:
 
 New-AzResourceGroupDeployment -ResourceGroupName <resource-group-name> -TemplateFile StorageAccountTemplate.json
 
-Sample 1 included in PS script Blob-Snapshots.ps1, shows how to create a snapshot of a blob
+### Sample Scripts
+
+
+Sample 1 included in PS script Blob-Snapshots.ps1, shows how to create a snapshot of a blob. Include the  ResourceGroupName param account to another.
+
+Blob-Snapshots.ps1 -ResourceGroupName <ResourceGroupName>
+
+Sample 2 included in PS script azcopy-blob-containers.ps1, shows how to copy all the blobs included in a blob container from one storage 
 
 Sample 3 included in PS script FileShare-Snapshot.ps1, shows how request a snaphot of a fileShare 
 
-Sample 2 included in PS script azcopy-blob-containers.ps1, shows how to copy all the blobs included in a blob container from one storage account to another.
+FileShare-Snapshot.ps1 -ResourceGroupName <ResourceGroupName>
 
 
 

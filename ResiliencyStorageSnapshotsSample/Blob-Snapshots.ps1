@@ -18,7 +18,7 @@ Set-AzureStorageBlobContent -File $localFile -Container $containerName -Blob $bl
 
 $Blob = Get-AzureStorageBlob -Context $azcontext -Container $ContainerName -Blob $BlobName
 
-$CloudBlockBlob = [Microsoft.WindowsAzure.Storage.Blob.CloudBlockBlob] $Blob.ICloudBlob
+$CloudBlockBlob = $Blob.ICloudBlob
 
 # Take a snapshot
 
