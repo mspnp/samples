@@ -1,10 +1,12 @@
-# Create variables and setup storage account context, replace the account key with your value
+param ($ResourceGroupName)
+
+# Create variables and setup storage account context
 
 $AccountName = "storageacctres1"
-$AccountKey = "zwQcPc1tWLctk1VRk61hiQvTIsSuWWv3rwnnn7Ao8K3lKeyyjM8hicZwoCJBkM9vm7btJGnIeCtaOrj7Kh74EA=="
+$AccountKey = (Get-AzStorageAccountKey -Name $AccountName -ResourceGroupName $ResourceGroupName)[0].Value
 $azcontext = New-AzureStorageContext -StorageAccountName $AccountName -StorageAccountKey $AccountKey
 $fileShareName = "fileshare1"
-$fileName="sampleFile.txt"
+$fileName=".\ContentFiles\sampleFile.txt"
 $folderPath="/"
 
 # Upload a local file
@@ -18,3 +20,4 @@ $fileShare=Get-AzureStorageShare -Context $azcontext -Name $fileShareName
 # Take Snapshot
 
 $snapshot = $fileShare.Snapshot()
+

@@ -1,12 +1,14 @@
+param ($ResourceGroupName)
 
-# Create variables and setup storage account context, replace the account key with your value
+# Create variables and setup storage account context
 
 $AccountName = "storageacctres1"
-$AccountKey = "zwQcPc1tWLctk1VRk61hiQvTIsSuWWv3rwnnn7Ao8K3lKeyyjM8hicZwoCJBkM9vm7btJGnIeCtaOrj7Kh74EA=="
+$AccountKey = (Get-AzStorageAccountKey -Name $AccountName -ResourceGroupName $ResourceGroupName)[0].Value
 $azcontext = New-AzureStorageContext -StorageAccountName $AccountName -StorageAccountKey $AccountKey
-$localFile=".\sampleBlobImage.png"
+$localFile=".\ContentFiles\sampleBlobImage.png"
 $blobName="sampleBlob"
 $containerName = "container1"
+
 
 # Upload a local file
 
