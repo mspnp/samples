@@ -23,7 +23,10 @@ The provided .net core web api code is a simple demostration of how health check
 ### Instructions
 
 
-Deploy the Provided Azure template (includes parameters file). See [this link](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) for more info on how to deploy azure templates with parameters.
+Deploy the Provided Azure template .\AzureDeploymentTemplates\AzureHealthProbesTemplate.json, by using this PS command:
+
+New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName <ResourceGroup> -TemplateFile AzureHealthProbesTemplate.json
+
 
 After deployment is done you will have two virtual machines configured in the backend pool of the load balancer.
 
@@ -31,9 +34,11 @@ Connect to the virtual machine by using [Azure Bastion](https://docs.microsoft.c
 
 Install IIS feature
 
-Open Windows defender firewall and add an InBound rule to allot TCP porr 80 incoming requests
+Open Windows defender firewall and add an InBound rule to allow TCP port 80 incoming requests
 
 Alternatively you can edit image under c:\inetpub\wwwroot\iisstart image and add the VM name so you know which virtual machine is being targeted
+
+Restart the VM
 
 Do this procedure in both VMs
 
@@ -45,3 +50,5 @@ Edit the connection string in appsettings.json, so it points to an existing SQL 
 The Sample checks for a valid SQl connection to consider the service as healthy
 
 Publish the Web API Service to both VMs, by follwing [these instructions](https://docs.microsoft.com/en-us/azure-stack/user/azure-stack-dev-start-howto-vm-dotnet?view=azs-2002)
+
+Use the Load Balancer's public IP address to run the application.
