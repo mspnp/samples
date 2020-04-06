@@ -12,12 +12,11 @@ ms.custom: application design
 # Failure mode analysis
 Failure mode analysis (FMA) is a process for building resiliency into a system, by identifying possible failure points in the system.
 
-In this sample controller action you make a call to an external service, and design your Web API, at startup level
-to include different retry strategies depending on the expected exceptions: 
-
+In this sample controller action you make a call to an external service. The web API is designed to include different retry strategies depending on the expected exceptions: 
    429 - Throttling 
    408 - Timeout
    503 or 5xx service unavailable
    401 unauthorized
-
-By using Polly library. (https://github.com/App-vNext/Polly)
+   
+This is done in startup class in the ConfigureServices method by using Polly library. (https://github.com/App-vNext/Polly)
+PI
