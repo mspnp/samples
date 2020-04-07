@@ -30,7 +30,7 @@ New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName [Resour
 
 After deployment is done you will have two virtual machines configured in the backend pool of the load balancer.
 
-Connect to the virtual machine by using [Azure Bastion](https://docs.microsoft.com/azure/bastion/bastion-connect-vm-rdp)
+Connect to the virtual machine by using [Azure Bastion](https://docs.microsoft.com/azure/bastion/bastion-connect-vm-rdp). Credentials are included in the deployment template.
 
 Install IIS feature
 
