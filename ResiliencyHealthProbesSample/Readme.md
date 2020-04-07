@@ -25,7 +25,7 @@ The provided .net core web api code is a simple demostration of how health check
 
 Deploy the Provided Azure template .\AzureDeploymentTemplates\AzureHealthProbesTemplate.json, by using this PS command:
 
-New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName <ResourceGroup> -TemplateFile AzureHealthProbesTemplate.json
+New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName [ResourceGroup] -TemplateFile .\AzureDeploymentTemplates\AzureHealthProbesTemplate.json
 
 
 After deployment is done you will have two virtual machines configured in the backend pool of the load balancer.
