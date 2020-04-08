@@ -46,7 +46,7 @@ namespace RetryPatternSample
        .RetryAsync(1, (exception, retryCount) =>
        {
          
-         this._logger.LogError($"Error occurred retry attempt: {retryCount}, Error details: {exception.ToString()}");
+         this._logger.LogError($"Error occurred retry attempt: {retryCount}, Error details: {exception.Result.ToString()}");
          //Do some logic here like:
          //RenewAccessToken();
         });
