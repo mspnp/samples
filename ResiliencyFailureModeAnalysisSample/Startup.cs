@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Polly;
 using System;
 using System.Net;
@@ -14,7 +15,10 @@ namespace RetryPatternSample
  {
   public Startup(IConfiguration configuration)
   {
-   Configuration = configuration;  }
+   Configuration = configuration;
+  }
+
+  private ILogger<Startup> _logger;
 
   public IConfiguration Configuration { get; }
 
@@ -41,6 +45,8 @@ namespace RetryPatternSample
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
        .RetryAsync(1, (exception, retryCount) =>
        {
+         
+         this._logger.LogError($"Error occurred retry attempt: {retryCount}, Error details: {exception.ToString()}");
          //Do some logic here like:
          //RenewAccessToken();
         });
@@ -49,7 +55,7 @@ namespace RetryPatternSample
 
    services.AddHttpClient("SampleService", client =>
    {
-    client.BaseAddress = new Uri(@"<your service's base Address>");
+    client.BaseAddress = new Uri(@"https://www.googleapis.com");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
    }).AddPolicyHandler(policyWrap);
 
@@ -57,8 +63,10 @@ namespace RetryPatternSample
   }
 
   // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-  public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+  public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
   {
+   this._logger = logger;
+
    if (env.IsDevelopment())
    {
     app.UseDeveloperExceptionPage();
