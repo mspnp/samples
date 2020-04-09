@@ -1,9 +1,9 @@
-## Manage your alerts programmatically
+# Manage your alerts programmatically
 
-This set of Powershell commands show how to query programmatically for alerts generated against your subscription.
+# This set of Powershell commands show how to query programmatically for alerts generated against your subscription.
 
 
-### Prerequisites
+# Prerequisites
 
 # Install the Resource Graph module from PowerShell Gallery
 Install-Module -Name Az.ResourceGraph
@@ -16,10 +16,13 @@ Get-Command -Module 'Az.ResourceGraph' -CommandType 'Cmdlet'
 
 # This query searchs for alerts in a specific subscription
 
-Search-AzGraph -Query "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ 'a012a8b0-522a-4f59-81b6-aa0361eb9387' "
+Search-AzGraph -Query "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ '<your subscription id>' "
 
 # Same query but listing specific fields
 
-Search-AzGraph -Query "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ 'a012a8b0-522a-4f59-81b6-aa0361eb9387' | project name, type, resourceGroup"
+Search-AzGraph -Query "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ '<your subscription id>' | project name, type, resourceGroup"
 
+# In case you want to build a JSON object that contains the common alert metadata
+
+Search-AzGraph -Query "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ '<your subscription id>' | project properties | summarize buildschema(properties)"
 
