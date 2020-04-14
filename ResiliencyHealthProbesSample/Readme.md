@@ -9,7 +9,7 @@ ms.subservice: resiliency
 ms.custom: error-handling
 ---
 
-## Health Probes Sample
+## Health Probes ARM template
 
 This example includes an ARM deployment template for setting up the infrastructure.
 
@@ -42,6 +42,11 @@ Restart the VM
 
 Do this procedure in both VMs
 
+Use the Load Balancer's public IP address to test the load balancer.
+
+## Health Probes code sample
+
+### instructions
 
 Open the .net core solution under "ResiliencyHealthProbesSample" using VS 2019
 
@@ -49,6 +54,6 @@ Edit the connection string in appsettings.json, so it points to an existing SQL 
 
 The Sample checks for a valid SQl connection to consider the service as healthy
 
-Publish the Web API Service to both VMs, by follwing [these instructions](https://docs.microsoft.com/en-us/azure-stack/user/azure-stack-dev-start-howto-vm-dotnet?view=azs-2002)
+If you want to publish this sample to an Azure App Service by using Visuall Studio, follow [these instructions](https://docs.microsoft.com/en-us/visualstudio/deployment/quickstart-deploy-to-azure?view=vs-2019)
 
-Use the Load Balancer's public IP address to run the application.
+
