@@ -40,7 +40,7 @@ namespace RetryPatternSample
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.ServiceUnavailable)
        .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(10));
 
-   //401 unauthorized - rety once and do some retry logic + logging
+   //401 unauthorized - retry once and do some retry logic + logging
    var retryWhenUnauthorized = Policy
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
        .RetryAsync(1, (exception, retryCount) =>
