@@ -25,22 +25,22 @@ namespace RetryPatternSample
   // This method gets called by the runtime. Use this method to add services to the container.
   public void ConfigureServices(IServiceCollection services)
   {
-   //429 - Throttling 
+   //429 - Throttling - retry twice, incrementing wait time in every retry.
    var retryWhenThrottling = Policy
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.TooManyRequests)
        .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(Math.Pow(5, retryAttempt)));
 
-   //408 - Timeout
+   //408 - Timeout, retry twice, with a 5 secs wait time
    var retryWhenTimeout = Policy
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.RequestTimeout)
-       .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(5));
+       .WaitAndRetryAsync(2, retryAttempt => TimeSpan.FromSeconds(5));
 
-   //503 or 5xx service unavailable
+   //503 or 5xx service unavailable - wait 10 secs and retry only once.
    var retryWhenServiceUnavailable = Policy
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.ServiceUnavailable)
        .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(10));
 
-   //401 unauthorized
+   //401 unauthorized - rety once and do some retry logic + logging
    var retryWhenUnauthorized = Policy
        .HandleResult<HttpResponseMessage>(r => r.StatusCode == HttpStatusCode.Unauthorized)
        .RetryAsync(1, (exception, retryCount) =>
@@ -55,7 +55,7 @@ namespace RetryPatternSample
 
    services.AddHttpClient("SampleService", client =>
    {
-    client.BaseAddress = new Uri(@"https://www.googleapis.com");
+    client.BaseAddress = new Uri(@"<You enpodint base address here>");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
    }).AddPolicyHandler(policyWrap);
 
