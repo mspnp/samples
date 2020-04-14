@@ -25,7 +25,7 @@ namespace FailureModeAnalysisSample.Controllers
   {
    var httpClient = _httpClientFactory.CreateClient("SampleService");
 
-   HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/fitness/v1/users/me/dataSources");
+   HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("<your GET operation>");
    var content = await httpResponseMessage.Content.ReadAsStringAsync();
 
    if (httpResponseMessage.IsSuccessStatusCode)
