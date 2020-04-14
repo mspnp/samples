@@ -55,7 +55,7 @@ namespace RetryPatternSample
 
    services.AddHttpClient("SampleService", client =>
    {
-    client.BaseAddress = new Uri(@"<You enpodint base address here>");
+    client.BaseAddress = new Uri(@"<You endpoint's base address here>");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
    }).AddPolicyHandler(policyWrap);
 
