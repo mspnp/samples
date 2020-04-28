@@ -1,4 +1,4 @@
-# This set of Azure CLI commands show how yo query limit and quotas for commonly used Networking resources, Virtual machines, SQL database and Storage Accounts
+# This set of Azure CLI commands shows how yo query limit and quotas for commonly used Networking resources, Virtual machines, SQL database and Storage Accounts
 
 # Prerequisites
 
@@ -10,7 +10,7 @@ az login
 
 # Set the subscription you are going to query
 
-az account set -s a012a8b0-522a-4f59-81b6-aa0361eb9387
+az account set -s <your subscription id>
 
 
 # This command gets the limits for networking resources in the West US location:
