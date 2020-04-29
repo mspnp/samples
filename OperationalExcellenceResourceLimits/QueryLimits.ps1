@@ -1,6 +1,8 @@
 # This set of Powershell commands show how yo query limit and quotas for commonly used Networking resources, Virtual machines, SQL database and Storage Accounts
 
 # Connect to Azure using your account
+# Make sure that you have a subscription associated with you Azure Account
+
 
 Connect-AzAccount
 
