@@ -1,4 +1,4 @@
-# This set of Azure CLI commands shows how yo query limit and quotas for commonly used Networking resources, Virtual machines, SQL database and Storage Accounts
+# This set of Azure CLI commands shows how to query limit and quotas for commonly used Networking resources, Virtual machines, SQL database and Storage Accounts
 
 # Prerequisites
 
