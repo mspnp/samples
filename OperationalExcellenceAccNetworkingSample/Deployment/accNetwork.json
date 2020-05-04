@@ -3,15 +3,14 @@
     "contentVersion": "1.0.0.0",
     "parameters": {},
     "variables": {
-        "rsNamePrefix": "accNetwork",
         "accNetworkVnetName": "accNetwork-vnet",
-        "accNtwkStgAccountName": "accNetwork-dstg"
+        "accNtwkStgAccountName": "accnetworkdstg"
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-03-01",
-            "name": "[concat(variables('rsNamePrefix'), '-Nsg1')]",
+            "name": "accNetwork-Nsg1",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [
@@ -38,7 +37,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-03-01",
-            "name": "[concat(variables('rsNamePrefix'), '-Nsg2')]",
+            "name": "accNetwork-Nsg2",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [
@@ -65,7 +64,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-03-01",
-            "name": "[concat(variables('rsNamePrefix'), '-ip1')]",
+            "name": "accNetwork-ip1",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Basic"
@@ -81,7 +80,7 @@
         {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-03-01",
-            "name": "[concat(variables('rsNamePrefix'), '-ip2')]",
+            "name": "accNetwork-ip2",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Basic"
@@ -157,9 +156,9 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
             "apiVersion": "2020-03-01",
-            "name": "[concat(concat(variables('rsNamePrefix'), '-Nsg1'), '/SSH')]",
+            "name": "[concat('accNetwork-Nsg1', '/SSH')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('rsNamePrefix'), '-Nsg1'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg1')]"
             ],
             "properties": {
                 "protocol": "TCP",
@@ -179,9 +178,9 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
             "apiVersion": "2020-03-01",
-            "name": "[concat(concat(variables('rsNamePrefix'), '-Nsg2'), '/SSH')]",
+            "name": "[concat('accNetwork-Nsg2', '/SSH')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('rsNamePrefix'), '-Nsg2'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg2')]"
             ],
             "properties": {
                 "protocol": "TCP",
@@ -250,31 +249,6 @@
             }
         },
         {
-            "type": "Microsoft.Compute/availabilitySets",
-            "apiVersion": "2019-07-01",
-            "name": "[concat(variables('rsNamePrefix'), '-as')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('rsNamePrefix'), '-Vm1'))]",
-                "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('rsNamePrefix'), '-Vm2'))]"
-            ],
-            "sku": {
-                "name": "Aligned"
-            },
-            "properties": {
-                "platformUpdateDomainCount": 5,
-                "platformFaultDomainCount": 2,
-                "virtualMachines": [
-                    {
-                        "id": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('rsNamePrefix'), '-Vm1'))]"
-                    },
-                    {
-                        "id": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('rsNamePrefix'), '-Vm2'))]"
-                    }
-                ]
-            }
-        },
-        {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
             "name": "[concat(variables('accNtwkStgAccountName'), '/default/bootdiagnostics-accnetwor-6d80ccc7-627b-4793-9ff9-bf238094a966')]",
@@ -301,16 +275,16 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "concat(variables('rsNamePrefix'), '-Vm1')",
+            "name": "accNetwork-Vm1",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('rsNamePrefix'), '-as'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rsNamePrefix'), '-nint1'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', 'accNetwork-as')]",
+                "[resourceId('Microsoft.Network/networkInterfaces', 'accNetwork-nint1')]",
                 "[resourceId('Microsoft.Storage/StorageAccounts', variables('accNtwkStgAccountName'))]"
             ],
             "properties": {
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('rsNamePrefix'), '-as'))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', 'accNetwork-as')]"
                 },
                 "hardwareProfile": {
                     "vmSize": "Standard_D4s_v3"
@@ -324,32 +298,31 @@
                     },
                     "osDisk": {
                         "osType": "Linux",
-                        "name": "[concat(concat(variables('rsNamePrefix'), '-Vm1'), '_OsDisk_1_66f0c931185c4a88893a5b187c7f4003')]",
+                        "name": "[concat('accNetwork-Vm1', '_OsDisk_1_66f0c931185c4a88893a5b187c7f4003')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
-                            "storageAccountType": "Premium_LRS",
-                            "id": "[resourceId('Microsoft.Compute/disks', concat(concat(variables('rsNamePrefix'), '-Vm1'), '_OsDisk_1_66f0c931185c4a88893a5b187c7f4003'))]"
+                            "storageAccountType": "Premium_LRS"
                         },
                         "diskSizeGB": 30
                     },
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat(variables('rsNamePrefix'), '-Vm1')]",
+                    "computerName": "accNetwork-Vm1",
                     "adminUsername": "accNetworkUser",
+                    "adminPassword": "@ccN3tw0rk",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": false,
                         "provisionVMAgent": true
                     },
                     "secrets": [],
-                    "allowExtensionOperations": true,
-                    "requireGuestProvisionSignal": true
+                    "allowExtensionOperations": true
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rsNamePrefix'), '-nint1'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'accNetwork-nint1')]"
                         }
                     ]
                 },
@@ -364,16 +337,16 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
-            "name": "[concat(variables('rsNamePrefix'), '-Vm2')]",
+            "name": "accNetwork-Vm2",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('rsNamePrefix'), '-as'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rsNamePrefix'), '-nint2'))]",
+                "[resourceId('Microsoft.Compute/availabilitySets', 'accNetwork-as')]",
+                "[resourceId('Microsoft.Network/networkInterfaces', 'accNetwork-nint2')]",
                 "[resourceId('Microsoft.Storage/StorageAccounts', variables('accNtwkStgAccountName'))]"
             ],
             "properties": {
                 "availabilitySet": {
-                    "id": "[resourceId('Microsoft.Compute/availabilitySets', concat(variables('rsNamePrefix'), '-as'))]"
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets', 'accNetwork-as')]"
                 },
                 "hardwareProfile": {
                     "vmSize": "Standard_D4s_v3"
@@ -387,32 +360,31 @@
                     },
                     "osDisk": {
                         "osType": "Linux",
-                        "name": "[concat(concat(variables('rsNamePrefix'), '-Vm2'), '_OsDisk_1_e0c78ba3c3df4a36a9d2f89055ef0daa')]",
+                        "name": "[concat('accNetwork-Vm2', '_OsDisk_1_e0c78ba3c3df4a36a9d2f89055ef0daa')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
                         "managedDisk": {
-                            "storageAccountType": "Premium_LRS",
-                            "id": "[resourceId('Microsoft.Compute/disks', concat(concat(variables('rsNamePrefix'), '-Vm2'), '_OsDisk_1_e0c78ba3c3df4a36a9d2f89055ef0daa'))]"
+                            "storageAccountType": "Premium_LRS"
                         },
                         "diskSizeGB": 30
                     },
                     "dataDisks": []
                 },
                 "osProfile": {
-                    "computerName": "[concat(variables('rsNamePrefix'), '-Vm2')]",
+                    "computerName": "accNetwork-Vm2",
                     "adminUsername": "accNetworkUser",
+                    "adminPassword": "@ccN3tw0rk",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": false,
                         "provisionVMAgent": true
                     },
                     "secrets": [],
-                    "allowExtensionOperations": true,
-                    "requireGuestProvisionSignal": true
+                    "allowExtensionOperations": true
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('rsNamePrefix'), '-nint2'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'accNetwork-nint2')]"
                         }
                     ]
                 },
@@ -425,14 +397,35 @@
             }
         },
         {
+            "type": "Microsoft.Compute/availabilitySets",
+            "apiVersion": "2019-07-01",
+            "name": "accNetwork-as",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Aligned"
+            },
+            "properties": {
+                "platformUpdateDomainCount": 5,
+                "platformFaultDomainCount": 2,
+                "virtualMachines": [
+                    {
+                        "id": "[resourceId('Microsoft.Compute/virtualMachines', 'accNetwork-Vm1')]"
+                    },
+                    {
+                        "id": "[resourceId('Microsoft.Compute/virtualMachines', 'accNetwork-Vm2')]"
+                    }
+                ]
+            }
+        },
+        {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-03-01",
-            "name": "[concat(variables('rsNamePrefix'), '-nint1')]",
+            "name": "accNetwork-nint1",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('rsNamePrefix'), '-ip1'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'accNetwork-ip1')]",
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('accNetworkVnetName'), 'default')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('rsNamePrefix'), '-Nsg1'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg1')]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -442,7 +435,7 @@
                             "privateIPAddress": "172.18.0.4",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('rsNamePrefix'), '-ip1'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'accNetwork-ip1')]"
                             },
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('accNetworkVnetName'), 'default')]"
@@ -458,19 +451,19 @@
                 "enableAcceleratedNetworking": true,
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('rsNamePrefix'), '-Nsg1'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg1')]"
                 }
             }
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-03-01",
-            "name": "[concat(variables('rsNamePrefix'), '-nint2')]",
+            "name": "accNetwork-nint2",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('rsNamePrefix'), '-ip2'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'accNetwork-ip2')]",
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('accNetworkVnetName'), 'default')]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('rsNamePrefix'), '-Nsg2'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg2')]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -480,7 +473,7 @@
                             "privateIPAddress": "172.18.0.5",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(variables('rsNamePrefix'), '-ip2'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'accNetwork-ip2')]"
                             },
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('accNetworkVnetName'), 'default')]"
@@ -496,7 +489,7 @@
                 "enableAcceleratedNetworking": true,
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('rsNamePrefix'), '-Nsg2'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg2')]"
                 }
             }
         }
