@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-pattern-pod
+spec:
+
+  volumes:
+  - name: logs-shared-vol 
+    emptyDir: {}
+
+  containers:
+
+  - name: app-container
+    # Logging container. A simple script that writes current CPU usage to a log file every ten seconds
+    image: alpine 
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}' > cpu-usage-log.txt; sleep 10; done"]
+
+    volumeMounts:
+    - name: logs-shared-vol
+      mountPath: /var/log
+
+  
+  - name: sidecar-container
+    # Sidecar container hosting nginx and serving the log file
+    image: nginx:1.7.9
+    ports:
+      - containerPort: 80
+
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /usr/share/nginx/html # nginx-specific mount path
