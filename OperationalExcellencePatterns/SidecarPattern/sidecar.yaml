@@ -14,7 +14,7 @@ spec:
     # Logging container. A simple script that writes current CPU usage to a log file every ten seconds
     image: alpine 
     command: ["/bin/sh"]
-    args: ["-c", "while true; do grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}' > cpu-usage-log.txt; sleep 10; done"]
+    args: ["-c", "while true; do grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}' > cpu-usage-log.txt; sleep 10; done"]
 
     volumeMounts:
     - name: logs-shared-vol
@@ -28,5 +28,5 @@ spec:
       - containerPort: 80
 
     volumeMounts:
-    - name: shared-logs
+    - name: logs-shared-vol
       mountPath: /usr/share/nginx/html # nginx-specific mount path

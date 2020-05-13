@@ -17,7 +17,7 @@ kubectl apply -f sidecar.yaml
 
 #### Once the pod is running, connect to the sidecar pod
 
-   kubectl exec pod-with-sidecar -c sidecar-container -it bash
+   kubectl exec sidecar-pattern-pod -c sidecar-container -it bash
   
 ####  Install curl on the sidecar
    apt-get update && apt-get install curl
