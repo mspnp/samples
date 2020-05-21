@@ -47,8 +47,6 @@ namespace CPUstressWebApp.Controllers
    CancellationTokenSource cs = new CancellationTokenSource();
    CancellationToken ct = cs.Token;
 
-   Tuple<int, CancellationToken> parameters = new Tuple<int, CancellationToken>(cpuUsage, cs.Token);
-
    List<Thread> threads = new List<Thread>();
    for (int i = 0; i < Environment.ProcessorCount; i++)
    {
@@ -62,21 +60,21 @@ namespace CPUstressWebApp.Controllers
    cs.Cancel();
 
   }
-  private static void ConsumeCPU(int cpuUsage, CancellationToken ct)
+  private static void ConsumeCPU(int cpu, CancellationToken ct)
   {
    Parallel.For(0, 1, new Action<int>((int i) =>
    {
-    Stopwatch watch = new Stopwatch();
-    watch.Start();
+    Stopwatch sw = new Stopwatch();
+    sw.Start();
     int threadcount = 0;
     while (!ct.IsCancellationRequested)
     {
      threadcount++;
-     if (watch.ElapsedMilliseconds > cpuUsage)
+     if (sw.ElapsedMilliseconds > cpu)
      {
-      Thread.Sleep(100 - cpuUsage);
-      watch.Reset();
-      watch.Start();
+      Thread.Sleep(100 - cpu);
+      sw.Reset();
+      sw.Start();
      }
     }
    }));
