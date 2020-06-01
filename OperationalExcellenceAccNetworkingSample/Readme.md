@@ -1,4 +1,4 @@
-# Enabling Accelerated Networking 
+# Enabling Accelerated Networking on your VMs
 
 This set of Azure CLI commands shows how to enable accelerated networking for all the VMs included in an availability set. Azure Accelerated Networking is a feature for Azure IaaS Virtual Machines occurring at NIC level; it enables single root I/O virtualization (SR-IOV) to a VM, greatly improving its networking performance. This high-performance path bypasses the hosting infrastructure from the datapath, reducing latency, jitter, and CPU utilization.
 
