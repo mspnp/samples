@@ -15,14 +15,14 @@ az login
 
 # Select your subscription
 
-az account set -s <your subscription id>
+az account set -s 3b518fac-e5c8-4f59-8ed5-d70b626f8e10
 
 # Create a resource group.
 az group create --name acceleratedNetwork-rg --location centralus
 
 # deploy the ARM template with the scenario
 
-az deployment group create --resource-group acceleratedNetwork-rg --template-file .\deployment\accNetwork.json
+az deployment group create --resource-group acceleratedNetwork-rg --template-file Deployment/accNetwork.json
 
 # Since there are two VMs in an availability set we need to deallocate both VM1 and VM2
 
@@ -32,18 +32,9 @@ az vm deallocate --resource-group acceleratedNetwork-rg --name accNetwork-Vm2
 
 # Then we enable accelerated networking for both VMs
 
-$nic = Get-AzNetworkInterface -ResourceGroupName acceleratedNetwork-rg -Name accNetwork-Vm1
+az network nic update --name accNetwork-nint1 --resource-group acceleratedNetwork-rg --accelerated-networking true
 
-$nic.EnableAcceleratedNetworking = $true
-
-$nic | Set-AzNetworkInterface
-
-
-$nic = Get-AzNetworkInterface -ResourceGroupName acceleratedNetwork-rg -Name accNetwork-Vm2
-
-$nic.EnableAcceleratedNetworking = $true
-
-$nic | Set-AzNetworkInterface
+az network nic update --name accNetwork-nint2 --resource-group acceleratedNetwork-rg --accelerated-networking true
 
 # Final step, restart both VMs
 
