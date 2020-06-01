@@ -15,7 +15,7 @@ az login
 
 # Select your subscription
 
-az account set -s 3b518fac-e5c8-4f59-8ed5-d70b626f8e10
+az account set -s <You subscription Id>
 
 # Create a resource group.
 az group create --name acceleratedNetwork-rg --location centralus
