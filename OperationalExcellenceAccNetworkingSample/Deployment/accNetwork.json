@@ -4,7 +4,7 @@
     "parameters": {},
     "variables": {
         "accNetworkVnetName": "accNetwork-vnet",
-        "accNtwkStgAccountName": "accnetworkdstg"
+        "accNtwkStgAccountPrefix": "anstorage"
     },
     "resources": [
         {
@@ -121,7 +121,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[variables('accNtwkStgAccountName')]",
+            "name": "[concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id))]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard_LRS",
@@ -212,9 +212,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('accNtwkStgAccountName'), '/default')]",
+            "name": "[concat(concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('accNtwkStgAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -232,9 +232,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('accNtwkStgAccountName'), '/default')]",
+            "name": "[concat(concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('accNtwkStgAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -249,10 +249,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('accNtwkStgAccountName'), '/default/bootdiagnostics-accnetwor-6d80ccc7-627b-4793-9ff9-bf238094a966')]",
+            "name": "[concat(concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), '/default/bootdiagnostics-accnetwor-6d80ccc7-627b-4793-9ff9-bf238094a966')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('accNtwkStgAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('accNtwkStgAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)))]"
             ],
             "properties": {
                 "publicAccess": "None"
@@ -261,10 +261,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('accNtwkStgAccountName'), '/default/bootdiagnostics-accnetwor-99199ea2-d8c1-499c-9b83-fecf7ab469f3')]",
+            "name": "[concat(concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), '/default/bootdiagnostics-accnetwor-99199ea2-d8c1-499c-9b83-fecf7ab469f3')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('accNtwkStgAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('accNtwkStgAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)))]"
             ],
             "properties": {
                 "publicAccess": "None"
@@ -278,7 +278,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/availabilitySets', 'accNetwork-as')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'accNetwork-nint1')]",
-                "[resourceId('Microsoft.Storage/StorageAccounts', variables('accNtwkStgAccountName'))]"
+                "[resourceId('Microsoft.Storage/StorageAccounts', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)))]"
             ],
             "properties": {
                 "availabilitySet": {
@@ -327,7 +327,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[concat('https://', variables('accNtwkStgAccountName'), '.blob.core.windows.net/')]"
+                        "storageUri": "[concat('https://', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), '.blob.core.windows.net/')]"
                     }
                 }
             }
@@ -340,7 +340,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/availabilitySets', 'accNetwork-as')]",
                 "[resourceId('Microsoft.Network/networkInterfaces', 'accNetwork-nint2')]",
-                "[resourceId('Microsoft.Storage/StorageAccounts', variables('accNtwkStgAccountName'))]"
+                "[resourceId('Microsoft.Storage/StorageAccounts', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)))]"
             ],
             "properties": {
                 "availabilitySet": {
@@ -389,7 +389,7 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[concat('https://', variables('accNtwkStgAccountName'), '.blob.core.windows.net/')]"
+                        "storageUri": "[concat('https://', concat(variables('accNtwkStgAccountPrefix'), uniqueString(resourceGroup().id)), '.blob.core.windows.net/')]"
                     }
                 }
             }
