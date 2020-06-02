@@ -53,3 +53,7 @@ az vm start --resource-group acceleratedNetwork-rg --name accNetwork-Vm1
 
 az vm start --resource-group acceleratedNetwork-rg --name accNetwork-Vm2
 ```
+
+### Verify that the setting has been applied in both VMs
+
+To verify that accelerated networking is enabled in you VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is ON.

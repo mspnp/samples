@@ -70,7 +70,6 @@
                 "name": "Basic"
             },
             "properties": {
-                "ipAddress": "104.43.197.187",
                 "publicIPAddressVersion": "IPv4",
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
@@ -86,7 +85,6 @@
                 "name": "Basic"
             },
             "properties": {
-                "ipAddress": "52.165.172.229",
                 "publicIPAddressVersion": "IPv4",
                 "publicIPAllocationMethod": "Dynamic",
                 "idleTimeoutInMinutes": 4,
