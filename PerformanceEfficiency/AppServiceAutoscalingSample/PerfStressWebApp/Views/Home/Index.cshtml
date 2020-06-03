@@ -1,0 +1,27 @@
+﻿@model RunViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <div class="text-center">
+        <h1 class="display-4">CPU usage</h1>
+        <br>
+        @using (Html.BeginForm("CpuSpike", "CpuSpike", FormMethod.Post))
+        {
+        @Html.AntiForgeryToken()
+        @Html.Label("Target Computer: ")
+        <br>
+        @Html.Label(Environment.MachineName)
+        <br><br>
+        @Html.Label("Minutes to run: ")
+        <br>
+        @Html.TextBoxFor(m => m.Minutes, new { Class= "text-body", Value= "0"})
+        <br><br>
+        <input type="submit" class="btn-danger" title="CPU spike" id="cpuSpike" value="Trigger CPU Spike" formaction='@Url.Action("CpuSpike","Home")' />
+        <br><br>
+        @if (TempData["CpuSpikeTriggered"] != null)
+        {
+            <label class="text-danger">CPU spike triggered !</label>
+        }
+        }
+    </div>
