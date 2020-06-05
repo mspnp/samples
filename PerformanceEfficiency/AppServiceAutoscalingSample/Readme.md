@@ -83,10 +83,9 @@ The duration is set to 1 minute. This is amount of time that Autoscale engine wi
 This metric represents the number of TCP connections in TIME_WAIT state. The reason this metric can affect scalability is that one socket in a TCP connection that is shut down cleanly will stay in the TIME_WAIT state for period of 4 minutes. If many connections are being opened and closed quickly then socket's in TIME_WAIT may begin to accumulate on a system. There are a finite number of socket connections that can be established at one time and one of the things that limits this number is the number of available local ports. If too many sockets are in TIME_WAIT you will find it difficult to establish new outbound connections and you will need to tune your App Service plan scale out settings and prevent the system reaching the limits.
 
 
-
  #### Deployment instructions
 
-*If yoou already ran the CPU stress scenario, you can skip steps 1-10 and go to step 11 directly.*
+*If you already ran the CPU stress scenario, you can skip steps 1-10 and go to step 11 directly.*
 
 #### Run these commands by using the Azure CLI from your computer. You need to run az login to log in to Azure. Make sure that you have a subscription associated with your Azure Account If the CLI can open your default browser, it will do so and load an Azure sign-in page. Otherwise, open a browser page at https://aka.ms/devicelogin and enter the authorization code displayed in your terminal.
 <br><br>
