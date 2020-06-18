@@ -16,7 +16,7 @@ This margin between the scale-out and in and the threshold is recommended, consi
 
 Assuming there is 1 instance to start with. If the average CPU% across instances is 81 (the CPU% usage of the only instance), autoscale scales out adding a second instance. Then over time the CPU% falls to 60. Autoscale's scale-in rule estimates the final state if it were to scale-in. For example, 60 x 2 (current instance count) = 120 / 1 (final number of instances when scaled down) = 120. So autoscale does not scale-in because it would have to scale-out again immediately. Instead, it skips scaling down. The next time autoscale checks, the CPU continues to fall to 30%. It estimates again - 30 x 2 instance = 60 / 1 instance = 60, which is below the scale-out threshold of 80, so it scales in successfully to 1 instance.
 
-The duration is set to 5 minutes. This is amount of time that Autoscale engine will look back for metrics. So in this case, 5 minutes means that every time autoscale runs, it will query metrics for the past 5 minutes. This allows your metrics to stabilize and avoids reacting to transient spikes. 
+The duration is set to 5 minutes. This is the amount of time that the Autoscale engine will look back for metrics. So in this case, 5 minutes means that every time autoscale runs, it will query metrics for the past 5 minutes. This allows your metrics to stabilize and avoids reacting to transient spikes. 
 
  The instance limits are:  max 5 instances, min 1 instance. and the cool down setting is set to 5 minutes; the cool down setting is the amount of time to wait after a scale operation before scaling again. In this case, since the cooldown is 5 minutes and a scale operation just occurred, Autoscale will not attempt to scale again until after 5 minutes. This is to allow the metrics to stabilize first.
 
@@ -91,20 +91,19 @@ The SocketOutboundTimeWait metric is another networking related metric available
 
 #### Downloading and configuring JMeter
 
-Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.3.zip) (Requires Java 8+), and install it in you computer. when installed, all you need to do is go the /Bin folder and find the JMeter windows batch file (JMeter.bat), as soon as you double click on the .bat file, a command prompt windows will popup; this is the command prompt through which JMeter will run. After a second the JMeter UI will popup, this UI is what you are going to use to create a Test Plan.
+Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.3.zip) (Requires Java 8+), and install it in you computer. Once installed, all you need to do is go the /Bin folder and find the JMeter windows batch file (JMeter.bat), as soon as you double click on the .bat file, a command prompt window will popup; this is the command prompt through which JMeter will run. After a second the JMeter UI will popup, this UI is what you are going to use to create a Test Plan.
 
 #### Creating a JMeter Test Plan
 
 1) Creating a thread Group
 
-    In the JMeter UI, by default, you will see an empty test plan. Right click on "TestPlan" on the left tree and select "Add", then "Threads", then "Thread Group". Enter a Name for the new thread group.
-    For "Action to be taken after a sample error", select "Continue"
+    In the JMeter UI, by default, you will see an empty test plan. Right click on "TestPlan" on the left tree and select "Add", then "Threads", then "Thread Group". Enter a Name for the new thread group. For the "Action to be taken after a sample error" setting, select "Continue".
 
 2) Thread properties
 
     Enter 700 or a higher number for "Number of Threads", this will simulate a number of users hitting your app service endpoint simultaneously.
 
-    The ramp-up period tells JMeter how long to take to "ramp-up" to the full number of threads chosen, by default is set to 1 second.
+    The ramp-up period tells JMeter how long it will take to "ramp-up" to the full number of threads chosen, by default is set to 1 second.
 
     Loop count setting: you can select a high number of loops, or set it to infinite. If you choose "infinite" you can stop the run with the stop button in the UI.
 
@@ -122,7 +121,7 @@ Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/a
 
     Enter "/Values" in the Path box, that is the Path of you controller's action that simulates a web application having some delays. In this scenario there are no URL parameters but alternateviley you could add them to the parameters list below.
 
-    Keep the other options default (Http Request should be GET)
+    Keep the other options default (Http Request should be GET).
 
 4) Adding a View Results Window
 
@@ -140,7 +139,7 @@ Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/a
 
 #### Deployment instructions
 
-*If you already ran the CPU stress scenario, you can skip steps 1-10 and go to step 11 directly.*
+*If you already ran the CPU stress scenario, you can skip steps 1-10 and go to the JMeter running section below*
 
 #### Run these commands by using the Azure CLI from your computer. You need to run az login to log in to Azure. Make sure that you have a subscription associated with your Azure Account If the CLI can open your default browser, it will do so and load an Azure sign-in page. Otherwise, open a browser page at https://aka.ms/devicelogin and enter the authorization code displayed in your terminal.
 <br><br>
