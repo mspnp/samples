@@ -1,0 +1,356 @@
+[
+  {
+    "CategoryName": "Analytics",
+    "Services": [
+      {
+        "Name": "HDInsight",
+        "Notes": "",
+        "IconImage": "HDInsight",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Event Hubs",
+        "Notes": "SLA requires Basic or Standard tiers",
+        "IconImage": "EventHubs",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Management and Governance",
+    "Services": [
+      {
+        "Name": "Automation",
+        "Notes": "SLA guarantees that Automation jobs will start within 30 minutes of planned start time",
+        "IconImage": "Automation",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Scheduler",
+        "Notes": "SLA guarantees that Scheduler jobs will start within 30 minutes of planned start time",
+        "IconImage": "Scheduler",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Site Recovery",
+        "Notes": "For failover to Azure, a four-hour RTO for unencrypted VM instances and a six-hour RTO for encrypted VM instances is guaranteed",
+        "IconImage": "SiteRecovery",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Databases",
+    "Services": [
+      {
+        "Name": "Sql Database (Hyperscale with 0 Replicas)",
+        "Notes": "",
+        "IconImage": "SQLDatabase",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Sql Database (Hyperscale with 1 Replicas)",
+        "Notes": "",
+        "IconImage": "SQLDatabase",
+        "SLA": 99.950
+      },
+      {
+        "Name": "Sql Database (Hyperscale with 2+ Replicas)",
+        "Notes": "",
+        "IconImage": "SQLDatabase",
+        "SLA": 99.990
+      },
+      {
+        "Name": "SQL Database (General/Std/Basic)",
+        "Notes": "",
+        "IconImage": "SQLDatabase",
+        "SLA": 99.990
+      },
+      {
+        "Name": "SQL Database (Business Crit/Premium non-AZs)",
+        "Notes": "",
+        "IconImage": "SQLDatabase",
+        "SLA": 99.990
+      },
+      {
+        "Name": "SQL Database (Business Crit/Premium across AZs)",
+        "Notes": "",
+        "IconImage": "SQLDatabase",
+        "SLA": 99.995
+      },
+      {
+        "Name": "Cosmos DB(Single Writable Replica)",
+        "Notes": "",
+        "IconImage": "CosmosDB",
+        "SLA": 99.990
+      },
+      {
+        "Name": "Cosmos DB(Multiple Writable Replicas)",
+        "Notes": "",
+        "IconImage": "CosmosDB",
+        "SLA": 99.999
+      },
+      {
+        "Name": "Cache",
+        "Notes": "",
+        "IconImage": "Cache",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Redis Cache",
+        "Notes": "SLA requires Standard tier",
+        "IconImage": "Redis",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Compute",
+    "Services": [
+      {
+        "Name": "VM (Singleton w/ Premium Disks)",
+        "Notes": "",
+        "IconImage": "VMs",
+        "SLA": 99.900
+      },
+      {
+        "Name": "VMs (Availability Sets)",
+        "Notes": "2 or more VM instances deployed in the same Availability Set",
+        "IconImage": "VMs",
+        "SLA": 99.950
+      },
+      {
+        "Name": "VMs (Availability Zones)",
+        "Notes": "2 or more VM instances deployed across multiple Availability Zones",
+        "IconImage": "VMs",
+        "SLA": 99.990
+      }
+    ]
+  },
+  {
+    "CategoryName": "Networking",
+    "Services": [
+      {
+        "Name": "App Gateway",
+        "Notes": "",
+        "IconImage": "AFD",
+        "SLA": 99.950
+      },
+      {
+        "Name": "Standard Load Balancer",
+        "Notes": "",
+        "IconImage": "LB",
+        "SLA": 99.990
+      },
+      {
+        "Name": "Azure Front Door",
+        "Notes": "",
+        "IconImage": "AFD",
+        "SLA": 99.990
+      },
+      {
+        "Name": "Azure Traffic Manager",
+        "Notes": "",
+        "IconImage": "ATM",
+        "SLA": 99.990
+      },
+      {
+        "Name": "Virtual Network Gateway",
+        "Notes": "guarantees Virtual Network Gateway uptime availability",
+        "IconImage": "VNG",
+        "SLA": 99.950
+      },
+      {
+        "Name": "ExpressRoute Dedicated Circuit",
+        "Notes": "SLA guarantees ExpressRoute virtual circuit connectivity to Azure Virtual Networks within Azure datacenter regions.",
+        "IconImage": "ExpressRoute",
+        "SLA": 99.950
+      },
+      {
+        "Name": "AzureDNS",
+        "Notes": "",
+        "IconImage": "DNS",
+        "SLA": 100.00
+      }
+    ]
+  },
+  {
+    "CategoryName": "Storage",
+    "Services": [
+      {
+        "Name": "GRS (Cool Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "GRS (Hot Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "LRS (Cool Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "LRS (Hot Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "RAGRS (Read Cool Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.990
+      },
+      {
+        "Name": "RAGRS (Read Hot Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.990
+      },
+      {
+        "Name": "RAGRS (Write Cool Blobs)",
+        "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "RAGRS (Write Hot Blobs)",
+        "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "ZRS (Cool Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      },
+      {
+        "Name": "ZRS (Hot Blobs)",
+        "Notes": "",
+        "IconImage": "Storage",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Web",
+    "Services": [
+      {
+        "Name": "App Service Environment",
+        "Notes": "",
+        "IconImage": "ASE",
+        "SLA": 99.950
+      },
+      {
+        "Name": "App Service Environment (ILB Zonal)",
+        "Notes": "",
+        "IconImage": "ASE-ILB",
+        "SLA": 99.950
+      },
+      {
+        "Name": "App Service Plan",
+        "Notes": "",
+        "IconImage": "AppServicePlan",
+        "SLA": 99.950
+      }
+    ]
+  },
+  {
+    "CategoryName": "Identity AD",
+    "Services": [
+      {
+        "Name": "Active Directory",
+        "Notes": "Azure AD Basic or Premium required for SLA",
+        "IconImage": "AD",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Multi-factor Authentication",
+        "Notes": "",
+        "IconImage": "AD",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Security",
+    "Services": [
+      {
+        "Name": "Key Vault",
+        "Notes": "",
+        "IconImage": "KV",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Integration",
+    "Services": [
+      {
+        "Name": "Service Bus Relay",
+        "Notes": "",
+        "IconImage": "ServiceBus",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Service Bus Queues and Topics",
+        "Notes": "",
+        "IconImage": "ServiceBus",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Service Bus Notification Hubs",
+        "Notes": "",
+        "IconImage": "ServiceBus",
+        "SLA": 99.900
+      },
+      {
+        "Name": "API Management",
+        "Notes": "API Management Standard Tier required for SLA",
+        "IconImage": "AFD",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Internet of Things",
+    "Services": [
+      {
+        "Name": "IoT Hub",
+        "Notes": "",
+        "IconImage": "IOT",
+        "SLA": 99.900
+      },
+      {
+        "Name": "IoT Hub DPS",
+        "Notes": "",
+        "IconImage": "IOT",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Media",
+    "Services": [
+      {
+        "Name": "CDN",
+        "Notes": "",
+        "IconImage": "CDN",
+        "SLA": 99.900
+      },
+      {
+        "Name": "Media Services",
+        "Notes": "",
+        "IconImage": "MediaServices",
+        "SLA": 99.900
+      }
+    ]
+  }
+]

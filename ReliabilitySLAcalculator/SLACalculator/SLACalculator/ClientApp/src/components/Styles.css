@@ -1,0 +1,55 @@
+﻿.Title {
+    color: #F8F9FA;
+    font-family: SegoeUI, Segoe UI;
+}
+
+.categorymenu-item {
+    background-color: #505055;
+    color: #FFF;
+    text-align: left;
+    border: 0;
+    font-size: 14px;
+    font-family: SegoeUI, Segoe UI;
+    cursor: pointer;
+}
+
+.selectedcategorymenu-item {
+    background-color: #0078D4;
+    color: #FFF;
+}
+
+.layoutParentDiv {
+    float: left;
+    width: 100%
+}
+
+.layoutDivLeft {
+    float: left;
+    width: 20%
+}
+
+.layoutDivRight {
+    float: right;
+    width: 80%
+}
+
+.servicesTable {
+}
+
+.serviceLayout {
+    margin-left: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    float: left;
+    width: 30%;
+    height: 100px;
+    border: 1px solid black;
+    font: normal bold 16px Segoe UI;
+    color: #4C4C51;
+    cursor: pointer;
+}
+
+html {
+    font-size: 14px;
+}
+
