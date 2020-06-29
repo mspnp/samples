@@ -6,8 +6,8 @@ namespace SLACalculator.Models
  {
   public string Name { get; set; }
   public string Notes { get; set; }
-  public string Category { get; set; }
-  public string IconImage { get; set; }
+  public string CategoryName { get; set; }
+  public string ImageFile { get; set; }
   public double SLA { get; set; }
  }
 }

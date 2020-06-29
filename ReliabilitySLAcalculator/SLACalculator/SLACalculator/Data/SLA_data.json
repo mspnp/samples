@@ -3,15 +3,17 @@
     "CategoryName": "Analytics",
     "Services": [
       {
+        "CategoryName": "Analytics",
         "Name": "HDInsight",
         "Notes": "",
-        "IconImage": "HDInsight",
+        "ImageFile": "hdinsight.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Analytics",
         "Name": "Event Hubs",
         "Notes": "SLA requires Basic or Standard tiers",
-        "IconImage": "EventHubs",
+        "ImageFile": "eventhubs.png",
         "SLA": 99.900
       }
     ]
@@ -20,21 +22,24 @@
     "CategoryName": "Management and Governance",
     "Services": [
       {
+        "CategoryName": "Management and Governance",
         "Name": "Automation",
         "Notes": "SLA guarantees that Automation jobs will start within 30 minutes of planned start time",
-        "IconImage": "Automation",
+        "ImageFile": "automation.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Management and Governance",
         "Name": "Scheduler",
         "Notes": "SLA guarantees that Scheduler jobs will start within 30 minutes of planned start time",
-        "IconImage": "Scheduler",
+        "ImageFile": "scheduler.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Management and Governance",
         "Name": "Site Recovery",
         "Notes": "For failover to Azure, a four-hour RTO for unencrypted VM instances and a six-hour RTO for encrypted VM instances is guaranteed",
-        "IconImage": "SiteRecovery",
+        "ImageFile": "siterecovery.png",
         "SLA": 99.900
       }
     ]
@@ -43,63 +48,73 @@
     "CategoryName": "Databases",
     "Services": [
       {
-        "Name": "Sql Database (Hyperscale with 0 Replicas)",
+        "CategoryName": "Databases",
+        "Name": "SQL Database (Hyperscale with 0 Replicas)",
         "Notes": "",
-        "IconImage": "SQLDatabase",
+        "ImageFile": "sql.png",
         "SLA": 99.900
       },
       {
-        "Name": "Sql Database (Hyperscale with 1 Replicas)",
+        "CategoryName": "Databases",
+        "Name": "SQL Database (Hyperscale with 1 Replicas)",
         "Notes": "",
-        "IconImage": "SQLDatabase",
+        "ImageFile": "sql.png",
         "SLA": 99.950
       },
       {
-        "Name": "Sql Database (Hyperscale with 2+ Replicas)",
+        "CategoryName": "Databases",
+        "Name": "SQL Database (Hyperscale with 2+ Replicas)",
         "Notes": "",
-        "IconImage": "SQLDatabase",
+        "ImageFile": "sql.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Databases",
         "Name": "SQL Database (General/Std/Basic)",
         "Notes": "",
-        "IconImage": "SQLDatabase",
+        "ImageFile": "sql.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Databases",
         "Name": "SQL Database (Business Crit/Premium non-AZs)",
         "Notes": "",
-        "IconImage": "SQLDatabase",
+        "ImageFile": "sql.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Databases",
         "Name": "SQL Database (Business Crit/Premium across AZs)",
         "Notes": "",
-        "IconImage": "SQLDatabase",
+        "ImageFile": "sql.png",
         "SLA": 99.995
       },
       {
+        "CategoryName": "Databases",
         "Name": "Cosmos DB(Single Writable Replica)",
         "Notes": "",
-        "IconImage": "CosmosDB",
+        "ImageFile": "cosmos.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Databases",
         "Name": "Cosmos DB(Multiple Writable Replicas)",
         "Notes": "",
-        "IconImage": "CosmosDB",
+        "ImageFile": "cosmos.png",
         "SLA": 99.999
       },
       {
+        "CategoryName": "Databases",
         "Name": "Cache",
         "Notes": "",
-        "IconImage": "Cache",
+        "ImageFile": "redis.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Databases",
         "Name": "Redis Cache",
         "Notes": "SLA requires Standard tier",
-        "IconImage": "Redis",
+        "ImageFile": "redis.png",
         "SLA": 99.900
       }
     ]
@@ -108,21 +123,24 @@
     "CategoryName": "Compute",
     "Services": [
       {
+        "CategoryName": "Compute",
         "Name": "VM (Singleton w/ Premium Disks)",
         "Notes": "",
-        "IconImage": "VMs",
+        "ImageFile": "vms.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Compute",
         "Name": "VMs (Availability Sets)",
         "Notes": "2 or more VM instances deployed in the same Availability Set",
-        "IconImage": "VMs",
+        "ImageFile": "vms.png",
         "SLA": 99.950
       },
       {
+        "CategoryName": "Compute",
         "Name": "VMs (Availability Zones)",
         "Notes": "2 or more VM instances deployed across multiple Availability Zones",
-        "IconImage": "VMs",
+        "ImageFile": "vms.png",
         "SLA": 99.990
       }
     ]
@@ -131,45 +149,52 @@
     "CategoryName": "Networking",
     "Services": [
       {
+        "CategoryName": "Networking",
         "Name": "App Gateway",
         "Notes": "",
-        "IconImage": "AFD",
+        "ImageFile": "appgateway.png",
         "SLA": 99.950
       },
       {
+        "CategoryName": "Networking",
         "Name": "Standard Load Balancer",
         "Notes": "",
-        "IconImage": "LB",
+        "ImageFile": "slb.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Networking",
         "Name": "Azure Front Door",
         "Notes": "",
-        "IconImage": "AFD",
+        "ImageFile": "afd.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Networking",
         "Name": "Azure Traffic Manager",
         "Notes": "",
-        "IconImage": "ATM",
+        "ImageFile": "atm.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Networking",
         "Name": "Virtual Network Gateway",
         "Notes": "guarantees Virtual Network Gateway uptime availability",
-        "IconImage": "VNG",
+        "ImageFile": "vpngateway.png",
         "SLA": 99.950
       },
       {
+        "CategoryName": "Networking",
         "Name": "ExpressRoute Dedicated Circuit",
         "Notes": "SLA guarantees ExpressRoute virtual circuit connectivity to Azure Virtual Networks within Azure datacenter regions.",
-        "IconImage": "ExpressRoute",
+        "ImageFile": "expressroute.png",
         "SLA": 99.950
       },
       {
+        "CategoryName": "Networking",
         "Name": "AzureDNS",
         "Notes": "",
-        "IconImage": "DNS",
+        "ImageFile": "dns.png",
         "SLA": 100.00
       }
     ]
@@ -178,63 +203,73 @@
     "CategoryName": "Storage",
     "Services": [
       {
+        "CategoryName": "Storage",
         "Name": "GRS (Cool Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "GRS (Hot Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "LRS (Cool Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "LRS (Hot Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "RAGRS (Read Cool Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Storage",
         "Name": "RAGRS (Read Hot Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.990
       },
       {
+        "CategoryName": "Storage",
         "Name": "RAGRS (Write Cool Blobs)",
         "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "RAGRS (Write Hot Blobs)",
         "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "ZRS (Cool Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Storage",
         "Name": "ZRS (Hot Blobs)",
         "Notes": "",
-        "IconImage": "Storage",
+        "ImageFile": "storage.png",
         "SLA": 99.900
       }
     ]
@@ -243,21 +278,24 @@
     "CategoryName": "Web",
     "Services": [
       {
+        "CategoryName": "Web",
         "Name": "App Service Environment",
         "Notes": "",
-        "IconImage": "ASE",
+        "ImageFile": "ase.png",
         "SLA": 99.950
       },
       {
+        "CategoryName": "Web",
         "Name": "App Service Environment (ILB Zonal)",
         "Notes": "",
-        "IconImage": "ASE-ILB",
+        "ImageFile": "ilb.png",
         "SLA": 99.950
       },
       {
+        "CategoryName": "Web",
         "Name": "App Service Plan",
         "Notes": "",
-        "IconImage": "AppServicePlan",
+        "ImageFile": "appsvc.png",
         "SLA": 99.950
       }
     ]
@@ -266,15 +304,17 @@
     "CategoryName": "Identity AD",
     "Services": [
       {
+        "CategoryName": "Identity AD",
         "Name": "Active Directory",
         "Notes": "Azure AD Basic or Premium required for SLA",
-        "IconImage": "AD",
+        "ImageFile": "ad.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Identity AD",
         "Name": "Multi-factor Authentication",
         "Notes": "",
-        "IconImage": "AD",
+        "ImageFile": "ad.png",
         "SLA": 99.900
       }
     ]
@@ -283,9 +323,10 @@
     "CategoryName": "Security",
     "Services": [
       {
+        "CategoryName": "Security",
         "Name": "Key Vault",
         "Notes": "",
-        "IconImage": "KV",
+        "ImageFile": "keyvault.png",
         "SLA": 99.900
       }
     ]
@@ -294,27 +335,31 @@
     "CategoryName": "Integration",
     "Services": [
       {
+        "CategoryName": "Integration",
         "Name": "Service Bus Relay",
         "Notes": "",
-        "IconImage": "ServiceBus",
+        "ImageFile": "servicebus.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Integration",
         "Name": "Service Bus Queues and Topics",
         "Notes": "",
-        "IconImage": "ServiceBus",
+        "ImageFile": "servicebus.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Integration",
         "Name": "Service Bus Notification Hubs",
         "Notes": "",
-        "IconImage": "ServiceBus",
+        "ImageFile": "servicebus.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Integration",
         "Name": "API Management",
         "Notes": "API Management Standard Tier required for SLA",
-        "IconImage": "AFD",
+        "ImageFile": "apim.png",
         "SLA": 99.900
       }
     ]
@@ -323,15 +368,17 @@
     "CategoryName": "Internet of Things",
     "Services": [
       {
+        "CategoryName": "Internet of Things",
         "Name": "IoT Hub",
         "Notes": "",
-        "IconImage": "IOT",
+        "ImageFile": "iothub.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Internet of Things",
         "Name": "IoT Hub DPS",
         "Notes": "",
-        "IconImage": "IOT",
+        "ImageFile": "iothub.png",
         "SLA": 99.900
       }
     ]
@@ -340,15 +387,17 @@
     "CategoryName": "Media",
     "Services": [
       {
+        "CategoryName": "Media",
         "Name": "CDN",
         "Notes": "",
-        "IconImage": "CDN",
+        "ImageFile": "cdn.png",
         "SLA": 99.900
       },
       {
+        "CategoryName": "Media",
         "Name": "Media Services",
         "Notes": "",
-        "IconImage": "MediaServices",
+        "ImageFile": "mediasvc.png",
         "SLA": 99.900
       }
     ]

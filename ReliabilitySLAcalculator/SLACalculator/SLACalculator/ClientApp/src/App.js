@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router';
-import { Layout } from './components/Layout';
+import { MainPanel } from './components/MainPanel';
 import { Home } from './components/Home';
 import { Navigation } from './components/Navigation';
 import { Services } from './components/Services';
@@ -13,11 +13,11 @@ export default class App extends Component {
 
   render () {
     return (
-      <Layout>
+        <MainPanel>
         <Route exact path='/' component={Home} />
             <Route path='/navigation' component={Navigation} />
             <Route path='/services' component={Services} />
-      </Layout>
+        </MainPanel>
     );
   }
 }
