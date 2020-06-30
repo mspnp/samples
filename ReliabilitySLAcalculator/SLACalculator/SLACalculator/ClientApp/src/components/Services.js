@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { DelayRender } from './DelayRender';
 import './Styles.css';
 
 export class Services extends Component {
@@ -21,13 +22,15 @@ export class Services extends Component {
             let contents = Services.renderServicesTable(this.props.dataSource, this.props.onSelectService);
 
             return (
-                <div>
-                    {contents}
-                </div>
+                <DelayRender waitBeforeShow={1500}>
+                    <div>
+                        {contents}
+                    </div>
+                </DelayRender>
             );
         }
         else {
-            return (<div><p className="no-results">Sorry, there are no products that match your search</p></div>);
+            return (<DelayRender waitBeforeShow={1500}><div><p className="no-results">Sorry, there are no products that match your search</p></div></DelayRender>);
         }
     }
 }

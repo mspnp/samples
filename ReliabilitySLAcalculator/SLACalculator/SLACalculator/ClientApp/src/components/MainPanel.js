@@ -85,8 +85,7 @@ export class MainPanel extends Component {
     }
 
     render() {
-        let contents = this.state.loading ? <p><em>Loading...</em></p> :
-            this.renderMainPanel();
+        let contents = this.renderMainPanel();
 
         return (
             <div>

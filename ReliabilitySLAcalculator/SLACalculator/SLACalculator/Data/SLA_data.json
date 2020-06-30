@@ -307,14 +307,14 @@
         "CategoryName": "Identity AD",
         "Name": "Active Directory",
         "Notes": "Azure AD Basic or Premium required for SLA",
-        "ImageFile": "ad.png",
+        "ImageFile": "activedirectory.png",
         "SLA": 99.900
       },
       {
         "CategoryName": "Identity AD",
         "Name": "Multi-factor Authentication",
         "Notes": "",
-        "ImageFile": "ad.png",
+        "ImageFile": "activedirectory.png",
         "SLA": 99.900
       }
     ]
