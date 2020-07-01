@@ -213,35 +213,44 @@ div {
 
 .estimation-collapse-all {
     float: right;
+    display: table-cell;
     width: 40px;
     height: 40px;
     background: url('/images/collapseall.png') no-repeat;
+    cursor: pointer;
 }
 
 .estimation-expand-all {
     float: right;
+    display: table-cell;
     width: 40px;
     height: 40px;
     background: url('/images/expandall.png') no-repeat;
+    cursor: pointer;
 }
 
 .estimation-delete-all {
     float: right;
+    display: table-cell;
     width: 40px;
     height: 40px;
-    background: url('/images/deleteall.png') no-repeat;
+    background: url('/images/delallsla.png') no-repeat;
+    cursor: pointer;
 }
 
 .estimation-collapse-all:hover {
     background: url('/images/collapseall-over.png') no-repeat;
+    cursor: pointer;
 }
 
 .estimation-expand-all:hover {
     background: url('/images/expandall-over.png') no-repeat;
+    cursor: pointer;
 }
 
 .estimation-delete-all:hover {
-    background: url('/images/deleteall-over.png') no-repeat;
+    background: url('/images/deleteallsla-over.png') no-repeat;
+    cursor: pointer;
 }
 
 html {

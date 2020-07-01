@@ -80,6 +80,7 @@ export class MainPanel extends Component {
     }
 
     deleteAll() {
+        console.log("clicked delete");
         this.setState({ slaEstimation: [] });
     }
 
