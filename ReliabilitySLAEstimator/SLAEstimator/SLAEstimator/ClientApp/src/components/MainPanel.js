@@ -65,7 +65,7 @@ export class MainPanel extends Component {
             total = total * services[i].sla / 100;
         }
 
-        return total * 100;
+        return Math.round(((total * 100)  + Number.EPSILON) * 1000) / 1000;
     }
 
     calculateDownTime(sla) {
@@ -101,7 +101,14 @@ export class MainPanel extends Component {
         const index = slaEstimation.indexOf(slaEstimationEntry);
 
         slaEstimation.splice(index, 1);
-        this.setState({ slaEstimation: slaEstimation });
+        const slaTotal = this.calculateSla(slaEstimation);
+        const downTime = this.calculateDownTime(slaTotal)
+
+        this.setState({
+            slaEstimation: slaEstimation,
+            slaTotal: slaTotal,
+            downTime: downTime
+        });
     }
 
     deleteAll() {

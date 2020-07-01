@@ -29,8 +29,8 @@ export class SLAestimation extends Component {
                     </div>
                 )}
                 <div className="estimation-totals-panel">
-                    <div className="estimation-sla"><p>Composite SLA: {total} %</p></div>
-                    <div className="estimation-sla"><p>Down time: {downtime} </p></div>
+                    <div className="estimation-total-label"><p>Composite SLA: {total} %</p></div>
+                    <div className="estimation-total-label"><p>Projected Max Minutes of Downtime/Month: {downtime} </p></div>
                 </div>
             </div>
         );
