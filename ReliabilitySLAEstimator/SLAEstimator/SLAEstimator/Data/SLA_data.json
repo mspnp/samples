@@ -207,70 +207,70 @@
         "Name": "GRS (Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "GRS (Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "LRS (Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "LRS (Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Read Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.990
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Read Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.990
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Write Cool Blobs)",
         "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Write Hot Blobs)",
         "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "ZRS (Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       },
       {
         "CategoryName": "Storage",
         "Name": "ZRS (Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.900
+        "SLA": 99.999
       }
     ]
   },

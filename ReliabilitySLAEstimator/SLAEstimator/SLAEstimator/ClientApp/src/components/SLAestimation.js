@@ -3,7 +3,7 @@ import './Styles.css';
 
 export class SLAestimation extends Component {
 
-    static renderSLAtable(slaEstimations, deleteEstimationEntry, deleteAllEstimations) {
+    static renderSLAtable(slaEstimations, deleteEstimationEntry, deleteAllEstimations, total, downtime) {
         return (
             <div>
                 <div className="estimation-toolbar">
@@ -28,13 +28,17 @@ export class SLAestimation extends Component {
                         </div>
                     </div>
                 )}
+                <div className="estimation-totals-panel">
+                    <div className="estimation-sla"><p>Composite SLA: {total} %</p></div>
+                    <div className="estimation-sla"><p>Down time: {downtime} </p></div>
+                </div>
             </div>
         );
     }
 
     render() {
         if (this.props.dataSource.length > 0) {
-            let contents = SLAestimation.renderSLAtable(this.props.dataSource, this.props.onDeleteEstimation, this.props.onDeleteAll);
+            let contents = SLAestimation.renderSLAtable(this.props.dataSource, this.props.onDeleteEstimation, this.props.onDeleteAll, this.props.slaTotal, this.props.downTime);
 
             return (
                 <div>

@@ -137,7 +137,7 @@
 .estimation-head {
     width: 100%;
     height: 35px;
-    border-bottom: 2px solid #323237
+    border-bottom: 1px solid #323237
 }
 
 
@@ -251,6 +251,11 @@ div {
 .estimation-delete-all:hover {
     background: url('/images/deleteallsla-over.png') no-repeat;
     cursor: pointer;
+}
+
+.estimation-total-panel {
+    border-top: 1px solid #323237;
+    height: 100px;
 }
 
 html {

@@ -9,7 +9,7 @@ export class MainPanel extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { serviceCategories: [], selectedServices: [], selectedCategory: "", slaEstimation: [], filter: false, loading: true };
+        this.state = { serviceCategories: [], selectedServices: [], selectedCategory: "", slaEstimation: [], slaTotal: 0, filter: false, loading: true };
         this.selectCategory = this.selectCategory.bind(this);
         this.selectService = this.selectService.bind(this);
         this.searchTextEnter = this.searchTextEnter.bind(this);
@@ -54,6 +54,26 @@ export class MainPanel extends Component {
         });
     }
 
+    calculateSla(slaEstimation) {
+        if (slaEstimation.length == 1)
+            return slaEstimation[0].key.sla;
+
+        let total = 1;
+        let services = slaEstimation.map(x => x.key);
+
+        for (var i = 0; i < services.length; i++) {
+            total = total * services[i].sla / 100;
+        }
+
+        return total * 100;
+    }
+
+    calculateDownTime(sla) {
+        if (sla == 0)
+            return 0;
+
+        return Math.round((44640 * (1 - (sla / 100)) + Number.EPSILON) * 100) / 100;
+    }
 
     selectService(selectedService) {
 
@@ -62,9 +82,14 @@ export class MainPanel extends Component {
 
         slaEstimation.push({ id: this.state.slaEstimation.length, key: service });
 
+        const slaTotal = this.calculateSla(slaEstimation);
+        const downTime = this.calculateDownTime(slaTotal)
+
         this.setState({
             selectedService: selectedService,
-            slaEstimation: slaEstimation
+            slaEstimation: slaEstimation,
+            slaTotal: slaTotal,
+            downTime: downTime
         });
     }
 
@@ -109,7 +134,8 @@ export class MainPanel extends Component {
                     </div>
                 </div>
                 <div className="sla-estimation-panel">
-                    <SLAestimation dataSource={this.state.slaEstimation} onDeleteEstimation={this.deleteEstimationEntry} onDeleteAll={this.deleteAll} />
+                    <SLAestimation dataSource={this.state.slaEstimation} onDeleteEstimation={this.deleteEstimationEntry}
+                        onDeleteAll={this.deleteAll} slaTotal={this.state.slaTotal} downTime={this.state.downTime} />
                 </div>
             </div>
         );
