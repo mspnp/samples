@@ -9,13 +9,16 @@ export class MainPanel extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { serviceCategories: [], selectedServices: [], selectedCategory: "", slaEstimation: [], slaTotal: 0, filter: false, loading: true };
+        this.state = { serviceCategories: [], selectedServices: [], selectedCategory: "", slaEstimation: [], slaTotal: 0, downTime: 0, filter: false, loading: true };
         this.selectCategory = this.selectCategory.bind(this);
         this.selectService = this.selectService.bind(this);
         this.searchTextEnter = this.searchTextEnter.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
         this.deleteEstimationEntry = this.deleteEstimationEntry.bind(this);
         this.deleteAll = this.deleteAll.bind(this);
+        this.expandAll = this.expandAll.bind(this);
+        this.collapseAll = this.collapseAll.bind(this);
+        this.expandCollapseEstimation = this.expandCollapseEstimation.bind(this);
     }
 
     selectCategory(selectedCategory) {
@@ -112,8 +115,28 @@ export class MainPanel extends Component {
     }
 
     deleteAll() {
-        console.log("clicked delete");
-        this.setState({ slaEstimation: [] });
+        this.setState({
+            slaEstimation: [],
+            slaTotal: 0,
+            downTime: 0
+        });
+    }
+
+    expandAll(evt) {
+        var divPanel = evt.currentTarget.parentElement.parentElement.children[1];
+        divPanel.className = "div-show";
+    }
+
+    collapseAll(evt) {
+        var divPanel = evt.currentTarget.parentElement.parentElement.children[1];
+        divPanel.className = "div-hide";
+    }
+
+    expandCollapseEstimation(evt) {
+        var updownimage = evt.currentTarget;
+        var divPanel = evt.currentTarget.parentElement.parentElement.parentElement.children[2];
+        divPanel.className = divPanel.className === "div-hide" ? "div-show" : "div-hide";
+        updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
     }
 
     componentDidMount() {
@@ -142,7 +165,9 @@ export class MainPanel extends Component {
                 </div>
                 <div className="sla-estimation-panel">
                     <SLAestimation dataSource={this.state.slaEstimation} onDeleteEstimation={this.deleteEstimationEntry}
-                        onDeleteAll={this.deleteAll} slaTotal={this.state.slaTotal} downTime={this.state.downTime} />
+                        onDeleteAll={this.deleteAll} onExpandAll={this.expandAll} onCollapseAll={this.collapseAll}
+                        onExpandCollapseEstimation={this.expandCollapseEstimation} slaTotal={this.state.slaTotal}
+                        downTime={this.state.downTime} />
                 </div>
             </div>
         );

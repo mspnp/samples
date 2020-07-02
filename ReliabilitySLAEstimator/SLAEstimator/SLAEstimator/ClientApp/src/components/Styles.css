@@ -65,7 +65,12 @@
 }
 
 .div-hide {
+    height: 0px;
     visibility: hidden;
+}
+
+.div-show {
+    visibility: visible;
 }
 
 .no-results {
@@ -211,6 +216,22 @@ div {
     
 }
 
+.down-arrow {
+    width: 17px;
+    height: 17px;
+    border: 0;
+    background: url('/images/downarrow.png') no-repeat;
+    cursor: pointer;
+}
+
+.up-arrow {
+    width: 17px;
+    height: 17px;
+    border: 0;
+    background: url('/images/uparrow.png') no-repeat;
+    cursor: pointer;
+}
+
 .estimation-collapse-all {
     float: right;
     display: table-cell;
@@ -253,7 +274,7 @@ div {
     cursor: pointer;
 }
 
-.estimation-total-panel {
+.estimation-totals-panel {
     border-top: 2px solid #323237;
     height: 100px;
 }
@@ -264,6 +285,12 @@ div {
     font-size: 20px;
     font-weight: 400;
     text-align: right;
+}
+
+.estimation-notes {
+    text-align: left;
+    margin-left: 10px;
+    padding: 10px;
 }
 
 html {
