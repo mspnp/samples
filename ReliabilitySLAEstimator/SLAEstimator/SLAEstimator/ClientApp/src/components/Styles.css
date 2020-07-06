@@ -112,7 +112,7 @@
     border: 1px solid #969696;
     outline: thin;
     height: 36px;
-    margin: 0 0 24px 0;
+    margin: 0 0 8px 0;
     padding: 6px;
     width: 100%;
 }
@@ -291,6 +291,71 @@ div {
     text-align: left;
     margin-left: 10px;
     padding: 10px;
+}
+
+.tier-option-div {
+    font-size: 14px;
+    font-family: SegoeUI, Segoe UI;
+    float: left;
+    width: 27%;
+    margin: 0 0 8px 0;
+    color:red;
+}
+
+.tier-option {
+    width: 200px;
+}
+
+.tier-label {
+    font-size: 14px;
+    font-family: SegoeUI, Segoe UI;
+    float: left;
+    width: 3%;
+    color: #323237;
+    font-weight: bold;
+}
+
+.regions-label {
+    font-size: 14px;
+    font-family: SegoeUI, Segoe UI;
+    float: left;
+    width: 20%;
+    color: #323237;
+    font-weight: bold;
+}
+
+.regions-option-div {
+    font-size: 14px;
+    font-family: SegoeUI, Segoe UI;
+    float: left;
+    width: 50%;
+    color: #323237;
+    font-weight: bold;
+}
+
+.regions-option {
+    width: 80px;
+}
+
+.addservice-alert-hide {
+    height: 0px;
+    visibility: hidden;
+}
+
+.addservice-alert-visible {
+    height: 70px;
+    width: 160px;
+    visibility: visible;
+    font-size: 14px;
+    font-family: SegoeUI, Segoe UI;
+    background-color: #FFF;
+    color: #323237;
+    border: 1px solid #323237;
+    z-index: 22;
+    position: relative;
+    top: 100px;
+    padding-left: 10px;
+    margin: 0 auto;
 }
 
 html {
