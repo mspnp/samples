@@ -1,6 +1,6 @@
 using System;
 
-namespace SLACalculator.Models
+namespace SLAEstimator.Models
 {
  public class ServiceCategory
  {

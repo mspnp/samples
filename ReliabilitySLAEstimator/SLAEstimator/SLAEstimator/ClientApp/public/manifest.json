@@ -1,6 +1,6 @@
 {
-  "short_name": "SLACalculator",
-  "name": "SLACalculator",
+  "short_name": "SLAEstimator",
+  "name": "SLAEstimator",
   "icons": [
     {
       "src": "favicon.ico",

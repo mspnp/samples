@@ -146,9 +146,11 @@
 }
 
 .estimation-head {
-    width: 100%;
     height: 35px;
     border-bottom: 1px solid #323237;
+    margin-left: 15px;
+    margin-right: 15px;
+    width: 95%;
 }
 
 .estimation-layout {
@@ -160,6 +162,16 @@
     float: left;
     width: 2%;
     cursor: pointer;
+}
+
+.tier-head-title {
+    float: left;
+    font-family: SegoeUI, Segoe UI;
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    width: 29%;
+    padding: 2px;
 }
 
 .estimation-head-title {
@@ -188,7 +200,7 @@
     width: 2%;
     float: left;
     vertical-align: middle;
-    padding: 7px;
+    margin-left: 15px;
 }
 
 .estimation-service-name {
@@ -199,7 +211,7 @@
     color: #323237;
     line-height: 1.5;
     padding: 0 21px;
-    margin-left: 2px;
+    margin-left: 1px;
     vertical-align: middle;
 }
 
@@ -209,7 +221,7 @@
     font-weight: 600;
     color: #323237;
     line-height: 1.5;
-    padding: 0 5px;
+    margin-right: 40px;
     vertical-align: middle;
 }
 
@@ -343,6 +355,14 @@ div {
     top: 100px;
     padding-left: 10px;
     margin: 0 auto;
+}
+
+.tier-hide {
+    display: none;
+}
+
+.tier-show {
+    display: block;
 }
 
 .tiers-panel-hide {

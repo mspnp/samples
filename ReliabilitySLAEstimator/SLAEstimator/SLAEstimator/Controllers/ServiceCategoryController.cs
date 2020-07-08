@@ -6,9 +6,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SLACalculator.Models;
+using SLAEstimator.Models;
 
-namespace SLACalculator.Controllers
+namespace SLAEstimator.Controllers
 {
  [ApiController]
  [Route("[controller]")]

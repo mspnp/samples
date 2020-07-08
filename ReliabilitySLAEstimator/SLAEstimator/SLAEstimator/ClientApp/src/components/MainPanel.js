@@ -174,8 +174,8 @@ export class MainPanel extends Component {
         var totalsPanel = evt.currentTarget.parentElement
             .parentElement.parentElement.children[2];
 
-        divPanel.className = divPanel.className === "div-hide" ? "div-show" : "div-hide";
-        totalsPanel.className = totalsPanel.className === "div-hide" ? "div-show" : "div-hide";
+        divPanel.className = divPanel.className === "tier-hide" ? "tier-show" : "tier-hide";
+        totalsPanel.className = totalsPanel.className === "tier-hide" ? "tier-show" : "tier-hide";
         updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
 
     }
