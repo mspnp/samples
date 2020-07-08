@@ -13,7 +13,7 @@ export class SLAestimationTier extends Component {
         return (
             <div>
                 <div className="tier-head ">
-                    <div className="estimation-head-ec-arrow"><img className="down-arrow" onClick={ev => expandCollapseEstimationTier(ev)} /></div>
+                    <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => expandCollapseEstimationTier(ev)} /></div>
                     <div className="tier-head-title">{tierName} Tier</div>
                     <div className="estimation-head-delete" id={tierName} onClick={ev => deleteEstimationTier(ev)}><img src="images/delete.png" title="Delete the Tier" /></div>
                 </div>
@@ -22,7 +22,7 @@ export class SLAestimationTier extends Component {
                     {slaEstimations.map(sla =>
                         <div id={sla.id}>
                             <div className="estimation-head">
-                                <div className="estimation-head-ec-arrow"><img className="down-arrow" onClick={ev => expandCollapseEstimationEntry(ev)} /></div>
+                                <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => expandCollapseEstimationEntry(ev)} /></div>
                                 <div className="estimation-head-title">{sla.service.categoryName} Category</div>
                                 <div className="estimation-head-delete" onClick={ev => deleteEstimationEntry(ev)}><img src="images/delete.png" title="Delete the service" /></div>
                             </div>
