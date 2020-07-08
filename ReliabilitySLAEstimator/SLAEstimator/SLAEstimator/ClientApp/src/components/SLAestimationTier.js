@@ -41,8 +41,8 @@ export class SLAestimationTier extends Component {
                     <br/>
                     <div className="estimation-totals-panel">
                     <br />
-                        <div className="estimation-total-label"><p>{tierName} Tier Composite SLA: {tierSla} %</p></div>
-                    <div className="estimation-total-label"><p>Projected Max Minutes of Downtime/Month: {downTime} </p></div>
+                        <div className="tier-estimation-total-label"><p>{tierName} Tier Composite SLA: {tierSla} %</p></div>
+                    <div className="tier-estimation-total-label"><p>Projected Max Minutes of Downtime/Month: {downTime} </p></div>
                     </div>
                 </div>
             </div>

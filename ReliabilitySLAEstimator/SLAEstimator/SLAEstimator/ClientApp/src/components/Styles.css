@@ -300,6 +300,14 @@ div {
     font-family: SegoeUI, Segoe UI;
     color: #2E2E33;
     font-size: 20px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.tier-estimation-total-label {
+    font-family: SegoeUI, Segoe UI;
+    color: #2E2E33;
+    font-size: 17px;
     font-weight: 400;
     text-align: right;
 }
