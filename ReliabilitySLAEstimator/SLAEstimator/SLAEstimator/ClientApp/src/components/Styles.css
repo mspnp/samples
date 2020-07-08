@@ -139,12 +139,18 @@
     outline: none;
 }
 
+.tier-head {
+    width: 100%;
+    height: 35px;
+    border-bottom: 1px solid #323237;
+    background-color: #0078D4;
+}
+
 .estimation-head {
     width: 100%;
     height: 35px;
-    border-bottom: 1px solid #323237
+    border-bottom: 1px solid #323237;
 }
-
 
 .estimation-layout {
     width: 100%;
@@ -189,18 +195,18 @@
 .estimation-service-name {
     width: 70%;
     float: left;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 600;
     color: #323237;
     line-height: 1.5;
-    padding: 0 5px;
+    padding: 0 21px;
     margin-left: 2px;
     vertical-align: middle;
 }
 
 .estimation-sla {
     float: right;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 600;
     color: #323237;
     line-height: 1.5;
@@ -297,7 +303,7 @@ div {
     font-size: 14px;
     font-family: SegoeUI, Segoe UI;
     float: left;
-    width: 27%;
+    width: 97%;
     margin: 0 0 8px 0;
     color:red;
 }
@@ -311,24 +317,6 @@ div {
     font-family: SegoeUI, Segoe UI;
     float: left;
     width: 3%;
-    color: #323237;
-    font-weight: bold;
-}
-
-.regions-label {
-    font-size: 14px;
-    font-family: SegoeUI, Segoe UI;
-    float: left;
-    width: 20%;
-    color: #323237;
-    font-weight: bold;
-}
-
-.regions-option-div {
-    font-size: 14px;
-    font-family: SegoeUI, Segoe UI;
-    float: left;
-    width: 50%;
     color: #323237;
     font-weight: bold;
 }

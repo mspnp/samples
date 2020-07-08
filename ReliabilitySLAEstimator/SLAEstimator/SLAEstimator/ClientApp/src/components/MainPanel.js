@@ -21,6 +21,7 @@ export class MainPanel extends Component {
             slaTotal: slaTotal,
             downTime: downTime,
             addServiceClass: "addservice-alert-hide",
+            currentTier: "Global",
             filter: false, loading: true
         };
         this.selectCategory = this.selectCategory.bind(this);
@@ -28,10 +29,14 @@ export class MainPanel extends Component {
         this.searchTextEnter = this.searchTextEnter.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
         this.deleteEstimationEntry = this.deleteEstimationEntry.bind(this);
+        this.expandCollapseEstimationEntry = this.expandCollapseEstimationEntry.bind(this);
+        this.deleteEstimationTier = this.deleteEstimationTier.bind(this);
+        this.expandCollapseEstimationTier = this.expandCollapseEstimationTier.bind(this);
         this.deleteAll = this.deleteAll.bind(this);
         this.expandAll = this.expandAll.bind(this);
         this.collapseAll = this.collapseAll.bind(this);
-        this.expandCollapseEstimation = this.expandCollapseEstimation.bind(this);
+        this.setTier = this.setTier.bind(this);
+        this.calculateTierSla = this.calculateTierSla.bind(this);
     }
 
     selectCategory(selectedCategory) {
@@ -70,18 +75,28 @@ export class MainPanel extends Component {
         });
     }
 
+    calculateTierSla(tier) {
+        const slaEstimation = [...this.state.slaEstimation];
+
+        return this.calculateSla(slaEstimation.filter(e => e.tier === tier));
+    }
+
     calculateSla(slaEstimation) {
+
+        if (slaEstimation.length == 0)
+            return 0;
+
         if (slaEstimation.length == 1)
-            return slaEstimation[0].key.sla;
+            return slaEstimation[0].key.service.sla;
 
         let total = 1;
         let services = slaEstimation.map(x => x.key);
 
         for (var i = 0; i < services.length; i++) {
-            total = total * services[i].sla / 100;
+            total = total * services[i].service.sla / 100;
         }
 
-        return Math.round(((total * 100)  + Number.EPSILON) * 1000) / 1000;
+        return Math.round(((total * 100) + Number.EPSILON) * 1000) / 1000;
     }
 
     calculateDownTime(sla) {
@@ -96,7 +111,9 @@ export class MainPanel extends Component {
         const service = this.state.selectedServices.find(o => o.name === selectedService);
         const slaEstimation = [...this.state.slaEstimation];
 
-        slaEstimation.push({ id: this.state.slaEstimation.length, key: service });
+        const key = { id: this.state.slaEstimation.length, service: service, tier: this.state.currentTier}
+
+        slaEstimation.push({ id: this.state.slaEstimation.length, key: key, tier: this.state.currentTier });
 
         const slaTotal = this.calculateSla(slaEstimation);
         const downTime = this.calculateDownTime(slaTotal)
@@ -115,6 +132,13 @@ export class MainPanel extends Component {
         });
 
         localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
+    }
+
+    expandCollapseEstimationEntry(evt) {
+        var updownimage = evt.currentTarget;
+        var divPanel = evt.currentTarget.parentElement.parentElement.parentElement.children[2];
+        divPanel.className = divPanel.className === "div-hide" ? "estimation-layout" : "div-hide";
+        updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
     }
 
     deleteEstimationEntry(evt) {
@@ -137,6 +161,41 @@ export class MainPanel extends Component {
         localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
     }
 
+    setTier(evt) {
+        this.setState({
+            currentTier: evt.target.options[evt.target.selectedIndex].label
+        });
+    }
+    expandCollapseEstimationTier(evt) {
+        var updownimage = evt.currentTarget;
+        var divPanel = evt.currentTarget.parentElement
+            .parentElement.parentElement.children[1];
+
+        var totalsPanel = evt.currentTarget.parentElement
+            .parentElement.parentElement.children[2];
+
+        divPanel.className = divPanel.className === "div-hide" ? "div-show" : "div-hide";
+        totalsPanel.className = totalsPanel.className === "div-hide" ? "div-show" : "div-hide";
+        updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
+
+    }
+
+    deleteEstimationTier(evt) {
+        const tier = evt.target.parentElement.id;
+        const slaEstimation = [...this.state.slaEstimation];
+
+        const filteredEstimation = slaEstimation.filter(e => e.tier != tier);
+
+        const slaTotal = this.calculateSla(filteredEstimation);
+        const downTime = this.calculateDownTime(slaTotal)
+
+        this.setState({
+            slaEstimation: filteredEstimation,
+            slaTotal: slaTotal,
+            downTime: downTime
+        });
+    }
+
     deleteAll() {
         this.setState({
             slaEstimation: [],
@@ -148,20 +207,13 @@ export class MainPanel extends Component {
     }
 
     expandAll(evt) {
-        var divPanel = evt.currentTarget.parentElement.parentElement.children[1];
+        var divPanel = evt.currentTarget.parentElement.parentElement.children[2];
         divPanel.className = "div-show";
     }
 
     collapseAll(evt) {
-        var divPanel = evt.currentTarget.parentElement.parentElement.children[1];
+        var divPanel = evt.currentTarget.parentElement.parentElement.children[2];
         divPanel.className = "div-hide";
-    }
-
-    expandCollapseEstimation(evt) {
-        var updownimage = evt.currentTarget;
-        var divPanel = evt.currentTarget.parentElement.parentElement.parentElement.children[2];
-        divPanel.className = divPanel.className === "div-hide" ? "estimation-layout" : "div-hide";
-        updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
     }
 
     componentDidMount() {
@@ -184,22 +236,13 @@ export class MainPanel extends Component {
                             Tier
                         </div>
                         <div className="tier-option-div">
-                            <select className="tier-option">
+                            <select className="tier-option" onChange={ev => this.setTier(ev)}>
                                 <option value="1">Global</option>
                                 <option value="2">Web</option>
                                 <option value="3">Api</option>
                                 <option value="4">Data</option>
                                 <option value="5">Security</option>
                                 <option value="6">Network</option>
-                            </select>
-                        </div>
-                        <div className="regions-label">
-                            Deploy to multiple Regions
-                        </div>
-                        <div className="regions-option-div">
-                            <select className="regions-option">
-                                <option value="1">Yes</option>
-                                <option value="2">No</option>
                             </select>
                         </div>
                     </div>
@@ -214,9 +257,15 @@ export class MainPanel extends Component {
                     </div>
                 </div>
                 <div className="sla-estimation-panel">
-                    <SLAestimation dataSource={this.state.slaEstimation} onDeleteEstimation={this.deleteEstimationEntry}
+                    <SLAestimation slaEstimationData={this.state.slaEstimation} tier={this.state.currentTier}
+                        onDeleteEstimationEntry={this.deleteEstimationEntry}
+                        onExpandCollapseEstimationEntry={this.expandCollapseEstimationEntry}
+                        onDeleteEstimationTier={this.deleteEstimationTier}
+                        onExpandCollapseEstimationTier={this.expandCollapseEstimationTier}
                         onDeleteAll={this.deleteAll} onExpandAll={this.expandAll} onCollapseAll={this.collapseAll}
-                        onExpandCollapseEstimation={this.expandCollapseEstimation} slaTotal={this.state.slaTotal}
+                        calculateTierSla={this.calculateTierSla}
+                        calculateDownTime={this.calculateDownTime}
+                        slaTotal={this.state.slaTotal}
                         downTime={this.state.downTime} />
                 </div>
             </div>
