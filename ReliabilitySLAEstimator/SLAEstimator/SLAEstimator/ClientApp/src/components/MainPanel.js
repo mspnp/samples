@@ -208,12 +208,12 @@ export class MainPanel extends Component {
 
     expandAll(evt) {
         var divPanel = evt.currentTarget.parentElement.parentElement.children[2];
-        divPanel.className = "div-show";
+        divPanel.className = "tiers-panel-show";
     }
 
     collapseAll(evt) {
         var divPanel = evt.currentTarget.parentElement.parentElement.children[2];
-        divPanel.className = "div-hide";
+        divPanel.className = "tiers-panel-hide";
     }
 
     componentDidMount() {

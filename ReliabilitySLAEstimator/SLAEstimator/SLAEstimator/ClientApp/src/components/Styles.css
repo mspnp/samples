@@ -143,7 +143,6 @@
     width: 100%;
     height: 35px;
     border-bottom: 1px solid #323237;
-    background-color: #0078D4;
 }
 
 .estimation-head {
@@ -344,6 +343,14 @@ div {
     top: 100px;
     padding-left: 10px;
     margin: 0 auto;
+}
+
+.tiers-panel-hide {
+    display: none;
+}
+
+.tiers-panel-show {
+    display: block;
 }
 
 html {

@@ -51,7 +51,9 @@ export class SLAestimation extends Component {
                         <div className="estimation-delete-all" onClick={this.props.onDeleteAll}></div>
                     </div>
                     <br />
-                    {tierContents}
+                    <div id="estimationPanel">
+                        {tierContents}
+                    </div>
                     <div>
                         <br />
                         <div className="estimation-totals-panel">
