@@ -116,7 +116,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
     Same user on each iteration setting: By checking this box, cookies in the first response are used for the following requests.
 
-    Delay Thread Creation Until Needed: If this option is checked, the ramp-up delay and startup delay are performed before the thread data is created. If not checked, all the data required for the threads is created before starting the execution of a test
+    Delay Thread Creation Until Needed: By checking this option, the ramp-up delay and startup delay are performed before the thread data is created. If not checked, all the data required for threads is created before starting the execution of a test
     
     Specify thread lifetime: Use this setting if you want to schedule and manage the thread's lifetime
 
