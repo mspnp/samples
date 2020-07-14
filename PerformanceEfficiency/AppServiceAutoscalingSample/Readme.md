@@ -20,7 +20,7 @@ Then, over time the CPU% falls to 60. The autoscaler's scale-in rule estimates t
 
 The next time the autoscale checks, the CPU% usage is down to 30%. It estimates again. This time 30 x 2 instances = 60 per instance, which is below is the threshold of 80, so it scales in successfully to 1 instance.
 
-The duration is set to 5 minutes. This is the amount of time that the Autoscale engine will look back for metrics. So in this case, 5 minutes means that every time autoscale runs, it will query metrics for the past 5 minutes. This allows your metrics to stabilize and avoids reacting to transient spikes. 
+The amount of time that the autoscaler checks for metrics is determined by the the duration, which is set to 5 minutes.  So, every time autoscale runs, it will query metrics for 5 minutes. This way the autoscaler can get stable metrics instead of reacting to transient spikes. 
 
  The instance limits are:  max 5 instances, min 1 instance. and the cool down setting is set to 5 minutes; the cool down setting is the amount of time to wait after a scale operation before scaling again. In this case, since the cooldown is 5 minutes and a scale operation just occurred, Autoscale will not attempt to scale again until after 5 minutes. This is to allow the metrics to stabilize first.
 
