@@ -174,7 +174,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 9 - Click on "Publish", that will publish the PerfStress Web App to the App Service.
 
-10 - Once the Web App has been successfully published, a browser's window will show up with the web application's home page.
+10 - After the web application has been successfully published, a browser's window will show up with the application's home page.
 
 
 #### Run the JMeter test plan
