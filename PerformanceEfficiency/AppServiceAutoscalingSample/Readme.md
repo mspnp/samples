@@ -150,7 +150,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 *If you already ran the CPU stress scenario, you can skip steps 1-10 and go to the JMeter running section below*
 
-#### Run these commands by using the Azure CLI from your computer. You need to run az login to log in to Azure. Make sure that you have a subscription associated with your Azure Account If the CLI can open your default browser, it will do so and load an Azure sign-in page. Otherwise, open a browser page at https://aka.ms/devicelogin and enter the authorization code displayed in your terminal.
+> Run these commands by using the Azure CLI from your computer. You need to run az login to log in to Azure. Make sure that you have a subscription associated with your Azure Account If the CLI can open your default browser, it will do so and load an Azure sign-in page. Otherwise, open a browser page at https://aka.ms/devicelogin and enter the authorization code displayed in your terminal.
 <br><br>
 1 - Log in to Azure.
 <br><br>
