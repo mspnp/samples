@@ -82,7 +82,8 @@ For this scenario, the App Service plan Scale-out custom setting is configured w
 Increase instances by 1 count when the sum of the HttpQueueLength metric > 8
 Decrease instances by 1 count when the sum of the HttpQueueLength metric <= 4
 
-The duration is set to 1 minute. This is amount of time that the Autoscale engine will look back for metrics. So in this case, 1 minute means that every time autoscale runs, it will query metrics for the past minute. The instance limits are:  max 5 instances, min 1 instance (for the deployed AppService Plan SKU you can set it up to 10 instances), and the cool down setting is set to 5 minutes; The cool down setting is the amount of time to wait after a scale operation before scaling again. In this case, since the cooldown is 5 minutes and a scale operation just occurred, Autoscale will not attempt to scale again until after 5 minutes. This is to allow the metrics to stabilize first. These settings may not be valid for a real scenario, but are intentionally set to easily reproduce the autoscale conditions.
+The amount of time that the autoscaler checks for metrics is determined by the the duration, which is set to 1 minute.  So, every time autoscale runs, it will query metrics for a minute.  
+The instance limits are:  max 5 instances, min 1 instance (for the deployed AppService Plan SKU you can set it up to 10 instances), and the cool down setting is set to 5 minutes as the time to wait between scaling operations. This allows the metrics to stabilize. These settings are not valid for a real scenario. They are intentionally set to reproduce the autoscale conditions.
 
 #### HttpQueueLength metric explained
 
