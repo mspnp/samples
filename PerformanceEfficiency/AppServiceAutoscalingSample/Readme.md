@@ -85,7 +85,7 @@ Decrease instances by 1 count when the sum of the HttpQueueLength metric <= 4
 The amount of time that the autoscaler checks for metrics is determined by the the duration, which is set to 1 minute.  So, every time autoscale runs, it will query metrics for a minute.  
 The instance limits are:  max 5 instances, min 1 instance (for the deployed AppService Plan SKU you can set it up to 10 instances), and the cool down setting is set to 5 minutes as the time to wait between scaling operations. This allows the metrics to stabilize. These settings are not valid for a real scenario. They are intentionally set to reproduce the autoscale conditions.
 
-#### HttpQueueLength metric explained
+#### HttpQueueLength metric
 
 This metric represents the average number of HTTP requests that had to sit on the queue before being fulfilled. A high or increasing HTTP Queue length is a symptom of a plan under heavy load.
 
