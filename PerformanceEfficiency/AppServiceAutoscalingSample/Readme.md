@@ -198,7 +198,7 @@ Check the [JMeter Best Practices](https://jmeter.apache.org/usermanual/best-prac
 - After the scale up operation has completed, continue watching the autoscale events, and then after the cool period has passed (5 more minutes), the **Autoscale scale down** operation will appear in the list of autoscale events, and the number of instances will decrease to 1.
 
 
-Alternatively you can query the current number of instances by running this Az CLI command
+Alternatively, you can query the current number of instances by running this Az CLI command
 
 ```Azure CLI
    az appservice plan show --name PerfStressWebAppPlan --resource-group [your resource-group-name]
