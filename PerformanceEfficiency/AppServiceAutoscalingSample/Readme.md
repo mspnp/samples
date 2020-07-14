@@ -177,7 +177,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 10 - Once the Web App has been successfully published, a browser's window will show up with the web application's home page.
 
 
-#### Running the JMeter Test Plan
+#### Run the JMeter test plan
 
 There are two ways of running the test plan. 
 - Use the GUI. You have buttons for starting, stopping, clearing the results and monitoring you HTTP requests in the results view (you will see green successful requests or red failed ones). 
