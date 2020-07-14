@@ -14,7 +14,11 @@ Decrease instances by 1 count when CPU% <= 60
 
 This margin between the scale-out and in and the threshold is recommended, consider this case:
 
-Assuming there is 1 instance to start with. If the average CPU% across instances is 81 (the CPU% usage of the only instance), autoscale scales out adding a second instance. Then over time the CPU% falls to 60. Autoscale's scale-in rule estimates the final state if it were to scale-in. For example, 60 x 2 (current instance count) = 120 / 1 (final number of instances when scaled down) = 120. So autoscale does not scale-in because it would have to scale-out again immediately. Instead, it skips scaling down. The next time autoscale checks, the CPU continues to fall to 30%. It estimates again - 30 x 2 instance = 60 / 1 instance = 60, which is below the scale-out threshold of 80, so it scales in successfully to 1 instance.
+Let's start with a single instance. When the CPU% usage is 81, the autoscaler adds another instance because the threshold is set at 80. 
+
+Then, over time the CPU% falls to 60. The autoscaler's scale-in rule estimates the final state for scale-in. Taking the current instance count of 2, the CPU% is 120.  If scaled in it would be 120 for one instance. So the autoscaler does not scale-in because it would have to scale-out again immediately. 
+
+The next time the autoscale checks, the CPU% usage is down to 30%. It estimates again. This time 30 x 2 instances = 60 per instance, which is below is the threshold of 80, so it scales in successfully to 1 instance.
 
 The duration is set to 5 minutes. This is the amount of time that the Autoscale engine will look back for metrics. So in this case, 5 minutes means that every time autoscale runs, it will query metrics for the past 5 minutes. This allows your metrics to stabilize and avoids reacting to transient spikes. 
 
