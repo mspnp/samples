@@ -196,7 +196,7 @@ Check the [JMeter Best Practices](https://jmeter.apache.org/usermanual/best-prac
 
 ### Autoscale verification
 
- - After some time, the number of outbound sockets in wait time is going to increase. From the Azure portal, find the App Service named "PerfStressWebApp" in your resource group. Select **Scale Out (App Service Plan)** on the left.
+ - After some time, the number of Http requests or outbound sockets in wait time is going to increase. From the Azure portal, find the App Service named "PerfStressWebApp" in your resource group. Select **Scale Out (App Service Plan)** on the left.
 
 - Select **Run History** in the top toolbar.
 
