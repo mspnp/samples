@@ -191,7 +191,7 @@ Check the [JMeter Best Practices](https://jmeter.apache.org/usermanual/best-prac
 
  - After some time, the number of outbound sockets in wait time is going to increase, go back to the portal, find the App Service called "PerfStressWebApp" in you resource group, and select the setting "Scale Out (App Service Plan)" on the settings Menu on the left.
 
-- Select "Run History" in the upper toolbar.
+- Select **Run History** in the top toolbar.
 
 - In the run history view, verify if the number of instances have been increased to two, also you will see the operation called "Autoscale scale up completed" in the autoscale events.
 
