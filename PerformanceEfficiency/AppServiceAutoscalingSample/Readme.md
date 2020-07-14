@@ -108,7 +108,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 2) Thread properties
 
-    Enter 700 or a higher number for "Number of Threads", this will simulate a number of users hitting your app service endpoint simultaneously.
+    Number of Threads: 700. This will simulate a number of users hitting your app service endpoint simultaneously.
 
     The ramp-up period tells JMeter how long it will take to "ramp-up" to the full number of threads chosen, by default is set to 1 second.
 
