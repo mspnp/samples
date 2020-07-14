@@ -189,7 +189,7 @@ For load testing using CLI Mode, use this command:
    jmeter -n -t [jmx file] -l [results file] -e -o [Path to web report folder]
 ```
 
-So, in this case, you will find the test plan's run results on the results file.
+See the test plan results on the results file.
 
 Check the [JMeter Best Practices](https://jmeter.apache.org/usermanual/best-practices.html) for more information.
 
