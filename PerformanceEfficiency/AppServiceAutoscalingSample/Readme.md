@@ -101,7 +101,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 #### Create a JMeter Test Plan
 
-1) Creating a thread Group
+1) Create a thread group
 
     In the JMeter UI, by default, you will see an empty test plan. Right click on "TestPlan" on the left tree and select "Add", then "Threads", then "Thread Group". Enter a Name for the new thread group. For the "Action to be taken after a sample error" setting, select "Continue".
 
