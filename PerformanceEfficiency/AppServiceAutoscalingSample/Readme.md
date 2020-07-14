@@ -114,7 +114,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
     Loop count setting: Select a high number of loops or set it to infinite. If you choose infinite, you can stop the run with the stop button in the UI.
 
-    Same user on each iteration setting: When you select this checkbox the cookies that you get in the first response will be used for the following requests.
+    Same user on each iteration setting: By checking this box, cookies in the first response are used for the following requests.
 
     Delay Thread Creation Until Needed: If this option is checked, the ramp-up delay and startup delay are performed before the thread data is created. If not checked, all the data required for the threads is created before starting the execution of a test
     
