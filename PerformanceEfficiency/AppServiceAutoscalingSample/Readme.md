@@ -136,7 +136,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 5) Adding a Response Assertion
 
-    You could also add a response assertion. Right click on the HTTP request on the left tree, select "Add", the "Assertions", then "Response Assertions". In this window you could, for example, add a 200 response assertion. Which will fail the entire test plan if any of the HTTP requests receive a response with a reponse code other than 200. Use the "Patterns to Test" section and click on the "Add" button, just enter 200 and add the row to the list.
+    Optional. Right-click the HTTP request on the left tree. Select **Add** -> **Assertions** -> **Response Assertions**. For example, you can add a 200 response assertion. The entire test plan will fail if any of the HTTP requests receive a response with a response code other than 200. Use the patterns to test section and click on the **Add** button, enter 200 and add the row to the list.
 
 5) Save the test plan
 
