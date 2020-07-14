@@ -140,7 +140,9 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 5) Save the test plan
 
-    Save you test plan in your desired folder. The extension for JMeter is ".jmx". Your test plan is now ready to run.
+    Save the test plan in a folder of your choice. The extension for JMeter is ".jmx". 
+    
+    Your test plan is now ready to run.
 
 
 
