@@ -193,7 +193,7 @@ Check the [JMeter Best Practices](https://jmeter.apache.org/usermanual/best-prac
 
 - Select **Run History** in the top toolbar.
 
-- In the run history view, verify if the number of instances have been increased to two, also you will see the operation called "Autoscale scale up completed" in the autoscale events.
+- In the run history view, verify that the number of instances have been increased to 2. There should be an operation named **Autoscale scale up completed** in the autoscale events.
 
 - After the scale up operation has completed, continue watching the autoscale events, and then after the cool period has passed (5 more minutes), the "Autoscale scale down" operation will appear in the list of autoscale events, and the number of instances will decrease to one again.
 
