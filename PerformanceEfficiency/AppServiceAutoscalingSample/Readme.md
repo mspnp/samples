@@ -22,7 +22,7 @@ The next time the autoscale checks, the CPU% usage is down to 30%. It estimates 
 
 The amount of time that the autoscaler checks for metrics is determined by the the duration, which is set to 5 minutes.  So, every time autoscale runs, it will query metrics for 5 minutes. This way the autoscaler can get stable metrics instead of reacting to transient spikes. 
 
- The instance limits are:  max 5 instances, min 1 instance. and the cool down setting is set to 5 minutes; the cool down setting is the amount of time to wait after a scale operation before scaling again. In this case, since the cooldown is 5 minutes and a scale operation just occurred, Autoscale will not attempt to scale again until after 5 minutes. This is to allow the metrics to stabilize first.
+ The instance limits are:  max 5 instances, min 1 instance. The cool down setting is set to 5 minutes. This setting is the amount of time to wait after a scale operation before scaling again. This value allows the metrics to stabilize.
 
  These settings may not be valid for a real scenario, but are intentionally set (in conjunction with a small SKU for the app service plan) to easily reproduce the autoscale conditions.
 
