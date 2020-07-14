@@ -120,7 +120,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
     
     Specify thread lifetime: Use this setting if you want to schedule and manage the thread's lifetime
 
-3) Adding the HTTP sampler
+3) Add the HTTP sampler
 
     Right click on the Thread Group in the left tree, select "Add", then "Sampler", then "HTTP Request". Enter a name for the HTTP Request and some description in the comments box. 
 
