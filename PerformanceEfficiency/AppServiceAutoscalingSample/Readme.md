@@ -87,7 +87,7 @@ The instance limits are:  max 5 instances, min 1 instance (for the deployed AppS
 
 #### HttpQueueLength metric
 
-This metric represents the average number of HTTP requests that had to sit on the queue before being fulfilled. A high or increasing HTTP Queue length is a symptom of a plan under heavy load.
+This metric represents the average number of HTTP requests waiting in the queue before being processed. A high or increasing HTTP Queue length is a symptom of a plan under heavy load.
 
 #### SocketOutboundTimeWait explained
 
