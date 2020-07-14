@@ -71,7 +71,7 @@ The amount of time that the autoscaler checks for metrics is determined by the t
 
 ### Networking stress scenario
 
-In this sample you create an Azure App Service plan which includes an Azure App Service. Then you deploy a basic Asp.Net Core MVC application that you can use to simulate a delayed HttpGet Action. The App Service plan is configured with a basic S1 SKU (1 core, 1.75 GB) to easily create the conditions for the autoscaling scenario. You can deploy the azure resources by publishing the Web Application, but it's recommended to use the provided ARM template since it has a set of custom autoscale rules.
+In this sample you will need to create an Azure App Service plan which includes an Azure App Service. Then you deploy a basic Asp.Net Core MVC application that you can use to simulate a delayed HttpGet Action. The App Service plan is configured with a basic S1 SKU (1 core, 1.75 GB) to easily create the conditions for the autoscaling scenario. You can deploy the azure resources by publishing the Web Application, but it's recommended to use the provided ARM template since it has a set of custom autoscale rules.
 
 To simulate load and stress test, use [the Apache JMeter™ application](https://jmeter.apache.org/). This tool is an open source software, designed to load test Web Applications and offers other test capabilities. You will use JMeter to simulate a heavy load on the App Service and analyze the response of the autoscaling engine and the configured rules. 
 
