@@ -134,7 +134,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
     Right-click the HTTP Request added to the left tree and select **Add** -> **Listener** -> **View Results Tree**. After you run the load test, you can view results in this window.  
 
-5) Adding a Response Assertion
+5) Add a response assertion
 
     Optional. Right-click the HTTP request on the left tree. Select **Add** -> **Assertions** -> **Response Assertions**. For example, you can add a 200 response assertion. The entire test plan will fail if any of the HTTP requests receive a response with a response code other than 200. Use the patterns to test section and click on the **Add** button, enter 200 and add the row to the list.
 
