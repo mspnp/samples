@@ -122,7 +122,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 3) Add the HTTP sampler
 
-    Right click on the Thread Group in the left tree, select "Add", then "Sampler", then "HTTP Request". Enter a name for the HTTP Request and some description in the comments box. 
+    Right-click on the Thread Group in the left tree, select **Add** -> **Sampler** -> **HTTP Request**. Enter a name for the HTTP Request and description in the comments box. 
 
     Provide the server name of the App Service you are going to load test, for this scenario, enter  "perfstresswebapp.azurewebsites.net" in the "Server Name or IP" box.
 
