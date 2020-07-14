@@ -128,7 +128,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
     Enter /Values in **Path** as the path of the controller's action that simulates a web application having some delays. In this scenario there are no URL parameters but alternatively you can add them to the parameters list below.
 
-    Keep the other options default (Http Request should be GET).
+    Keep the other default options (Http Request should be GET).
 
 4) Add a View Results window
 
