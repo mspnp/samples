@@ -110,7 +110,7 @@ Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/a
 
     The ramp-up period tells JMeter how long it will take to "ramp-up" to the full number of threads chosen, by default is set to 1 second.
 
-    Loop count setting: you can select a high number of loops, or set it to infinite. If you choose "infinite" you can stop the run with the stop button in the UI.
+    Loop count setting: Select a high number of loops or set it to infinite. If you choose infinite, you can stop the run with the stop button in the UI.
 
     Same user on each iteration setting: When you select this checkbox the cookies that you get in the first response will be used for the following requests.
 
