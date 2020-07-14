@@ -99,7 +99,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 1. Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.3.zip) (Requires Java 8+), and install it in you computer. 
 2. Find the JMeter windows batch file (JMeter.bat) in the /Bin folder. Double click the .bat file. A command prompt window will open. JMeter will run on this window. Also, the JMeter UI is shown. You will use this UI to create a Test Plan.
 
-#### Creating a JMeter Test Plan
+#### Create a JMeter Test Plan
 
 1) Creating a thread Group
 
