@@ -179,7 +179,9 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 #### Running the JMeter Test Plan
 
-You have two ways of running the test plan, one option is to use the GUI, you have buttons for starting, stopping, clearing the results and monitoring you HTTP requests in the results view (you will see green successful requests or red failed ones). However it is best practice to use the CLI mode instead for better performance, leaving the GUI for Test creation and Test debugging.
+There are two ways of running the test plan. 
+- Use the GUI. You have buttons for starting, stopping, clearing the results and monitoring you HTTP requests in the results view (you will see green successful requests or red failed ones). 
+- Recommended. Use the CLI mode instead for better performance, leaving the GUI for Test creation and Test debugging.
 
 For load testing using CLI Mode, use this command:
 
