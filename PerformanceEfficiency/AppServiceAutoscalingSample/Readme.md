@@ -94,7 +94,7 @@ This metric represents the average number of HTTP requests waiting in the queue 
 The SocketOutboundTimeWait metric is a networking metric available for in the App Service custom autoscaling configuration. This metric represents the number of TCP connections in TIME_WAIT state. This metric can affect scalability because a socket in a TCP connection that is shut down cleanly will stay in the TIME_WAIT state for period of 4 minutes. If many connections are being opened and closed quickly then socket's in TIME_WAIT may begin  to accumulate. There are a finite number of socket connections that can be established at one time and is impacted by the number of available local ports . If too many sockets are in TIME_WAIT you will find it difficult to establish new outbound connections and you will need to tune your App Service plan scale out settings and prevent the system reaching the limits.
 
 
-#### Downloading and configuring JMeter
+#### Download and configure JMeter
 
 1. Download JMeter from [this link](https://downloads.apache.org//jmeter/binaries/apache-jmeter-5.3.zip) (Requires Java 8+), and install it in you computer. 
 2. Find the JMeter windows batch file (JMeter.bat) in the /Bin folder. Double click the .bat file. A command prompt window will open. JMeter will run on this window. Also, the JMeter UI is shown. You will use this UI to create a Test Plan.
