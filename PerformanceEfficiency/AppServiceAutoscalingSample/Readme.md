@@ -132,7 +132,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
 4) Add a View Results window
 
-    Right click on the HTTP Request added to the left tree and select "Add", then "Listener", then "View Results Tree" so once you run the load test it will show you the results in this window.  
+    Right-click the HTTP Request added to the left tree and select **Add** -> **Listener** -> **View Results Tree**. After you run the load test, you can view results in this window.  
 
 5) Adding a Response Assertion
 
