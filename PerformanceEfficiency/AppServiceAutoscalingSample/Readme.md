@@ -126,7 +126,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
     Provide the server name of the App Service  to load test. For this scenario, enter  "perfstresswebapp.azurewebsites.net" in **Server Name or IP**.
 
-    Enter "/Values" in the Path box, that is the Path of you controller's action that simulates a web application having some delays. In this scenario there are no URL parameters but alternateviley you could add them to the parameters list below.
+    Enter /Values in **Path** as the path of the controller's action that simulates a web application having some delays. In this scenario there are no URL parameters but alternatively you can add them to the parameters list below.
 
     Keep the other options default (Http Request should be GET).
 
