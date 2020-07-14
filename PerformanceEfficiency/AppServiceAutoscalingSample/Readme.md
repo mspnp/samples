@@ -110,7 +110,7 @@ The SocketOutboundTimeWait metric is a networking metric available for in the Ap
 
     Number of Threads: 700. This will simulate a number of users hitting your app service endpoint simultaneously.
 
-    The ramp-up period tells JMeter how long it will take to "ramp-up" to the full number of threads chosen, by default is set to 1 second.
+    Ramp-up period: Default value of 1 second. Determines the time taken  to ramp-up to the full number of threads.
 
     Loop count setting: Select a high number of loops or set it to infinite. If you choose infinite, you can stop the run with the stop button in the UI.
 
