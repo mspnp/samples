@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { SLAestimationCategory } from './SLAestimationCategory';
 import './Styles.css';
 
 export class SLAestimationTier extends Component {
 
-    static renderSLATierTable(tierName, slaEstimations, deleteEstimationEntry,
-        expandCollapseEstimationEntry, deleteEstimationTier, expandCollapseEstimationTier,
+    static renderSLATierTable(tierName, categoryName, catServices, deleteEstimationCategory,
+        expandCollapseEstimationCategory, deleteEstimationTier, expandCollapseEstimationTier,
         calculateTierTotal, calculateDownTime) {
 
         const tierSla = calculateTierTotal(tierName);
@@ -19,30 +20,17 @@ export class SLAestimationTier extends Component {
                 </div>
                 <br/>
                 <div className="div-show">
-                    {slaEstimations.map(sla =>
-                        <div id={sla.id}>
-                            <div className="estimation-head">
-                                <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => expandCollapseEstimationEntry(ev)} /></div>
-                                <div className="estimation-head-title">{sla.service.categoryName} Category</div>
-                                <div className="estimation-head-delete" onClick={ev => deleteEstimationEntry(ev)}><img src="images/delete.png" title="Delete the service" /></div>
-                            </div>
-                            <br />
-                            <div className="estimation-layout">
-                                <div className="estimation-service">
-                                    <div className="estimation-service-icon"><img src={"images/" + sla.service.imageFile}></img></div>
-                                    <div className="estimation-service-name"><p>{sla.service.name}</p></div>
-                                    <div className="estimation-sla"><p>SLA: {sla.service.sla} %</p></div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <SLAestimationCategory categoryName={categoryName} catServices={catServices}
+                        onDeleteEstimationCategory={deleteEstimationCategory}
+                        onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
+                    />
                 </div>
                 <div className="div-show">
                     <br/>
                     <div className="estimation-totals-panel">
                     <br />
                         <div className="tier-estimation-total-label"><p>{tierName} Tier Composite SLA: {tierSla} %</p></div>
-                    <div className="tier-estimation-total-label"><p>Projected Max Minutes of Downtime/Month: {downTime} </p></div>
+                        <div className="tier-estimation-total-label"><p>Maximum acceptable downtime in minutes /Month: {downTime} </p></div>
                     </div>
                 </div>
             </div>
@@ -50,16 +38,30 @@ export class SLAestimationTier extends Component {
     }
 
     render() {
-        if (this.props.services.length > 0) {
-            let contents = SLAestimationTier.renderSLATierTable(this.props.tierName, this.props.services,
-                this.props.onDeleteEstimationEntry, this.props.onExpandCollapseEstimationEntry,
-                this.props.onDeleteEstimationTier, this.props.onExpandCollapseEstimationTier,
-                this.props.calculateTierTotal, this.props.calculateDownTime);
+        if (this.props.tierServices.length > 0) {
+
+            const categories = ["Media", "Internet of Things", "Integration", "Security", "Identity AD", "Web", "Storage", "Networking", "Compute", "Databases", "Management and Governance", "Analytics"];
+            var catContents = [];
+
+            for (var i = 0; i < categories.length; i++) {
+                var catServices = this.props.tierServices
+                    .filter(o => o.service.categoryName === categories[i])
+                    .map(svc => svc.service);
+
+                if (catServices.length > 0) {
+                    let catContent = SLAestimationTier.renderSLATierTable(this.props.tierName, categories[i], catServices,
+                        this.props.onDeleteEstimationCategory, this.props.onExpandCollapseEstimationCategory,
+                        this.props.onDeleteEstimationTier, this.props.onExpandCollapseEstimationTier,
+                        this.props.calculateTierTotal, this.props.calculateDownTime);
+
+                    catContents.push(catContent);
+                }
+            }
 
             return (
                 <div>
                     <br />
-                    {contents}
+                    {catContents}
                 </div>
             );
         }

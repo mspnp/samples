@@ -117,6 +117,12 @@
     width: 100%;
 }
 
+.service-notes {
+    width: 90%;
+    float: left;
+    font: normal 11px Segoe UI;
+}
+
 .service-content-left {
     width: 10%;
     float: left;

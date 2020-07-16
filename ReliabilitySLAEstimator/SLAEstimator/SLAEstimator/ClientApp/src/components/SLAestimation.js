@@ -5,12 +5,12 @@ import './Styles.css';
 export class SLAestimation extends Component {
 
     static renderSlaEstimationTier(tier, services, deleteEstimationTier, expandCollapseEstimationTier,
-        deleteEstimationEntry, expandCollapseEstimationEntry, calculateTierSla, calculateDownTime) {
+        deleteEstimationCategory, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime) {
         return (
             <div>
-                <SLAestimationTier tierName={tier} services={services}
-                    onDeleteEstimationEntry={deleteEstimationEntry}
-                    onExpandCollapseEstimationEntry={expandCollapseEstimationEntry}
+                <SLAestimationTier tierName={tier} tierServices={services}
+                    onDeleteEstimationCategory={deleteEstimationCategory}
+                    onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
                     onDeleteEstimationTier={deleteEstimationTier}
                     onExpandCollapseEstimationTier={expandCollapseEstimationTier}
                     calculateTierTotal={calculateTierSla}
@@ -34,8 +34,8 @@ export class SLAestimation extends Component {
                     var tierContent = SLAestimation.renderSlaEstimationTier(tiers[i], tierServices,
                         this.props.onDeleteEstimationTier,
                         this.props.onExpandCollapseEstimationTier,
-                        this.props.onDeleteEstimationEntry,
-                        this.props.onExpandCollapseEstimationEntry,
+                        this.props.onDeleteEstimationCategory,
+                        this.props.onExpandCollapseEstimationCategory,
                         this.props.calculateTierSla,
                         this.props.calculateDownTime);
 
@@ -59,7 +59,7 @@ export class SLAestimation extends Component {
                         <div className="estimation-totals-panel">
                             <br />
                             <div className="estimation-total-label"><p>Composite SLA: {this.props.slaTotal} %</p></div>
-                            <div className="estimation-total-label"><p>Projected Max Minutes of Downtime/Month: {this.props.downTime} </p></div>
+                            <div className="estimation-total-label"><p>Maximum acceptable downtime in minutes /Month: {this.props.downTime} </p></div>
                             <br />
                             <div className="estimation-notes">Some services have special considerations when designing applications for availability and service level guarantees.  Review the Microsoft Azure Service Level Agreements documentation for details.</div>
                         </div>

@@ -28,8 +28,8 @@ export class MainPanel extends Component {
         this.selectService = this.selectService.bind(this);
         this.searchTextEnter = this.searchTextEnter.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
-        this.deleteEstimationEntry = this.deleteEstimationEntry.bind(this);
-        this.expandCollapseEstimationEntry = this.expandCollapseEstimationEntry.bind(this);
+        this.deleteEstimationCategory = this.deleteEstimationCategory.bind(this);
+        this.expandCollapseEstimationCategory = this.expandCollapseEstimationCategory.bind(this);
         this.deleteEstimationTier = this.deleteEstimationTier.bind(this);
         this.expandCollapseEstimationTier = this.expandCollapseEstimationTier.bind(this);
         this.deleteAll = this.deleteAll.bind(this);
@@ -134,14 +134,14 @@ export class MainPanel extends Component {
         localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
     }
 
-    expandCollapseEstimationEntry(evt) {
+    expandCollapseEstimationCategory(evt) {
         var updownimage = evt.currentTarget;
         var divPanel = evt.currentTarget.parentElement.parentElement.parentElement.children[2];
         divPanel.className = divPanel.className === "div-hide" ? "estimation-layout" : "div-hide";
         updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
     }
 
-    deleteEstimationEntry(evt) {
+    deleteEstimationCategory(evt) {
         const estimationId = evt.currentTarget.parentElement.parentElement.id;
         const slaEstimation = [...this.state.slaEstimation];
         const slaEstimationEntry = slaEstimation.find(e => e.id === Number(estimationId));
@@ -226,7 +226,7 @@ export class MainPanel extends Component {
                 <div className="top-panel">
                     <div className="top-title">
                         <h1 className="top-title-inner">SLA Estimator</h1>
-                        <p className="top-title-inner-sub">Estimate the oeverall service level agreement of your services</p>
+                        <p className="top-title-inner-sub">Estimate the overall service level agreement of your services</p>
                     </div>
                     <div className="search-container">
                         <SearchBar onTextSearchEnter={this.searchTextEnter} onClearSearch={this.clearSearch} />
@@ -258,8 +258,8 @@ export class MainPanel extends Component {
                 </div>
                 <div className="sla-estimation-panel">
                     <SLAestimation slaEstimationData={this.state.slaEstimation} tier={this.state.currentTier}
-                        onDeleteEstimationEntry={this.deleteEstimationEntry}
-                        onExpandCollapseEstimationEntry={this.expandCollapseEstimationEntry}
+                        onDeleteEstimationCategory={this.deleteEstimationCategory}
+                        onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onDeleteEstimationTier={this.deleteEstimationTier}
                         onExpandCollapseEstimationTier={this.expandCollapseEstimationTier}
                         onDeleteAll={this.deleteAll} onExpandAll={this.expandAll} onCollapseAll={this.collapseAll}
