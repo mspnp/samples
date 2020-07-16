@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResiliencyHealthProbesSample", "ResiliencyHealthProbesSample\ResiliencyHealthProbesSample.csproj", "{845F63F7-3BB4-41EE-ADE6-95A4967A7D75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthProbesSample", "HealthProbesSample\HealthProbesSample.csproj", "{89C017B2-AC6C-49E8-8CFC-B7AAB814556D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{845F63F7-3BB4-41EE-ADE6-95A4967A7D75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{845F63F7-3BB4-41EE-ADE6-95A4967A7D75}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{845F63F7-3BB4-41EE-ADE6-95A4967A7D75}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{845F63F7-3BB4-41EE-ADE6-95A4967A7D75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89C017B2-AC6C-49E8-8CFC-B7AAB814556D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89C017B2-AC6C-49E8-8CFC-B7AAB814556D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89C017B2-AC6C-49E8-8CFC-B7AAB814556D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89C017B2-AC6C-49E8-8CFC-B7AAB814556D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

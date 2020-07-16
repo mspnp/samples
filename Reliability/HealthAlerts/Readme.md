@@ -1,4 +1,4 @@
-Create Resource Health Activity Log Alerts
+## Create Resource Health Activity Log Alerts
 
 This sample shows how to create Resource level Health Activity Log Alerts programmatically using an ARM template. Azure Resource Health 
 notifies you about the current and historical health status of your Azure resources.
@@ -10,7 +10,7 @@ in the resource group specified in the Action Group.
 If you want to limit alerts to only come from a certain subset of resource types, you can define that in the condition section of the template 
 like so:
 
-
+```json
 "condition": {
     "allOf": [
         ...,
@@ -31,23 +31,25 @@ like so:
         }
     ]
 },
+```
+
+### Instructions
+
+#### Create an action group
+
+You need to create or reuse an Action Group configured to notify you. 
+
+See [How to create and manage action groups in the Azure portal](https://docs.microsoft.com/azure/azure-monitor/platform/action-groups) for instructions.
 
 
-Instructions
-
-Create an action group
-
-You need to create or reuse an Action Group  configured to notify you. 
-
-See https://docs.microsoft.com/azure/azure-monitor/platform/action-groups for instructions.
-
-
-Deploy the template
+#### Deploy the template
 
 
 To start a new deployment using the template provided in this sample, use this powershell command (provide you resource group name):
 
+```powershell
 New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName <resourceGroup> -TemplateFile resourcehealth.json
+```
 
 You will be prompted for the ActivityLogAlertName, enter any AlertName you want.
 
@@ -57,6 +59,8 @@ You will also be prompted for the ActionGroupResourceId, which is composed this 
 
 If you want, you can get hte ActionGroupResourceId with this powershell command:
 
+```powershell
 (Get-AzActionGroup -ResourceGroupName mgrande-dev -Name TestActionGroup).Id
+```
 
 You'll get a confirmation in PowerShell if everything worked ok

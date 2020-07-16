@@ -119,7 +119,7 @@
                             },
                             {
                                 "metricTrigger": {
-                                    "metricName": "SocketOutboundTimeWait",
+                                    "metricName": "HttpQueueLength",
                                     "metricNamespace": "microsoft.web/serverfarms",
                                     "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_PerfStressWebAppPlan_name'))]",
                                     "timeGrain": "PT1M",
@@ -127,7 +127,7 @@
                                     "timeWindow": "PT1M",
                                     "timeAggregation": "Average",
                                     "operator": "GreaterThan",
-                                    "threshold": 8,
+                                    "threshold": 18,
                                     "dimensions": [],
                                     "dividePerInstance": false
                                 },
@@ -140,7 +140,7 @@
                             },
                             {
                                 "metricTrigger": {
-                                    "metricName": "SocketOutboundTimeWait",
+                                    "metricName": "HttpQueueLength",
                                     "metricNamespace": "microsoft.web/serverfarms",
                                     "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_PerfStressWebAppPlan_name'))]",
                                     "timeGrain": "PT1M",
@@ -148,7 +148,7 @@
                                     "timeWindow": "PT1M",
                                     "timeAggregation": "Average",
                                     "operator": "LessThanOrEqual",
-                                    "threshold": 6,
+                                    "threshold": 10,
                                     "dimensions": [],
                                     "dividePerInstance": false
                                 },
