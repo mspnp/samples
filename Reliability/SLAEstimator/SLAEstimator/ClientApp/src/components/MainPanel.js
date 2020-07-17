@@ -137,28 +137,27 @@ export class MainPanel extends Component {
     expandCollapseEstimationCategory(evt) {
         var updownimage = evt.currentTarget;
         var divPanel = evt.currentTarget.parentElement.parentElement.parentElement.children[2];
-        divPanel.className = divPanel.className === "div-hide" ? "estimation-layout" : "div-hide";
+        divPanel.className = divPanel.className === "div-hide" ? "div-show" : "div-hide";
         updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
     }
 
     deleteEstimationCategory(evt) {
-        const estimationId = evt.currentTarget.parentElement.parentElement.id;
+        const category = evt.currentTarget.parentElement.id;
+        const tier = evt.currentTarget.parentElement.parentElement.id
         const slaEstimation = [...this.state.slaEstimation];
-        const slaEstimationEntry = slaEstimation.find(e => e.id === Number(estimationId));
 
-        const index = slaEstimation.indexOf(slaEstimationEntry);
+        const filteredEstimation = slaEstimation.filter(e => e.key.service.categoryName != category || e.tier != tier);
 
-        slaEstimation.splice(index, 1);
-        const slaTotal = this.calculateSla(slaEstimation);
+        const slaTotal = this.calculateSla(filteredEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
         this.setState({
-            slaEstimation: slaEstimation,
+            slaEstimation: filteredEstimation,
             slaTotal: slaTotal,
             downTime: downTime
         });
 
-        localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
+        localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
     }
 
     setTier(evt) {

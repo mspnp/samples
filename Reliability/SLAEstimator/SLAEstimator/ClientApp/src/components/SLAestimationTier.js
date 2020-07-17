@@ -5,33 +5,15 @@ import './Styles.css';
 export class SLAestimationTier extends Component {
 
     static renderSLATierTable(tierName, categoryName, catServices, deleteEstimationCategory,
-        expandCollapseEstimationCategory, deleteEstimationTier, expandCollapseEstimationTier,
-        calculateTierTotal, calculateDownTime) {
-
-        const tierSla = calculateTierTotal(tierName);
-        const downTime = calculateDownTime(tierSla);
+        expandCollapseEstimationCategory) {
 
         return (
             <div>
-                <div className="tier-head ">
-                    <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => expandCollapseEstimationTier(ev)} /></div>
-                    <div className="tier-head-title">{tierName} Tier</div>
-                    <div className="estimation-head-delete" id={tierName} onClick={ev => deleteEstimationTier(ev)}><img src="images/delete.png" title="Delete the Tier" /></div>
-                </div>
-                <br/>
                 <div className="div-show">
-                    <SLAestimationCategory categoryName={categoryName} catServices={catServices}
+                    <SLAestimationCategory tierName={tierName} categoryName={categoryName} catServices={catServices}
                         onDeleteEstimationCategory={deleteEstimationCategory}
                         onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
                     />
-                </div>
-                <div className="div-show">
-                    <br/>
-                    <div className="estimation-totals-panel">
-                    <br />
-                        <div className="tier-estimation-total-label"><p>{tierName} Tier Composite SLA: {tierSla} %</p></div>
-                        <div className="tier-estimation-total-label"><p>Maximum acceptable downtime in minutes /Month: {downTime} </p></div>
-                    </div>
                 </div>
             </div>
         );
@@ -39,6 +21,9 @@ export class SLAestimationTier extends Component {
 
     render() {
         if (this.props.tierServices.length > 0) {
+
+            const tierSla = this.props.calculateTierTotal(this.props.tierName);
+            const downTime = this.props.calculateDownTime(tierSla);
 
             const categories = ["Media", "Internet of Things", "Integration", "Security", "Identity AD", "Web", "Storage", "Networking", "Compute", "Databases", "Management and Governance", "Analytics"];
             var catContents = [];
@@ -50,9 +35,7 @@ export class SLAestimationTier extends Component {
 
                 if (catServices.length > 0) {
                     let catContent = SLAestimationTier.renderSLATierTable(this.props.tierName, categories[i], catServices,
-                        this.props.onDeleteEstimationCategory, this.props.onExpandCollapseEstimationCategory,
-                        this.props.onDeleteEstimationTier, this.props.onExpandCollapseEstimationTier,
-                        this.props.calculateTierTotal, this.props.calculateDownTime);
+                        this.props.onDeleteEstimationCategory, this.props.onExpandCollapseEstimationCategory);
 
                     catContents.push(catContent);
                 }
@@ -60,8 +43,21 @@ export class SLAestimationTier extends Component {
 
             return (
                 <div>
+                    <div className="tier-head ">
+                        <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => this.props.onExpandCollapseEstimationTier(ev)} /></div>
+                        <div className="tier-head-title">{this.props.tierName} Tier</div>
+                        <div className="estimation-head-delete" id={this.props.tierName} onClick={ev => this.props.onDeleteEstimationTier(ev)}><img src="images/delete.png" title="Delete the Tier" /></div>
+                    </div>
                     <br />
                     {catContents}
+                    <div className="div-show">
+                        <br />
+                        <div className="estimation-totals-panel">
+                            <br />
+                            <div className="tier-estimation-total-label"><p>{this.props.tierName} Tier Composite SLA: {tierSla} %</p></div>
+                            <div className="tier-estimation-total-label"><p>Maximum acceptable downtime in minutes /Month: {downTime} </p></div>
+                        </div>
+                    </div>
                 </div>
             );
         }
