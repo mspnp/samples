@@ -361,6 +361,13 @@
         "Notes": "API Management Standard Tier required for SLA",
         "ImageFile": "apim.png",
         "SLA": 99.900
+      },
+      {
+        "CategoryName": "Integration",
+        "Name": "API Management Premium",
+        "Notes": "API Management Premium Tier",
+        "ImageFile": "apim.png",
+        "SLA": 99.99
       }
     ]
   },
@@ -398,6 +405,63 @@
         "Name": "Media Services",
         "Notes": "",
         "ImageFile": "mediasvc.png",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "AI + Machine Learning",
+    "Services": [
+      {
+        "CategoryName": "AI + Machine Learning",
+        "Name": "Azure Bot Service",
+        "Notes": "",
+        "ImageFile": "ml.png",
+        "SLA": 99.900
+      },
+      {
+        "CategoryName": "AI + Machine Learning",
+        "Name": "Microsoft Genomics",
+        "Notes": "",
+        "ImageFile": "ml.png",
+        "SLA": 99.900
+      },
+      {
+        "CategoryName": "AI + Machine Learning",
+        "Name": "Cognitive Services",
+        "Notes": "",
+        "ImageFile": "ml.png",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Containers",
+    "Services": [
+      {
+        "CategoryName": "Containers",
+        "Name": "Azure Kubernetes Services (AKS)",
+        "Notes": "",
+        "ImageFile": "aks.png",
+        "SLA": 99.950
+      },
+      {
+        "CategoryName": "Containers",
+        "Name": "Container Registry",
+        "Notes": "",
+        "ImageFile": "cr.png",
+        "SLA": 99.900
+      }
+    ]
+  },
+  {
+    "CategoryName": "Blockchain",
+    "Services": [
+      {
+        "CategoryName": "Blockchain",
+        "Name": "Logic Apps",
+        "Notes": "",
+        "ImageFile": "logicapps.png",
         "SLA": 99.900
       }
     ]

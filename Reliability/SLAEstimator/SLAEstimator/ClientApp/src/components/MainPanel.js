@@ -307,6 +307,8 @@ export class MainPanel extends Component {
                         <h1 className="top-title-inner">SLA Estimator</h1>
                         <p className="top-title-inner-sub">Estimate the overall service level agreement of your services</p>
                     </div>
+                    <div className="legal-site-spacer"></div>
+                    <a href="https://azure.microsoft.com/support/legal/sla/">Click here the to see the full SLA description hosted on the Legal site.</a>
                     <div className="search-container">
                         <SearchBar onTextSearchEnter={this.searchTextEnter} onClearSearch={this.clearSearch} />
                     </div>

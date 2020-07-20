@@ -421,6 +421,14 @@ div {
     width: 70%
 }
 
+legal-site-spacer {
+    height: 40px;
+}
+
+a {
+    font-size: 12px;
+}
+
 html {
     font-size: 14px;
 }
