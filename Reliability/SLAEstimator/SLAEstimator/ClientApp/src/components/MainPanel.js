@@ -11,15 +11,23 @@ export class MainPanel extends Component {
         super(props);
 
         const slaEstimation = JSON.parse(localStorage.getItem('slaEstimation')) || [];
+
+        const tiers = JSON.parse(localStorage.getItem('tiers')) || this.getResetTiers();
+
         const slaTotal = this.calculateSla(slaEstimation);
+        const slaTotalMultiRegion = this.calculateSlaMultiRegion(slaEstimation, tiers)
         const downTime = this.calculateDownTime(slaTotal)
+        const downTimeMultiRegion = this.calculateDownTime(slaTotalMultiRegion)
 
 
         this.state = {
             serviceCategories: [], selectedServices: [], selectedCategory: "",
+            tiers: tiers,
             slaEstimation: slaEstimation,
             slaTotal: slaTotal,
+            slaTotalMultiRegion: slaTotalMultiRegion,
             downTime: downTime,
+            downTimeMultiRegion: downTimeMultiRegion,
             addServiceClass: "addservice-alert-hide",
             currentTier: "Global",
             filter: false, loading: true
@@ -36,7 +44,20 @@ export class MainPanel extends Component {
         this.expandAll = this.expandAll.bind(this);
         this.collapseAll = this.collapseAll.bind(this);
         this.setTier = this.setTier.bind(this);
+        this.selectTierRegion = this.selectTierRegion.bind(this);
         this.calculateTierSla = this.calculateTierSla.bind(this);
+    }
+
+    getResetTiers() {
+        return [
+            { name: 'Global', pairedRegion: 'no' },
+            { name: 'Web', pairedRegion: 'no' },
+            { name: 'Api', pairedRegion: 'no' },
+            { name: 'Data', pairedRegion: 'no' },
+            { name: 'Security', pairedRegion: 'no' },
+            { name: 'Network', pairedRegion: 'no' },
+
+        ]
     }
 
     selectCategory(selectedCategory) {
@@ -81,6 +102,25 @@ export class MainPanel extends Component {
         return this.calculateSla(slaEstimation.filter(e => e.tier === tier));
     }
 
+    calculateSlaMultiRegion(slaEstimation, tiers) {
+        if (slaEstimation.length == 0)
+            return 0;
+
+        let total = 1;
+        let services = slaEstimation.map(x => x.key);
+
+        for (var i = 0; i < services.length; i++) {
+            const tier = services[i].tier;
+            const regionOption = tiers.find(t => t.name == tier).pairedRegion;
+            const sla = services[i].service.sla/100;
+            const value = regionOption === 'yes' ? 1-((1-sla) * (1-sla)) : sla;
+
+            total = total * value;
+        }
+
+        return Math.round(((total * 100) + Number.EPSILON) * 1000) / 1000;
+    }
+
     calculateSla(slaEstimation) {
 
         if (slaEstimation.length == 0)
@@ -118,6 +158,9 @@ export class MainPanel extends Component {
         const slaTotal = this.calculateSla(slaEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
+        const slaTotalMultiRegion = this.calculateSlaMultiRegion(slaEstimation, this.state.tiers);
+        const downTimeMultiRegion = this.calculateDownTime(slaTotalMultiRegion)
+
         this.setState({ addServiceClass: "addservice-alert-visible" });
 
         setTimeout(() => {
@@ -128,7 +171,9 @@ export class MainPanel extends Component {
             selectedService: selectedService,
             slaEstimation: slaEstimation,
             slaTotal: slaTotal,
-            downTime: downTime
+            downTime: downTime,
+            slaTotalMultiRegion: slaTotalMultiRegion,
+            downTimeMultiRegion: downTimeMultiRegion,
         });
 
         localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
@@ -165,6 +210,30 @@ export class MainPanel extends Component {
             currentTier: evt.target.options[evt.target.selectedIndex].label
         });
     }
+
+    selectTierRegion(evt) {
+        const regionOption = evt.target.options[evt.target.selectedIndex].value;
+        const tier = evt.target.id;
+
+        const tiers = [...this.state.tiers];
+        var index = tiers.findIndex(t => t.name === tier);
+        tiers[index].pairedRegion = regionOption;
+
+        this.setState({
+            tiers: tiers
+        });
+
+        const slaTotalMultiRegion = this.calculateSlaMultiRegion(this.state.slaEstimation, tiers)
+        const downTimeMultiRegion = this.calculateDownTime(slaTotalMultiRegion)
+
+        this.setState({
+            slaTotalMultiRegion: slaTotalMultiRegion,
+            downTimeMultiRegion: downTimeMultiRegion,
+        });
+
+        localStorage.setItem('tiers', JSON.stringify(tiers));
+    }
+
     expandCollapseEstimationTier(evt) {
         var updownimage = evt.currentTarget;
         var divPanel = evt.currentTarget.parentElement
@@ -188,7 +257,12 @@ export class MainPanel extends Component {
         const slaTotal = this.calculateSla(filteredEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
+        const tiers = [...this.state.tiers];
+        var index = tiers.findIndex(t => t.name === tier);
+        tiers[index].pairedRegion = 'no';
+
         this.setState({
+            tiers: tiers,
             slaEstimation: filteredEstimation,
             slaTotal: slaTotal,
             downTime: downTime
@@ -196,10 +270,16 @@ export class MainPanel extends Component {
     }
 
     deleteAll() {
+
+        const tiers = this.getResetTiers();
+
         this.setState({
             slaEstimation: [],
             slaTotal: 0,
-            downTime: 0
+            downTime: 0,
+            slaTotalMultiRegion: 0,
+            downTimeMultiRegion: 0,
+            tiers: tiers
         });
 
         localStorage.setItem('slaEstimation', JSON.stringify([]));
@@ -257,15 +337,21 @@ export class MainPanel extends Component {
                 </div>
                 <div className="sla-estimation-panel">
                     <SLAestimation slaEstimationData={this.state.slaEstimation} tier={this.state.currentTier}
+                        tiers={this.state.tiers}
                         onDeleteEstimationCategory={this.deleteEstimationCategory}
+                        onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onDeleteEstimationTier={this.deleteEstimationTier}
                         onExpandCollapseEstimationTier={this.expandCollapseEstimationTier}
                         onDeleteAll={this.deleteAll} onExpandAll={this.expandAll} onCollapseAll={this.collapseAll}
+                        onSelectTierRegion={this.selectTierRegion}
                         calculateTierSla={this.calculateTierSla}
                         calculateDownTime={this.calculateDownTime}
                         slaTotal={this.state.slaTotal}
-                        downTime={this.state.downTime} />
+                        downTime={this.state.downTime}
+                        slaTotalMultiRegion={this.state.slaTotalMultiRegion}
+                        downTimeMultiRegion={this.state.downTimeMultiRegion}
+                    />
                 </div>
             </div>
         );

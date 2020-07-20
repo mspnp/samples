@@ -19,6 +19,11 @@ export class SLAestimationTier extends Component {
         );
     }
 
+    getSelectedRegionOption(tier) {
+        return this.props.tiers.find(t => t.name === tier).pairedRegion;
+    }
+
+
     render() {
         if (this.props.tierServices.length > 0) {
 
@@ -45,7 +50,16 @@ export class SLAestimationTier extends Component {
                 <div>
                     <div className="tier-head ">
                         <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => this.props.onExpandCollapseEstimationTier(ev)} /></div>
-                        <div className="tier-head-title">{this.props.tierName} Tier</div>
+                        <div className="tier-head-title-left">{this.props.tierName} Tier</div>
+                        <div className="tier-head-region">
+                            <div className="region-div-left">Deploy to Paired Azure Regions: </div>
+                            <div className="region-div-right">
+                                <select id={this.props.tierName} value={this.getSelectedRegionOption(this.props.tierName)} className="tier-option" onChange={ev => this.props.onSelectRegion(ev)} >
+                                    <option value="no">No</option>
+                                    <option value="yes">Yes</option>
+                                </select>
+                            </div>
+                        </div>
                         <div className="estimation-head-delete" id={this.props.tierName} onClick={ev => this.props.onDeleteEstimationTier(ev)}><img src="images/delete.png" title="Delete the Tier" /></div>
                     </div>
                     <br />
