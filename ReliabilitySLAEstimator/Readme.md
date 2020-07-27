@@ -55,7 +55,7 @@ For the project to build, **these files must exist with exact filenames**:
 
  When you click on a service, you are selecting it and it will be added to the estimate section below, while you keep on adding services the composite estimate will be automatically calculated. Alternatively you can select in which tier you want the service to be included by using the tier dropdown list so if you decide to include more than one tier you will see the composite SLA calculated per tier and the total composite SLA.
 
- ## How to save you SLA estiamation
+ ## How to save you SLA estimation
 
  You SLA estimation will be automatically saved to your browser's local storage, whenever you select and add a service to you estimation, it will be saved. If you close you browser and re-open it you will se you last changes.
 
