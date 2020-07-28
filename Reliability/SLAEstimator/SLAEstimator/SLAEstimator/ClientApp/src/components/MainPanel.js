@@ -11,15 +11,24 @@ export class MainPanel extends Component {
         super(props);
 
         const slaEstimation = JSON.parse(localStorage.getItem('slaEstimation')) || [];
+        const categories = [];
+        const tiers = JSON.parse(localStorage.getItem('tiers')) || this.getResetTiers();
+
         const slaTotal = this.calculateSla(slaEstimation);
+        const slaTotalMultiRegion = this.calculateSlaMultiRegion(slaEstimation, tiers)
         const downTime = this.calculateDownTime(slaTotal)
+        const downTimeMultiRegion = this.calculateDownTime(slaTotalMultiRegion)
 
 
         this.state = {
             serviceCategories: [], selectedServices: [], selectedCategory: "",
+            categories: categories,
+            tiers: tiers,
             slaEstimation: slaEstimation,
             slaTotal: slaTotal,
+            slaTotalMultiRegion: slaTotalMultiRegion,
             downTime: downTime,
+            downTimeMultiRegion: downTimeMultiRegion,
             addServiceClass: "addservice-alert-hide",
             currentTier: "Global",
             filter: false, loading: true
@@ -36,7 +45,20 @@ export class MainPanel extends Component {
         this.expandAll = this.expandAll.bind(this);
         this.collapseAll = this.collapseAll.bind(this);
         this.setTier = this.setTier.bind(this);
+        this.selectTierRegion = this.selectTierRegion.bind(this);
         this.calculateTierSla = this.calculateTierSla.bind(this);
+    }
+
+    getResetTiers() {
+        return [
+            { name: 'Global', pairedRegion: 'no' },
+            { name: 'Web', pairedRegion: 'no' },
+            { name: 'Api', pairedRegion: 'no' },
+            { name: 'Data', pairedRegion: 'no' },
+            { name: 'Security', pairedRegion: 'no' },
+            { name: 'Network', pairedRegion: 'no' },
+
+        ]
     }
 
     selectCategory(selectedCategory) {
@@ -81,6 +103,25 @@ export class MainPanel extends Component {
         return this.calculateSla(slaEstimation.filter(e => e.tier === tier));
     }
 
+    calculateSlaMultiRegion(slaEstimation, tiers) {
+        if (slaEstimation.length == 0)
+            return 0;
+
+        let total = 1;
+        let services = slaEstimation.map(x => x.key);
+
+        for (var i = 0; i < services.length; i++) {
+            const tier = services[i].tier;
+            const regionOption = tiers.find(t => t.name == tier).pairedRegion;
+            const sla = services[i].service.sla/100;
+            const value = regionOption === 'yes' ? 1-((1-sla) * (1-sla)) : sla;
+
+            total = total * value;
+        }
+
+        return Math.round(((total * 100) + Number.EPSILON) * 1000) / 1000;
+    }
+
     calculateSla(slaEstimation) {
 
         if (slaEstimation.length == 0)
@@ -118,6 +159,9 @@ export class MainPanel extends Component {
         const slaTotal = this.calculateSla(slaEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
+        const slaTotalMultiRegion = this.calculateSlaMultiRegion(slaEstimation, this.state.tiers);
+        const downTimeMultiRegion = this.calculateDownTime(slaTotalMultiRegion)
+
         this.setState({ addServiceClass: "addservice-alert-visible" });
 
         setTimeout(() => {
@@ -128,7 +172,9 @@ export class MainPanel extends Component {
             selectedService: selectedService,
             slaEstimation: slaEstimation,
             slaTotal: slaTotal,
-            downTime: downTime
+            downTime: downTime,
+            slaTotalMultiRegion: slaTotalMultiRegion,
+            downTimeMultiRegion: downTimeMultiRegion,
         });
 
         localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
@@ -137,28 +183,27 @@ export class MainPanel extends Component {
     expandCollapseEstimationCategory(evt) {
         var updownimage = evt.currentTarget;
         var divPanel = evt.currentTarget.parentElement.parentElement.parentElement.children[2];
-        divPanel.className = divPanel.className === "div-hide" ? "estimation-layout" : "div-hide";
+        divPanel.className = divPanel.className === "div-hide" ? "div-show" : "div-hide";
         updownimage.className = updownimage.className === "up-arrow" ? "down-arrow" : "up-arrow";
     }
 
     deleteEstimationCategory(evt) {
-        const estimationId = evt.currentTarget.parentElement.parentElement.id;
+        const category = evt.currentTarget.parentElement.id;
+        const tier = evt.currentTarget.parentElement.parentElement.id
         const slaEstimation = [...this.state.slaEstimation];
-        const slaEstimationEntry = slaEstimation.find(e => e.id === Number(estimationId));
 
-        const index = slaEstimation.indexOf(slaEstimationEntry);
+        const filteredEstimation = slaEstimation.filter(e => e.key.service.categoryName != category || e.tier != tier);
 
-        slaEstimation.splice(index, 1);
-        const slaTotal = this.calculateSla(slaEstimation);
+        const slaTotal = this.calculateSla(filteredEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
         this.setState({
-            slaEstimation: slaEstimation,
+            slaEstimation: filteredEstimation,
             slaTotal: slaTotal,
             downTime: downTime
         });
 
-        localStorage.setItem('slaEstimation', JSON.stringify(slaEstimation));
+        localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
     }
 
     setTier(evt) {
@@ -166,6 +211,30 @@ export class MainPanel extends Component {
             currentTier: evt.target.options[evt.target.selectedIndex].label
         });
     }
+
+    selectTierRegion(evt) {
+        const regionOption = evt.target.options[evt.target.selectedIndex].value;
+        const tier = evt.target.id;
+
+        const tiers = [...this.state.tiers];
+        var index = tiers.findIndex(t => t.name === tier);
+        tiers[index].pairedRegion = regionOption;
+
+        this.setState({
+            tiers: tiers
+        });
+
+        const slaTotalMultiRegion = this.calculateSlaMultiRegion(this.state.slaEstimation, tiers)
+        const downTimeMultiRegion = this.calculateDownTime(slaTotalMultiRegion)
+
+        this.setState({
+            slaTotalMultiRegion: slaTotalMultiRegion,
+            downTimeMultiRegion: downTimeMultiRegion,
+        });
+
+        localStorage.setItem('tiers', JSON.stringify(tiers));
+    }
+
     expandCollapseEstimationTier(evt) {
         var updownimage = evt.currentTarget;
         var divPanel = evt.currentTarget.parentElement
@@ -189,18 +258,31 @@ export class MainPanel extends Component {
         const slaTotal = this.calculateSla(filteredEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
+        const tiers = [...this.state.tiers];
+        var index = tiers.findIndex(t => t.name === tier);
+        tiers[index].pairedRegion = 'no';
+
         this.setState({
+            tiers: tiers,
             slaEstimation: filteredEstimation,
             slaTotal: slaTotal,
             downTime: downTime
         });
+
+        localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
     }
 
     deleteAll() {
+
+        const tiers = this.getResetTiers();
+
         this.setState({
             slaEstimation: [],
             slaTotal: 0,
-            downTime: 0
+            downTime: 0,
+            slaTotalMultiRegion: 0,
+            downTimeMultiRegion: 0,
+            tiers: tiers
         });
 
         localStorage.setItem('slaEstimation', JSON.stringify([]));
@@ -228,6 +310,8 @@ export class MainPanel extends Component {
                         <h1 className="top-title-inner">SLA Estimator</h1>
                         <p className="top-title-inner-sub">Estimate the overall service level agreement of your services</p>
                     </div>
+                    <div className="legal-site-spacer"></div>
+                    <a href="https://azure.microsoft.com/support/legal/sla/">Click here the to see the full SLA description hosted on the Legal site.</a>
                     <div className="search-container">
                         <SearchBar onTextSearchEnter={this.searchTextEnter} onClearSearch={this.clearSearch} />
                     </div>
@@ -258,15 +342,22 @@ export class MainPanel extends Component {
                 </div>
                 <div className="sla-estimation-panel">
                     <SLAestimation slaEstimationData={this.state.slaEstimation} tier={this.state.currentTier}
+                        tiers={this.state.tiers}
                         onDeleteEstimationCategory={this.deleteEstimationCategory}
+                        onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onDeleteEstimationTier={this.deleteEstimationTier}
                         onExpandCollapseEstimationTier={this.expandCollapseEstimationTier}
                         onDeleteAll={this.deleteAll} onExpandAll={this.expandAll} onCollapseAll={this.collapseAll}
+                        onSelectTierRegion={this.selectTierRegion}
                         calculateTierSla={this.calculateTierSla}
                         calculateDownTime={this.calculateDownTime}
+                        categories={this.state.categories}
                         slaTotal={this.state.slaTotal}
-                        downTime={this.state.downTime} />
+                        downTime={this.state.downTime}
+                        slaTotalMultiRegion={this.state.slaTotalMultiRegion}
+                        downTimeMultiRegion={this.state.downTimeMultiRegion}
+                    />
                 </div>
             </div>
         );
@@ -289,6 +380,6 @@ export class MainPanel extends Component {
         const allservices = data.map(x => x.services).reduce(
             (x, y) => x.concat(y));
 
-        this.setState({ serviceCategories: data, allservices, selectedServices: data[0].services, selectedCategory: data[0].categoryName, loading: false });
+        this.setState({ serviceCategories: data, allservices, selectedServices: data[0].services, categories: data.map(x => x.categoryName),selectedCategory: data[0].categoryName, loading: false });
     }
 }

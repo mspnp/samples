@@ -170,13 +170,28 @@
     cursor: pointer;
 }
 
-.tier-head-title {
+.tier-head-title-left {
     float: left;
     font-family: SegoeUI, Segoe UI;
     color: #000000;
     font-size: 16px;
     font-weight: bold;
-    width: 29%;
+    width: 10%;
+    padding: 2px;
+}
+
+.tier-head-region {
+    float: left;
+    font-family: SegoeUI, Segoe UI;
+    color: #000000;
+    font-size: 14px;
+    width: 80%;
+    padding: 2px;
+}
+
+.tier-head-delete {
+    float: right;
+    width: 8%;
     padding: 2px;
 }
 
@@ -191,7 +206,7 @@
 
 .estimation-head-delete {
     float: right;
-    width: 66%;
+    width: 8%;
     text-align: right;
     cursor: pointer;
 }
@@ -306,6 +321,15 @@ div {
     font-family: SegoeUI, Segoe UI;
     color: #2E2E33;
     font-size: 20px;
+    font-weight: 400;
+    text-align: right;
+}
+
+.estimation-total-label-underline {
+    font-family: SegoeUI, Segoe UI;
+    text-decoration: underline;
+    color: #2E2E33;
+    font-size: 20px;
     font-weight: 600;
     text-align: right;
 }
@@ -344,6 +368,11 @@ div {
     width: 3%;
     color: #323237;
     font-weight: bold;
+}
+
+.regions-option-hidden {
+    height: 0px;
+    visibility: hidden;
 }
 
 .regions-option {
@@ -385,6 +414,24 @@ div {
 
 .tiers-panel-show {
     display: block;
+}
+
+.region-div-left {
+    float: left;
+    width: 30%
+}
+
+.region-div-right {
+    float: right;
+    width: 70%
+}
+
+legal-site-spacer {
+    height: 40px;
+}
+
+a {
+    font-size: 12px;
 }
 
 html {
