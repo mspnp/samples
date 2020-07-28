@@ -30,7 +30,7 @@ export class SLAestimationTier extends Component {
             const tierSla = this.props.calculateTierTotal(this.props.tierName);
             const downTime = this.props.calculateDownTime(tierSla);
 
-            const categories = ["Media", "Internet of Things", "Integration", "Security", "Identity AD", "Web", "Storage", "Networking", "Compute", "Databases", "Management and Governance", "Analytics", "AI + Machine Learning", "Containers", "Blockchain"];
+            const categories = this.props.categories;//["Media", "Internet of Things", "Integration", "Security", "Identity AD", "Web", "Storage", "Networking", "Compute", "Databases", "Management and Governance", "Analytics", "AI + Machine Learning", "Containers", "Blockchain"];
             var catContents = [];
 
             for (var i = 0; i < categories.length; i++) {

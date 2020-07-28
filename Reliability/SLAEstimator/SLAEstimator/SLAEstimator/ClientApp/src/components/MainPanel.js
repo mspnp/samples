@@ -11,7 +11,7 @@ export class MainPanel extends Component {
         super(props);
 
         const slaEstimation = JSON.parse(localStorage.getItem('slaEstimation')) || [];
-
+        const categories = [];
         const tiers = JSON.parse(localStorage.getItem('tiers')) || this.getResetTiers();
 
         const slaTotal = this.calculateSla(slaEstimation);
@@ -22,6 +22,7 @@ export class MainPanel extends Component {
 
         this.state = {
             serviceCategories: [], selectedServices: [], selectedCategory: "",
+            categories: categories,
             tiers: tiers,
             slaEstimation: slaEstimation,
             slaTotal: slaTotal,
@@ -351,6 +352,7 @@ export class MainPanel extends Component {
                         onSelectTierRegion={this.selectTierRegion}
                         calculateTierSla={this.calculateTierSla}
                         calculateDownTime={this.calculateDownTime}
+                        categories={this.state.categories}
                         slaTotal={this.state.slaTotal}
                         downTime={this.state.downTime}
                         slaTotalMultiRegion={this.state.slaTotalMultiRegion}
@@ -378,6 +380,6 @@ export class MainPanel extends Component {
         const allservices = data.map(x => x.services).reduce(
             (x, y) => x.concat(y));
 
-        this.setState({ serviceCategories: data, allservices, selectedServices: data[0].services, selectedCategory: data[0].categoryName, loading: false });
+        this.setState({ serviceCategories: data, allservices, selectedServices: data[0].services, categories: data.map(x => x.categoryName),selectedCategory: data[0].categoryName, loading: false });
     }
 }

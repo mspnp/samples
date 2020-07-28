@@ -4,11 +4,12 @@ import './Styles.css';
 
 export class SLAestimation extends Component {
 
-    static renderSlaEstimationTier(tier, services, tiers, deleteEstimationTier, expandCollapseEstimationTier,
+    static renderSlaEstimationTier(tier, services, tiers, categories, deleteEstimationTier, expandCollapseEstimationTier,
         deleteEstimationCategory, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime, selectRegion) {
         return (
             <div>
-                <SLAestimationTier key={tier} tierName={tier} tierServices={services} tiers={tiers}
+                <SLAestimationTier key={tier} tierName={tier} tierServices={services}
+                    tiers={tiers} categories={categories}
                     onDeleteEstimationCategory={deleteEstimationCategory}
                     onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
                     onDeleteEstimationTier={deleteEstimationTier}
@@ -34,6 +35,7 @@ export class SLAestimation extends Component {
                 if (tierServices.length > 0) {
                     var tierContent = SLAestimation.renderSlaEstimationTier(tiers[i], tierServices,
                         this.props.tiers,
+                        this.props.categories,
                         this.props.onDeleteEstimationTier,
                         this.props.onExpandCollapseEstimationTier,
                         this.props.onDeleteEstimationCategory,
