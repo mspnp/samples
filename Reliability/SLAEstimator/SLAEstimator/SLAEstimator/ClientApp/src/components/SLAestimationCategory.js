@@ -3,11 +3,11 @@ import './Styles.css';
 
 export class SLAestimationCategory extends Component {
 
-    static renderSLACategoryTable(categoryName, catServices, deleteEstimationCategory, expandCollapseEstimationCategory)
+    static renderSLACategoryTable(tierName, categoryName, catServices, deleteEstimationCategory, expandCollapseEstimationCategory)
     {
         return (
-            <div>
-                <div className="estimation-head">
+            <div id={tierName}>
+                <div className="estimation-head" id={categoryName}>
                     <div className="estimation-head-ec-arrow"><button className="down-arrow" onClick={ev => expandCollapseEstimationCategory(ev)} /></div>
                     <div className="estimation-head-title">{categoryName} Category</div>
                     <div className="estimation-head-delete" onClick={ev => deleteEstimationCategory(ev)}><img src="images/delete.png" title="Delete the service" /></div>
@@ -32,7 +32,7 @@ export class SLAestimationCategory extends Component {
 
     render() {
         if (this.props.catServices.length > 0) {
-            let contents = SLAestimationCategory.renderSLACategoryTable(this.props.categoryName, this.props.catServices,
+            let contents = SLAestimationCategory.renderSLACategoryTable(this.props.tierName, this.props.categoryName, this.props.catServices,
                 this.props.onDeleteEstimationCategory, this.props.onExpandCollapseEstimationCategory);
 
             return (

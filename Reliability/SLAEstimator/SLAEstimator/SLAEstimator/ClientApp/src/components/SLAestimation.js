@@ -4,15 +4,16 @@ import './Styles.css';
 
 export class SLAestimation extends Component {
 
-    static renderSlaEstimationTier(tier, services, deleteEstimationTier, expandCollapseEstimationTier,
-        deleteEstimationCategory, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime) {
+    static renderSlaEstimationTier(tier, services, tiers, deleteEstimationTier, expandCollapseEstimationTier,
+        deleteEstimationCategory, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime, selectRegion) {
         return (
             <div>
-                <SLAestimationTier tierName={tier} tierServices={services}
+                <SLAestimationTier key={tier} tierName={tier} tierServices={services} tiers={tiers}
                     onDeleteEstimationCategory={deleteEstimationCategory}
                     onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
                     onDeleteEstimationTier={deleteEstimationTier}
                     onExpandCollapseEstimationTier={expandCollapseEstimationTier}
+                    onSelectRegion={selectRegion}
                     calculateTierTotal={calculateTierSla}
                     calculateDownTime={calculateDownTime}
                 />
@@ -22,7 +23,7 @@ export class SLAestimation extends Component {
 
     render() {
         if (this.props.slaEstimationData.length > 0) {
-            const tiers = ["Global", "Web", "Api", "Data", "Security", "Network"];
+            const tiers = this.props.tiers.map(t => t.name);
             var tierContents = [];
 
             for (var i = 0; i < tiers.length; i++) {
@@ -32,12 +33,14 @@ export class SLAestimation extends Component {
 
                 if (tierServices.length > 0) {
                     var tierContent = SLAestimation.renderSlaEstimationTier(tiers[i], tierServices,
+                        this.props.tiers,
                         this.props.onDeleteEstimationTier,
                         this.props.onExpandCollapseEstimationTier,
                         this.props.onDeleteEstimationCategory,
                         this.props.onExpandCollapseEstimationCategory,
                         this.props.calculateTierSla,
-                        this.props.calculateDownTime);
+                        this.props.calculateDownTime,
+                        this.props.onSelectTierRegion);
 
                     tierContents.push(tierContent);
                 }
@@ -58,8 +61,13 @@ export class SLAestimation extends Component {
                         <br />
                         <div className="estimation-totals-panel">
                             <br />
+                            <div className="estimation-total-label-underline">Single Region Deployment</div>
                             <div className="estimation-total-label"><p>Composite SLA: {this.props.slaTotal} %</p></div>
                             <div className="estimation-total-label"><p>Maximum acceptable downtime in minutes /Month: {this.props.downTime} </p></div>
+                            <br />
+                            <div className="estimation-total-label-underline">Multi region Deployment</div>
+                            <div className="estimation-total-label"><p>Composite SLA: {this.props.slaTotalMultiRegion} %</p></div>
+                            <div className="estimation-total-label"><p>Maximum acceptable downtime in minutes /Month: {this.props.downTimeMultiRegion} </p></div>
                             <br />
                             <div className="estimation-notes">Some services have special considerations when designing applications for availability and service level guarantees.  Review the Microsoft Azure Service Level Agreements documentation for details.</div>
                         </div>
