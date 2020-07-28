@@ -6,7 +6,7 @@ Azure Security Center continually checks your subscriptions and resources for se
 
 By using these samples you can get your Azure Secure Score for a subscription by calling the Azure Security Center REST API. The API methods provide the flexibility to query the data and build your own reporting mechanism of your secure scores over time.
 
-An azure scurity control is a logical group of security recommendations, with instructions that help you implement those recommendations. Your score only improves when you remediate all of the recommendations for a single resource within a control. To immediately see how well your organization is securing each individual attack surface, review the scores for each individual security control.
+An azure security control is a logical group of security recommendations, with instructions that help you implement those recommendations. Your score only improves when you remediate all of the recommendations for a single resource within a control. To immediately see how well your organization is securing each individual attack surface, review the scores for each individual security control.
 
 ### Powershell commands
 
@@ -64,7 +64,7 @@ The output of this script is a json file named AzureSecureScoreControls.ps1
       }
     },
     {
-        ...
+      ...
     }
 ```
 
