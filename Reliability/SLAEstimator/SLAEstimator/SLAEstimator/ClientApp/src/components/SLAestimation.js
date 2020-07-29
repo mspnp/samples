@@ -7,8 +7,8 @@ export class SLAestimation extends Component {
     static renderSlaEstimationTier(tier, services, tiers, categories, deleteEstimationTier, expandCollapseEstimationTier,
         deleteEstimationCategory, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime, selectRegion) {
         return (
-            <div>
-                <SLAestimationTier key={tier} tierName={tier} tierServices={services}
+            <div key={tier}>
+                <SLAestimationTier tierName={tier} tierServices={services}
                     tiers={tiers} categories={categories}
                     onDeleteEstimationCategory={deleteEstimationCategory}
                     onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}

@@ -7,14 +7,16 @@
         "Name": "HDInsight",
         "Notes": "",
         "ImageFile": "hdinsight.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/hdinsight"
       },
       {
         "CategoryName": "Analytics",
         "Name": "Event Hubs",
         "Notes": "SLA requires Basic or Standard tiers",
         "ImageFile": "eventhubs.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/event-hubs"
       }
     ]
   },
@@ -26,21 +28,24 @@
         "Name": "Automation",
         "Notes": "SLA guarantees that Automation jobs will start within 30 minutes of planned start time",
         "ImageFile": "automation.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/automation"
       },
       {
         "CategoryName": "Management and Governance",
         "Name": "Scheduler",
         "Notes": "SLA guarantees that Scheduler jobs will start within 30 minutes of planned start time",
         "ImageFile": "scheduler.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/scheduler"
       },
       {
         "CategoryName": "Management and Governance",
         "Name": "Site Recovery",
         "Notes": "For failover to Azure, a four-hour RTO for unencrypted VM instances and a six-hour RTO for encrypted VM instances is guaranteed",
         "ImageFile": "siterecovery.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/site-recovery"
       }
     ]
   },
@@ -52,70 +57,80 @@
         "Name": "SQL Database (Hyperscale with 0 Replicas)",
         "Notes": "",
         "ImageFile": "sql.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/sql-database"
       },
       {
         "CategoryName": "Databases",
         "Name": "SQL Database (Hyperscale with 1 Replicas)",
         "Notes": "",
         "ImageFile": "sql.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/sql-database"
       },
       {
         "CategoryName": "Databases",
         "Name": "SQL Database (Hyperscale with 2+ Replicas)",
         "Notes": "",
         "ImageFile": "sql.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/sql-database"
       },
       {
         "CategoryName": "Databases",
         "Name": "SQL Database (General/Std/Basic)",
         "Notes": "",
         "ImageFile": "sql.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/sql-database"
       },
       {
         "CategoryName": "Databases",
         "Name": "SQL Database (Business Crit/Premium non-AZs)",
         "Notes": "",
         "ImageFile": "sql.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/sql-database"
       },
       {
         "CategoryName": "Databases",
         "Name": "SQL Database (Business Crit/Premium across AZs)",
         "Notes": "",
         "ImageFile": "sql.png",
-        "SLA": 99.995
+        "SLA": 99.995,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/sql-database"
       },
       {
         "CategoryName": "Databases",
         "Name": "Cosmos DB(Single Writable Replica)",
         "Notes": "",
         "ImageFile": "cosmos.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/cosmos-db"
       },
       {
         "CategoryName": "Databases",
         "Name": "Cosmos DB(Multiple Writable Replicas)",
         "Notes": "",
         "ImageFile": "cosmos.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/cosmos-db"
       },
       {
         "CategoryName": "Databases",
         "Name": "Cache",
         "Notes": "",
         "ImageFile": "redis.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/cache"
       },
       {
         "CategoryName": "Databases",
         "Name": "Redis Cache",
         "Notes": "SLA requires Standard tier",
         "ImageFile": "redis.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/cache"
       }
     ]
   },
@@ -124,24 +139,43 @@
     "Services": [
       {
         "CategoryName": "Compute",
-        "Name": "VM (Singleton w/ Premium Disks)",
-        "Notes": "",
+        "Name": "VM (Singleton w/ Premium SSD Disks)",
+        "Notes": "Single Instance Virtual Machine using Premium SSD or Ultra Disk",
         "ImageFile": "vms.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/virtual-machines"
+      },
+      {
+        "CategoryName": "Compute",
+        "Name": "VM (Singleton w/ Standard SSD Disks)",
+        "Notes": "Single Instance Virtual Machine using Standard SSD Managed Disks",
+        "ImageFile": "vms.png",
+        "SLA": 99.500,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/virtual-machines"
+      },
+      {
+        "CategoryName": "Compute",
+        "Name": "VM (Singleton w/ Standard HDD Disks)",
+        "Notes": "Single Instance Virtual Machine using Standard HDD Managed Disks",
+        "ImageFile": "vms.png",
+        "SLA": 95.000,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/virtual-machines"
       },
       {
         "CategoryName": "Compute",
         "Name": "VMs (Availability Sets)",
         "Notes": "2 or more VM instances deployed in the same Availability Set",
         "ImageFile": "vms.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/virtual-machines"
       },
       {
         "CategoryName": "Compute",
         "Name": "VMs (Availability Zones)",
         "Notes": "2 or more VM instances deployed across multiple Availability Zones",
         "ImageFile": "vms.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/virtual-machines"
       }
     ]
   },
@@ -153,49 +187,64 @@
         "Name": "App Gateway",
         "Notes": "",
         "ImageFile": "appgateway.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/application-gateway"
       },
       {
         "CategoryName": "Networking",
         "Name": "Standard Load Balancer",
         "Notes": "",
         "ImageFile": "slb.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/load-balancer"
       },
       {
         "CategoryName": "Networking",
         "Name": "Azure Front Door",
         "Notes": "",
         "ImageFile": "afd.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/frontdoor"
       },
       {
         "CategoryName": "Networking",
         "Name": "Azure Traffic Manager",
         "Notes": "",
         "ImageFile": "atm.png",
-        "SLA": 99.990
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/traffic-manager"
       },
       {
         "CategoryName": "Networking",
         "Name": "Virtual Network Gateway",
-        "Notes": "guarantees Virtual Network Gateway uptime availability",
+        "Notes": "Guarantees Virtual Network Gateway uptime availability",
         "ImageFile": "vpngateway.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/vpn-gateway"
+      },
+      {
+        "CategoryName": "Networking",
+        "Name": "Virtual Network Gateway (Basic)",
+        "Notes": "Guarantees availability for each Basic Gateway for VPN ",
+        "ImageFile": "vpngateway.png",
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/vpn-gateway"
       },
       {
         "CategoryName": "Networking",
         "Name": "ExpressRoute Dedicated Circuit",
         "Notes": "SLA guarantees ExpressRoute virtual circuit connectivity to Azure Virtual Networks within Azure datacenter regions.",
         "ImageFile": "expressroute.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/expressroute"
       },
       {
         "CategoryName": "Networking",
         "Name": "AzureDNS",
         "Notes": "",
         "ImageFile": "dns.png",
-        "SLA": 100.00
+        "SLA": 100.00,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/dns"
       }
     ]
   },
@@ -207,70 +256,80 @@
         "Name": "GRS (Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "GRS (Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "LRS (Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "LRS (Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Read Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Read Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Write Cool Blobs)",
         "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "RAGRS (Write Hot Blobs)",
         "Notes": "SLA guarantees read requests from RAGRS storage, provided that the application retries failed read attempts from primary region to secondary region",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "ZRS (Cool Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       },
       {
         "CategoryName": "Storage",
         "Name": "ZRS (Hot Blobs)",
         "Notes": "",
         "ImageFile": "storage.png",
-        "SLA": 99.999
+        "SLA": 99.999,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/storage"
       }
     ]
   },
@@ -282,21 +341,24 @@
         "Name": "App Service Environment",
         "Notes": "",
         "ImageFile": "ase.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/app-service"
       },
       {
         "CategoryName": "Web",
         "Name": "App Service Environment (ILB Zonal)",
         "Notes": "",
         "ImageFile": "ilb.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/app-service"
       },
       {
         "CategoryName": "Web",
         "Name": "App Service Plan",
         "Notes": "",
         "ImageFile": "appsvc.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/app-service"
       }
     ]
   },
@@ -308,14 +370,16 @@
         "Name": "Active Directory",
         "Notes": "Azure AD Basic or Premium required for SLA",
         "ImageFile": "activedirectory.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/active-directory"
       },
       {
         "CategoryName": "Identity AD",
         "Name": "Multi-factor Authentication",
         "Notes": "",
         "ImageFile": "activedirectory.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/active-directory"
       }
     ]
   },
@@ -327,7 +391,8 @@
         "Name": "Key Vault",
         "Notes": "",
         "ImageFile": "keyvault.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/key-vault"
       }
     ]
   },
@@ -339,35 +404,40 @@
         "Name": "Service Bus Relay",
         "Notes": "",
         "ImageFile": "servicebus.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/service-bus"
       },
       {
         "CategoryName": "Integration",
         "Name": "Service Bus Queues and Topics",
         "Notes": "",
         "ImageFile": "servicebus.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/service-bus"
       },
       {
         "CategoryName": "Integration",
         "Name": "Service Bus Notification Hubs",
         "Notes": "",
         "ImageFile": "servicebus.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/service-bus"
       },
       {
         "CategoryName": "Integration",
         "Name": "API Management",
         "Notes": "API Management Standard Tier required for SLA",
         "ImageFile": "apim.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/api-management"
       },
       {
         "CategoryName": "Integration",
         "Name": "API Management Premium",
         "Notes": "API Management Premium Tier",
         "ImageFile": "apim.png",
-        "SLA": 99.99
+        "SLA": 99.990,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/api-management"
       }
     ]
   },
@@ -377,16 +447,18 @@
       {
         "CategoryName": "Internet of Things",
         "Name": "IoT Hub",
-        "Notes": "",
+        "Notes": "Time deployed IoT hub will be able to send messages to and receive messages from registered devices",
         "ImageFile": "iothub.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/iot-hub"
       },
       {
         "CategoryName": "Internet of Things",
         "Name": "IoT Hub DPS",
-        "Notes": "",
+        "Notes": "IoT Hub Device Provisioning Service, time deployed provisioning services will be able to receive provisioning requests",
         "ImageFile": "iothub.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/iot-hub"
       }
     ]
   },
@@ -398,14 +470,16 @@
         "Name": "CDN",
         "Notes": "",
         "ImageFile": "cdn.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/media-services"
       },
       {
         "CategoryName": "Media",
         "Name": "Media Services",
         "Notes": "",
         "ImageFile": "mediasvc.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/cdn"
       }
     ]
   },
@@ -417,21 +491,24 @@
         "Name": "Azure Bot Service",
         "Notes": "",
         "ImageFile": "ml.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/bot-service"
       },
       {
         "CategoryName": "AI + Machine Learning",
         "Name": "Microsoft Genomics",
         "Notes": "",
         "ImageFile": "ml.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/geonomics"
       },
       {
         "CategoryName": "AI + Machine Learning",
         "Name": "Cognitive Services",
         "Notes": "",
         "ImageFile": "ml.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/cognitive-services"
       }
     ]
   },
@@ -443,14 +520,16 @@
         "Name": "Azure Kubernetes Services (AKS)",
         "Notes": "",
         "ImageFile": "aks.png",
-        "SLA": 99.950
+        "SLA": 99.950,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/kubernetes-service"
       },
       {
         "CategoryName": "Containers",
         "Name": "Container Registry",
         "Notes": "",
         "ImageFile": "cr.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/container-registry"
       }
     ]
   },
@@ -462,7 +541,8 @@
         "Name": "Logic Apps",
         "Notes": "",
         "ImageFile": "logicapps.png",
-        "SLA": 99.900
+        "SLA": 99.900,
+        "SlaAgreementUrl": "https://azure.microsoft.com/support/legal/sla/logic-apps"
       }
     ]
   }
