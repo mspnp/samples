@@ -147,7 +147,10 @@ export class MainPanel extends Component {
         return Math.round((44640 * (1 - (sla / 100)) + Number.EPSILON) * 100) / 100;
     }
 
-    selectService(selectedService) {
+    selectService(eventInfo, selectedService) {
+        const sourceId = eventInfo.target.id;
+        if (sourceId === "service-hl")
+            return;
 
         const service = this.state.selectedServices.find(o => o.name === selectedService);
         const slaEstimation = [...this.state.slaEstimation];
@@ -311,7 +314,7 @@ export class MainPanel extends Component {
                         <p className="top-title-inner-sub">Estimate the overall service level agreement of your services</p>
                     </div>
                     <div className="legal-site-spacer"></div>
-                    <a href="https://azure.microsoft.com/support/legal/sla/">Click here the to see the full SLA description hosted on the Legal site.</a>
+                    <a href="https://azure.microsoft.com/support/legal/sla/" target="_blank">Click here the to see the full SLA description hosted on the Legal site.</a>
                     <div className="search-container">
                         <SearchBar onTextSearchEnter={this.searchTextEnter} onClearSearch={this.clearSearch} />
                     </div>

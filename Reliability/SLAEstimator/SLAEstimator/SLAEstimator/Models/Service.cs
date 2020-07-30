@@ -9,5 +9,6 @@ namespace SLAEstimator.Models
   public string CategoryName { get; set; }
   public string ImageFile { get; set; }
   public double SLA { get; set; }
+  public string SlaAgreementUrl { get; set; }
  }
 }
