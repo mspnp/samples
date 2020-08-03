@@ -225,4 +225,4 @@ The output of this command is a json structure, you should see the number of ins
   },
 
 
-To learn more about autoscaling, check the [Autoscale best practises](https://docs.microsoft.com/azure/azure-monitor/platform/autoscale-best-practices)
+To learn more about autoscaling, check the [Autoscale best practices](https://docs.microsoft.com/azure/azure-monitor/platform/autoscale-best-practices)
