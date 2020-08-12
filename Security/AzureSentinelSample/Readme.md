@@ -19,7 +19,7 @@ The script also installs an Azure Application Gateway as sample (ARM template is
 .\AzSentinelSetup.ps1 -Location westus -SubscriptionId [your azure subscription Id] -ResourceGroupName [your azure resource group] -WorkspaceName [your log analytics workspace name] 
 ```
 
-2) Inside your Application Gateway resource:
+2) Inside your Application Gateway resource (In Azure Portal):
 
     - Select Diagnostic settings under monitoring section.​
     - Select "Add diagnostics setting".​
