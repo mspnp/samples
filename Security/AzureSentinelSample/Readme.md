@@ -4,7 +4,7 @@ In this sample you create an Azure Log Analytics workspace, which is required if
 
 This Powershell script makes use [PowerShell module for Azure Sentinel](https://github.com/wortell/AZSentinel) to setup the service. 
 
-The script also installs an Azure Application Gateway as sample (ARM temaplate is provided in the sample and used by the PS script), after you run it, you can manually configure a diagnostics setting to connect the App Gateway to the Log Analytics Workspace installed before. Behind the scenes, you are connecting Azure Sentinel to the Azure Application Gateway’s web application firewall (WAF). This WAF protects your applications from common web vulnerabilities such as SQL injection and cross-site scripting, and lets you customize rules to reduce false positives.​
+The script also installs an Azure Application Gateway as sample (ARM template is provided in the sample and used by the PS script), after you run it, you can manually configure a diagnostics setting to connect the App Gateway to the Log Analytics Workspace installed before. Behind the scenes, you are connecting Azure Sentinel to the Azure Application Gateway’s web application firewall (WAF). This WAF protects your applications from common web vulnerabilities such as SQL injection and cross-site scripting, and lets you customize rules to reduce false positives.​
 
 ### Prerequisites
  - Powershell 6.2.4 or higher version
