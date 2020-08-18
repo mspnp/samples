@@ -32,3 +32,24 @@ The script also installs an Azure Application Gateway as sample (ARM template is
         - Select the log types that you want to analyze (recommended: ‘ApplicationGatewayAccessLog’ and ‘ApplicationGatewayFirewallLog’).
         - Select ’All metrics"’
         - Click Save.
+
+## Visualizing and monitoring the data using workbooks
+
+Once you have connected your data sources to Azure Sentinel, you can visualize and monitor the data using the Azure Sentinel adoption of Azure Monitor Workbooks. Azure Sentinel allows you to create custom workbooks across your data, and also comes with built-in workbook templates to allow you to quickly gain insights across your data as soon as you connect a data source.
+
+This sample provides a ARM template that defines a workbook as an example of how to query the failed access requests to you Azure Application Gateway created in the steps above.  
+
+### Creating the workbook
+
+To create the workbook, run the following Powershell command, the "WorkbookSourceId" parameter is the container where you want to create the workbook in, in this case the Azure Sentinel resurce Id, it should look like this:
+
+/subscriptions/[your subscriptionId]/resourceGroups/[your resource group name]/providers/Microsoft.OperationsManagement/solutions/SecurityInsights([your log analytics workspace name])
+
+
+```Powershell
+New-AzResourceGroupDeployment -ResourceGroupName [your resource group] -TemplateFile .\FailedRequestsWorkbook.json -WorkbookSourceId "[your workboox source Id]" -workbookDisplayName FailedRequestsWorkbookSample
+```
+
+After you created the workbook, you can see it in the portal by opening the "workbooks" section under the Azure Sentinel created in the steps above.
+
+
