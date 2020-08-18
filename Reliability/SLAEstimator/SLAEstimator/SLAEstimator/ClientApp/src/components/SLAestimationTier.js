@@ -4,7 +4,7 @@ import './Styles.css';
 
 export class SLAestimationTier extends Component {
 
-    static renderSLATierTable(tierName, categoryName, catServices, deleteEstimationCategory, deleteEstimationService,
+    static renderSLATierTable(tierName, categoryName, catServices, deleteEstimationCategory,
         expandCollapseEstimationCategory) {
 
         return (
@@ -12,7 +12,6 @@ export class SLAestimationTier extends Component {
                 <div className="div-show">
                     <SLAestimationCategory tierName={tierName} categoryName={categoryName} catServices={catServices}
                         onDeleteEstimationCategory={deleteEstimationCategory}
-                        onDeleteEstimationService={deleteEstimationService}
                         onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
                     />
                 </div>
@@ -31,7 +30,7 @@ export class SLAestimationTier extends Component {
             const tierSla = this.props.calculateTierTotal(this.props.tierName);
             const downTime = this.props.calculateDownTime(tierSla);
 
-            const categories = this.props.categories;
+            const categories = this.props.categories;//["Media", "Internet of Things", "Integration", "Security", "Identity AD", "Web", "Storage", "Networking", "Compute", "Databases", "Management and Governance", "Analytics", "AI + Machine Learning", "Containers", "Blockchain"];
             var catContents = [];
 
             for (var i = 0; i < categories.length; i++) {
@@ -41,7 +40,7 @@ export class SLAestimationTier extends Component {
 
                 if (catServices.length > 0) {
                     let catContent = SLAestimationTier.renderSLATierTable(this.props.tierName, categories[i], catServices,
-                        this.props.onDeleteEstimationCategory, this.props.onDeleteEstimationService, this.props.onExpandCollapseEstimationCategory);
+                        this.props.onDeleteEstimationCategory, this.props.onExpandCollapseEstimationCategory);
 
                     catContents.push(catContent);
                 }
@@ -55,7 +54,7 @@ export class SLAestimationTier extends Component {
                         <div className="tier-head-region">
                             <div className={this.props.tierName === "Global" ? "regions-option-hidden" : "region-div-left"}>Deploy to Paired Azure Regions: </div>
                             <div className="region-div-right">
-                                <select className={this.props.tierName === "Global" ? "regions-option-hidden" : "tier-option"} id={this.props.tierName} value={this.getSelectedRegionOption(this.props.tierName)}  onChange={ev => this.props.onSelectRegion(ev)} >
+                                <select className={this.props.tierName === "Global" ? "regions-option-hidden" : "tier-option"} id={this.props.tierName} value={this.getSelectedRegionOption(this.props.tierName)} onChange={ev => this.props.onSelectRegion(ev)} >
                                     <option value="no">No</option>
                                     <option value="yes">Yes</option>
                                 </select>
