@@ -38,6 +38,7 @@ export class MainPanel extends Component {
         this.searchTextEnter = this.searchTextEnter.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
         this.deleteEstimationCategory = this.deleteEstimationCategory.bind(this);
+        this.deleteEstimationService = this.deleteEstimationService.bind(this);
         this.expandCollapseEstimationCategory = this.expandCollapseEstimationCategory.bind(this);
         this.deleteEstimationTier = this.deleteEstimationTier.bind(this);
         this.expandCollapseEstimationTier = this.expandCollapseEstimationTier.bind(this);
@@ -209,6 +210,29 @@ export class MainPanel extends Component {
         localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
     }
 
+    deleteEstimationService(evt) {
+        const service = evt.currentTarget.parentElement.id;
+        const tier = evt.currentTarget.parentElement.parentElement.parentElement.parentElement.id;
+        const slaEstimation = [...this.state.slaEstimation];
+        const category = evt.currentTarget.parentElement.parentElement.parentElement.parentElement.children[0].id;
+
+        var filteredEstimation = slaEstimation.filter(e => e.key.service.categoryName != category
+            || e.tier != tier
+            || e.key.service.name != service  );
+
+
+        const slaTotal = this.calculateSla(filteredEstimation);
+        const downTime = this.calculateDownTime(slaTotal)
+
+        this.setState({
+            slaEstimation: filteredEstimation,
+            slaTotal: slaTotal,
+            downTime: downTime
+        });
+
+        localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
+    }
+
     setTier(evt) {
         this.setState({
             currentTier: evt.target.options[evt.target.selectedIndex].label
@@ -347,7 +371,7 @@ export class MainPanel extends Component {
                     <SLAestimation slaEstimationData={this.state.slaEstimation} tier={this.state.currentTier}
                         tiers={this.state.tiers}
                         onDeleteEstimationCategory={this.deleteEstimationCategory}
-                        onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
+                        onDeleteEstimationService={this.deleteEstimationService}
                         onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onDeleteEstimationTier={this.deleteEstimationTier}
                         onExpandCollapseEstimationTier={this.expandCollapseEstimationTier}

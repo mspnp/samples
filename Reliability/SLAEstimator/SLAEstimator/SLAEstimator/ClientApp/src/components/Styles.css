@@ -247,7 +247,7 @@
     vertical-align: middle;
 }
 
-.estimation-toolbar {
+.estimation-spacer {
     height: 40px;
 }
 
@@ -437,6 +437,12 @@ div {
 
 legal-site-spacer {
     height: 40px;
+}
+
+service-head {
+    float: right;
+    height: 40px;
+    cursor: pointer;
 }
 
 a {
