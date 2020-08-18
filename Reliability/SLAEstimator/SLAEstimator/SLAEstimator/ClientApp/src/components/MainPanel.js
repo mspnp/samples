@@ -114,7 +114,7 @@ export class MainPanel extends Component {
             const tier = services[i].tier;
             const regionOption = tiers.find(t => t.name == tier).pairedRegion;
             const sla = services[i].service.sla/100;
-            const value = regionOption === 'yes' ? 1 - ((1-sla) * (1-sla)) : sla;
+            const value = regionOption === 'yes' ? 1-((1-sla) * (1-sla)) : sla;
 
             total = total * value;
         }
