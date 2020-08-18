@@ -99,7 +99,7 @@
     position: relative;
 }
 
-    .service-layout:hover {
+.service-layout:hover {
         border: 1px solid #0078D4;
     }
 
@@ -354,7 +354,7 @@ div {
     float: left;
     width: 97%;
     margin: 0 0 8px 0;
-    color: red;
+    color:red;
 }
 
 .tier-option {

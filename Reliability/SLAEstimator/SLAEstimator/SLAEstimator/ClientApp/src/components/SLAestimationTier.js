@@ -54,7 +54,7 @@ export class SLAestimationTier extends Component {
                         <div className="tier-head-region">
                             <div className={this.props.tierName === "Global" ? "regions-option-hidden" : "region-div-left"}>Deploy to Paired Azure Regions: </div>
                             <div className="region-div-right">
-                                <select className={this.props.tierName === "Global" ? "regions-option-hidden" : "tier-option"} id={this.props.tierName} value={this.getSelectedRegionOption(this.props.tierName)} onChange={ev => this.props.onSelectRegion(ev)} >
+                                <select className={this.props.tierName === "Global" ? "regions-option-hidden" : "tier-option"} id={this.props.tierName} value={this.getSelectedRegionOption(this.props.tierName)}  onChange={ev => this.props.onSelectRegion(ev)} >
                                     <option value="no">No</option>
                                     <option value="yes">Yes</option>
                                 </select>

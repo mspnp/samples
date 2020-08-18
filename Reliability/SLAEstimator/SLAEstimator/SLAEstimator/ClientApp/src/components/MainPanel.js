@@ -113,8 +113,8 @@ export class MainPanel extends Component {
         for (var i = 0; i < services.length; i++) {
             const tier = services[i].tier;
             const regionOption = tiers.find(t => t.name == tier).pairedRegion;
-            const sla = services[i].service.sla / 100;
-            const value = regionOption === 'yes' ? 1 - ((1 - sla) * (1 - sla)) : sla;
+            const sla = services[i].service.sla/100;
+            const value = regionOption === 'yes' ? 1 - ((1-sla) * (1-sla)) : sla;
 
             total = total * value;
         }
@@ -155,7 +155,7 @@ export class MainPanel extends Component {
         const service = this.state.selectedServices.find(o => o.name === selectedService);
         const slaEstimation = [...this.state.slaEstimation];
 
-        const key = { id: this.state.slaEstimation.length, service: service, tier: this.state.currentTier }
+        const key = { id: this.state.slaEstimation.length, service: service, tier: this.state.currentTier}
 
         slaEstimation.push({ id: this.state.slaEstimation.length, key: key, tier: this.state.currentTier });
 
@@ -383,6 +383,6 @@ export class MainPanel extends Component {
         const allservices = data.map(x => x.services).reduce(
             (x, y) => x.concat(y));
 
-        this.setState({ serviceCategories: data, allservices, selectedServices: data[0].services, categories: data.map(x => x.categoryName), selectedCategory: data[0].categoryName, loading: false });
+        this.setState({ serviceCategories: data, allservices, selectedServices: data[0].services, categories: data.map(x => x.categoryName),selectedCategory: data[0].categoryName, loading: false });
     }
 }

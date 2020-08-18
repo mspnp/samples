@@ -3,7 +3,8 @@ import './Styles.css';
 
 export class SLAestimationCategory extends Component {
 
-    static renderSLACategoryTable(tierName, categoryName, catServices, deleteEstimationCategory, expandCollapseEstimationCategory) {
+    static renderSLACategoryTable(tierName, categoryName, catServices, deleteEstimationCategory, expandCollapseEstimationCategory)
+    {
         return (
             <div id={tierName}>
                 <div className="estimation-head" id={categoryName}>
