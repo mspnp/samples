@@ -4,6 +4,7 @@ import { SearchBar } from './SearchBar';
 import { Services } from './Services';
 import { SLAestimation } from './SLAestimation';
 import { ServiceAlert } from './ServiceAlert';
+import { TiersDropDownMenu } from './TiersDropDownMenu';
 
 export class MainPanel extends Component {
 
@@ -46,6 +47,7 @@ export class MainPanel extends Component {
         this.expandAll = this.expandAll.bind(this);
         this.collapseAll = this.collapseAll.bind(this);
         this.setTier = this.setTier.bind(this);
+        this.deleteTier = this.deleteTier.bind(this);
         this.selectTierRegion = this.selectTierRegion.bind(this);
         this.calculateTierSla = this.calculateTierSla.bind(this);
     }
@@ -235,8 +237,20 @@ export class MainPanel extends Component {
 
     setTier(evt) {
         this.setState({
-            currentTier: evt.target.options[evt.target.selectedIndex].label
+            currentTier: evt.target.innerHTML
         });
+    }
+
+    deleteTier(evt) {
+        const tierName = evt.target.id;
+        const tiers = [...this.state.tiers];
+        const filteredTiers = tiers.filter(t => t.name != tierName);
+
+        this.setState({
+            tiers: filteredTiers
+        });
+
+        localStorage.setItem('tiers', JSON.stringify(filteredTiers));
     }
 
     selectTierRegion(evt) {
@@ -342,19 +356,11 @@ export class MainPanel extends Component {
                     <div className="search-container">
                         <SearchBar onTextSearchEnter={this.searchTextEnter} onClearSearch={this.clearSearch} />
                     </div>
-                    <div>
-                        <div className="tier-label">
-                            Tier
-                        </div>
+                    <div className="tier-container">
                         <div className="tier-option-div">
-                            <select className="tier-option" onChange={ev => this.setTier(ev)}>
-                                <option value="1">Global</option>
-                                <option value="2">Web</option>
-                                <option value="3">Api</option>
-                                <option value="4">Data</option>
-                                <option value="5">Security</option>
-                                <option value="6">Network</option>
-                            </select>
+                            <TiersDropDownMenu tiers={this.state.tiers} currentTier={this.state.currentTier}
+                                onChangeTier={this.setTier}
+                                onDeleteTier={this.deleteTier}/>
                         </div>
                     </div>
                     <ServiceAlert id="serviceAlert" className={this.state.addServiceClass} />
