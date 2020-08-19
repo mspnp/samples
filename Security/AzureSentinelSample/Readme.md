@@ -37,9 +37,21 @@ The script also installs an Azure Application Gateway as sample (ARM template is
 
 Once you have connected your data sources to Azure Sentinel, you can visualize and monitor the data using the Azure Sentinel adoption of Azure Monitor Workbooks. Azure Sentinel allows you to create custom workbooks across your data, and also comes with built-in workbook templates to allow you to quickly gain insights across your data as soon as you connect a data source.
 
-This sample provides a ARM template that defines a workbook as an example of how to query the failed access requests to you Azure Application Gateway created in the steps above.  
+This sample provides a ARM template that defines a workbook as an example of how to query the failed access requests to you Azure Application Gateway created in the steps above.  If you take a look at the template code, you will find the query embedded in the "serializedData" element.
 
-### Creating the workbook
+```
+// Failed requests per hour 
+// Count of requests to which Application Gateway responded with an error. 
+AzureDiagnostics
+| where ResourceType == "APPLICATIONGATEWAYS" and OperationName == "ApplicationGatewayAccess" and httpStatus_d > 399
+| summarize AggregatedValue = count() by bin(TimeGenerated, 1h)
+| render timechart
+```
+
+Alternatively, you can use your own queries by modifying the "serializedData" element. [Click here](https://docs.microsoft.com/azure/azure-monitor/log-query/get-started-queries) to get started with log analytics queries.
+
+
+### Creating the workbook programmatically
 
 To create the workbook, run the following Powershell command, the "WorkbookSourceId" parameter is the container where you want to create the workbook in, in this case the Azure Sentinel resurce Id, it should look like this:
 
@@ -50,6 +62,8 @@ To create the workbook, run the following Powershell command, the "WorkbookSourc
 New-AzResourceGroupDeployment -ResourceGroupName [your resource group] -TemplateFile .\FailedRequestsWorkbook.json -WorkbookSourceId "[your workboox source Id]" -workbookDisplayName FailedRequestsWorkbookSample
 ```
 
-After you created the workbook, you can see it in the portal by opening the "workbooks" section under the Azure Sentinel created in the steps above.
+After you created the workbook, you can see it in the portal by opening the "workbooks" section under the Azure Sentinel created in the steps above. 
+
+[Click here](https://docs.microsoft.com/azure/sentinel/tutorial-monitor-your-data) to learn more about Azure Sentinel and Workbooks.
 
 
