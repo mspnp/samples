@@ -47,7 +47,7 @@ export class TiersDropDownMenu extends Component {
                     </div>
                 </div>
                 <div className="new-tier">
-                    <input type="text" maxLength="20" id="newTier" />
+                    <input type="text" maxLength="20" id="newTier" className="new-tier-box" />
                 </div>
                 <div className="add-tier">
                     <button className="add-tier" type="submit" onClick={ev => this.addTier(ev)} title="Add new tier" >+</button>

@@ -380,6 +380,20 @@ div {
 
 .regions-option {
     width: 80px;
+    color: #0078D4;
+}
+
+.new-tier-box {
+    border-style: none;
+}
+
+.new-tier {
+    width: 162px;
+    float: left;
+    color: #6C757D;
+    border-color: #6C757D;
+    border: 1px;
+    border-style: solid;
 }
 
 .addservice-alert-hide {
@@ -457,11 +471,6 @@ div {
     width: 527px;
 }
 
-.new-tier {
-    width: 162px;
-    float: left;
-}
-
 .add-tier {
     width: 25px;
     float: right;
@@ -501,8 +510,8 @@ div {
     padding: 0;
 }
 
-.dropdown-item:hover {
-    background-color: red;
+.dropdown-item-text:hover {
+    color: #0078D4;
 }
 
 .dropdown-item-text {
