@@ -448,9 +448,26 @@ div {
 }
 
 .dropdown {
-    width: 280px;
-    float: right;
+    width: 300px;
+    float: left;
     height: 25px;
+}
+
+.dropdown-container {
+    width: 527px;
+}
+
+.new-tier {
+    width: 162px;
+    float: left;
+}
+
+.add-tier {
+    width: 25px;
+    float: right;
+    border: none;
+    background-color: #0078D4;
+    color: #FFFFFF;
 }
 
 .dropdown-header {

@@ -22,9 +22,13 @@ export class TiersDropDownMenu extends Component {
         this.props.onDeleteTier(ev);
     }
 
+    addTier(ev) {
+        this.props.onAddTier(ev);
+    }
+
     render() {
         return (
-            <div>
+            <div className="dropdown-container">
                 <div className="tier-label">
                     Tier
                 </div>
@@ -37,10 +41,16 @@ export class TiersDropDownMenu extends Component {
                         {this.props.tiers.map(tier =>
                             <div className="dropdown-item">
                                 <div className="dropdown-item-text" onClick={ev => this.changeTier(ev)}>{tier.name}</div>
-                                <div className="delete-tier" id={tier.name} tooltip="Delete Tier" onClick={ev => this.deleteTier(ev)}></div>
+                                <div className="delete-tier" id={tier.name} tooltip="Delete Tier" title="delete tier" onClick={ev => this.deleteTier(ev)}></div>
                             </div>
                         )}
                     </div>
+                </div>
+                <div className="new-tier">
+                    <input type="text" maxLength="20" id="newTier" />
+                </div>
+                <div className="add-tier">
+                    <button className="add-tier" type="submit" onClick={ev => this.addTier(ev)} title="Add new tier" >+</button>
                 </div>
             </div>
         );
