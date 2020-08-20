@@ -266,7 +266,7 @@ export class MainPanel extends Component {
 
     deleteTier(evt) {
 
-        if (window.confirm('If you delete this Tier, all the estimatinos using it will be deleted as well, Are you sure you want to delete the Tier ? ', 'Delete Tier')) {
+        if (window.confirm('If you delete this Tier, all the estimations that use it will be deleted as well, Are you sure you want to delete the Tier ? ', 'Delete Tier')) {
 
             const tierName = evt.target.id;
             const tiers = [...this.state.tiers];
