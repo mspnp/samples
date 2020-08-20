@@ -247,7 +247,7 @@
     vertical-align: middle;
 }
 
-.estimation-toolbar {
+.estimation-spacer {
     height: 40px;
 }
 
@@ -353,22 +353,24 @@ div {
     font-size: 14px;
     font-family: SegoeUI, Segoe UI;
     float: left;
-    width: 97%;
-    margin: 0 0 8px 0;
-    color:red;
-}
-
-.tier-option {
-    width: 200px;
+    width: 320px;
+    height: 25px;
 }
 
 .tier-label {
     font-size: 14px;
     font-family: SegoeUI, Segoe UI;
     float: left;
-    width: 3%;
     color: #323237;
     font-weight: bold;
+    display: table-cell;
+    vertical-align: middle;
+    width: 40px;
+    height: 34px;
+}
+
+.tier-container {
+    height: 30px;
 }
 
 .regions-option-hidden {
@@ -378,6 +380,20 @@ div {
 
 .regions-option {
     width: 80px;
+    color: #0078D4;
+}
+
+.new-tier-box {
+    border-style: none;
+}
+
+.new-tier {
+    width: 162px;
+    float: left;
+    color: #6C757D;
+    border-color: #6C757D;
+    border: 1px;
+    border-style: solid;
 }
 
 .addservice-alert-hide {
@@ -435,8 +451,108 @@ div {
     width: 70%
 }
 
-legal-site-spacer {
+.legal-site-spacer {
     height: 40px;
+}
+
+.service-head {
+    float: right;
+    height: 40px;
+    cursor: pointer;
+}
+
+.dropdown {
+    width: 300px;
+    float: left;
+    height: 25px;
+}
+
+.dropdown-container {
+    width: 527px;
+}
+
+.add-tier {
+    width: 25px;
+    float: right;
+    border: none;
+    background-color: #0078D4;
+    color: #FFFFFF;
+}
+
+.dropdown-header {
+    width: 295px;
+    height: 25px;
+    border: 1px;
+    border-style: solid;
+    padding: 0;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    width: 280px;
+    display: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.delete-tier {
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    float: right;
+    background: url('/images/delete.png') no-repeat;
+    margin-top: 4px;
+    margin-right: 4px;
+    background-color: transparent;
+}
+
+.dropdown-item {
+    padding: 0;
+}
+
+.dropdown-item-text:hover {
+    color: #0078D4;
+}
+
+.dropdown-item-text {
+    cursor: pointer;
+    font-family: SegoeUI, Segoe UI;
+    color: #969696;
+    width: 270px;
+    float: left;
+    padding: 0;
+    margin-left: 3px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    background-color: transparent;
+}
+
+
+.dropdown-content-show {
+    width: 295px;
+    display: block;
+    position: absolute;
+    z-index: 1;
+    background-color: #FFFFFF;
+    border: 1px;
+    border-style: solid;
+}
+
+.dropdown-header-text {
+    float: left;
+    height: 25px;
+    font-size: 14px;
+    margin-left: 4px;
+}
+
+.dropdown-header-arrow {
+    width: 17px;
+    height: 25px;
+    margin-top: 4px;
+    border: 0;
+    background: url('/images/downarrow.png') no-repeat;
+    cursor: pointer;
+    float: right;
 }
 
 a {

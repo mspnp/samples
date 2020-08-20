@@ -4,6 +4,7 @@ import { SearchBar } from './SearchBar';
 import { Services } from './Services';
 import { SLAestimation } from './SLAestimation';
 import { ServiceAlert } from './ServiceAlert';
+import { TiersDropDownMenu } from './TiersDropDownMenu';
 
 export class MainPanel extends Component {
 
@@ -12,8 +13,8 @@ export class MainPanel extends Component {
 
         const slaEstimation = JSON.parse(localStorage.getItem('slaEstimation')) || [];
         const categories = [];
-        const tiers = JSON.parse(localStorage.getItem('tiers')) || this.getResetTiers();
 
+        const tiers = JSON.parse(localStorage.getItem('tiers')) || this.getResetTiers();
         const slaTotal = this.calculateSla(slaEstimation);
         const slaTotalMultiRegion = this.calculateSlaMultiRegion(slaEstimation, tiers)
         const downTime = this.calculateDownTime(slaTotal)
@@ -30,7 +31,7 @@ export class MainPanel extends Component {
             downTime: downTime,
             downTimeMultiRegion: downTimeMultiRegion,
             addServiceClass: "addservice-alert-hide",
-            currentTier: "Global",
+            currentTier: tiers[0].name,
             filter: false, loading: true
         };
         this.selectCategory = this.selectCategory.bind(this);
@@ -38,6 +39,7 @@ export class MainPanel extends Component {
         this.searchTextEnter = this.searchTextEnter.bind(this);
         this.clearSearch = this.clearSearch.bind(this);
         this.deleteEstimationCategory = this.deleteEstimationCategory.bind(this);
+        this.deleteEstimationService = this.deleteEstimationService.bind(this);
         this.expandCollapseEstimationCategory = this.expandCollapseEstimationCategory.bind(this);
         this.deleteEstimationTier = this.deleteEstimationTier.bind(this);
         this.expandCollapseEstimationTier = this.expandCollapseEstimationTier.bind(this);
@@ -45,6 +47,8 @@ export class MainPanel extends Component {
         this.expandAll = this.expandAll.bind(this);
         this.collapseAll = this.collapseAll.bind(this);
         this.setTier = this.setTier.bind(this);
+        this.addTier = this.addTier.bind(this);
+        this.deleteTier = this.deleteTier.bind(this);
         this.selectTierRegion = this.selectTierRegion.bind(this);
         this.calculateTierSla = this.calculateTierSla.bind(this);
     }
@@ -111,8 +115,13 @@ export class MainPanel extends Component {
         let services = slaEstimation.map(x => x.key);
 
         for (var i = 0; i < services.length; i++) {
-            const tier = services[i].tier;
-            const regionOption = tiers.find(t => t.name == tier).pairedRegion;
+            const tierName = services[i].tier;
+            const tier = tiers.find(t => t.name == tierName)
+            var regionOption = 'no';
+
+            if(tier != undefined)
+                regionOption = tier.pairedRegion;
+
             const sla = services[i].service.sla/100;
             const value = regionOption === 'yes' ? 1-((1-sla) * (1-sla)) : sla;
 
@@ -209,10 +218,81 @@ export class MainPanel extends Component {
         localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
     }
 
+    deleteEstimationService(evt) {
+        const service = evt.currentTarget.parentElement.id;
+        const tier = evt.currentTarget.parentElement.parentElement.parentElement.parentElement.id;
+        const slaEstimation = [...this.state.slaEstimation];
+        const category = evt.currentTarget.parentElement.parentElement.parentElement.parentElement.children[0].id;
+
+        var filteredEstimation = slaEstimation.filter(e => e.key.service.categoryName != category
+            || e.tier != tier
+            || e.key.service.name != service  );
+
+
+        const slaTotal = this.calculateSla(filteredEstimation);
+        const downTime = this.calculateDownTime(slaTotal)
+
+        this.setState({
+            slaEstimation: filteredEstimation,
+            slaTotal: slaTotal,
+            downTime: downTime
+        });
+
+        localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
+    }
+
     setTier(evt) {
         this.setState({
-            currentTier: evt.target.options[evt.target.selectedIndex].label
+            currentTier: evt.target.innerHTML
         });
+    }
+
+    addTier(evt) {
+        const tierName = evt.currentTarget.parentElement.parentElement.children[2].children[0].value;
+
+        if (tierName.trim().length === 0)
+            return;
+
+        var tiers = [...this.state.tiers];
+        const tierFound = tiers.find(t => t.name == tierName)
+        if (tierFound === undefined) {
+            tiers = tiers.concat({ name: tierName, pairedRegion: 'no' });
+        }
+
+        this.setState({ tiers: tiers });
+        localStorage.setItem('tiers', JSON.stringify(tiers));
+        evt.currentTarget.parentElement.parentElement.children[2].children[0].value = "";
+    }
+
+    deleteTier(evt) {
+
+        if (window.confirm('If you delete this Tier, all the estimations that use it will be deleted as well, Are you sure you want to delete the Tier ? ', 'Delete Tier')) {
+
+            const tierName = evt.target.id;
+            const tiers = [...this.state.tiers];
+            const filteredTiers = tiers.filter(t => t.name != tierName);
+
+            this.setState({
+                tiers: filteredTiers
+            });
+
+            const slaEstimation = [...this.state.slaEstimation];
+
+            const filteredEstimation = slaEstimation.filter(e => e.tier != tierName);
+
+            const slaTotal = this.calculateSla(filteredEstimation);
+            const downTime = this.calculateDownTime(slaTotal)
+
+            this.setState({
+                tiers: filteredTiers,
+                slaEstimation: filteredEstimation,
+                slaTotal: slaTotal,
+                downTime: downTime
+            });
+
+            localStorage.setItem('slaEstimation', JSON.stringify(filteredEstimation));
+            localStorage.setItem('tiers', JSON.stringify(filteredTiers));
+        }
     }
 
     selectTierRegion(evt) {
@@ -253,16 +333,16 @@ export class MainPanel extends Component {
     }
 
     deleteEstimationTier(evt) {
-        const tier = evt.target.parentElement.id;
+        const tierName = evt.target.parentElement.id;
         const slaEstimation = [...this.state.slaEstimation];
 
-        const filteredEstimation = slaEstimation.filter(e => e.tier != tier);
+        const filteredEstimation = slaEstimation.filter(e => e.tier != tierName);
 
         const slaTotal = this.calculateSla(filteredEstimation);
         const downTime = this.calculateDownTime(slaTotal)
 
         const tiers = [...this.state.tiers];
-        var index = tiers.findIndex(t => t.name === tier);
+        var index = tiers.findIndex(t => t.name === tierName);
         tiers[index].pairedRegion = 'no';
 
         this.setState({
@@ -318,19 +398,12 @@ export class MainPanel extends Component {
                     <div className="search-container">
                         <SearchBar onTextSearchEnter={this.searchTextEnter} onClearSearch={this.clearSearch} />
                     </div>
-                    <div>
-                        <div className="tier-label">
-                            Tier
-                        </div>
+                    <div className="tier-container">
                         <div className="tier-option-div">
-                            <select className="tier-option" onChange={ev => this.setTier(ev)}>
-                                <option value="1">Global</option>
-                                <option value="2">Web</option>
-                                <option value="3">Api</option>
-                                <option value="4">Data</option>
-                                <option value="5">Security</option>
-                                <option value="6">Network</option>
-                            </select>
+                            <TiersDropDownMenu tiers={this.state.tiers} currentTier={this.state.currentTier}
+                                onChangeTier={this.setTier}
+                                onDeleteTier={this.deleteTier}
+                                onAddTier={this.addTier}/>
                         </div>
                     </div>
                     <ServiceAlert id="serviceAlert" className={this.state.addServiceClass} />
@@ -344,14 +417,17 @@ export class MainPanel extends Component {
                     </div>
                 </div>
                 <div className="sla-estimation-panel">
-                    <SLAestimation slaEstimationData={this.state.slaEstimation} tier={this.state.currentTier}
+                    <SLAestimation slaEstimationData={this.state.slaEstimation}
+                        tier={this.state.currentTier}
                         tiers={this.state.tiers}
                         onDeleteEstimationCategory={this.deleteEstimationCategory}
-                        onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
+                        onDeleteEstimationService={this.deleteEstimationService}
                         onExpandCollapseEstimationCategory={this.expandCollapseEstimationCategory}
                         onDeleteEstimationTier={this.deleteEstimationTier}
                         onExpandCollapseEstimationTier={this.expandCollapseEstimationTier}
-                        onDeleteAll={this.deleteAll} onExpandAll={this.expandAll} onCollapseAll={this.collapseAll}
+                        onDeleteAll={this.deleteAll}
+                        onExpandAll={this.expandAll}
+                        onCollapseAll={this.collapseAll}
                         onSelectTierRegion={this.selectTierRegion}
                         calculateTierSla={this.calculateTierSla}
                         calculateDownTime={this.calculateDownTime}
