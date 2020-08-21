@@ -48,7 +48,7 @@ AzureDiagnostics
 | render timechart
 ```
 
-If you want to use additional sample queries, they are available [here](/azure/azure-monitor/log-query/saved-queries).
+If you want to use additional sample queries, they are available [here](https://docs.microsoft.com/azure/azure-monitor/log-query/saved-queries).
 
 
 Alternatively, you can use your own queries by modifying the "serializedData" element. [Click here](https://docs.microsoft.com/azure/azure-monitor/log-query/get-started-queries) to get started with log analytics queries.
