@@ -1,3 +1,5 @@
+param ($ResourceGroup, $AzureSQLinstance)
+
 # This set of Powershell commands show how to query limit and quotas for commonly used Networking resources, Virtual machines, SQL database and Storage Accounts
 
 # Connect to Azure using your account
@@ -17,12 +19,12 @@ Get-AzNetworkUsage -Location westus | Where-Object {$_.ResourceType -eq 'Route T
 
 # Use this command to Get all limits that apply to a spcefici Azure Sql Intance
 
-Get-AzSqlInstancePoolUsage -ResourceGroupName <your resource group> -Name <you azure sql instance> | Format-Table Name, Limit
+Get-AzSqlInstancePoolUsage -ResourceGroupName $ResourceGroup -Name $AzureSQLinstance | Format-Table Name, Limit
  
 
 # Use this command in case you need to query for a specific limit in you Azure Sql Instance
 
-Get-AzSqlInstancePoolUsage -ResourceGroupName <your resource group> -Name <you azure sql instance> | where Name -CContains "Storage utilization" | Format-Table Name, Limit
+Get-AzSqlInstancePoolUsage -ResourceGroupName $ResourceGroup -Name $AzureSQLinstance | where Name -CContains "Storage utilization" | Format-Table Name, Limit
 
 
 # Use this command to get the storage accounts limit

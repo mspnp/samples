@@ -5,12 +5,13 @@ import './Styles.css';
 export class SLAestimation extends Component {
 
     static renderSlaEstimationTier(tier, services, tiers, categories, deleteEstimationTier, expandCollapseEstimationTier,
-        deleteEstimationCategory, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime, selectRegion) {
+        deleteEstimationCategory, deleteEstimationService, expandCollapseEstimationCategory, calculateTierSla, calculateDownTime, selectRegion) {
         return (
             <div key={tier}>
                 <SLAestimationTier tierName={tier} tierServices={services}
                     tiers={tiers} categories={categories}
                     onDeleteEstimationCategory={deleteEstimationCategory}
+                    onDeleteEstimationService={deleteEstimationService}
                     onExpandCollapseEstimationCategory={expandCollapseEstimationCategory}
                     onDeleteEstimationTier={deleteEstimationTier}
                     onExpandCollapseEstimationTier={expandCollapseEstimationTier}
@@ -39,6 +40,7 @@ export class SLAestimation extends Component {
                         this.props.onDeleteEstimationTier,
                         this.props.onExpandCollapseEstimationTier,
                         this.props.onDeleteEstimationCategory,
+                        this.props.onDeleteEstimationService,
                         this.props.onExpandCollapseEstimationCategory,
                         this.props.calculateTierSla,
                         this.props.calculateDownTime,
@@ -50,7 +52,7 @@ export class SLAestimation extends Component {
 
             return (
                 <div>
-                    <div className="estimation-toolbar">
+                    <div className="estimation-spacer">
                         <div className="estimation-expand-all" onClick={ev => this.props.onExpandAll(ev)}></div>
                         <div className="estimation-collapse-all" onClick={ev => this.props.onCollapseAll(ev)}></div>
                         <div className="estimation-delete-all" onClick={this.props.onDeleteAll}></div>
