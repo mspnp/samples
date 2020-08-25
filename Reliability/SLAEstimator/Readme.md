@@ -57,5 +57,4 @@ For the project to build, **these files must exist with exact filenames**:
  ## How to save your SLA estimation
 
  Your SLA estimation will be automatically saved to your browser's local storage, whenever you select and add a service to your estimation, it will be saved. If you close the browser and re-open it, you will still see your last changes.
-
-You SLA estimation will be automatically saved to your browser's local storage, whenever you select and add a service to your estimation, it will be saved. If you close your browser and re-open it you will see your last changes.
+ 
