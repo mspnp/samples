@@ -3,8 +3,7 @@ page_type: sample
 languages:
 - azurecli
 products:
-- Azure
-- WAF
+- azure
 ---
 
 # Azure Well Architected Framework Sample ARM Template
