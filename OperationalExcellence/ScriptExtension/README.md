@@ -6,7 +6,7 @@ products:
 - azure
 ---
 
-# Azure Well Architected Framework Sample ARM Template
+# Azure Well Architected Framework Sample (Custom Script Extension)
 
 This Azure Resource Manager (ARM) template sample deploys an Ubuntu virtual machine and uses the custom script extension to install Nginx on the VM.
 
