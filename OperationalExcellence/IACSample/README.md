@@ -6,7 +6,7 @@ products:
 - azure
 ---
 
-# Azure Well Architected Framework Sample ARM Template
+# Azure Well Architected Framework Sample (ARM Template)
 
 This Azure Resource Manager (ARM) template sample deploys all back end service for the tailwindtraders.com website. Note, this template does not deploy the tailwindtrader.com application itself. If you are interested in deploying tailwindtraders.com, see https://github.com/microsoft/TailwindTraders.
 
@@ -14,13 +14,15 @@ This Azure Resource Manager (ARM) template sample deploys all back end service f
 
 To deploy this ARM template, you will need an Azure Service Principal. For information on creating a service principal, see [Create an Azure Service Principle with the Azure CLI](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest).
 
-## Deploy the template
+## Azure portal
 
-The ARM tempalte can be deployed in many differnt ways. To use the Azure portal, click this button:
+To deploy this template using the Azure portal, click this button.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fpnp%2Fsample%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
+
+## Azure CLI
 
 To use the Azure CLI, run the following commands for the root of this repository. Replace the `servicePrincipalId` and `servicePrincipalSecret` values with your service principal credentials.
 
