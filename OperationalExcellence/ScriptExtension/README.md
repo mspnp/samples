@@ -16,7 +16,7 @@ The ARM tempalte can be deployed in many differnt ways. To use the Azure portal,
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2FScriptExtension%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>
+</a>  
 
 
 To use the Azure CLI, run the following commands for the root of this repository.
