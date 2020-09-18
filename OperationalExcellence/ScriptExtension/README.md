@@ -1,4 +1,4 @@
----
+--- 
 page_type: sample
 languages:
 - azurecli
