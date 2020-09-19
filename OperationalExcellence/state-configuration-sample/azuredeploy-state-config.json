@@ -73,6 +73,7 @@
                     "apiVersion": "2018-01-15",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
                         "[resourceId('Microsoft.Automation/automationAccounts/configurations', variables('automationAccountName'), parameters('linuxConfiguration').name)]",
                         "[resourceId('Microsoft.Automation/automationAccounts/modules', variables('automationAccountName'), 'nx')]"
                     ],
@@ -108,6 +109,7 @@
                     "location": "[resourceGroup().location]",
                     "tags": {},
                     "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
                         "[resourceId('Microsoft.Automation/automationAccounts/configurations', variables('automationAccountName'), parameters('windowsConfiguration').name)]"
                     ],
                     "properties": {
