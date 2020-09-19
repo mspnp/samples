@@ -13,7 +13,7 @@
         "linuxConfiguration": {
             "type": "object",
             "defaultValue": {
-                "name": "linuxpackages",
+                "name": "linuxpackage",
                 "description": "A configuration for installing Nginx.",
                 "script": "https://raw.githubusercontent.com/neilpeterson/azure-automation-dsc/master/support-scripts/linux-config.ps1"
             }
