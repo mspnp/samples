@@ -28,15 +28,15 @@
 		}
 	},
 	"variables": {
-		"nicName": "nic",
-		"publicIPAddressName": "pip",
-		"vmName": "vm",
-		"windowsOSVersion": "16.04.0-LTS",
+		"nicName": "linux-nic",
+		"publicIPAddressName": "linux-pip",
+		"vmName": "linux-vm",
+		"osVersion": "16.04.0-LTS",
 		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
 	},
 	"resources": [
 		{
-			"apiVersion": "2016-03-30",
+			"apiVersion": "2020-05-01",
 			"type": "Microsoft.Network/publicIPAddresses",
 			"name": "[concat(variables('publicIPAddressName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
@@ -49,7 +49,7 @@
 			}
 		},
 		{
-			"apiVersion": "2016-03-30",
+			"apiVersion": "2020-05-01",
 			"type": "Microsoft.Network/networkInterfaces",
 			"name": "[concat(variables('nicName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
@@ -78,7 +78,7 @@
 			}
 		},
 		{
-			"apiVersion": "2017-03-30",
+			"apiVersion": "2019-07-01",
 			"type": "Microsoft.Compute/virtualMachines",
 			"name": "[concat(variables('vmName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
@@ -98,7 +98,7 @@
 					"imageReference": {
 						"publisher": "Canonical",
 						"offer": "UbuntuServer",
-						"sku": "[variables('windowsOSVersion')]",
+						"sku": "[variables('osVersion')]",
 						"version": "latest"
 					},
 					"osDisk": {
@@ -119,7 +119,7 @@
 			}
 		},
 		{
-			"apiVersion": "2017-12-01",
+			"apiVersion": "2019-07-01",
 			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"name": "[concat(variables('vmName'), copyIndex(),'/enabledsc')]",
 			"location": "[resourceGroup().location]",

@@ -18,7 +18,6 @@
             "defaultValue": 1
         }
     },
-    "functions": [],
     "variables": {
         "state-config-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/state-configuration-sample/azuredeploy-state-config.json",
         "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/state-configuration-sample/azuredeploy-windows-vm.json",
