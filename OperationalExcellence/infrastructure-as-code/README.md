@@ -14,17 +14,17 @@ This Azure Resource Manager (ARM) template sample deploys all back end service f
 
 To deploy this ARM template, you will need an Azure Service Principal. For information on creating a service principal, see [Create an Azure Service Principle with the Azure CLI](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest).
 
-## Azure portal
+## Deploy sample
 
-To deploy this template using the Azure portal, click this button.  
+### Azure portal
+
+To deploy this template using the Azure portal, click this button.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Finfrastructure-as-code%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-## Azure CLI
-
-To use the Azure CLI, run the following commands for the root of this repository.
+### Azure CLI
 
 Clone the samples repository.
 
@@ -41,7 +41,10 @@ az group create --name waf-tempalte-sample --location eastus
 Run the following command to initiate the deployment. Replace the `servicePrincipalId` and `servicePrincipalSecret` values with your service principal credentials.
 
 ```azurecli
-az deployment group create --template-file ./samples/OperationalExcellence/infrastructure-as-code/azuredeploy.json --resource-group waf-tempalte-sample --parameters servicePrincipalId=<appid> servicePrincipalSecret=<password>
+az deployment group create \
+    --template-file ./samples/OperationalExcellence/infrastructure-as-code/azuredeploy.json \
+    --resource-group waf-tempalte-sample \
+    --parameters servicePrincipalId=<appid> servicePrincipalSecret=<password>
 ```
 
 Once done, the following resource will have been deployed to your Azure Subscription.

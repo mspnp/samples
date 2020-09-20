@@ -10,7 +10,9 @@ products:
 
 This Azure Resource Manager (ARM) template sample deploys an Ubuntu virtual machine and uses the custom script extension to install Nginx on the VM.
 
-## Azure portal
+## Deploy sample
+
+### Azure portal
 
 To deploy this template using the Azure portal, click this button.
 
@@ -18,9 +20,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-## Azure CLI
-
-To use the Azure CLI, run the following commands for the root of this repository.
+### Azure CLI
 
 Clone the samples repository.
 
@@ -37,7 +37,10 @@ az group create --name boot-strap-script-extension --location eastus
 Run the following command to initiate the deployment.
 
 ```azurecli
-az deployment group create --template-file ./samples/OperationalExcellence/script-extension/azuredeploy.json --resource-group boot-strap-script-extension --parameters adminUserName=adminuser adminPassword=Password2020!
+az deployment group create \
+    --template-file ./samples/OperationalExcellence/script-extension/azuredeploy.json \
+    --resource-group boot-strap-script-extension \
+    --parameters adminUserName=adminuser adminPassword=Password2020!
 ```
 
 Once done, the following resource will have been deployed to your Azure Subscription.

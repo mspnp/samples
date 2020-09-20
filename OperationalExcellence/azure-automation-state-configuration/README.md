@@ -12,23 +12,25 @@ These Azure Resource Manager (ARM) template samples deploy an Azure Automation a
 
 The deployment is broken down into several ARM templates.
 
-- azuredeploy.json - parent or main template responsible for deploying all other templates
-- azuredeploy-state-congif.json - deploys Azure Automation, imports the DSC resource for Linux DSC modules, imports and compiles two DSC configuration into Azure Automation State Configuration
-- azuredeploy-virtual-network.json - deploys an Azure Virtual Network
-- azure-deploy-windows-vm.json - creates 1 to many Windows virtual machines and onboard them into Azure Automation State Configuration
-- azure-deploy-linux-vm.json - creates 1 to many Linux virtual machines and onboard them into Azure Automation State Configuration
+| File name | Description |
+|---|---|
+| **azuredeploy.json** | Main template responsible for deploying all other templates. |
+| **azuredeploy-state-congif.json** | Deploys Azure Automation, imports the DSC resource for Linux DSC modules, imports and compiles two DSC configuration into Azure Automation State Configuration. |
+| **azuredeploy-virtual-network.json** | Deploys an Azure Virtual Network. |
+| **azure-deploy-windows-vm.json** | Creates 1 to many Windows virtual machines and onboard them into Azure Automation State Configuration. |
+| **azure-deploy-linux-vm.json** | Creates 1 to many Linux virtual machines and onboard them into Azure Automation State Configuration. |
 
-## Azure portal
+## Deploy sample
 
-To deploy this template using the Azure portal, click this button.  
+### Azure portal
+
+To deploy this template using the Azure portal, click this button.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-automation-state-configuration%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>  
+</a>
 
-## Azure CLI
-
-To use the Azure CLI, run the following commands for the root of this repository.
+### Azure CLI
 
 Clone the samples repository.
 
@@ -45,14 +47,17 @@ az group create --name state-config-demo --location eastus
 Run the following command to initiate the deployment. If you would like to adjust the number of virtual machines deployed, update the *windowsVMCount* and *linuxVMCount* values.
 
 ```azurecli
-az deployment group create --template-file ./samples/OperationalExcellence/azure-automation-state-configuration/azuredeploy.json --resource-group state-config-demo --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
+az deployment group create \
+    --template-file ./samples/OperationalExcellence/azure-automation-state-configuration/azuredeploy.json \
+    --resource-group state-config-demo \
+    --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
 ```
 
 Once done, the following resource will have been deployed to your Azure Subscription (partial list).
 
 ![Image of the resources deployed by ARM template as seen in the Azure Portal.](./images/dsc-resources.png)
 
-Click on the Azure Automation Account > State Configuration and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
+Click on the **Automation Account** resource and then **State configuration (DSC)** and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
 
 ![Image of DSC compliance results as seen in the Azure portal.](./images/dsc-results.png)
 
