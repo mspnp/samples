@@ -28,11 +28,13 @@
 		}
 	},
 	"variables": {
-		"nicName": "linux-nic",
-		"publicIPAddressName": "linux-pip",
-		"vmName": "linux-vm",
-		"osVersion": "16.04.0-LTS",
-		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+		"nicName": "windows-nic-",
+		"publicIPAddressName": "windows-pip-",
+		"vmName": "windows-vm-",
+		"windowsOSVersion": "2016-Datacenter",
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
+		"dscExtensionModulesUrl": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-azure-automation-pullserver/UpdateLCMforAAPull.zip",
+		"dscExtensionConfigurationFunction": "UpdateLCMforAAPull.ps1\\ConfigureLCMforAAPull"
 	},
 	"resources": [
 		{
@@ -96,9 +98,9 @@
 				},
 				"storageProfile": {
 					"imageReference": {
-						"publisher": "Canonical",
-						"offer": "UbuntuServer",
-						"sku": "[variables('osVersion')]",
+						"publisher": "MicrosoftWindowsServer",
+						"offer": "WindowsServer",
+						"sku": "[variables('windowsOSVersion')]",
 						"version": "latest"
 					},
 					"osDisk": {
@@ -119,32 +121,80 @@
 			}
 		},
 		{
-			"apiVersion": "2019-07-01",
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"name": "[concat(variables('vmName'), copyIndex(),'/enabledsc')]",
+			"name": "[concat(variables('vmName'), copyIndex(), '/Microsoft.Powershell.DSC')]",
+			"apiVersion": "2019-07-01",
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
 			],
 			"properties": {
-				"publisher": "Microsoft.OSTCExtensions",
-				"type": "DSCForLinux",
-				"typeHandlerVersion": "2.7",
-				"autoUpgradeMinorVersion": true,
-				"settings": {
-					"ExtensionAction": "Register",
-					"NodeConfigurationName": "[parameters('nodeConfigurationName')]",
-					"RefreshFrequencyMins": 30,
-					"ConfigurationMode": "applyAndAutoCorrect",
-					"ConfigurationModeFrequencyMins": 15,
-					"RegistrationUrl": "[parameters('registrationUrl')]"
-				},
+				"publisher": "Microsoft.Powershell",
+				"type": "DSC",
+				"typeHandlerVersion": "2.76",
 				"protectedSettings": {
-					"RegistrationKey": "[parameters('registrationKey')]"
+					"Items": {
+						"registrationKeyPrivate": "[parameters('registrationKey')]"
+					}
+				},
+				"settings": {
+					"ModulesUrl": "[variables('dscExtensionModulesUrl')]",
+					"SasToken": "",
+					"ConfigurationFunction": "[variables('dscExtensionConfigurationFunction')]",
+					"Properties": [
+						{
+							"Name": "RegistrationKey",
+							"Value": {
+								"UserName": "PLACEHOLDER_DONOTUSE",
+								"Password": "PrivateSettingsRef:registrationKeyPrivate"
+							},
+							"TypeName": "System.Management.Automation.PSCredential"
+						},
+						{
+							"Name": "RegistrationUrl",
+							"Value": "[parameters('registrationUrl')]",
+							"TypeName": "System.String"
+						},
+						{
+							"Name": "NodeConfigurationName",
+							"Value": "[parameters('nodeConfigurationName')]",
+							"TypeName": "System.String"
+						},
+						{
+							"Name": "ConfigurationMode",
+							"Value": "ApplyAndMonitor",
+							"TypeName": "System.String"
+						},
+						{
+							"Name": "ConfigurationModeFrequencyMins",
+							"Value": 15,
+							"TypeName": "System.Int32"
+						},
+						{
+							"Name": "RefreshFrequencyMins",
+							"Value": 30,
+							"TypeName": "System.Int32"
+						},
+						{
+							"Name": "RebootNodeIfNeeded",
+							"Value": true,
+							"TypeName": "System.Boolean"
+						},
+						{
+							"Name": "ActionAfterReboot",
+							"Value": "ContinueConfiguration",
+							"TypeName": "System.String"
+						},
+						{
+							"Name": "AllowModuleOverwrite",
+							"Value": false,
+							"TypeName": "System.Boolean"
+						}
+					]
 				}
 			},
 			"copy": {
-				"name": "vmcopy",
+				"name": "dsccopy",
 				"count": "[parameters('vmCount')]"
 			}
 		}
