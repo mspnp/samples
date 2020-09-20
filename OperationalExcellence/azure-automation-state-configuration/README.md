@@ -38,12 +38,12 @@ az deployment group create --template-file OperationalExcellence/state-configura
 
 Once done, the following resource will have been deployed to your Azure Subscription.
 
-![Image of the tailwindtraders.com Azure resources, as seen in the Azure portal.](./images/arm-resources.png)
+![Image of the resources deployed by ARM template as seen in the Azure Portal.](./images/dsc-resources.png)
 
 Click on the Azure Automation Account > State Configuration and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
 
-![Image of the tailwindtraders.com Azure resources, as seen in the Azure portal.](./images/arm-resources.png)
+![Image of DSC compliance results as seen in the Azure portal.](./images/dsc-results.png)
 
 Browse to the public IP address of any virtual machine to verify that a web server is running.
 
-![Image of the tailwindtraders.com Azure resources, as seen in the Azure portal.](./images/arm-resources.png)
+![Image of an Nginx web server default page.](./images/webserver.png)
