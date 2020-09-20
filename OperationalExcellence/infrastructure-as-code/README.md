@@ -41,7 +41,7 @@ az group create --name waf-tempalte-sample --location eastus
 Run the following command to initiate the deployment. Replace the `servicePrincipalId` and `servicePrincipalSecret` values with your service principal credentials.
 
 ```azurecli
-az deployment group create --template-file ./OperationslExcellence/IACSample/azuredeploy.json --resource-group waf-tempalte-sample --parameters servicePrincipalId=<appid> servicePrincipalSecret=<password>
+az deployment group create --template-file ./samples/OperationalExcellence/infrastructure-as-code/azuredeploy.json --resource-group waf-tempalte-sample --parameters servicePrincipalId=<appid> servicePrincipalSecret=<password>
 ```
 
 Once done, the following resource will have been deployed to your Azure Subscription.
