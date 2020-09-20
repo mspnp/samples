@@ -22,8 +22,6 @@ To deploy this template using the Azure portal, click this button.
 
 ### Azure CLI
 
-To use the Azure CLI, run the following commands for the root of this repository.
-
 Clone the samples repository.
 
 ```azurecli
