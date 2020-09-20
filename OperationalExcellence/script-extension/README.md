@@ -10,7 +10,9 @@ products:
 
 This Azure Resource Manager (ARM) template sample deploys an Ubuntu virtual machine and uses the custom script extension to install Nginx on the VM.
 
-## Azure portal
+## Deploy sample
+
+**Azure portal**
 
 To deploy this template using the Azure portal, click this button.
 
@@ -18,7 +20,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-## Azure CLI
+**Azure CLI**
 
 To use the Azure CLI, run the following commands for the root of this repository.
 

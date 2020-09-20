@@ -14,7 +14,9 @@ This Azure Resource Manager (ARM) template sample deploys all back end service f
 
 To deploy this ARM template, you will need an Azure Service Principal. For information on creating a service principal, see [Create an Azure Service Principle with the Azure CLI](https://docs.microsoft.com/cli/azure/create-an-azure-service-principal-azure-cli?view=azure-cli-latest).
 
-## Azure portal
+## Deploy sample
+
+**Azure portal**
 
 To deploy this template using the Azure portal, click this button.  
 
@@ -22,7 +24,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-## Azure CLI
+**Azure CLI**
 
 To use the Azure CLI, run the following commands for the root of this repository.
 

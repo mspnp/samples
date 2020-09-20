@@ -20,7 +20,9 @@ The deployment is broken down into several ARM templates.
 | **azure-deploy-windows-vm.json** | Creates 1 to many Windows virtual machines and onboard them into Azure Automation State Configuration. |
 | **azure-deploy-linux-vm.json** | Creates 1 to many Linux virtual machines and onboard them into Azure Automation State Configuration. |
 
-## Azure portal
+## Deploy sample
+
+**Azure portal**
 
 To deploy this template using the Azure portal, click this button.
 
@@ -29,7 +31,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-## Azure CLI
+**Azure CLI**
 
 To use the Azure CLI, run the following commands for the root of this repository.
 
