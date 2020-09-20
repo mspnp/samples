@@ -6,7 +6,7 @@ products:
 - azure
 ---
 
-# Azure Well Architected Framework Sample (ARM Template)
+# Azure Well Architected Framework Sample (State Configuration)
 
 These Azure Resource Manager (ARM) template samples deploy an Azure Automation account and imports / compiles two PowerShell Desired State Configuration scripts. The template then deploys 1 to many virtual machines (Windows and Linux), onboards them into Azure Automation State Configuration, which then uses the compiled configurations to install a webserver on each of the virtual machines.
 
