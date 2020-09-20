@@ -22,10 +22,10 @@ To deploy this template using the Azure portal, click this button.
 
 To use the Azure CLI, run the following commands for the root of this repository.
 
-Create a resource group for the deployment.
+Clone the samples repository.
 
 ```azurecli
-az group create --name state-config-demo --location eastus
+git clone https://github.com/mspnp/samples.git
 ```
 
 Create a resource group for the deployment.
