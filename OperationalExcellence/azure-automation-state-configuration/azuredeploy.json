@@ -19,10 +19,10 @@
         }
     },
     "variables": {
-        "state-config-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/state-configuration-sample/azuredeploy-state-config.json",
-        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/state-configuration-sample/azuredeploy-windows-vm.json",
-        "linux-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/state-configuration-sample/azuredeploy-linux-vm.json",
-        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/state-configuration-sample/azuredeploy-virtual-network.json"
+        "state-config-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/azure-automation-state-configuration/azuredeploy-state-config.json",
+        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/azure-automation-state-configuration/azuredeploy-windows-vm.json",
+        "linux-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/azure-automation-state-configuration/azuredeploy-linux-vm.json",
+        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/dsc-sample-arm-template/OperationalExcellence/azure-automation-state-configuration/azuredeploy-virtual-network.json"
     },
     "resources": [
         {

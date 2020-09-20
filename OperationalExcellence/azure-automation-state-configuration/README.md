@@ -33,10 +33,10 @@ To use the Azure CLI, run the following commands for the root of this repository
 ```azurecli
 az group create --name state-config-demo --location eastus
 
-az deployment group create --template-file OperationalExcellence/state-configuration-sample/azuredeploy.json --resource-group state-config-demo --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
+az deployment group create --template-file OperationalExcellence/azure-automation-state-configuration/azuredeploy.json --resource-group state-config-demo --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
 ```
 
-Once done, the following resource will have been deployed to your Azure Subscription.
+Once done, the following resource will have been deployed to your Azure Subscription (partial list).
 
 ![Image of the resources deployed by ARM template as seen in the Azure Portal.](./images/dsc-resources.png)
 
