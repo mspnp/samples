@@ -12,15 +12,19 @@ This Azure Resource Manager (ARM) template sample deploys an Ubuntu virtual mach
 
 ## Deploy sample
 
-**Azure portal**
+### Azure portal
 
 To deploy this template using the Azure portal, click this button.
+
+<br />
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fscript-extension%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-**Azure CLI**
+<br />
+
+### Azure CLI
 
 To use the Azure CLI, run the following commands for the root of this repository.
 
