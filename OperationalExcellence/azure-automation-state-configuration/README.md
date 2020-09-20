@@ -14,11 +14,11 @@ The deployment is broken down into several ARM templates.
 
 | File name | Description |
 |---|---|
-| azuredeploy.json | Main template responsible for deploying all other templates |
-| azuredeploy-state-congif.json | Deploys Azure Automation, imports the DSC resource for Linux DSC modules, imports and compiles two DSC configuration into Azure Automation State Configuration |
-| azuredeploy-virtual-network.json | Deploys an Azure Virtual Network |
-| azure-deploy-windows-vm.json | Creates 1 to many Windows virtual machines and onboard them into Azure Automation State Configuration. |
-| azure-deploy-linux-vm.json | Creates 1 to many Linux virtual machines and onboard them into Azure Automation State Configuration. |
+| **azuredeploy.json** | Main template responsible for deploying all other templates. |
+| **azuredeploy-state-congif.json** | Deploys Azure Automation, imports the DSC resource for Linux DSC modules, imports and compiles two DSC configuration into Azure Automation State Configuration. |
+| **azuredeploy-virtual-network.json** | Deploys an Azure Virtual Network. |
+| **azure-deploy-windows-vm.json** | Creates 1 to many Windows virtual machines and onboard them into Azure Automation State Configuration. |
+| **azure-deploy-linux-vm.json** | Creates 1 to many Linux virtual machines and onboard them into Azure Automation State Configuration. |
 
 ## Azure portal
 
@@ -58,7 +58,7 @@ Once done, the following resource will have been deployed to your Azure Subscrip
 
 ![Image of the resources deployed by ARM template as seen in the Azure Portal.](./images/dsc-resources.png)
 
-Click on the Azure Automation Account > State Configuration and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
+Click on the **Automation Account** resource and then **State configuration (DSC)** and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
 
 ![Image of DSC compliance results as seen in the Azure portal.](./images/dsc-results.png)
 
