@@ -37,7 +37,7 @@ az group create --name boot-strap-script-extension --location eastus
 Run the following command to initiate the deployment.
 
 ```azurecli
-az deployment group create --template-file ./OperationalExcellence/ScriptExtension/azuredeploy.json --resource-group boot-strap-script-extension --parameters adminUserName=adminuser adminPassword=Password2020!
+az deployment group create --template-file ./samples/OperationalExcellence/script-extension/azuredeploy.json --resource-group boot-strap-script-extension --parameters adminUserName=adminuser adminPassword=Password2020!
 ```
 
 Once done, the following resource will have been deployed to your Azure Subscription.
