@@ -18,7 +18,7 @@ To deploy this ARM template, you will need an Azure Service Principal. For infor
 
 ### Azure portal
 
-To deploy this template using the Azure portal, click this button.  
+To deploy this template using the Azure portal, click this button.
 
 <br />
 
