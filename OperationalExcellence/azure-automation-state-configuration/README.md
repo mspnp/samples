@@ -20,7 +20,7 @@ The deployment is broken down into several ARM templates.
 
 ## Azure portal
 
-To deploy this template using the Azure portal, click this button.
+To deploy this template using the Azure portal, click this button.  
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2FSazure-automation-state-configuraton%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
@@ -28,11 +28,23 @@ To deploy this template using the Azure portal, click this button.
 
 ## Azure CLI
 
-To use the Azure CLI, run the following commands for the root of this repository. If you would like to adjust the number of virtual machines deployed, update the *windowsVMCount* and *linuxVMCount* values.
+To use the Azure CLI, run the following commands for the root of this repository.
+
+Clone the samples repository.
+
+```azurecli
+git clone https://github.com/mspnp/samples.git
+```
+
+Create a resource group for the deployment.
 
 ```azurecli
 az group create --name state-config-demo --location eastus
+```
 
+Run the following command to initiate the deployment. If you would like to adjust the number of virtual machines deployed, update the *windowsVMCount* and *linuxVMCount* values.
+
+```azurecli
 az deployment group create --template-file OperationalExcellence/azure-automation-state-configuration/azuredeploy.json --resource-group state-config-demo --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
 ```
 
@@ -47,3 +59,7 @@ Click on the Azure Automation Account > State Configuration and notice that all 
 Browse to the public IP address of any virtual machine to verify that a web server is running.
 
 ![Image of an Nginx web server default page.](./images/webserver.png)
+
+---
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
