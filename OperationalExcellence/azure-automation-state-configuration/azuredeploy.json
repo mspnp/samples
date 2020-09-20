@@ -1,0 +1,137 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "azureadmin"
+        },
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "windowsVMCount": {
+            "type": "int",
+            "defaultValue": 1
+        },
+        "linuxVMCount": {
+            "type": "int",
+            "defaultValue": 1
+        }
+    },
+    "variables": {
+        "state-config-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplate/azuredeploy-state-config.json",
+        "windows-vm-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplate/azuredeploy-windows-vm.json",
+        "linux-vm-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplate/azuredeploy-linux-vm.json",
+        "virtual-network-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplate/azuredeploy-virtual-network.json"
+    },
+    "resources": [
+        {
+            "name": "state-configuration",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('state-config-template')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "virtual-network",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtual-network-template')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "name": "windows-vm",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windows-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('windowsVMCount')]"
+                    },
+                    "registrationKey": {
+                        "value": "[reference('state-configuration').outputs.registrationKey.value]"
+                    },
+                    "registrationUrl": {
+                        "value": "[reference('state-configuration').outputs.registrationUrl.value]"
+                    },
+                    "nodeConfigurationName": {
+                        "value": "[reference('state-configuration').outputs.nodeConfigurationNameWindows.value]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "linux-vm",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linux-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('linuxVMCount')]"
+                    },
+                    "registrationKey": {
+                        "value": "[reference('state-configuration').outputs.registrationKey.value]"
+                    },
+                    "registrationUrl": {
+                        "value": "[reference('state-configuration').outputs.registrationUrl.value]"
+                    },
+                    "nodeConfigurationName": {
+                        "value": "[reference('state-configuration').outputs.nodeConfigurationNameLinux.value]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    }
+                }
+            }
+        }
+    ]
+}
