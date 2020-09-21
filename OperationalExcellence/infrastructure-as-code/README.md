@@ -16,7 +16,7 @@ To deploy this ARM template, you will need an Azure Service Principal. For infor
 
 ## Deploy sample
 
-### Azure portal
+**Azure portal**
 
 To deploy this template using the Azure portal, click this button.  
 
@@ -26,7 +26,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-### Azure CLI
+**Azure CLI**
 
 Clone the samples repository.
 
@@ -53,6 +53,6 @@ Once done, the following resource will have been deployed to your Azure Subscrip
 
 ![Image of the tailwindtraders.com Azure resources, as seen in the Azure portal.](./images/arm-resources.png)
 
----
+## Code of conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
