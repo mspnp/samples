@@ -22,7 +22,7 @@ The deployment is broken down into several ARM templates.
 
 ## Deploy sample
 
-### Azure portal
+**Azure Portal**
 
 To deploy this template using the Azure portal, click this button.  
 
@@ -32,7 +32,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-### Azure CLI
+**Azure CLI**
 
 Clone the samples repository.
 
@@ -67,6 +67,6 @@ Browse to the public IP address of any virtual machine to verify that a web serv
 
 ![Image of an Nginx web server default page.](./images/webserver.png)
 
----
+## Code of conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

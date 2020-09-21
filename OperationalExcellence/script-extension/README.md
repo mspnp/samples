@@ -12,7 +12,7 @@ This Azure Resource Manager (ARM) template sample deploys an Ubuntu virtual mach
 
 ## Deploy sample
 
-### Azure portal
+**Azure portal**
 
 To deploy this template using the Azure portal, click this button.  
 
@@ -22,7 +22,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-### Azure CLI
+**Azure CLI**
 
 Clone the samples repository.
 
@@ -32,7 +32,7 @@ git clone https://github.com/mspnp/samples.git
 
 Create a resource group for the deployment.
 
-```
+```azurecli
 az group create --name boot-strap-script-extension --location eastus
 ```
 
@@ -53,6 +53,6 @@ Browse to the public IP address of the virtual machine to verify that Nginx has 
 
 ![Image of Nginx default page seen in a web browser.](./images/nginx.png)
 
----
+## Code of conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
