@@ -1,0 +1,142 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "windowsConfiguration": {
+            "type": "object",
+            "defaultValue": {
+                "name": "windowsfeatures",
+                "description": "A configuration for installing IIS.",
+                "script": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/scripts/windows-config.ps1"
+            }
+        },
+        "linuxConfiguration": {
+            "type": "object",
+            "defaultValue": {
+                "name": "linuxpackage",
+                "description": "A configuration for installing Nginx.",
+                "script": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/scripts/linux-config.ps1"
+            }
+        }
+    },
+    "variables": {
+        "automationAccountName": "[uniqueString(resourceGroup().id)]",
+        "moduleUri": "https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg"
+    },
+    "resources": [
+        {
+            "name": "[variables('automationAccountName')]",
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2015-10-31",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "Basic"
+                }
+            },
+            "resources": [
+                {
+                    "name": "nx",
+                    "type": "modules",
+                    "apiVersion": "2015-10-31",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "contentLink": {
+                            "uri": "[variables('moduleUri')]"
+                        }
+                    }
+                },
+                {
+                    "name": "[parameters('linuxConfiguration').name]",
+                    "type": "configurations",
+                    "apiVersion": "2015-10-31",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "logVerbose": false,
+                        "description": "[parameters('linuxConfiguration').description]",
+                        "state": "Published",
+                        "overwrite": "true",
+                        "source": {
+                            "type": "uri",
+                            "value": "[parameters('linuxConfiguration').script]"
+                        }
+                    }
+                },
+                {
+                    "name": "[parameters('linuxConfiguration').name]",
+                    "type": "compilationjobs",
+                    "apiVersion": "2018-01-15",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
+                        "[resourceId('Microsoft.Automation/automationAccounts/configurations', variables('automationAccountName'), parameters('linuxConfiguration').name)]",
+                        "[resourceId('Microsoft.Automation/automationAccounts/modules', variables('automationAccountName'), 'nx')]"
+                    ],
+                    "properties": {
+                        "configuration": {
+                            "name": "[parameters('linuxConfiguration').name]"
+                        }
+                    }
+                },
+                {
+                    "name": "[parameters('windowsConfiguration').name]",
+                    "type": "configurations",
+                    "apiVersion": "2015-10-31",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "logVerbose": false,
+                        "description": "[parameters('windowsConfiguration').description]",
+                        "state": "Published",
+                        "overwrite": "true",
+                        "source": {
+                            "type": "uri",
+                            "value": "[parameters('windowsConfiguration').script]"
+                        }
+                    }
+                },
+                {
+                    "name": "[parameters('windowsConfiguration').name]",
+                    "type": "compilationjobs",
+                    "apiVersion": "2018-01-15",
+                    "location": "[resourceGroup().location]",
+                    "tags": {},
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
+                        "[resourceId('Microsoft.Automation/automationAccounts/configurations', variables('automationAccountName'), parameters('windowsConfiguration').name)]"
+                    ],
+                    "properties": {
+                        "configuration": {
+                            "name": "[parameters('windowsConfiguration').name]"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "registrationKey": {
+            "type": "string",
+            "value": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', variables('automationAccountName')), '2018-01-15').Keys[0].value]"
+        },
+        "registrationUrl": {
+            "type": "string",
+            "value": "[reference(concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))).registrationUrl]"
+        },
+        "nodeConfigurationNameWindows": {
+            "type": "string",
+            "value": "[concat(parameters('windowsConfiguration').name, '.localhost')]"
+        },
+        "nodeConfigurationNameLinux": {
+            "type": "string",
+            "value": "[concat(parameters('linuxConfiguration').name, '.localhost')]"
+        }
+    }
+}

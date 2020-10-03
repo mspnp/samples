@@ -224,5 +224,13 @@ The output of this command is a json structure, you should see the number of ins
     "tier": "Standard"
   },
 
+### Monitoring for Scalability
 
-To learn more about autoscaling, check the [Autoscale best practises](https://docs.microsoft.com/azure/azure-monitor/platform/autoscale-best-practices)
+Use the Get-AzAutoscaleHistory cmdlet to get the history of events related to an Autoscale setting, you need to provide the subscription Id, the resource group name and the autoscale setting name; when you created your custom autoscale rules, the autoscale setting name is auto-generated, you can find it in the portal, under the custom autoscale section of you App Service plan.
+
+```Powershell
+ Get-AzAutoscaleHistory -StartTime 2020-08-03T00:00:00 -EndTime 2020-08-03T18:00:00 -ResourceId "/subscriptions/[your azure subscription]/resourceGroups/[your resource group]/providers/microsoft.insights/autoscalesettings/[you autoscale settings name]" -DetailedOutput
+```
+
+
+To learn more about autoscaling, check the [Autoscale best practices](https://docs.microsoft.com/azure/azure-monitor/platform/autoscale-best-practices)

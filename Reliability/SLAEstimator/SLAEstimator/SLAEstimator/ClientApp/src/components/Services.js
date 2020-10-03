@@ -8,10 +8,11 @@ export class Services extends Component {
         return (
             <div className="services-table">
                 {services.map(service =>
-                    <div className="service-layout" onClick={() => selectService(service.name)} title={"SLA: " + service.sla + " %"}>
+                    <div key={service.name} id={service.name} className="service-layout" onClick={ev => selectService(ev, service.name)} title={"SLA: " + service.sla + " %"}>
                         <div className="service-content-left"><img src={"images/" + service.imageFile}></img></div>
                         <div className="service-content-right"><p>{service.name}</p></div>
                         <div className="service-notes">{service.notes}</div>
+                        <div className="service-hl" ><a id="service-hl" href={service.slaAgreementUrl} target="_blank">SLA, legal info</a></div>
                     </div>
                 )}
             </div>
