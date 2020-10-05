@@ -16,6 +16,12 @@
 		},
 		"subnetName": {
 			"type": "string"
+		},
+		"workSpaceId": {
+			"type": "string"
+		},
+		"workspaceKey": {
+			"type": "string"
 		}
 	},
 	"variables": {
@@ -23,9 +29,7 @@
 		"publicIPAddressName": "windows-pip-",
 		"vmName": "windows-vm-",
 		"windowsOSVersion": "2016-Datacenter",
-		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
-		"dscExtensionModulesUrl": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-azure-automation-pullserver/UpdateLCMforAAPull.zip",
-		"dscExtensionConfigurationFunction": "UpdateLCMforAAPull.ps1\\ConfigureLCMforAAPull"
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
 	},
 	"resources": [
 		{
@@ -109,6 +113,27 @@
 			"copy": {
 				"name": "vmcopy",
 				"count": "[parameters('vmCount')]"
+			}
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(variables('vmName'), copyIndex(), '/OMSExtension')]",
+			"apiVersion": "2019-07-01",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+			],
+			"properties": {
+				"publisher": "Microsoft.EnterpriseCloud.Monitoring",
+				"type": "MicrosoftMonitoringAgent",
+				"typeHandlerVersion": "1.0",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"workspaceId": "[parameters('workSpaceId')]"
+				},
+				"protectedSettings": {
+					"workspaceKey": "[parameters('workspaceKey')]"
+				}
 			}
 		}
 	]

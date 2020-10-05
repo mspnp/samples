@@ -9,16 +9,37 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "windowsVMCount": {
+        "vmCount": {
             "type": "int",
             "defaultValue": 1
+        },
+        "workspaceName": {
+            "type": "string"
         }
     },
     "variables": {
-        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-windows-vm.json",
-        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json"
+        "log-analytics-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplates/azuredeploy-state-config.json",
+        "windows-vm-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplates/azuredeploy-windows-vm.json",
+        "virtual-network-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplates/azuredeploy-state-config.json"
     },
     "resources": [
+        {
+            "name": "log-analytics",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('log-analytics-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "workspaceName": {
+                        "value": "[parameters('workspaceName')]"
+                    }
+                }
+            }
+        },
         {
             "name": "virtual-network",
             "type": "Microsoft.Resources/deployments",
@@ -35,8 +56,8 @@
             "name": "windows-vm",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
+            "dependsOn": [ 
+                "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
             ],
             "properties": {
@@ -53,12 +74,18 @@
                         "value": "[parameters('adminPassword')]"
                     },
                     "vmCount": {
-                        "value": "[parameters('windowsVMCount')]"
+                        "value": "[parameters('vmCount')]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
                     },
                     "subnetName": {
+                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    },
+                    "workSpaceId": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "workspaceKey": {
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
                     }
                 }
