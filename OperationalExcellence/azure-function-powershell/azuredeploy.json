@@ -83,10 +83,10 @@
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
                     },
                     "workSpaceId": {
-                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                        "value": "[reference('log-analytics').outputs.virtualNetworkName.value]"
                     },
                     "workspaceKey": {
-                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                        "value": "[reference('log-analytics').outputs.subnetName.value]"
                     }
                 }
             }
