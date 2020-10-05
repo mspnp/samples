@@ -19,8 +19,9 @@
     },
     "variables": {
         "log-analytics-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-log-analytics.json",
-        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-windows-vm.json",
-        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json"
+        // "powershell-function-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json",
+        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json",
+        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-windows-vm.json"
     },
     "resources": [
         {
@@ -83,10 +84,10 @@
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
                     },
                     "workSpaceId": {
-                        "value": "[reference('log-analytics').outputs.virtualNetworkName.value]"
+                        "value": "[reference('log-analytics').outputs.workSpaceID.value]"
                     },
                     "workspaceKey": {
-                        "value": "[reference('log-analytics').outputs.subnetName.value]"
+                        "value": "[reference('log-analytics').outputs.workSpaceKey.value]"
                     }
                 }
             }

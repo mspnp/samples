@@ -89,7 +89,7 @@
         {
             "type": "microsoft.insights/scheduledqueryrules",
             "apiVersion": "2018-04-16",
-            "name": "alertTest')]",
+            "name": "failed-windows-update",
             "location": "eastus",
             "dependsOn": [
                 "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
@@ -111,7 +111,7 @@
                     "severity": "3",
                     "aznsAction": {
                         "actionGroup": [
-                            "[resourceId('microsoft.insights/actionGroups', parameters('workspaceName'))]"
+                            "[resourceId('microsoft.insights/actionGroups', '/actionGroupTest')]"
                         ]
                     },
                     "trigger": {
