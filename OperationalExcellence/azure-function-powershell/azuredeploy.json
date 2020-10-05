@@ -18,9 +18,9 @@
         }
     },
     "variables": {
-        "log-analytics-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplates/azuredeploy-state-config.json",
-        "windows-vm-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplates/azuredeploy-windows-vm.json",
-        "virtual-network-template": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/nestedtemplates/azuredeploy-state-config.json"
+        "log-analytics-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-log-analytics.json",
+        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-windows-vm.json",
+        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json"
     },
     "resources": [
         {

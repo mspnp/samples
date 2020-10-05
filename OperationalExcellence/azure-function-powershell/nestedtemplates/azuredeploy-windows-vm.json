@@ -134,6 +134,10 @@
 				"protectedSettings": {
 					"workspaceKey": "[parameters('workspaceKey')]"
 				}
+			},
+			"copy": {
+				"name": "extensioncopy",
+				"count": "[parameters('vmCount')]"
 			}
 		}
 	]
