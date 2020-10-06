@@ -96,7 +96,7 @@
             }
         },
         {
-            "name": "linkedDeployment1",
+            "name": "powershell-function",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "dependsOn": [
