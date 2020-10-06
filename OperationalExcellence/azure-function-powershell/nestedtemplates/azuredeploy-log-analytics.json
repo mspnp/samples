@@ -131,6 +131,10 @@
         "workSpaceKey": {
             "type": "string",
             "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName')), '2015-03-20').primarySharedKey]"
+        },
+        "workSpaceResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
         }
     }
 }

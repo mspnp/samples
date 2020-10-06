@@ -5,7 +5,7 @@
         "functionAppName": {
             "type": "string"
         },
-		"workSpaceId": {
+		"workSpaceResourceId": {
 			"type": "string"
 		}
     },
@@ -129,7 +129,7 @@
             "properties": {
                 "ApplicationId": "[parameters('functionAppName')]",
                 "Application_Type": "other",
-                "WorkspaceResourceId": "[parameters('workSpaceId')]"
+                "WorkspaceResourceId": "[parameters('workSpaceResourceId')]"
             },
             "kind": ""
         },
