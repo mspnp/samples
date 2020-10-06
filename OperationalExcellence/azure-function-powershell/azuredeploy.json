@@ -15,11 +15,15 @@
         },
         "workspaceName": {
             "type": "string"
+        },
+        "functionAppName": {
+            "type": "string",
+            "defaultValue": "restart-windows-service"
         }
     },
     "variables": {
         "log-analytics-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-log-analytics.json",
-        "powershell-function-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json",
+        "powershell-function-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-powershell-function.json",
         "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json",
         "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-windows-vm.json"
     },
@@ -96,6 +100,9 @@
             "name": "linkedDeployment1",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -103,6 +110,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "functionAppName": {
+                        "value": "[parameters('functionAppName')]"
+                    }
                 }
             }
         }
