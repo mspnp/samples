@@ -4,7 +4,10 @@
     "parameters": {
         "functionAppName": {
             "type": "string"
-        }
+        },
+		"workSpaceId": {
+			"type": "string"
+		}
     },
     "variables": {
         "hostingPlanName": "[parameters('functionAppName')]",
@@ -125,7 +128,8 @@
             },
             "properties": {
                 "ApplicationId": "[parameters('functionAppName')]",
-                "Application_Type": "other"
+                "Application_Type": "other",
+                "WorkspaceResourceId": "[parameters('workSpaceId')]"
             },
             "kind": ""
         },

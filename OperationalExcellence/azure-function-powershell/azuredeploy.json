@@ -111,6 +111,9 @@
                 "parameters": {
                     "functionAppName": {
                         "value": "[parameters('functionAppName')]"
+                    },
+                    "workSpaceId": {
+                        "value": "[reference('log-analytics').outputs.workSpaceID.value]"
                     }
                 }
             }
