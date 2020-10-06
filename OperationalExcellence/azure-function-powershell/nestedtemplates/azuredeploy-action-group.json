@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string"
+        },
+        "functionKey": {
+            "type": "securestring"
+        }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2019-03-01",
+            "name": "actionGroupTest",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "emailService",
+                "enabled": true,
+                "emailReceivers": [
+                    {
+                        "name": "email_-EmailAction-",
+                        "emailAddress": "nepeters@microsoft.com",
+                        "useCommonAlertSchema": false
+                    }
+                ],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [
+                    {
+                        "name": "restart-service-function-action",
+                        "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('workspaceName'))]",
+                        "functionName": "restart-windows-service",
+                        //"httpTriggerUrl": "https://wksp009.azurewebsites.net/api/restart-windows-service?code=V15AdHLH5ecmlLDR5SMraVloXKj7mXCdACDUmW4cWrG2aPiuLkLxEA==",
+                        "httpTriggerUrl": "[concat(parameters('workspaceName'), '.azurewebsites.net/api/', 'restart-windows-service', '?code=', parameters('functionKey'))]",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}
