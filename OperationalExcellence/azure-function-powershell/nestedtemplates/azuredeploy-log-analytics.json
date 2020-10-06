@@ -83,7 +83,16 @@
                 "automationRunbookReceivers": [],
                 "voiceReceivers": [],
                 "logicAppReceivers": [],
-                "azureFunctionReceivers": []
+                "azureFunctionReceivers": [
+                    {
+                        "name": "restart-service-function-action",
+                        "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('sites_wksp009_name'))]",
+                        "functionName": "restart-windows-service",
+                        //"httpTriggerUrl": "https://wksp009.azurewebsites.net/api/restart-windows-service?code=V15AdHLH5ecmlLDR5SMraVloXKj7mXCdACDUmW4cWrG2aPiuLkLxEA==",
+                        "httpTriggerUrl": "[concat(parameters('workspaceName'), '.azurewebsites.net/api/', 'restart-windows-service', '?code=', 'V15AdHLH5ecmlLDR5SMraVloXKj7mXCdACDUmW4cWrG2aPiuLkLxEA==')]",
+                        "useCommonAlertSchema": true
+                    }
+                ]
             }
         },
         {

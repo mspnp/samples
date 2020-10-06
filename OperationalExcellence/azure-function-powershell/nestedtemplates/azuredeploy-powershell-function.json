@@ -153,5 +153,11 @@
 				"principalType": "ServicePrincipal"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "functionKey": {
+            "type": "string",
+            "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/host/default/'),'2016-08-01').functionKeys.apimanagement]"
+        }
+    }
 }
