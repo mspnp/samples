@@ -137,7 +137,7 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
+            "apiVersion": "2020-04-01-preview",
             "name": "[guid(concat(resourceGroup().id, 'contributor'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','functionIdentity')]"

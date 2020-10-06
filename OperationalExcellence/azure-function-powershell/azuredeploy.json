@@ -17,8 +17,7 @@
             "type": "string"
         },
         "functionAppName": {
-            "type": "string",
-            "defaultValue": "restart-windows-service"
+            "type": "string"
         }
     },
     "variables": {
