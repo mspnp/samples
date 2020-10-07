@@ -155,9 +155,9 @@
         }
     ],
     "outputs": {
-        "functionKey": {
-            "type": "string",
-            "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/host/default/'),'2018-02-01').functionKeys.apimanagement]"
-        }
+        // "functionKey": {
+        //     "type": "string",
+        //     "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/host/default/'),'2018-02-01').functionKeys.apimanagement]"
+        // }
     }
 }
