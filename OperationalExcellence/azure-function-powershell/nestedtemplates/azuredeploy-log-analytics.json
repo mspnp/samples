@@ -57,42 +57,6 @@
                 "Query": "Event\n| where EventLog == 'System' and EventID == 7036 and Source == 'Service Control Manager'\n| parse kind=relaxed EventData with * '<Data Name=\"param1\">' ServiceName '</Data><Data Name=\"param2\">' ServiceState '</Data>' *\n| where ServiceName == 'Windows Update'\n| where ServiceState == 'stopped'\n| where TimeGenerated > now() - 5m\n| project Computer, ServiceName, ServiceState, TimeGenerated",
                 "Version": 2
             }
-        },
-        {
-            "type": "microsoft.insights/scheduledqueryrules",
-            "apiVersion": "2018-04-16",
-            "name": "failed-windows-update",
-            "location": "eastus",
-            "dependsOn": [
-                "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
-                "[resourceId('microsoft.insights/actionGroups', 'actionGroupTest')]"
-            ],
-            "properties": {
-                "enabled": "true",
-                "source": {
-                    "query": "Event\n| where EventLog == 'System' and EventID == 7036 and Source == 'Service Control Manager'\n| parse kind=relaxed EventData with * '<Data Name=\"param1\">' ServiceName '</Data><Data Name=\"param2\">' ServiceState '</Data>' *\n| where ServiceName == 'Windows Update'\n| where ServiceState == 'stopped'\n| where TimeGenerated > now() - 5m\n| project Computer, ServiceName, ServiceState\n",
-                    "authorizedResources": [],
-                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
-                    "queryType": "ResultCount"
-                },
-                "schedule": {
-                    "frequencyInMinutes": 5,
-                    "timeWindowInMinutes": 5
-                },
-                "action": {
-                    "severity": "3",
-                    "aznsAction": {
-                        "actionGroup": [
-                            "[resourceId('microsoft.insights/actionGroups', 'actionGroupTest')]"
-                        ]
-                    },
-                    "trigger": {
-                        "thresholdOperator": "GreaterThan",
-                        "threshold": 0
-                    },
-                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction"
-                }
-            }
         }
     ],
     "outputs": {
