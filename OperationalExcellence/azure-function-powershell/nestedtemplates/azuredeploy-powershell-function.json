@@ -101,8 +101,8 @@
                 "name": "[variables('hostingPlanName')]"
             },
             "sku": {
-                "name": "Y1",
-                "tier": "Dynamic"
+                "name": "S1",
+                "tier": "ElasticPremium"
             }
         },
         {
