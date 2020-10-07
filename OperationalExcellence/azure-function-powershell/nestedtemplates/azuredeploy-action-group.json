@@ -70,14 +70,13 @@
                 "voiceReceivers": [],
                 "logicAppReceivers": [],
                 "azureFunctionReceivers": [
-                    // {
-                    //     "name": "restart-service-function-action",
-                    //     "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('workspaceName'))]",
-                    //     "functionName": "restart-windows-service",
-                    //     //"httpTriggerUrl": "https://wksp009.azurewebsites.net/api/restart-windows-service?code=V15AdHLH5ecmlLDR5SMraVloXKj7mXCdACDUmW4cWrG2aPiuLkLxEA==",
-                    //     "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/', 'restart-windows-service', '?code=', parameters('functionKey'))]",
-                    //     "useCommonAlertSchema": true
-                    // }
+                    {
+                        "name": "restart-service-function-action",
+                        "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('workspaceName'))]",
+                        "functionName": "restart-windows-service",
+                        "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/', 'restart-windows-service', '?code=', parameters('functionKey'))]",
+                        "useCommonAlertSchema": true
+                    }
                 ]
             }
         }
