@@ -5,9 +5,9 @@
         "functionAppName": {
             "type": "string"
         },
-		"workSpaceResourceId": {
-			"type": "string"
-		}
+        "workSpaceResourceId": {
+            "type": "string"
+        }
     },
     "variables": {
         "hostingPlanName": "[parameters('functionAppName')]",
@@ -33,12 +33,12 @@
                 "[resourceId('microsoft.insights/components/', parameters('functionAppName'))]",
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','functionIdentity')]"
             ],
-			"identity": {
-				"type": "UserAssigned",
-				"userAssignedIdentities": {
-					"[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'functionIdentity')]": {}
-				}
-			},
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'functionIdentity')]": {}
+                }
+            },
             "properties": {
                 "siteConfig": {
                     "appSettings": [
@@ -150,14 +150,14 @@
                 "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'functionIdentity'), '2018-11-30').principalId]",
                 "scope": "[resourceGroup().id]",
-				"principalType": "ServicePrincipal"
+                "principalType": "ServicePrincipal"
             }
         }
-    ]
-    // "outputs": {
-    //     "functionKey": {
-    //         "type": "string",
-    //         "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/host/default/'),'2016-08-01').functionKeys.apimanagement]"
-    //     }
-    // }
+    ],
+    "outputs": {
+        "functionKey": {
+            "type": "string",
+            "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/host/default/'),'2018-02-01').functionKeys.apimanagement]"
+        }
+    }
 }
