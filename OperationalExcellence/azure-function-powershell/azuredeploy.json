@@ -118,26 +118,26 @@
                     }
                 }
             }
+        },
+        {
+            "name": "action-group",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('action-group-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "workspaceName": {
+                        "value": "[parameters('workspaceName')]"
+                    },
+                    "functionKey": {
+                        "value": "[reference('powershell-function').outputs.functionKey.value]"
+                    }
+                }
+            }
         }
-        // {
-        //     "name": "action-group",
-        //     "type": "Microsoft.Resources/deployments",
-        //     "apiVersion": "2019-10-01",
-        //     "properties": {
-        //         "mode": "Incremental",
-        //         "templateLink": {
-        //             "uri": "[variables('action-group-template')]",
-        //             "contentVersion": "1.0.0.0"
-        //         },
-        //         "parameters": {
-        //             "workspaceName": {
-        //                 "value": "[parameters('workspaceName')]"
-        //             },
-        //             "functionKey": {
-        //                 "value": "[reference('powershell-function').outputs.functionKey.value]"
-        //             }
-        //         }
-        //     }
-        // }
     ]
 }
