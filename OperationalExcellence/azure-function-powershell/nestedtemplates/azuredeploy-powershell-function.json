@@ -145,7 +145,8 @@
             "apiVersion": "2020-04-01-preview",
             "name": "[guid(concat(resourceGroup().id, 'contributor'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','functionIdentity')]"
+                // "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities','functionIdentity')]"
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
             ],
             "properties": {
                 "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
