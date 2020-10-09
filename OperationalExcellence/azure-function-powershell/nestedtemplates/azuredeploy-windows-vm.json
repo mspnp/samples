@@ -157,7 +157,11 @@
                 "settings": {
                     "commandToExecute": "[variables('bootStrapCommand')]"
                 }
-            }
+            },
+			"copy": {
+				"name": "extensioncopy",
+				"count": "[parameters('vmCount')]"
+			}
         }
 	]
 }
