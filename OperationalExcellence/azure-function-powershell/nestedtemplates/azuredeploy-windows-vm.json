@@ -150,9 +150,9 @@
                 "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
             ],
             "properties": {
-                "publisher": "Microsoft.Azure.Extensions",
-                "type": "CustomScript",
-                "typeHandlerVersion": "2.1",
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "commandToExecute": "[variables('bootStrapCommand')]"
