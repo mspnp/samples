@@ -9,8 +9,6 @@
             "type": "securestring"
         }
     },
-    "functions": [],
-    "variables": {},
     "resources": [
         {
             "type": "microsoft.insights/scheduledqueryrules",
