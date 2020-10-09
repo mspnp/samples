@@ -30,7 +30,7 @@
 		"vmName": "windows-vm-",
 		"windowsOSVersion": "2016-Datacenter",
 		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
-		"bootStrapCommand": "Install-WindowsFeature -name Web-Server -IncludeManagementTools"
+		"bootStrapCommand": "powershell Install-WindowsFeature -name Web-Server -IncludeManagementTools"
 	},
 	"resources": [
 		{
