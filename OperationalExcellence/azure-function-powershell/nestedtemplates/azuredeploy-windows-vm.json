@@ -29,7 +29,8 @@
 		"publicIPAddressName": "windows-pip-",
 		"vmName": "windows-vm-",
 		"windowsOSVersion": "2016-Datacenter",
-		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
+		"bootStrapCommand": "Install-WindowsFeature -name Web-Server -IncludeManagementTools"
 	},
 	"resources": [
 		{
@@ -139,6 +140,24 @@
 				"name": "extensioncopy",
 				"count": "[parameters('vmCount')]"
 			}
-		}
+		},
+        {
+			"name": "[concat(variables('vmName'), copyIndex(), '/config')]",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+			"location": "[resourceGroup().location]",
+            "apiVersion": "2019-03-01",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "commandToExecute": "[variables('bootStrapCommand')]"
+                }
+            }
+        }
 	]
 }
