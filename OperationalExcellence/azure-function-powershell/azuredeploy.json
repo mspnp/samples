@@ -142,6 +142,9 @@
                     },
                     "functionKey": {
                         "value": "[reference('powershell-function').outputs.functionKey.value]"
+                    },
+                    "serviceToMonitor": {
+                        "value": "[parameters('serviceToMonitor')]"
                     }
                 }
             }
