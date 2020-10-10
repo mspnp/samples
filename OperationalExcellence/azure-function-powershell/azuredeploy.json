@@ -18,6 +18,10 @@
         },
         "functionAppName": {
             "type": "string"
+        },
+        "serviceToMonitor": {
+            "type": "string",
+            "defaultValue": "World Wide Web Publishing Service"
         }
     },
     "variables": {
@@ -41,6 +45,9 @@
                 "parameters": {
                     "workspaceName": {
                         "value": "[parameters('workspaceName')]"
+                    },
+                    "serviceToMonitor": {
+                        "value": "[parameters('serviceToMonitor')]"
                     }
                 }
             }
