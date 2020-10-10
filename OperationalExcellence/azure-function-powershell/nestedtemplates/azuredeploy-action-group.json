@@ -73,7 +73,8 @@
                         "name": "restart-service-function-action",
                         "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('workspaceName'))]",
                         "functionName": "restart-windows-service",
-                        "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/', parameters('serviceToMonitor'), '?code=', parameters('functionKey'))]",
+                        // "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/', parameters('serviceToMonitor'), '?code=', parameters('functionKey'))]",
+                        "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/restart-windows-service?code=', parameters('functionKey'))]",
                         "useCommonAlertSchema": true
                     }
                 ]
