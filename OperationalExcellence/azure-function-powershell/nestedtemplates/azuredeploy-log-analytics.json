@@ -50,7 +50,7 @@
         {
             "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
             "apiVersion": "2020-03-01-preview",
-            "name": "[concat(parameters('workspaceName'), '-', 'copyIndex()', '/91192b47-5f04-4215-a142-1fcb2b1622b1')]",
+            "name": "[concat(parameters('workspaceName'), '-', copyIndex(), '/91192b47-5f04-4215-a142-1fcb2b1622b1')]",
             "dependsOn": [
                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
             ],
