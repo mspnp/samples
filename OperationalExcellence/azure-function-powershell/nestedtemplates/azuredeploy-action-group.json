@@ -46,7 +46,7 @@
                 }
             },
             "copy": {
-                "name": "storagecopy",
+                "name": "copy",
                 "count": "[length(parameters('serviceToMonitor'))]"
             }
         },
@@ -83,7 +83,7 @@
                 ]
             },
             "copy": {
-                "name": "storagecopy",
+                "name": "copy",
                 "count": "[length(parameters('serviceToMonitor'))]"
             }
         }

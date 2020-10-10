@@ -61,7 +61,7 @@
                 "Version": 2
             },
             "copy": {
-                "name": "storagecopy",
+                "name": "copy",
                 "count": "[length(parameters('serviceToMonitor'))]"
             }
         }
