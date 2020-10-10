@@ -20,8 +20,11 @@
             "type": "string"
         },
         "serviceToMonitor": {
-            "type": "string",
-            "defaultValue": "World Wide Web Publishing Service"
+            "type": "array",
+            "defaultValue": [
+                "World Wide Web Publishing Service",
+                "Windows Update"
+            ]
         }
     },
     "variables": {
