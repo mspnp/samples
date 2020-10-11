@@ -22,6 +22,10 @@
         "serviceToMonitor": {
             "type": "string",
             "defaultValue": "World Wide Web Publishing Service"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
         }
     },
     "variables": {
@@ -53,6 +57,9 @@
                     },
                     "alertQuery": {
                         "value": "[variables('alertQuery')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -66,6 +73,11 @@
                 "templateLink": {
                     "uri": "[variables('virtual-network-template')]",
                     "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
                 }
             }
         },
@@ -73,7 +85,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
-            "dependsOn": [ 
+            "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
             ],
@@ -104,6 +116,9 @@
                     },
                     "workspaceKey": {
                         "value": "[reference('log-analytics').outputs.workSpaceKey.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -130,6 +145,9 @@
                     },
                     "functionSourceRepo": {
                         "value": "[variables('functionSourceRepo')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -156,6 +174,9 @@
                     },
                     "alertQuery": {
                         "value": "[variables('alertQuery')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
