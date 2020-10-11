@@ -22,9 +22,9 @@
     },
     "resources": [
         {
-            "name": "[parameters('functionAppName')]",
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-02-01",
+            "name": "[parameters('functionAppName')]",
             "location": "[variables('location')]",
             "kind": "functionapp",
             "dependsOn": [
@@ -74,9 +74,9 @@
             },
             "resources": [
                 {
+                    "type": "sourcecontrols",
                     "apiVersion": "2018-11-01",
                     "name": "web",
-                    "type": "sourcecontrols",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/Sites/', parameters('functionAppName'))]"
                     ],
@@ -105,8 +105,8 @@
             }
         },
         {
-            "apiVersion": "2017-06-01",
             "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2017-06-01",
             "name": "[variables('storageAccountName')]",
             "location": "[variables('location')]",
             "sku": {
@@ -115,9 +115,9 @@
             "kind": "Storage"
         },
         {
+            "type": "Microsoft.Insights/components",
             "apiVersion": "2020-02-02-preview",
             "name": "[parameters('functionAppName')]",
-            "type": "Microsoft.Insights/components",
             "location": "[variables('ApplicationInsightsLocation')]",
             "tags": {
                 "[concat('hidden-link:', resourceId('Microsoft.Web/sites/', parameters('functionAppName')))]": "Resource"
@@ -126,8 +126,7 @@
                 "ApplicationId": "[parameters('functionAppName')]",
                 "Application_Type": "other",
                 "WorkspaceResourceId": "[parameters('workSpaceResourceId')]"
-            },
-            "kind": ""
+            }
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",

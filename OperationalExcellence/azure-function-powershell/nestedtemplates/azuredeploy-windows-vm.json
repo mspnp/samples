@@ -34,23 +34,27 @@
 	},
 	"resources": [
 		{
-			"apiVersion": "2020-05-01",
 			"type": "Microsoft.Network/publicIPAddresses",
+			"apiVersion": "2020-05-01",
 			"name": "[concat(variables('publicIPAddressName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
-			"properties": {
-				"publicIPAllocationMethod": "Dynamic"
-			},
 			"copy": {
 				"name": "pipcopy",
 				"count": "[parameters('vmCount')]"
+			},
+			"properties": {
+				"publicIPAllocationMethod": "Dynamic"
 			}
 		},
 		{
-			"apiVersion": "2020-05-01",
 			"type": "Microsoft.Network/networkInterfaces",
+			"apiVersion": "2020-05-01",
 			"name": "[concat(variables('nicName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
+			"copy": {
+				"name": "niccopy",
+				"count": "[parameters('vmCount')]"
+			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName'), copyIndex()))]"
 			],
@@ -69,17 +73,17 @@
 						}
 					}
 				]
-			},
-			"copy": {
-				"name": "niccopy",
-				"count": "[parameters('vmCount')]"
 			}
 		},
 		{
-			"apiVersion": "2019-07-01",
 			"type": "Microsoft.Compute/virtualMachines",
+			"apiVersion": "2019-07-01",
 			"name": "[concat(variables('vmName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
+			"copy": {
+				"name": "vmcopy",
+				"count": "[parameters('vmCount')]"
+			},
 			"dependsOn": [
 				"[concat(variables('nicName'), copyIndex())]"
 			],
@@ -110,17 +114,17 @@
 						}
 					]
 				}
-			},
-			"copy": {
-				"name": "vmcopy",
-				"count": "[parameters('vmCount')]"
 			}
 		},
 		{
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"name": "[concat(variables('vmName'), copyIndex(), '/OMSExtension')]",
 			"apiVersion": "2019-07-01",
+			"name": "[concat(variables('vmName'), copyIndex(), '/OMSExtension')]",
 			"location": "[resourceGroup().location]",
+			"copy": {
+				"name": "extensioncopy",
+				"count": "[parameters('vmCount')]"
+			},
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
 			],
@@ -135,20 +139,20 @@
 				"protectedSettings": {
 					"workspaceKey": "[parameters('workspaceKey')]"
 				}
-			},
-			"copy": {
-				"name": "extensioncopy",
-				"count": "[parameters('vmCount')]"
 			}
 		},
         {
-			"name": "[concat(variables('vmName'), copyIndex(), '/config')]",
             "type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(variables('vmName'), copyIndex(), '/config')]",
 			"location": "[resourceGroup().location]",
             "apiVersion": "2019-03-01",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
             ],
+			"copy": {
+				"name": "extensioncopy",
+				"count": "[parameters('vmCount')]"
+			},
             "properties": {
                 "publisher": "Microsoft.Compute",
                 "type": "CustomScriptExtension",
@@ -157,11 +161,7 @@
                 "settings": {
                     "commandToExecute": "[variables('bootStrapCommand')]"
                 }
-            },
-			"copy": {
-				"name": "extensioncopy",
-				"count": "[parameters('vmCount')]"
-			}
+            }
         }
 	]
 }

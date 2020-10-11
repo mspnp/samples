@@ -18,7 +18,6 @@
             "apiVersion": "2018-04-16",
             "name": "[parameters('serviceToMonitor')]",
             "location": "eastus",
-            "dependsOn": [],
             "properties": {
                 "enabled": "true",
                 "source": {

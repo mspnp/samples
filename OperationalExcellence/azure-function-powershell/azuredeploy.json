@@ -25,17 +25,17 @@
         }
     },
     "variables": {
-        "log-analytics-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-log-analytics.json",
-        "powershell-function-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-powershell-function.json",
-        "virtual-network-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-virtual-network.json",
-        "windows-vm-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-windows-vm.json",
-        "action-group-template": "https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/nestedtemplates/azuredeploy-action-group.json"
+        "log-analytics-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-log-analytics.json')]",
+        "powershell-function-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-powershell-function.json')]",
+        "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
+        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
+        "action-group-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-action-group.json')]"
     },
     "resources": [
         {
-            "name": "log-analytics",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "log-analytics",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -53,9 +53,9 @@
             }
         },
         {
-            "name": "virtual-network",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "virtual-network",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -65,9 +65,9 @@
             }
         },
         {
-            "name": "windows-vm",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "windows-vm",
             "dependsOn": [ 
                 "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
@@ -104,9 +104,9 @@
             }
         },
         {
-            "name": "powershell-function",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "powershell-function",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]"
             ],
@@ -127,9 +127,9 @@
             }
         },
         {
-            "name": "action-group",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "action-group",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
