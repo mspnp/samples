@@ -6,9 +6,7 @@ products:
 - azure
 ---
 
-# Azure Well Architected Framework Sample (Custom Script Extension)
-
-This Azure Resource Manager (ARM) template sample deploys an Ubuntu virtual machine and uses the custom script extension to install Nginx on the VM.
+# Azure Well Architected Framework Sample (Azure Monitor Alert and Azure PowerShell Function)
 
 ## Deploy sample
 
@@ -24,12 +22,6 @@ To deploy this template using the Azure portal, click this button.
 
 **Azure CLI**
 
-Clone the samples repository.
-
-```azurecli
-git clone https://github.com/mspnp/samples.git
-```
-
 Create a resource group for the deployment.
 
 ```azurecli
@@ -40,18 +32,9 @@ Run the following command to initiate the deployment.
 
 ```azurecli
 az deployment group create \
-    --template-file ./samples/OperationalExcellence/script-extension/azuredeploy.json \
-    --resource-group boot-strap-script-extension \
-    --parameters adminUserName=adminuser adminPassword=Password2020!
+    --resource-group uri-test-001 \
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! workspaceName=uri-test-001 functionAppName=uri-test-001
 ```
-
-Once done, the following resource will have been deployed to your Azure Subscription.
-
-![Image of Azure resources, as seen in the Azure portal.](./images/custom-script-demo-resources.png)
-
-Browse to the public IP address of the virtual machine to verify that Nginx has been installed.
-
-![Image of Nginx default page seen in a web browser.](./images/nginx.png)
 
 ## Code of conduct
 

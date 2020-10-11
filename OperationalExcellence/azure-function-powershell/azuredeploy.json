@@ -29,7 +29,8 @@
         "powershell-function-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-powershell-function.json')]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
-        "action-group-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-action-group.json')]"
+        "action-group-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-action-group.json')]",
+        "alertQuery": "[concat('Event\n| where EventLog == ''System'' and EventID == 7036 and Source == ''Service Control Manager''\n| parse kind=relaxed EventData with * ''<Data Name=\"param1\">'' ServiceName ''</Data><Data Name=\"param2\">'' ServiceState ''</Data>'' *\n| where ServiceName == ''', parameters('serviceToMonitor'), '''\n| where ServiceState == ''stopped''\n| where TimeGenerated > now() - 5m\n| project Computer, ServiceName, ServiceState, TimeGenerated, _ResourceId')]"
     },
     "resources": [
         {
@@ -48,6 +49,9 @@
                     },
                     "serviceToMonitor": {
                         "value": "[parameters('serviceToMonitor')]"
+                    },
+                    "alertQuery": {
+                        "value": "[variables('alertQuery')]"
                     }
                 }
             }
@@ -145,6 +149,9 @@
                     },
                     "serviceToMonitor": {
                         "value": "[parameters('serviceToMonitor')]"
+                    },
+                    "alertQuery": {
+                        "value": "[variables('alertQuery')]"
                     }
                 }
             }
