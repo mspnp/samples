@@ -7,12 +7,14 @@
         },
         "workSpaceResourceId": {
             "type": "string"
+        },
+        "functionSourceRepo": {
+            "type": "string"
         }
     },
     "variables": {
         "hostingPlanName": "[parameters('functionAppName')]",
         "storageAccountName": "[concat('storage', uniquestring(resourceGroup().id))]",
-        "repoUrl": "https://github.com/neilpeterson/restart-windows-service-function.git",
         "branch": "master",
         "location": "[resourceGroup().location]",
         "ApplicationInsightsLocation": "West Europe",
@@ -81,7 +83,7 @@
                         "[resourceId('Microsoft.Web/Sites/', parameters('functionAppName'))]"
                     ],
                     "properties": {
-                        "RepoUrl": "[variables('repoURL')]",
+                        "RepoUrl": "[parameters('functionSourceRepo')]",
                         "branch": "[variables('branch')]",
                         "IsManualIntegration": true
                     }
