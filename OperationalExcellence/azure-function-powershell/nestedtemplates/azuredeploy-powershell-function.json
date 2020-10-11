@@ -10,13 +10,15 @@
         },
         "functionSourceRepo": {
             "type": "string"
+        },
+        "location": {
+            "type": "string"
         }
     },
     "variables": {
         "hostingPlanName": "[parameters('functionAppName')]",
         "storageAccountName": "[concat('storage', uniquestring(resourceGroup().id))]",
         "branch": "master",
-        "location": "[resourceGroup().location]",
         "ApplicationInsightsLocation": "West Europe",
         "timezone": "UTC",
         "runtimeStack": "powershell",
@@ -27,7 +29,7 @@
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-02-01",
             "name": "[parameters('functionAppName')]",
-            "location": "[variables('location')]",
+            "location": "[parameters('location')]",
             "kind": "functionapp",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
@@ -94,7 +96,7 @@
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
             "name": "[variables('hostingPlanName')]",
-            "location": "[variables('location')]",
+            "location": "[parameters('location')]",
             "properties": {
                 "name": "[variables('hostingPlanName')]"
             },
@@ -110,7 +112,7 @@
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2017-06-01",
             "name": "[variables('storageAccountName')]",
-            "location": "[variables('location')]",
+            "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard_LRS"
             },

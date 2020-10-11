@@ -13,6 +13,9 @@
         },
         "alertQuery": {
             "type": "string"
+        },
+        "location": {
+            "type": "string"
         }
     },
     "resources": [
@@ -20,7 +23,7 @@
             "type": "microsoft.insights/scheduledqueryrules",
             "apiVersion": "2018-04-16",
             "name": "[parameters('serviceToMonitor')]",
-            "location": "eastus",
+            "location": "[parameters('location')]",
             "properties": {
                 "enabled": "true",
                 "source": {
