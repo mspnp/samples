@@ -58,12 +58,26 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "first_rule",
+                        "name": "HTTP",
                         "properties": {
-                            "description": "HTTPS",
+                            "description": "HTTP",
                             "protocol": "Tcp",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "443",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "RDP",
+                        "properties": {
+                            "description": "RDP",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
