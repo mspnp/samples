@@ -16,6 +16,9 @@
         },
         "location": {
             "type": "string"
+        },
+        "emailAddress": {
+            "type": "string"
         }
     },
     "resources": [
@@ -61,8 +64,8 @@
                 "enabled": true,
                 "emailReceivers": [
                     {
-                        "name": "email_-EmailAction-",
-                        "emailAddress": "nepeters@microsoft.com",
+                        "name": "emailAction",
+                        "emailAddress": "[parameters('emailAddress')]",
                         "useCommonAlertSchema": false
                     }
                 ],
@@ -78,7 +81,6 @@
                         "name": "restart-service-function-action",
                         "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('workspaceName'))]",
                         "functionName": "restart-windows-service",
-                        // "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/', parameters('serviceToMonitor'), '?code=', parameters('functionKey'))]",
                         "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/restart-windows-service?code=', parameters('functionKey'))]",
                         "useCommonAlertSchema": true
                     }
