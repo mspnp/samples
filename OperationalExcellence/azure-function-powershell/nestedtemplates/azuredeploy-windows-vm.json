@@ -25,9 +25,9 @@
 		}
 	},
 	"variables": {
-		"nicName": "windows-nic-",
-		"publicIPAddressName": "windows-pip-",
-		"vmName": "windows-vm-",
+		"nicName": "windows-nic",
+		"publicIPAddressName": "windows-pip",
+		"vmName": "windows-vm",
 		"windowsOSVersion": "2016-Datacenter",
 		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
 		"bootStrapCommand": "powershell Install-WindowsFeature -name Web-Server -IncludeManagementTools"
