@@ -9,10 +9,6 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "vmCount": {
-            "type": "int",
-            "defaultValue": 1
-        },
         "workspaceName": {
             "type": "string"
         },
@@ -101,9 +97,6 @@
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
-                    },
-                    "vmCount": {
-                        "value": "[parameters('vmCount')]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"

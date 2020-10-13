@@ -8,9 +8,6 @@
 		"adminPassword": {
 			"type": "securestring"
 		},
-		"vmCount": {
-			"type": "int"
-		},
 		"virtualNetworkName": {
 			"type": "string"
 		},
@@ -39,12 +36,8 @@
 		{
 			"type": "Microsoft.Network/publicIPAddresses",
 			"apiVersion": "2020-05-01",
-			"name": "[concat(variables('publicIPAddressName'), copyIndex())]",
+			"name": "[variables('publicIPAddressName')]",
 			"location": "[parameters('location')]",
-			"copy": {
-				"name": "pipcopy",
-				"count": "[parameters('vmCount')]"
-			},
 			"properties": {
 				"publicIPAllocationMethod": "Dynamic"
 			}
@@ -52,14 +45,10 @@
 		{
 			"type": "Microsoft.Network/networkInterfaces",
 			"apiVersion": "2020-05-01",
-			"name": "[concat(variables('nicName'), copyIndex())]",
+			"name": "[variables('nicName')]",
 			"location": "[parameters('location')]",
-			"copy": {
-				"name": "niccopy",
-				"count": "[parameters('vmCount')]"
-			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName'), copyIndex()))]"
+				"[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName')))]"
 			],
 			"properties": {
 				"ipConfigurations": [
@@ -68,7 +57,7 @@
 						"properties": {
 							"privateIPAllocationMethod": "Dynamic",
 							"publicIPAddress": {
-								"id": "[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName'), copyIndex()))]"
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName')))]"
 							},
 							"subnet": {
 								"id": "[variables('subnetRef')]"
@@ -81,21 +70,17 @@
 		{
 			"type": "Microsoft.Compute/virtualMachines",
 			"apiVersion": "2019-07-01",
-			"name": "[concat(variables('vmName'), copyIndex())]",
+			"name": "[variables('vmName')]",
 			"location": "[parameters('location')]",
-			"copy": {
-				"name": "vmcopy",
-				"count": "[parameters('vmCount')]"
-			},
 			"dependsOn": [
-				"[concat(variables('nicName'), copyIndex())]"
+				"[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
 			],
 			"properties": {
 				"hardwareProfile": {
-					"vmSize": "Standard_A1_v2"
+					"vmSize": "Standard_A2_v2"
 				},
 				"osProfile": {
-					"computerName": "[concat(variables('vmName'), copyIndex())]",
+					"computerName": "[variables('vmName')]",
 					"adminUsername": "[parameters('adminUsername')]",
 					"adminPassword": "[parameters('adminPassword')]"
 				},
@@ -113,7 +98,7 @@
 				"networkProfile": {
 					"networkInterfaces": [
 						{
-							"id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'), copyIndex()))]"
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
 						}
 					]
 				}
@@ -122,14 +107,10 @@
 		{
 			"type": "Microsoft.Compute/virtualMachines/extensions",
 			"apiVersion": "2019-07-01",
-			"name": "[concat(variables('vmName'), copyIndex(), '/OMSExtension')]",
+			"name": "[concat(variables('vmName'), '/OMSExtension')]",
 			"location": "[parameters('location')]",
-			"copy": {
-				"name": "extensioncopy",
-				"count": "[parameters('vmCount')]"
-			},
 			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
+				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
 			],
 			"properties": {
 				"publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -146,16 +127,12 @@
 		},
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-			"name": "[concat(variables('vmName'), copyIndex(), '/config')]",
+			"name": "[concat(variables('vmName'), '/config')]",
 			"location": "[parameters('location')]",
             "apiVersion": "2019-03-01",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
             ],
-			"copy": {
-				"name": "extensioncopy",
-				"count": "[parameters('vmCount')]"
-			},
             "properties": {
                 "publisher": "Microsoft.Compute",
                 "type": "CustomScriptExtension",
