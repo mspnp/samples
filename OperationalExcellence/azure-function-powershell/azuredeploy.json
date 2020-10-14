@@ -197,6 +197,9 @@
                 "parameters": {
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }

@@ -41,8 +41,8 @@ Run the following command to initiate the deployment.
 
 ```azurecli
 az deployment group create \
-    --resource-group demo002 \
-    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! workspaceName=demo002niner functionAppName=demo002niner
+    --resource-group bastion002 \
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! workspaceName=bastion002 functionAppName=bastion002 emailAddress=nepeters@microsoft.com
 ```
 
 ## Code of conduct
