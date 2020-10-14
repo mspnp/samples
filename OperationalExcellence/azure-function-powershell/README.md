@@ -34,15 +34,15 @@ To deploy this template using the Azure portal, click this button.
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name demo002 --location eastus
+az group create --name monitor-function-demo --location eastus
 ```
 
 Run the following command to initiate the deployment.
 
 ```azurecli
 az deployment group create \
-    --resource-group bastion002 \
-    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! workspaceName=bastion002 functionAppName=bastion002 emailAddress=nepeters@microsoft.com
+    --resource-group monitor-function-demo \
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! workspaceName=monitor-function-demo functionAppName=monitor-function-demo emailAddress=nepeters@microsoft.com
 ```
 
 ## Code of conduct
