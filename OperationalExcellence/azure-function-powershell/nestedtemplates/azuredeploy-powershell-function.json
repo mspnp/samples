@@ -101,9 +101,9 @@
                 "name": "[variables('hostingPlanName')]",
                 "maximumElasticWorkerCount": 20
             },
-          "sku": {
-                "name": "EP1",
-                "tier": "ElasticPremium"
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic"
             },
             "kind": "elastic"
         },
