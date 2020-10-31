@@ -12,7 +12,7 @@
     },
     "variables": {
         "aks-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks.json')]",
-        "aks-policies-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks-polocies.json')]"
+        "aks-policies-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks-policies.json')]"
     },
     "resources": [
         {
