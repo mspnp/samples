@@ -34,6 +34,18 @@ az deployment group create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/aks-azure-policy/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
 
+Verify that policies have propagated to the cluster. This process could take up to 20 minutes.
+
+```azurecli
+kubectl get constrainttemplate
+```
+
+If you would like to run the command on a loop to visually indicate when policies have propagated down to the cluster, run the following command.
+
+```azurecli
+while $true; do kubectl get constrainttemplate; sleep 5; done
+```
+
 ## Code of conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
