@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "[concat( 'pa-allowed-registries-images-', parameters('clusterName'))]",
+            "properties": {
+                "scope": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroup().name)]",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/febd0533-8e55-448f-b837-bd0e06f16469",
+                "parameters": {
+                    "allowedContainerImagesRegex": {
+                        "value": "nginx"
+                    },
+                    "excludedNamespaces": {
+                        "value": [
+                            "kube-system",
+                            "gatekeeper-system",
+                            "cluster-baseline-settings"
+                        ]
+                    },
+                    "effect": {
+                        "value": "deny"
+                    }
+                }
+            }
+        }
+    ]
+}

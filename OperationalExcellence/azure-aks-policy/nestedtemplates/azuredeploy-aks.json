@@ -1,0 +1,59 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.1",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The location of the Managed Cluster resource."
+            }
+        }
+    },
+    "variables": {
+        "clusterName": "azurePolicyDemo",
+        "dnsPrefix": "[uniqueString(subscription().subscriptionId, resourceGroup().id, variables('clusterName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-07-01",
+            "type": "Microsoft.ContainerService/managedClusters",
+            "name": "[variables('clusterName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "dnsPrefix": "[variables('dnsPrefix')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "osDiskSizeGB": 0,
+                        "storageProfile": "ManagedDisks",
+                        "count": 3,
+                        "osType": "Linux",
+                        "vmSize": "Standard_A2_v2",
+                        "mode": "System"
+                    }
+                ],
+                "servicePrincipalProfile": {
+                    "clientId": "msi"
+                },
+                "addonProfiles": {
+                    "azurepolicy": {
+                        "enabled": true,
+                        "config": {
+                            "version": "v2"
+                        }
+                    }
+                }
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            }
+        }
+    ],
+    "outputs": {
+        "clusterName": {
+            "type": "string",
+            "value": "[variables('clusterName')]"
+        }
+    }
+}
