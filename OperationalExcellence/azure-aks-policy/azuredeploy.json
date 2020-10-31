@@ -11,8 +11,8 @@
         }
     },
     "variables": {
-        "aks-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/aks-template.json')]",
-        "aks-policies-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/aks-policies-template.json')]"
+        "aks-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks.json')]",
+        "aks-policies-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks-polocies.json')]"
     },
     "resources": [
         {
