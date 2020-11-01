@@ -25,7 +25,7 @@ To deploy this template using the Azure portal, click this button.
 </a>  
 
 <br />
-
+<br />
 
 **Azure CLI**
 
