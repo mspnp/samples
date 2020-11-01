@@ -28,14 +28,14 @@ To deploy this template using the Azure portal, click this button.
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name aks-azure-policy-two --location eastus
+az group create --name aks-azure-policy --location eastus
 ```
 
 Run the following command to initiate the deployment.
 
 ```azurecli
 az deployment group create \
-    --resource-group aks-azure-policy-two \
+    --resource-group aks-azure-policy \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/aks-azure-policy/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
 

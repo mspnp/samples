@@ -48,7 +48,7 @@
                         ]
                     },
                     "effect": {
-                        "value": "deny"
+                        "value": "audit"
                     }
                 }
             }
