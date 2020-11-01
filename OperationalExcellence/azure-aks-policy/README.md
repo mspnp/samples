@@ -4,7 +4,7 @@ languages:
 - azurecli
 products:
 - azure
-- azure kubernetes service
+- azure-kubernetes-service
 ---
 
 # Azure Well Architected Framework Sample (Secure AKS Cluster Pods with Azure Policy)
@@ -17,7 +17,9 @@ In this sample, an AKS cluster is deployed, a policy applied to the cluster that
 
 **Azure portal**
 
-To deploy this template using the Azure portal, click this button.  
+To deploy this template using the Azure portal, click this button.
+
+<br />
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fsamples%2Fazure-function-powershell%2FOperationalExcellence%2Fazure-aks-policy%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
@@ -57,52 +59,35 @@ while $true; do kubectl get constrainttemplate; sleep 5; done
 
 ## Policies
 
-Two policies have been applied to the AKS cluster with this deployment. Each detailed below:
+Two policies have been applied to the AKS cluster with this deployment. With these policies, you can only run pods that match the image specified during deployment. Any other pod / image combination is denied. You do not need to add the appropriate label; however, the pod label policy will return as non-compliant, which you will see in the demo.
 
 | Policy Description | Details | Effect | 
 |---|---|---|
 | Ensure only allowed container images in the Kubernetes cluster. | Default = nginx, can be changed at deployment time. | Deny |
-| Enforce labels on pods in the Kubernetes cluster. | DemoLabel = Demo | audit |
-
-With these policies, you can only run pods that match the image specified during deployment. Any other pod / image combination is denied. You do not need to add the appropriate label; however, the pod label policy will return as non-compliant, which you will see in the demo.
+| Enforce labels on pods in the Kubernetes cluster. | DemoLabel = Demo | Audit |
 
 ## Demo the solution
 
-Create a pod using the `Ubuntu` image. Take note that this has been denied by the policy.
+Create a pod using the `Ubuntu` image.
 
 ```azurecli
-$ kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
+kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
+```
+Take note that this has been denied by the policy.
 
+```
 Error from server ([denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.): admission webhook "validation.gatekeeper.sh" denied the request: [denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.
 ```
 
 Create a pod using the `nginx` image. Because _nginx_ has been designated as an acceptable image, the pod is successfully created.
 
 ```azurecli
-$ kubectl run nginx --generator=run-pod/v1 --image nginx
-
-pod/nginx created
+kubectl run nginx --generator=run-pod/v1 --image nginx
 ```
 
 After some time has passed, browse to Azure Portal > Policy > Compliance. Here you will see that the pod-labels policy is non-compliant.
 
 ![](./images/compliance.png)
-
-## Other Details
-
-### Find the ID of the applied Azure Policy
-
-It is possible to trace the applied Azure Policy from the cluster back to Azure. To see the details of the `constrainttemplate` object, run this command.
-
-```azurecli
-kubectl describe constrainttemplate k8sazurecontainerallowedimages
-```
-
-You will find an annotation on the `constrainttemplate` that includes the Azure Policy ID used to create it.
-
-```yaml
-Annotations:  azure-policy-definition-id: /providers/Microsoft.Authorization/policyDefinitions/febd0533-8e55-448f-b837-bd0e06f16469
-```
 
 ## Code of conduct
 
