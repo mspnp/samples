@@ -24,6 +24,7 @@ To deploy this template using the Azure portal, click this button.
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 <br />
+
 **Azure CLI**
 
 Create a resource group for the deployment.
