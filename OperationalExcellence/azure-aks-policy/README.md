@@ -61,23 +61,20 @@ while $true; do kubectl get constrainttemplate; sleep 5; done
 
 ## Policies
 
-Two policies have been applied to the AKS cluster with this deployment. With these policies, you can only run pods that match the image specified during deployment. Any other pod / image combination is denied. You do not need to add the appropriate label; however, the pod label policy will return as non-compliant, which you will see in the demo.
+Two policies have been applied to the AKS cluster with this deployment.
 
-| Policy Description | Details | Effect | 
+| Name | Value | Effect | 
 |---|---|---|
-| Ensure only allowed container images in the Kubernetes cluster. | Default = nginx, can be changed at deployment time. | Deny |
-| Enforce labels on pods in the Kubernetes cluster. | DemoLabel = Demo | Audit |
+| allowed-images| _nginx__ | Deny |
+| pod-labels | _DemoLabel = Demo_ | Audit |
 
 ## Demo the solution
 
-Create a pod using the `Ubuntu` image.
+Create a pod using the `Ubuntu` image. Take note that this has been denied by the policy.
 
 ```azurecli
-kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
-```
-Take note that this has been denied by the policy.
+$ kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
 
-```
 Error from server ([denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.): admission webhook "validation.gatekeeper.sh" denied the request: [denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.
 ```
 
@@ -87,7 +84,7 @@ Create a pod using the `nginx` image. Because _nginx_ has been designated as an 
 kubectl run nginx --generator=run-pod/v1 --image nginx
 ```
 
-After some time has passed, browse to Azure Portal > Policy > Compliance. Here you will see that the pod-labels policy is non-compliant.
+After some time has passed, browse to **Azure Portal** > **Policy** > **Compliance**. Here you will see that the pod-labels policy is non-compliant.
 
 ![](./images/compliance.png)
 
