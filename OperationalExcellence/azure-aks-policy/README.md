@@ -7,11 +7,11 @@ products:
 - azure-kubernetes-service
 ---
 
-# Azure Well Architected Framework Sample (Secure AKS Cluster Pods with Azure Policy)
+# Azure Well Architected Framework Sample (Secure Azure Kubernetes Service (AKS) Cluster Pods with Azure Policy)
 
 Azure Policy extends Gatekeeper v3, an admission controller webhook for Open Policy Agent (OPA), to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner. Azure Policy makes it possible to manage and report on the compliance state of your Kubernetes clusters from one place.
 
-In this sample, an AKS cluster is deployed, a policy applied to the cluster that only allows specific images to run in the cluster, and some steps are detailed that you can follow to experience Azure Policy protected AKS cluster.
+In this sample, an AKS cluster is deployed, a policy applied to the cluster that only allows specific images to run in the cluster, and some steps are detailed that you can follow to experience an Azure Policy protected AKS cluster.
 
 ## Deploy sample
 
@@ -20,7 +20,7 @@ In this sample, an AKS cluster is deployed, a policy applied to the cluster that
 To deploy this template using the Azure portal, click this button.
 <br />
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fsamples%2Fazure-function-powershell%2FOperationalExcellence%2Fazure-aks-policy%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-aks-policy%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
@@ -32,21 +32,21 @@ To deploy this template using the Azure portal, click this button.
 Create a resource group for the deployment.
 
 ```azurecli
-$ az group create --name aks-azure-policy --location eastus
+$ az group create --name azurePolicyDemo --location eastus
 ```
 
 Run the following command to initiate the deployment.
 
 ```azurecli
 $ az deployment group create \
-    --resource-group aks-azure-policy \
-    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/aks-azure-policy/OperationalExcellence/azure-aks-policy/azuredeploy.json
+    --resource-group azurePolicyDemo \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
 
 Connect with the AKS cluster.
 
 ```azurecli
-$ az aks get-credentials --name azurePolicyDemo --resource-group aks-azure-policy
+$ az aks get-credentials --name azurePolicyDemo --resource-group azurePolicyDemo
 ```
 
 Verify that policies have propagated to the cluster. This process could take up to 20 minutes.
@@ -107,14 +107,14 @@ To see a policy compliance report, open the Azure portal and navigate to **Polic
 To remove the AKS cluster, run the following command.
 
 ```azurecli
-$ az group delete --name aks-azure-policy --yes --no-wait
+$ az group delete --name azurePolicyDemo --yes --no-wait
 ```
 
 You also need to remove the policy assignments; this can be done in the Azure portal or with these Azure CLI commands.
 
 ```azurecli
-$ az policy assignment delete --name pod-labels --resource-group aks-azure-policy
-$ az policy assignment delete --name allowed-images --resource-group aks-azure-policy
+$ az policy assignment delete --name pod-labels --resource-group azurePolicyDemo
+$ az policy assignment delete --name allowed-images --resource-group azurePolicyDemo
 ```
 
 ## Code of conduct
