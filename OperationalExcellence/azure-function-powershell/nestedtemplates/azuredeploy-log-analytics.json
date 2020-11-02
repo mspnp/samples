@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workspaceName": {
-            "type": "string"
-        },
         "serviceToMonitor": {
             "type": "string"
         },
@@ -15,11 +12,14 @@
             "type": "string"
         }
     },
+    "variables": {
+        "workspaceName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]"
+    },
     "resources": [
         {
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2020-03-01-preview",
-            "name": "[parameters('workspaceName')]",
+            "name": "[variables('workspaceName')]",
             "location": "[parameters('location')]",
             "properties": {
                 "sku": {
@@ -33,10 +33,10 @@
         {
             "type": "Microsoft.OperationalInsights/workspaces/dataSources",
             "apiVersion": "2015-11-01-preview",
-            "name": "[concat(parameters('workspaceName'), '/WindowsEvents')]",
+            "name": "[concat(variables('workspaceName'), '/WindowsEvents')]",
             "kind": "WindowsEvent",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]"
             ],
             "properties": {
                 "eventLogName": "System",
@@ -56,9 +56,9 @@
         {
             "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
             "apiVersion": "2020-03-01-preview",
-            "name": "[concat(parameters('workspaceName'), '/91192b47-5f04-4215-a142-1fcb2b1622b1')]",
+            "name": "[concat(variables('workspaceName'), '/91192b47-5f04-4215-a142-1fcb2b1622b1')]",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]"
             ],
             "properties": {
                 "Category": "event",
@@ -69,17 +69,21 @@
         }
     ],
     "outputs": {
+        "workspaceName": {
+            "type": "string",
+            "value": "[variables('workspaceName')]"
+        },
         "workSpaceID": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName')), '2015-03-20').customerId]"
+            "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('WorkspaceName')), '2015-03-20').customerId]"
         },
         "workSpaceKey": {
             "type": "string",
-            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName')), '2015-03-20').primarySharedKey]"
+            "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('WorkspaceName')), '2015-03-20').primarySharedKey]"
         },
         "workSpaceResourceId": {
             "type": "string",
-            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]"
         }
     }
 }

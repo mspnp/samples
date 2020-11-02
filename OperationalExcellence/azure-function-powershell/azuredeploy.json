@@ -12,12 +12,6 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "workspaceName": {
-            "type": "string"
-        },
-        "functionAppName": {
-            "type": "string"
-        },
         "serviceToMonitor": {
             "type": "string",
             "defaultValue": "World Wide Web Publishing Service"
@@ -49,9 +43,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "workspaceName": {
-                        "value": "[parameters('workspaceName')]"
-                    },
                     "serviceToMonitor": {
                         "value": "[parameters('serviceToMonitor')]"
                     },
@@ -134,9 +125,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "functionAppName": {
-                        "value": "[parameters('functionAppName')]"
-                    },
                     "workSpaceResourceId": {
                         "value": "[reference('log-analytics').outputs.workSpaceResourceId.value]"
                     },
@@ -153,6 +141,9 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "action-group",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -161,7 +152,7 @@
                 },
                 "parameters": {
                     "workspaceName": {
-                        "value": "[parameters('workspaceName')]"
+                        "value": "[reference('log-analytics').outputs.workspaceName.value]"
                     },
                     "functionKey": {
                         "value": "[reference('powershell-function').outputs.functionKey.value]"

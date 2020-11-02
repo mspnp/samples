@@ -16,6 +16,7 @@
         }
     },
     "variables": {
+        "functionAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "hostingPlanName": "[parameters('functionAppName')]",
         "storageAccountName": "[concat('storage', uniquestring(resourceGroup().id))]",
         "branch": "master",
@@ -28,7 +29,7 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-02-01",
-            "name": "[parameters('functionAppName')]",
+            "name": "[variables('functionAppName')]",
             "location": "[parameters('location')]",
             "kind": "functionapp",
             "dependsOn": [
