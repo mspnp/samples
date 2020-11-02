@@ -1,0 +1,55 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": { },
+    "resources": [
+        {
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "allowed-images",
+            "properties": {
+                "scope": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroup().name)]",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/febd0533-8e55-448f-b837-bd0e06f16469",
+                "parameters": {
+                    "allowedContainerImagesRegex": {
+                        "value": "nginx"
+                    },
+                    "excludedNamespaces": {
+                        "value": [
+                            "kube-system",
+                            "gatekeeper-system",
+                            "cluster-baseline-settings"
+                        ]
+                    },
+                    "effect": {
+                        "value": "deny"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Authorization/policyAssignments",
+            "name": "pod-labels",
+            "properties": {
+                "scope": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', resourceGroup().name)]",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/46592696-4c7b-4bf3-9e45-6c2763bdc0a6",
+                "parameters": {
+                    "labelsList": {
+                        "value": ["test"]
+                    },
+                    "excludedNamespaces": {
+                        "value": [
+                            "kube-system",
+                            "gatekeeper-system",
+                            "cluster-baseline-settings"
+                        ]
+                    },
+                    "effect": {
+                        "value": "audit"
+                    }
+                }
+            }
+        }
+    ]
+}
