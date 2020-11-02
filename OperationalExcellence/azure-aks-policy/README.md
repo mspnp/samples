@@ -46,7 +46,7 @@ az deployment group create \
 Verify that policies have propagated to the cluster. This process could take up to 20 minutes.
 
 ```azurecli
-$ kubectl get constrainttemplate
+kubectl get constrainttemplate
 
 NAME                             AGE
 k8sazurecontainerallowedimages   34s
@@ -65,7 +65,7 @@ Two policies have been applied to the AKS cluster with this deployment.
 
 | Name | Value | Effect | 
 |---|---|---|
-| allowed-images| _nginx__ | Deny |
+| allowed-images| _nginx_ | Deny |
 | pod-labels | _DemoLabel = Demo_ | Audit |
 
 ## Demo the solution
@@ -73,7 +73,7 @@ Two policies have been applied to the AKS cluster with this deployment.
 Create a pod using the `Ubuntu` image. Take note that this has been denied by the policy.
 
 ```azurecli
-$ kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
+kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
 
 Error from server ([denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.): admission webhook "validation.gatekeeper.sh" denied the request: [denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.
 ```
@@ -87,6 +87,21 @@ kubectl run nginx --generator=run-pod/v1 --image nginx
 After some time has passed, browse to **Azure Portal** > **Policy** > **Compliance**. Here you will see that the pod-labels policy is non-compliant.
 
 ![](./images/compliance.png)
+
+## Clean up demo
+
+To remove the AKS cluster, run the following command.
+
+```azurecli
+az group delete --name aks-azure-policy --yes --no-wait
+```
+
+You also need to remove the policy assignments; this can be done in the Azure portal or with these Azure CLI commands.
+
+```azurecli
+az policy assignment delete --name pod-labels --resource-group aks-azure-policy
+az policy assignment delete --name allowed-images --resource-group aks-azure-policy
+```
 
 ## Code of conduct
 
