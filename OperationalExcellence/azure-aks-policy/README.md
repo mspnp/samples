@@ -32,13 +32,13 @@ To deploy this template using the Azure portal, click this button.
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name aks-azure-policy --location eastus
+$ az group create --name aks-azure-policy --location eastus
 ```
 
 Run the following command to initiate the deployment.
 
 ```azurecli
-az deployment group create \
+$ az deployment group create \
     --resource-group aks-azure-policy \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/aks-azure-policy/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
@@ -46,7 +46,7 @@ az deployment group create \
 Verify that policies have propagated to the cluster. This process could take up to 20 minutes.
 
 ```azurecli
-kubectl get constrainttemplate
+$ kubectl get constrainttemplate
 
 NAME                             AGE
 k8sazurecontainerallowedimages   34s
@@ -56,12 +56,12 @@ k8sazurepodenforcelabels         33s
 If you would like to run the command on a loop to visually indicate when policies have propagated down to the cluster, run the following command.
 
 ```azurecli
-while $true; do kubectl get constrainttemplate; sleep 5; done
+$ while $true; do kubectl get constrainttemplate; sleep 5; done
 ```
 
 ## Policies
 
-Two policies have been applied to the AKS cluster with this deployment.
+Two policies have been applied to the AKS cluster with this deployment. The first will deny the creation of any pods unless the specified container image equals _nginx_. The second one will raise a policy validation issue if the pod is not labeled with _DemoLabel = Demo_.
 
 | Name | Value | Effect | 
 |---|---|---|
@@ -70,7 +70,7 @@ Two policies have been applied to the AKS cluster with this deployment.
 
 ## Demo the solution
 
-Create a pod using the `Ubuntu` image. Take note that this has been denied by the policy.
+Create a pod using the `Ubuntu` image. Take note that the policy has denied pod creation.
 
 ```azurecli
 kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
@@ -84,7 +84,7 @@ Create a pod using the `nginx` image. Because _nginx_ has been designated as an 
 kubectl run nginx --generator=run-pod/v1 --image nginx
 ```
 
-After some time has passed, browse to **Azure Portal** > **Policy** > **Compliance**. Here you will see that the pod-labels policy is non-compliant.
+After some time has passed, browse to **Azure Portal** > **Policy** > **Compliance**. Here you will see that the _pod-labels_ policy is non-compliant because the _nginx_ pod was not labeled as per the policy.
 
 ![](./images/compliance.png)
 
