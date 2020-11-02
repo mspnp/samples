@@ -4,10 +4,9 @@ languages:
 - azurecli
 products:
 - azure
-- azure-kubernetes-service
 ---
 
-# Azure Well Architected Framework Sample (Secure Azure Kubernetes Service (AKS) Cluster Pods with Azure Policy)
+# Azure Well Architected Framework Sample (Secure Azure Kubernetes Service Cluster Pods with Azure Policy)
 
 Azure Policy extends Gatekeeper v3, an admission controller webhook for Open Policy Agent (OPA), to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner. Azure Policy makes it possible to manage and report on the compliance state of your Kubernetes clusters from one place.
 
