@@ -43,6 +43,12 @@ $ az deployment group create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/aks-azure-policy/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
 
+Connect with the AKS cluster.
+
+```azurecli
+$ az aks get-credentials --name azurePolicyDemo --resource-group aks-azure-policy
+```
+
 Verify that policies have propagated to the cluster. This process could take up to 20 minutes.
 
 ```azurecli
@@ -53,10 +59,18 @@ k8sazurecontainerallowedimages   34s
 k8sazurepodenforcelabels         33s
 ```
 
-If you would like to run the command on a loop to visually indicate when policies have propagated down to the cluster, run the following command.
+If you would like to run the command on a loop to visually indicate when policies have propagated down to the cluster, run the following command. You will see the message 'No resources found in default namespace' until the policies have propagated to your cluster.
 
 ```azurecli
 $ while $true; do kubectl get constrainttemplate; sleep 5; done
+
+No resources found in default namespace.
+No resources found in default namespace.
+No resources found in default namespace.
+No resources found in default namespace.
+NAME                             AGE
+k8sazurecontainerallowedimages   6s
+k8sazurepodenforcelabels         5s
 ```
 
 ## Policies
