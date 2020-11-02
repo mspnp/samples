@@ -37,7 +37,7 @@
                 "parameters": {
                     "labelsList": {
                         "value": [
-                            "nginx"
+                            "demo = label"
                         ]
                     },
                     "excludedNamespaces": {
