@@ -2,9 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "functionAppName": {
-            "type": "string"
-        },
         "workSpaceResourceId": {
             "type": "string"
         },
@@ -17,7 +14,7 @@
     },
     "variables": {
         "functionAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
-        "hostingPlanName": "[parameters('functionAppName')]",
+        "hostingPlanName": "[variables('functionAppName')]",
         "storageAccountName": "[concat('storage', uniquestring(resourceGroup().id))]",
         "branch": "master",
         "ApplicationInsightsLocation": "West Europe",
@@ -35,7 +32,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-                "[resourceId('microsoft.insights/components/', parameters('functionAppName'))]"
+                "[resourceId('microsoft.insights/components/', variables('functionAppName'))]"
             ],
             "identity": {
                 "type": "SystemAssigned"
@@ -57,7 +54,7 @@
                         },
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                            "value": "[reference(resourceId('microsoft.insights/components/', parameters('functionAppName')), '2018-05-01-preview').InstrumentationKey]"
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('functionAppName')), '2018-05-01-preview').InstrumentationKey]"
                         },
                         {
                             "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
@@ -65,7 +62,7 @@
                         },
                         {
                             "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(parameters('functionAppName'))]"
+                            "value": "[toLower(variables('functionAppName'))]"
                         },
                         {
                             "name": "WEBSITE_TIME_ZONE",
@@ -73,7 +70,7 @@
                         }
                     ]
                 },
-                "name": "[parameters('functionAppName')]",
+                "name": "[variables('functionAppName')]",
                 "clientAffinityEnabled": false,
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
             },
@@ -83,7 +80,7 @@
                     "apiVersion": "2018-11-01",
                     "name": "web",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Web/Sites/', parameters('functionAppName'))]"
+                        "[resourceId('Microsoft.Web/Sites/', variables('functionAppName'))]"
                     ],
                     "properties": {
                         "RepoUrl": "[parameters('functionSourceRepo')]",
@@ -121,13 +118,13 @@
         {
             "type": "Microsoft.Insights/components",
             "apiVersion": "2020-02-02-preview",
-            "name": "[parameters('functionAppName')]",
+            "name": "[variables('functionAppName')]",
             "location": "[variables('ApplicationInsightsLocation')]",
             "tags": {
-                "[concat('hidden-link:', resourceId('Microsoft.Web/sites/', parameters('functionAppName')))]": "Resource"
+                "[concat('hidden-link:', resourceId('Microsoft.Web/sites/', variables('functionAppName')))]": "Resource"
             },
             "properties": {
-                "ApplicationId": "[parameters('functionAppName')]",
+                "ApplicationId": "[variables('functionAppName')]",
                 "Application_Type": "other",
                 "WorkspaceResourceId": "[parameters('workSpaceResourceId')]"
             }
@@ -137,11 +134,11 @@
             "apiVersion": "2020-04-01-preview",
             "name": "[guid(concat(resourceGroup().id, 'contributor'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
             ],
             "properties": {
                 "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
-                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '2018-02-01', 'Full').identity.principalId]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2018-02-01', 'Full').identity.principalId]",
                 "scope": "[resourceGroup().id]",
                 "principalType": "ServicePrincipal"
             }
@@ -150,7 +147,7 @@
     "outputs": {
         "functionKey": {
             "type": "string",
-            "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/host/default/'),'2018-02-01').masterkey]"
+            "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppName')), '/host/default/'),'2018-02-01').masterkey]"
         }
     }
 }
