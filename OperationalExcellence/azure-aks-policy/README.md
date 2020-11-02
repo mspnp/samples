@@ -98,7 +98,7 @@ Create a pod using the `nginx` image. Because _nginx_ has been designated as an 
 $ kubectl run nginx --generator=run-pod/v1 --image nginx
 ```
 
-After some time has passed, browse to **Azure Portal** > **Policy** > **Compliance**. Here you will see that the _pod-labels_ policy is non-compliant because the _nginx_ pod was not labeled as per the policy.
+To see a policy compliance report, open the Azure portal and navigate to **Policy** > **Compliance**. Here you will see that the _pod-labels_ policy is non-compliant because the _nginx_ pod was not labeled as per the policy. Note, it can take up to 20 minutes for compliance results to reflect in the portal.
 
 ![](./images/compliance.png)
 
