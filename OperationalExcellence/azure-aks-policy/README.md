@@ -73,7 +73,7 @@ Two policies have been applied to the AKS cluster with this deployment. The firs
 Create a pod using the `Ubuntu` image. Take note that the policy has denied pod creation.
 
 ```azurecli
-kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
+$ kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
 
 Error from server ([denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.): admission webhook "validation.gatekeeper.sh" denied the request: [denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.
 ```
@@ -81,7 +81,7 @@ Error from server ([denied by azurepolicy-container-allowed-images-1f8eb52bcdec7
 Create a pod using the `nginx` image. Because _nginx_ has been designated as an acceptable image, the pod is successfully created.
 
 ```azurecli
-kubectl run nginx --generator=run-pod/v1 --image nginx
+$ kubectl run nginx --generator=run-pod/v1 --image nginx
 ```
 
 After some time has passed, browse to **Azure Portal** > **Policy** > **Compliance**. Here you will see that the _pod-labels_ policy is non-compliant because the _nginx_ pod was not labeled as per the policy.
@@ -93,14 +93,14 @@ After some time has passed, browse to **Azure Portal** > **Policy** > **Complian
 To remove the AKS cluster, run the following command.
 
 ```azurecli
-az group delete --name aks-azure-policy --yes --no-wait
+$ az group delete --name aks-azure-policy --yes --no-wait
 ```
 
 You also need to remove the policy assignments; this can be done in the Azure portal or with these Azure CLI commands.
 
 ```azurecli
-az policy assignment delete --name pod-labels --resource-group aks-azure-policy
-az policy assignment delete --name allowed-images --resource-group aks-azure-policy
+$ az policy assignment delete --name pod-labels --resource-group aks-azure-policy
+$ az policy assignment delete --name allowed-images --resource-group aks-azure-policy
 ```
 
 ## Code of conduct
