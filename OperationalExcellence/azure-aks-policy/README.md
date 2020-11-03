@@ -15,17 +15,15 @@ In this sample, an AKS cluster is deployed, a policy applied to the cluster that
 
 ## Deploy sample
 
-**Azure portal**
+### Azure portal
 
 To deploy this template using the Azure portal, click this button.
-
-<br />
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-aks-policy%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-**Azure CLI**
+### Azure CLI
 
 Create a resource group for the deployment.
 
@@ -62,9 +60,6 @@ If you would like to run the command on a loop to visually indicate when policie
 ```azurecli
 $ while $true; do kubectl get constrainttemplate; sleep 5; done
 
-No resources found in default namespace.
-No resources found in default namespace.
-No resources found in default namespace.
 No resources found in default namespace.
 NAME                             AGE
 k8sazurecontainerallowedimages   6s
