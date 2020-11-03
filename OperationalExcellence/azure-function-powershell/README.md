@@ -12,7 +12,7 @@ The Azure Monitor service collects and analizes data from your Azure and on-prem
 
 This sample deploys a complete and ready to test enviroment for demonistrating Azure Monitor for detectign issues with Windows Services and an Azure Function for remediating serivce issues. When deployed, the following Azure resources are created:
 
-- 1 to many Azure Virtual Machines (Windows)
+- An Azure Virtual Machines (Windows)
 - An Azure Log Analytics workspace
 - An Azure Monitor query that querieis for all systems where a named service has been stopped
 - An Azure Alert that triggers once a named serive has been stopped
