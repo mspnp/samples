@@ -39,6 +39,8 @@ $ az deployment group create \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
 
+## Connect and verify policy
+
 Connect with the AKS cluster.
 
 ```azurecli
@@ -66,7 +68,7 @@ k8sazurecontainerallowedimages   6s
 k8sazurepodenforcelabels         5s
 ```
 
-## Policies
+## Policies details
 
 Two policies have been applied to the AKS cluster with this deployment. The first will deny the creation of any pods unless the specified container image equals _nginx_. The second one will raise a policy validation issue if the pod is not labeled with _DemoLabel = Demo_.
 
