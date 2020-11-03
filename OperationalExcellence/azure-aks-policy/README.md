@@ -7,7 +7,7 @@ products:
 - azure-kubernetes-service
 ---
 
-# Azure Well Architected Framework Sample: Azure Policy for Azure Kubernetes Service (AKS)
+# Azure Well Architected Framework Sample (Azure Policy for Azure Kubernetes Service (AKS))
 
 Azure Policy extends Gatekeeper v3, an admission controller webhook for Open Policy Agent (OPA), to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner. Azure Policy makes it possible to manage and report on the compliance state of your Kubernetes clusters from one place.
 
@@ -15,17 +15,15 @@ In this sample, an AKS cluster is deployed, a policy applied to the cluster that
 
 ## Deploy sample
 
-**Azure portal**
+### Azure portal
 
 To deploy this template using the Azure portal, click this button.
-
-<br />
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-aks-policy%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
 
-**Azure CLI**
+### Azure CLI
 
 Create a resource group for the deployment.
 
@@ -40,6 +38,8 @@ $ az deployment group create \
     --resource-group azurePolicyDemo \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-aks-policy/azuredeploy.json
 ```
+
+## Connect and verify policy
 
 Connect with the AKS cluster.
 
@@ -63,15 +63,12 @@ If you would like to run the command on a loop to visually indicate when policie
 $ while $true; do kubectl get constrainttemplate; sleep 5; done
 
 No resources found in default namespace.
-No resources found in default namespace.
-No resources found in default namespace.
-No resources found in default namespace.
 NAME                             AGE
 k8sazurecontainerallowedimages   6s
 k8sazurepodenforcelabels         5s
 ```
 
-## Policies
+## Policies details
 
 Two policies have been applied to the AKS cluster with this deployment. The first will deny the creation of any pods unless the specified container image equals _nginx_. The second one will raise a policy validation issue if the pod is not labeled with _DemoLabel = Demo_.
 
