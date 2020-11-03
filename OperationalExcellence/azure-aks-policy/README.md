@@ -4,7 +4,6 @@ languages:
 - azurecli
 products:
 - azure
-- azure-kubernetes-service
 ---
 
 # Azure Well Architected Framework Sample: Azure Policy for Azure Kubernetes Service (AKS)
