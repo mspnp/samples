@@ -146,7 +146,7 @@
     ],
     "outputs": {
         "functionKey": {
-            "type": "securestring",
+            "type": "string",
             "value": "[listkeys(concat(resourceId('Microsoft.Web/sites', variables('functionAppName')), '/host/default/'),'2018-02-01').masterkey]"
         }
     }

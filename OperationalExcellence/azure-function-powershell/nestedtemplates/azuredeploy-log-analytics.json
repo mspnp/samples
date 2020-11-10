@@ -78,7 +78,7 @@
             "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('WorkspaceName')), '2015-03-20').customerId]"
         },
         "workSpaceKey": {
-            "type": "securestring",
+            "type": "string",
             "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('WorkspaceName')), '2015-03-20').primarySharedKey]"
         },
         "workSpaceResourceId": {
