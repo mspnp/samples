@@ -42,7 +42,7 @@ Run the following command to initiate the deployment.
 ```azurecli
 az deployment group create \
     --resource-group monitor-function-demo \
-    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! workspaceName=monitor-function-demo functionAppName=monitor-function-demo emailAddress=nepeters@microsoft.com
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-function-powershell/OperationalExcellence/azure-function-powershell/azuredeploy.json --parameters adminPassword=Password2020! emailAddress=nepeters@microsoft.com
 ```
 
 ## Code of conduct
