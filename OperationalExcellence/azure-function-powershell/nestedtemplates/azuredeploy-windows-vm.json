@@ -18,7 +18,7 @@
 			"type": "string"
 		},
 		"workspaceKey": {
-			"type": "string"
+			"type": "securestring"
 		},
 		"location": {
 			"type": "string"
