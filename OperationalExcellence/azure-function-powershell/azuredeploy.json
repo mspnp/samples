@@ -12,10 +12,6 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "serviceToMonitor": {
-            "type": "string",
-            "defaultValue": "World Wide Web Publishing Service"
-        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
@@ -29,7 +25,8 @@
         "action-group-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-action-group.json')]",
         "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
         "functionSourceRepo": "https://github.com/neilpeterson/restart-windows-service-function.git",
-        "alertQuery": "[concat('Event\n| where EventLog == ''System'' and EventID == 7036 and Source == ''Service Control Manager''\n| parse kind=relaxed EventData with * ''<Data Name=\"param1\">'' ServiceName ''</Data><Data Name=\"param2\">'' ServiceState ''</Data>'' *\n| where ServiceName == ''', parameters('serviceToMonitor'), '''\n| where ServiceState == ''stopped''\n| where TimeGenerated > now() - 5m\n| project Computer, ServiceName, ServiceState, TimeGenerated, _ResourceId')]"
+        "serviceToMonitor": "World Wide Web Publishing Service",
+        "alertQuery": "[concat('Event\n| where EventLog == ''System'' and EventID == 7036 and Source == ''Service Control Manager''\n| parse kind=relaxed EventData with * ''<Data Name=\"param1\">'' ServiceName ''</Data><Data Name=\"param2\">'' ServiceState ''</Data>'' *\n| where ServiceName == ''', variables('serviceToMonitor'), '''\n| where ServiceState == ''stopped''\n| where TimeGenerated > now() - 5m\n| project Computer, ServiceName, ServiceState, TimeGenerated, _ResourceId')]"
     },
     "resources": [
         {
@@ -44,7 +41,7 @@
                 },
                 "parameters": {
                     "serviceToMonitor": {
-                        "value": "[parameters('serviceToMonitor')]"
+                        "value": "[variables('serviceToMonitor')]"
                     },
                     "alertQuery": {
                         "value": "[variables('alertQuery')]"
@@ -158,7 +155,7 @@
                         "value": "[reference('powershell-function').outputs.functionKey.value]"
                     },
                     "serviceToMonitor": {
-                        "value": "[parameters('serviceToMonitor')]"
+                        "value": "[variables('serviceToMonitor')]"
                     },
                     "alertQuery": {
                         "value": "[variables('alertQuery')]"
