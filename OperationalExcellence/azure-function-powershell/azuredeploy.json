@@ -201,6 +201,9 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "bootstrap",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'powershell-function')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
