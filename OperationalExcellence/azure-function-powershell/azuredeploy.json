@@ -212,7 +212,7 @@
                 },
                 "parameters": {
                     "functionAppName": {
-                        "value": "[parameters('location')]"
+                        "value": "[variables('functionAppName')]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
