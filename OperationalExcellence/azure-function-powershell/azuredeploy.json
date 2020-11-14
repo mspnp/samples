@@ -24,6 +24,8 @@
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
         "action-group-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-action-group.json')]",
         "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
+        "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bootstrap.json')]",
+        "functionAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "functionSourceRepo": "https://github.com/neilpeterson/restart-windows-service-function.git",
         "serviceToMonitor": "World Wide Web Publishing Service",
         "alertQuery": "[concat('Event\n| where EventLog == ''System'' and EventID == 7036 and Source == ''Service Control Manager''\n| parse kind=relaxed EventData with * ''<Data Name=\"param1\">'' ServiceName ''</Data><Data Name=\"param2\">'' ServiceState ''</Data>'' *\n| where ServiceName == ''', variables('serviceToMonitor'), '''\n| where ServiceState == ''stopped''\n| where TimeGenerated > now() - 5m\n| project Computer, ServiceName, ServiceState, TimeGenerated, _ResourceId')]"
@@ -125,6 +127,9 @@
                     "workSpaceResourceId": {
                         "value": "[reference('log-analytics').outputs.workSpaceResourceId.value]"
                     },
+                    "functionAppName": {
+                        "value": "[variables('functionAppName')]"
+                    },
                     "functionSourceRepo": {
                         "value": "[variables('functionSourceRepo')]"
                     },
@@ -185,6 +190,26 @@
                 "parameters": {
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "bootstrap",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('bootstrap-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "functionAppName": {
+                        "value": "[parameters('location')]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
