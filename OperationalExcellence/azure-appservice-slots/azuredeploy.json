@@ -125,7 +125,7 @@
                 },
                 "parameters": {
                     "webAppName": {
-                        "value": "[variables('webAppName')]"
+                        "value": "[variables('webAppPortalName')]"
                     },
                     "slots": {
                         "value": "[parameters('environments')]"
