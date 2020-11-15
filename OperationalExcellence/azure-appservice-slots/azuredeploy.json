@@ -26,7 +26,7 @@
         }
     },
     "variables": {
-        "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks.json')]",
+        "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bootstrap.json')]",
         "webAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "appServicePlanName": "[concat('AppServicePlan-', variables('webAppName'))]",
         "sku": "S1",
