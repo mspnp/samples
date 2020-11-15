@@ -33,7 +33,7 @@
         "appServicePlanName": "[concat('AppServicePlan-', variables('webAppName'))]",
         "sku": "S1",
         "repoUrl": "https://github.com/neilpeterson/python-docs-hello-world.git",
-        "prod-slot": "broken-prod",
+        "prod-slot": "broken-production",
         "known-good-slot": "master"
     },
     "resources": [
@@ -118,6 +118,23 @@
             "copy": {
                 "name": "webPortalSlot",
                 "count": "[length(parameters('environments'))]"
+            }
+        },
+        {
+            "name": "aks-cluster",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('aks-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
             }
         }
     ]
