@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "functionAppName": {
+        "webAppName": {
             "type": "string"
         },
         "slots": {
@@ -51,7 +51,7 @@
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-functionAppName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name, ' -slots', parameters('slots') )]",
+                "arguments": "[concat('-webAppName ', parameters('webAppName'), ' -resourceGroup ', resourceGroup().name, ' -slots', parameters('slots') )]",
                 "scriptContent": "
                     param(
                         [string] [Parameter(Mandatory=$true)] $appName,
