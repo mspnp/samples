@@ -37,7 +37,7 @@
             "apiVersion": "2019-10-01-preview",
             "name": "runPowerShellInline",
             "location": "[resourceGroup().location]",
-            "kind": "AzureCLI",
+            "kind": "AzurePowerShell",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -55,7 +55,7 @@
                     )
 
                     $ErrorActionPreference = 'Stop'
-                    az functionapp deployment source delete --resource-group $resourceGroup --name $functionAppName
+                    bash -c \"az functionapp deployment source delete --resource-group $resourceGroup --name $functionAppName\"
                     ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
