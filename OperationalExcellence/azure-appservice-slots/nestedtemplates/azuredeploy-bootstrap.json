@@ -63,7 +63,7 @@
                     bash -c \"curl -sL https://aka.ms/InstallAzureCLIDeb | bash\"
                     bash -c \"az login --identity\"
 
-                    $ErrorActionPreference = 'Stop'
+                    # $ErrorActionPreference = 'Stop'
                     bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName\"
                     bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName --slot $slots\"
                     ",
