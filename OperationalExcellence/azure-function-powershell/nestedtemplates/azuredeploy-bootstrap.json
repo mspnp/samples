@@ -32,6 +32,7 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'deploymentScript')]"
             ]
         },
+        // Using PowerShell here for container image flexibility (Ubuntu vs. alpine).
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
