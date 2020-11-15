@@ -64,6 +64,9 @@
                     bash -c \"az login --identity\"
 
                     # $ErrorActionPreference = 'Stop'
+                    bash -c \"echo $resourceGroup\"
+                    bash -c \"echo $webAppName\"
+                    bash -c \"echo $slots\"
                     bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName\"
                     bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName --slot $slots\"
                     ",
