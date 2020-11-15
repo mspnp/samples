@@ -47,7 +47,7 @@
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-functionName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name)]",
+                "arguments": "[concat('-functionAppName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name)]",
                 "scriptContent": "
                     param(
                         [string] [Parameter(Mandatory=$true)] $functionAppName,
