@@ -5,6 +5,9 @@
         "functionAppName": {
             "type": "string"
         },
+        "slots": {
+            "type": "array"
+        },
         "location": {
             "type": "string"
         }
@@ -48,12 +51,12 @@
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-functionAppName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name)]",
+                "arguments": "[concat('-functionAppName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name, ' -slots', parameters('slots') )]",
                 "scriptContent": "
                     param(
                         [string] [Parameter(Mandatory=$true)] $appName,
                         [string] [Parameter(Mandatory=$true)] $resourceGroup
-                        [string[]][Parameter(Mandatory=$false)] $slot
+                        [string[]][Parameter(Mandatory=$false)] $slots
                     )
 
                     # Install Azure CLI
