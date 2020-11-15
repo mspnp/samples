@@ -64,8 +64,8 @@
                     bash -c \"az login --identity\"
 
                     $ErrorActionPreference = 'Stop'
-                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $appName\"
-                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $appName --slot $slots\"
+                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName\"
+                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName --slot $slots\"
                     ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
