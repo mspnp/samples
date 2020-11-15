@@ -54,6 +54,10 @@
                         [string] [Parameter(Mandatory=$true)] $resourceGroup
                     )
 
+                    # Install Azure CLI
+                    bash -c \"curl -sL https://aka.ms/InstallAzureCLIDeb | bash\"
+                    bash -c \"az login --identity\"
+
                     $ErrorActionPreference = 'Stop'
                     bash -c \"az functionapp deployment source delete --resource-group $resourceGroup --name $functionAppName\"
                     ",
