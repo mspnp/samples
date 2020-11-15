@@ -26,8 +26,8 @@
         }
     },
     "variables": {
+        "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-aks.json')]",
         "webAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
-        "webAppPortalName": "[concat(variables('webAppName'), '-webapp')]",
         "appServicePlanName": "[concat('AppServicePlan-', variables('webAppName'))]",
         "sku": "S1",
         "repoUrl": "https://github.com/neilpeterson/python-docs-hello-world.git",
@@ -51,7 +51,7 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[variables('webAppPortalName')]",
+            "name": "[variables('webAppName')]",
             "location": "[parameters('location')]",
             "kind": "app",
             "dependsOn": [
@@ -67,9 +67,9 @@
         {
             "type": "Microsoft.Web/sites/sourcecontrols",
             "apiVersion": "2018-11-01",
-            "name": "[concat(variables('webAppPortalName'), '/web')]",
+            "name": "[concat(variables('webAppName'), '/web')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('webAppPortalName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
             ],
             "properties": {
                 "repoUrl": "[variables('repoUrl')]",
@@ -81,25 +81,24 @@
             }
         },
         {
-            "apiVersion": "2018-11-01",
             "type": "Microsoft.Web/sites/slots",
-            "name": "[concat(variables('webAppPortalName'), '/', parameters('environments'))]",
-            "kind": "app",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('webAppName'), '/', parameters('environments'))]",
             "location": "[parameters('location')]",
-            "comments": "This specifies the web app slots.",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/Sites', variables('webAppName'))]"
+            ],
+            "kind": "app",
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/Sites', variables('webAppPortalName'))]"
-            ]
+            }
         },
         {
             "type": "Microsoft.Web/sites/slots/sourcecontrols",
             "apiVersion": "2018-11-01",
-            "name": "[concat(variables('webAppPortalName'), '/', parameters('environments'), '/web')]",
+            "name": "[concat(variables('webAppName'), '/', parameters('environments'), '/web')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites/slots', variables('webAppPortalName'), parameters('environments'))]"
+                "[resourceId('Microsoft.Web/sites/slots', variables('webAppName'), parameters('environments'))]"
             ],
             "properties": {
                 "repoUrl": "[variables('repoUrl')]",
@@ -111,21 +110,21 @@
             }
         },
         {
-            "name": "bootstrap",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "bootstrap",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('webAppPortalName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/neilpeterson/samples/appservice-slots-demo/OperationalExcellence/azure-appservice-slots/nestedtemplates/azuredeploy-bootstrap.json",
+                    "uri": "[variables('bootstrap-template')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "webAppName": {
-                        "value": "[variables('webAppPortalName')]"
+                        "value": "[variables('webAppName')]"
                     },
                     "slots": {
                         "value": "[parameters('environments')]"
