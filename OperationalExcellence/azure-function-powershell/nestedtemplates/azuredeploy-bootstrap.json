@@ -51,7 +51,7 @@
                 "scriptContent": "
                     param(
                         [string] [Parameter(Mandatory=$true)] $functionAppName,
-                        [string] [Parameter(Mandatory=$true)] $resourceGroup,
+                        [string] [Parameter(Mandatory=$true)] $resourceGroup
                     )
 
                     $ErrorActionPreference = 'Stop'
