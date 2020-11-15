@@ -51,7 +51,10 @@
                 "forceUpdateTag": "1",
                 "azCliVersion": "2.0.80",
                 "arguments": "[concat(parameters('webAppName'), ' ', resourceGroup().name)]",
-                "scriptContent": "az webapp deployment source delete --resource-group {1} --name {2}",
+                "scriptContent": "
+                echo $2
+                # az webapp deployment source delete --resource-group $1 --name $2
+                ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"

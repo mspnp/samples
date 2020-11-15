@@ -124,13 +124,22 @@
             "name": "aks-cluster",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('webAppPortalName'))]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('aks-template')]",
+                    "uri": "https://raw.githubusercontent.com/neilpeterson/samples/appservice-slots-demo/OperationalExcellence/azure-appservice-slots/nestedtemplates/azuredeploy-bootstrap.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "webAppName": {
+                        "value": "[variables('webAppName')]"
+                    },
+                    "slots": {
+                        "value": "[parameters('environments')]"
+                    },
                     "location": {
                         "value": "[parameters('location')]"
                     }
