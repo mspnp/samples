@@ -3,12 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "environments": {
-            "defaultValue": [
-                "KnownGood"
-            ],
-            "type": "array",
+            "defaultValue": "KnownGood",
+            "type": "string",
             "metadata": {
-                "description": "Array with the names for the environment slots"
+                "description": "The names for the environment slots"
             },
             "maxLength": 19
         },
@@ -85,7 +83,7 @@
         {
             "apiVersion": "2018-11-01",
             "type": "Microsoft.Web/sites/slots",
-            "name": "[concat(variables('webAppPortalName'), '/', parameters('environments')[copyIndex()])]",
+            "name": "[concat(variables('webAppPortalName'), '/', parameters('environments'))]",
             "kind": "app",
             "location": "[parameters('location')]",
             "comments": "This specifies the web app slots.",
@@ -94,18 +92,14 @@
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/Sites', variables('webAppPortalName'))]"
-            ],
-            "copy": {
-                "name": "webPortalSlot",
-                "count": "[length(parameters('environments'))]"
-            }
+            ]
         },
         {
             "type": "Microsoft.Web/sites/slots/sourcecontrols",
             "apiVersion": "2018-11-01",
-            "name": "[concat(variables('webAppPortalName'), '/', parameters('environments')[copyIndex()], '/web')]",
+            "name": "[concat(variables('webAppPortalName'), '/', parameters('environments'), '/web')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites/slots', variables('webAppPortalName'), parameters('environments')[copyIndex()])]"
+                "[resourceId('Microsoft.Web/sites/slots', variables('webAppPortalName'), parameters('environments'))]"
             ],
             "properties": {
                 "repoUrl": "[variables('repoUrl')]",
@@ -114,14 +108,10 @@
                 "isGitHubAction": "false",
                 "deploymentRollbackEnabled": true,
                 "isMercurial": false
-            },
-            "copy": {
-                "name": "webPortalSlot",
-                "count": "[length(parameters('environments'))]"
             }
         },
         {
-            "name": "aks-cluster",
+            "name": "bootstrap",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "dependsOn": [
