@@ -51,7 +51,7 @@
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-webAppName ', parameters('webAppName'), ' -resourceGroup ', resourceGroup().name, ' -slots', parameters('slots'))]",
+                "arguments": "[concat('-webAppName ', parameters('webAppName'), ' -resourceGroup ', resourceGroup().name, ' -slots ', parameters('slots'))]",
                 "scriptContent": "
                     param(
                         [string] [Parameter(Mandatory=$true)] $webAppName,
