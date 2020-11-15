@@ -2,14 +2,11 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "webAppName": {
+        "functionAppName": {
             "type": "string"
         },
         "location": {
             "type": "string"
-        },
-        "slots": {
-            "type": "array"
         }
     },
     "functions": [],
@@ -35,12 +32,13 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'deploymentScript')]"
             ]
         },
+        // Using PowerShell here for container image flexibility (Ubuntu vs. alpine).
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
-            "name": "runAzureCLI",
+            "name": "runPowerShellInline",
             "location": "[resourceGroup().location]",
-            "kind": "AzureCLI",
+            "kind": "AzurePowerShell",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -49,9 +47,28 @@
             },
             "properties": {
                 "forceUpdateTag": "1",
-                "azCliVersion": "2.0.80",
-                "arguments": "[concat(parameters('webAppName'), ' ', resourceGroup().name)]",
-                "scriptContent": "az webapp deployment source delete --resource-group $2 --name $1",
+                "azPowerShellVersion": "3.0",
+                "arguments": "[concat('-functionAppName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name)]",
+                "scriptContent": "
+                    param(
+                        [string] [Parameter(Mandatory=$true)] $appName,
+                        [string] [Parameter(Mandatory=$true)] $resourceGroup
+                        [string[]][Parameter(Mandatory=$false)] $slot
+                    )
+
+                    # Install Azure CLI
+                    bash -c \"curl -sL https://aka.ms/InstallAzureCLIDeb | bash\"
+                    bash -c \"az login --identity\"
+
+                    $ErrorActionPreference = 'Stop'
+                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $appName\"
+
+                    if ($slot) {
+                        forech ($item in $slot) { 
+                            bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $appName --slot $item\"
+                        }
+                    }
+                    ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
@@ -60,35 +77,6 @@
                 "[resourceId('Microsoft.Authorization/roleAssignments',guid(resourceGroup().id))]"
             ]
         }
-        // {
-        //     "type": "Microsoft.Resources/deploymentScripts",
-        //     "apiVersion": "2019-10-01-preview",
-        //     "name": "runAzureCLI-slots",
-        //     "location": "[resourceGroup().location]",
-        //     "kind": "AzureCLI",
-        //     "identity": {
-        //         "type": "UserAssigned",
-        //         "userAssignedIdentities": {
-        //             "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'deploymentScript')]": {}
-        //         }
-        //     },
-        //     "properties": {
-        //         "forceUpdateTag": "1",
-        //         "azCliVersion": "2.0.80",
-        //         "arguments": "[concat(parameters('webAppName'), ' ', resourceGroup().name, ' ', parameters('slots')[copyIndex()])]",
-        //         "scriptContent": "az webapp deployment source delete --resource-group {1} --name {2} --slot {3}",
-        //         "timeout": "PT30M",
-        //         "cleanupPreference": "OnSuccess",
-        //         "retentionInterval": "P1D"
-        //     },
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Authorization/roleAssignments',guid(resourceGroup().id))]"
-        //     ],
-        //     "copy": {
-        //         "name": "webPortalSlot",
-        //         "count": "[length(parameters('slots'))]"
-        //     }
-        // }
     ],
     "outputs": {}
 }
