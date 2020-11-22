@@ -129,13 +129,13 @@
                         "value": "[parameters('linuxVMCount')]"
                     },
                     "registrationKey": {
-                        "value": "[reference('state-configuration').outputs.registrationKey.value]"
+                        "value": "[reference('automation-account').outputs.registrationKey.value]"
                     },
                     "registrationUrl": {
-                        "value": "[reference('state-configuration').outputs.registrationUrl.value]"
+                        "value": "[reference('automation-account').outputs.registrationUrl.value]"
                     },
                     "nodeConfigurationName": {
-                        "value": "[reference('state-configuration').outputs.nodeConfigurationNameLinux.value]"
+                        "value": "[reference('automation-account').outputs.nodeConfigurationNameLinux.value]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
