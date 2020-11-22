@@ -40,6 +40,20 @@
                     "searchVersion": 1
                 }
             }
+        },
+        {
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "name": "softwareUpdatesSolution",
+            "location": "[parameters('location')]",
+            "plan": {
+                "name": "[concat('Updates(', variables('logAnalyticsName'),')')]",
+                "product": "OMSGallery/Updates",
+                "publisher": "Microsoft"
+            },
+            "properties": {
+                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+            }
         }
     ]
 }

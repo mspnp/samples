@@ -6,7 +6,7 @@ Create a resource group for the deployment.
 $ az group create --name azureUpdatesDemo002 --location eastus
 ```
 
-Run the following command to initiate the deployment.
+Run the following command to initiate the deployment.c
 
 ```azurecli
 $ az deployment group create \
