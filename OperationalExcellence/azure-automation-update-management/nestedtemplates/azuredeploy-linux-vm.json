@@ -11,12 +11,12 @@
 		"vmCount": {
 			"type": "int"
 		},
-		"registrationKey": {
-			"type": "string"
-		},
-		"registrationUrl": {
-			"type": "string"
-		},
+		// "registrationKey": {
+		// 	"type": "string"
+		// },
+		// "registrationUrl": {
+		// 	"type": "string"
+		// },
 		"virtualNetworkName": {
 			"type": "string"
 		},
