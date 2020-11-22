@@ -89,17 +89,20 @@
                     "vmCount": {
                         "value": "[parameters('windowsVMCount')]"
                     },
-                    "registrationKey": {
-                        "value": "[reference('automation-account').outputs.registrationKey.value]"
-                    },
-                    "registrationUrl": {
-                        "value": "[reference('automation-account').outputs.registrationUrl.value]"
-                    },
+                    // "registrationKey": {
+                    //     "value": "[reference('automation-account').outputs.registrationKey.value]"
+                    // },
+                    // "registrationUrl": {
+                    //     "value": "[reference('automation-account').outputs.registrationUrl.value]"
+                    // },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
                     },
                     "subnetName": {
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    },
+                    "logAnalyticsName": {
+                        "value": "[reference('virtual-network').outputs.logAnalyticsName.value]"
                     }
                 }
             }

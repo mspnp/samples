@@ -11,16 +11,13 @@
 		"vmCount": {
 			"type": "int"
 		},
-		"registrationKey": {
-			"type": "string"
-		},
-		"registrationUrl": {
-			"type": "string"
-		},
 		"virtualNetworkName": {
 			"type": "string"
 		},
 		"subnetName": {
+			"type": "string"
+		},
+		"logAnalyticsName": {
 			"type": "string"
 		}
 	},
@@ -29,9 +26,7 @@
 		"publicIPAddressName": "windows-pip-",
 		"vmName": "windows-vm-",
 		"windowsOSVersion": "2016-Datacenter",
-		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
-		"dscExtensionModulesUrl": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-azure-automation-pullserver/UpdateLCMforAAPull.zip",
-		"dscExtensionConfigurationFunction": "UpdateLCMforAAPull.ps1\\ConfigureLCMforAAPull"
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
 	},
 	"resources": [
 		{
@@ -114,6 +109,32 @@
 			},
 			"copy": {
 				"name": "vmcopy",
+				"count": "[parameters('vmCount')]"
+			}
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"apiVersion": "2019-07-01",
+			"name": "[concat(variables('vmName'), copyIndex(), '/Microsoft.Monitoring')]",
+			"location": "[resourceGroup().location]",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
+			],
+			"properties": {
+				"publisher": "Microsoft.EnterpriseCloud.Monitoring",
+				"type": "MicrosoftMonitoringAgent",
+				"typeHandlerVersion": "1.0",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"workspaceId": "[reference(resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsName')), '2015-11-01-preview').customerId]",
+					"azureResourceId": "[resourceId('Microsoft.Compute/virtualMachines/', concat(variables('vmName'), copyIndex()))]"
+				},
+				"protectedSettings": {
+					"workspaceKey": "[listKeys(resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsName')), '2015-11-01-preview').primarySharedKey]"
+				}
+			},
+			"copy": {
+				"name": "dsccopy",
 				"count": "[parameters('vmCount')]"
 			}
 		}
