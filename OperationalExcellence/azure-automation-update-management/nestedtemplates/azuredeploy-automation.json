@@ -18,7 +18,7 @@
             "name": "[variables('automationAccountName')]",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-10-31",
-            "location": "[parameters('location')]",
+            "location": "eastus2",
             "tags": {
             },
             "properties": {
