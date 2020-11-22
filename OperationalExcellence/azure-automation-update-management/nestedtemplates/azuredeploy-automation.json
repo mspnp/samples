@@ -39,6 +39,17 @@
             }
         },
         {
+            "type": "microsoft.operationalinsights/workspaces/linkedservices",
+            "apiVersion": "2015-11-01-preview",
+            "name": "[concat(variables('logAnalyticsName'), '/automation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+            ],
+            "properties": {
+                "resourceId": "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
+            }
+        },
+        {
             "apiVersion": "2015-11-01-preview",
             "type": "Microsoft.OperationsManagement/solutions",
             "name": "softwareUpdatesSolution",
