@@ -9,7 +9,6 @@
             "type": "string"
         }
     },
-    "functions": [],
     "variables": {},
     "resources": [
         {
@@ -39,6 +38,5 @@
                 }
             }
         }
-    ],
-    "outputs": {}
+    ]
 }
