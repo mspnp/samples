@@ -1,7 +1,14 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "unique-name": {
+            "type": "string"
+        }
+    },
     "functions": [],
     "variables": {},
     "resources": [
@@ -9,12 +16,26 @@
             "name": "automationAccount1",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-10-31",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "tags": {
             },
             "properties": {
                 "sku": {
                     "name": "Free"
+                }
+            }
+        },
+        {
+            "name": "[parameters('unique-name')]",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                },
+                "features": {
+                    "searchVersion": 1
                 }
             }
         }
