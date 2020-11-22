@@ -134,9 +134,6 @@
                     "registrationUrl": {
                         "value": "[reference('automation-account').outputs.registrationUrl.value]"
                     },
-                    "nodeConfigurationName": {
-                        "value": "[reference('automation-account').outputs.nodeConfigurationNameLinux.value]"
-                    },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
                     },
