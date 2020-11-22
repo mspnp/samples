@@ -39,18 +39,6 @@
             }
         },
         {
-            "type": "microsoft.operationalinsights/workspaces/linkedservices",
-            "apiVersion": "2015-11-01-preview",
-            "name": "[concat(variables('logAnalyticsName'), '/automation')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
-                "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
-            ],
-            "properties": {
-                "resourceId": "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
-            }
-        },
-        {
             "apiVersion": "2015-11-01-preview",
             "type": "Microsoft.OperationsManagement/solutions",
             "name": "[concat('Updates(', variables('logAnalyticsName'),')')]",
@@ -69,5 +57,15 @@
                 "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "registrationKey": {
+            "type": "string",
+            "value": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', variables('automationAccountName')), '2018-01-15').Keys[0].value]"
+        },
+        "registrationUrl": {
+            "type": "string",
+            "value": "[reference(concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))).registrationUrl]"
+        }
+    }        
 }
