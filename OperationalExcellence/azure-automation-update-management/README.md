@@ -3,14 +3,14 @@
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name update0004 --location eastus
+az group create --name update0005 --location eastus
 ```
 
 Run the following command to initiate the deployment.c
 
 ```azurecli
 az deployment group create \
-    --resource-group update0004 \
+    --resource-group update0005 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-software-updates/OperationalExcellence/azure-automation-update-management/azuredeploy.json \
-    --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
+    --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=1 linuxVMCount=1
 ```
