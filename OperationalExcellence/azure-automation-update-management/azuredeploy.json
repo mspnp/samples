@@ -20,6 +20,20 @@
                 "parameters": {
                 }
             }
+        },
+        {
+            "name": "automation-log-analytics",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                },
+                "features": {
+                    "searchVersion": 1
+                }
+            }
         }
     ],
     "outputs": {}
