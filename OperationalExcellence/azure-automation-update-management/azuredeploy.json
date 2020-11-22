@@ -64,46 +64,46 @@
                     "contentVersion": "1.0.0.0"
                 }
             }
+        },
+        {
+            "name": "windows-vm",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windows-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('windowsVMCount')]"
+                    },
+                    "registrationKey": {
+                        "value": "[reference('automation-account').outputs.registrationKey.value]"
+                    },
+                    "registrationUrl": {
+                        "value": "[reference('automation-account').outputs.registrationUrl.value]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    }
+                }
+            }
         }
-        // {
-        //     "name": "windows-vm",
-        //     "type": "Microsoft.Resources/deployments",
-        //     "apiVersion": "2019-10-01",
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
-        //         "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
-        //     ],
-        //     "properties": {
-        //         "mode": "Incremental",
-        //         "templateLink": {
-        //             "uri": "[variables('windows-vm-template')]",
-        //             "contentVersion": "1.0.0.0"
-        //         },
-        //         "parameters": {
-        //             "adminUsername": {
-        //                 "value": "[parameters('adminUsername')]"
-        //             },
-        //             "adminPassword": {
-        //                 "value": "[parameters('adminPassword')]"
-        //             },
-        //             "vmCount": {
-        //                 "value": "[parameters('windowsVMCount')]"
-        //             },
-        //             "registrationKey": {
-        //                 "value": "[reference('automation-account').outputs.registrationKey.value]"
-        //             },
-        //             "registrationUrl": {
-        //                 "value": "[reference('automation-account').outputs.registrationUrl.value]"
-        //             },
-        //             "virtualNetworkName": {
-        //                 "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
-        //             },
-        //             "subnetName": {
-        //                 "value": "[reference('virtual-network').outputs.subnetName.value]"
-        //             }
-        //         }
-        //     }
-        // },
         // {
         //     "name": "linux-vm",
         //     "type": "Microsoft.Resources/deployments",
