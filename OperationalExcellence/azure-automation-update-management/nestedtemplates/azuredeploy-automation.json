@@ -56,7 +56,10 @@
                 "publisher": "Microsoft"
             },
             "properties": {
-                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
+                "containedResources": [
+                    "[concat(resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsName')), concat('/views/Updates', variables('logAnalyticsName')))]"
+                ]
             }
         }
     ]
