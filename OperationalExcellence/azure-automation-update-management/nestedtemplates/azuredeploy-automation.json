@@ -56,6 +56,17 @@
             "properties": {
                 "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
             }
+        },
+        {
+            "type": "microsoft.operationalinsights/workspaces/linkedservices",
+            "apiVersion": "2015-11-01-preview",
+            "name": "[concat(variables('logAnalyticsName'), '/automation')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+            ],
+            "properties": {
+                "resourceId": "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
+            }
         }
     ],
     "outputs": {
@@ -67,5 +78,5 @@
             "type": "string",
             "value": "[reference(concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))).registrationUrl]"
         }
-    }        
+    }
 }
