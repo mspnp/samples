@@ -12,7 +12,7 @@
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "ResourceSubnet"
+            "defaultValue": "SpokeSubnet"
         },
         "virtualNetworkName": {
             "type": "string",

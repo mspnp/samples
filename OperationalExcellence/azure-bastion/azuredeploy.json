@@ -41,17 +41,30 @@
         "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
         "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
+        "virtual-network-spoke-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]"
     },
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "name": "virtual-network",
+            "name": "virtual-network-hub",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('virtual-network-template')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "virtual-network-spoke",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtual-network-spoke-template')]",
                     "contentVersion": "1.0.0.0"
                 }
             }
