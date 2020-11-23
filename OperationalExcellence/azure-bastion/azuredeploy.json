@@ -119,6 +119,12 @@
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
+                    "subnetName": {
+                        "value": "[reference('virtual-network-hub').outputs.subnetName.value]"
+                    },
+                    "nsgName": {
+                        "value": "[reference('virtual-network-hub').outputs.nsgName.value]"
+                    },
                     "location": {
                         "value": "[parameters('location')]"
                     }

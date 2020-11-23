@@ -64,6 +64,10 @@
         "virtualNetworkName": {
             "type": "string",
             "value": "[parameters('virtualNetworkName')]"
+        },
+        "nsgName": {
+            "type": "string",
+            "value": "[parameters('nsgName')]"
         }
     }
 }
