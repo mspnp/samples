@@ -3,12 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "addressPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/16"
+            "type": "string"
         },
         "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/24"
+            "type": "string"
         },
         "subnetName": {
             "type": "string"

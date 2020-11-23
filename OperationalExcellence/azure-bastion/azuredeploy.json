@@ -63,6 +63,12 @@
                     },
                     "nsgName": {
                         "value": "nsg-bastion"
+                    },
+                    "addressPrefix": {
+                        "value": "10.0.0.0/24"
+                    },
+                    "subnetPrefix": {
+                        "value": "10.0.0.0/24"
                     }
                 }
             }
@@ -86,6 +92,12 @@
                     },
                     "nsgName": {
                         "value": "nsg-spoke-resources"
+                    },
+                    "addressPrefix": {
+                        "value": "192.168.0.0/24"
+                    },
+                    "subnetPrefix": {
+                        "value": "192.168.0.0/24"
                     }
                 }
             }
