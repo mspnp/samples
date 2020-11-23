@@ -20,6 +20,9 @@
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('virtualNetworkName'), '/', variables('bastion-subnet-name'))]",
             "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
+            ],
             "properties": {
                 "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
                 "networkSecurityGroup": {
@@ -43,7 +46,7 @@
             "name": "bastion-nsg",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-05-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
                     {
