@@ -12,7 +12,7 @@
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "subnet"
+            "defaultValue": "ResourceSubnet"
         },
         "virtualNetworkName": {
             "type": "string",
@@ -23,7 +23,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
-            "name": "networkSecurityGroup",
+            "name": "resource-nsg",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [ ]

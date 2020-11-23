@@ -14,3 +14,10 @@ az deployment group create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-software-updates/OperationalExcellence/azure-bastion/azuredeploy.json \
     --parameters adminPassword=Password2020!
 ```
+
+```azurecli
+az deployment group create \
+    --resource-group bast004 \
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-software-updates/OperationalExcellence/azure-bastion/azuredeploy.json \
+    --parameters adminPassword=Password2020! windowsVMCount=1
+```
