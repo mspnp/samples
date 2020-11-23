@@ -4,18 +4,30 @@
     "parameters": {
         "adminUserName": {
             "type": "string",
-            "defaultValue": "azureadmin"
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "The admin user name for both the Windows and Linux virtual machines."
+            }
         },
         "adminPassword": {
-            "type": "securestring"
+            "type": "securestring",
+            "metadata": {
+                "description": "The admin password for both the Windows and Linux virtual machines."
+            }
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 1
+            "defaultValue": 1,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
         },
         "linuxVMCount": {
             "type": "int",
-            "defaultValue": 1
+            "defaultValue": 1,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
         },
         "location": {
             "type": "string",
@@ -26,18 +38,18 @@
         }
     },
     "variables": {
-        "unique-name": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "automation-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-automation.json')]",
-        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
+        "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
         "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
+        "unique-name": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
-        "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]"
+        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]"
     },
     "resources": [
         {
-            "name": "automation-account",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "automation-account",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -55,9 +67,9 @@
             }
         },
         {
-            "name": "virtual-network",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "virtual-network",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -67,9 +79,9 @@
             }
         },
         {
-            "name": "bastion-host",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "bastion-host",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
             ],
@@ -90,9 +102,9 @@
             }
         },
         {
-            "name": "windows-vm",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "windows-vm",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
                 "[resourceId('Microsoft.Resources/deployments', 'automation-account')]"
@@ -126,9 +138,9 @@
             }
         },
         {
-            "name": "linux-vm",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "linux-vm",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"

@@ -10,8 +10,8 @@
         }
     },
     "variables": {
-        "bastion-subnet-name": "AzureBastionSubnet",
         "bastion-subnet-ip-prefix": "10.0.1.0/27",
+        "bastion-subnet-name": "AzureBastionSubnet",
         "public-ip-address-name": "bastion-pip"
     },
     "resources": [

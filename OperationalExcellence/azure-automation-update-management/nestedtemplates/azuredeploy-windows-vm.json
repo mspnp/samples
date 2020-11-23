@@ -23,20 +23,20 @@
 	},
 	"variables": {
 		"nicName": "windows-nic-",
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
 		"vmName": "windows-vm-",
-		"windowsOSVersion": "2016-Datacenter",
-		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+		"windowsOSVersion": "2016-Datacenter"
 	},
 	"resources": [
 		{
-			"apiVersion": "2020-05-01",
 			"type": "Microsoft.Network/networkInterfaces",
+			"apiVersion": "2020-05-01",
 			"name": "[concat(variables('nicName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
 			"properties": {
 				"ipConfigurations": [
 					{
-						"name": "ipconfig1",
+						"name": "ipconfig",
 						"properties": {
 							"privateIPAllocationMethod": "Dynamic",
 							"subnet": {
@@ -52,8 +52,8 @@
 			}
 		},
 		{
-			"apiVersion": "2019-07-01",
 			"type": "Microsoft.Compute/virtualMachines",
+			"apiVersion": "2019-07-01",
 			"name": "[concat(variables('vmName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
