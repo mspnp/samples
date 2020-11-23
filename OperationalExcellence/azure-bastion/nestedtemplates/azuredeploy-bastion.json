@@ -24,10 +24,10 @@
                 // "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
             ],
             "properties": {
-                "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
-                "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
-                }
+                "addressPrefix": "[variables('bastion-subnet-ip-prefix')]"
+                // "networkSecurityGroup": {
+                //     "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
+                // }
             }
         },
         {
