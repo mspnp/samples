@@ -70,14 +70,6 @@
         }
     ],
     "outputs": {
-        // "registrationKey": {
-        //     "type": "string",
-        //     "value": "[listKeys(resourceId('Microsoft.Automation/automationAccounts/', variables('automationAccountName')), '2018-01-15').Keys[0].value]"
-        // },
-        // "registrationUrl": {
-        //     "type": "string",
-        //     "value": "[reference(concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))).registrationUrl]"
-        // },
         "logAnalyticsName": {
             "type": "string",
             "value": "[variables('logAnalyticsName')]"
