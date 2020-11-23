@@ -118,9 +118,7 @@
             "name": "AzureBastionHost",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
-            ],
+                "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]"            ],
             "properties": {
                 "ipConfigurations": [
                     {
