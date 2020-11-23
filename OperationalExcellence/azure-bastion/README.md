@@ -3,7 +3,7 @@
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name bast004 --location eastus
+az group create --name bast009 --location eastus
 ```
 
 Run the following command to initiate the deployment.c
@@ -17,7 +17,7 @@ az deployment group create \
 
 ```azurecli
 az deployment group create \
-    --resource-group bast004 \
+    --resource-group bast009 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/azure-software-updates/OperationalExcellence/azure-bastion/azuredeploy.json \
     --parameters adminPassword=Password2020! windowsVMCount=1
 ```
