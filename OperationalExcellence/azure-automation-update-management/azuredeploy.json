@@ -102,7 +102,7 @@
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
                     },
                     "logAnalyticsName": {
-                        "value": "[reference('virtual-network').outputs.logAnalyticsName.value]"
+                        "value": "[reference('automation-account').outputs.logAnalyticsName.value]"
                     }
                 }
             }
