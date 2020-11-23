@@ -21,7 +21,7 @@
             "name": "[concat(parameters('virtualNetworkName'), '/', variables('bastion-subnet-name'))]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
+                // "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
             ],
             "properties": {
                 "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
