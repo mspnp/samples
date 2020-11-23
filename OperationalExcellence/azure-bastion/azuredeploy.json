@@ -59,7 +59,7 @@
                         "value": "virtual-network-hub"
                     },
                     "subnetName": {
-                        "value": "subnet-bastion"
+                        "value": "AzureBastionSubnet"
                     },
                     "nsgName": {
                         "value": "nsg-bastion"
