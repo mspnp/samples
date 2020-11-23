@@ -84,8 +84,7 @@
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
-                "[resourceId('Microsoft.Resources/deployments', 'automation-account')]"
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -108,9 +107,6 @@
                     },
                     "subnetName": {
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
-                    },
-                    "logAnalyticsName": {
-                        "value": "[reference('automation-account').outputs.logAnalyticsName.value]"
                     }
                 }
             }
@@ -144,9 +140,6 @@
                     },
                     "subnetName": {
                         "value": "[reference('virtual-network').outputs.subnetName.value]"
-                    },
-                    "logAnalyticsName": {
-                        "value": "[reference('automation-account').outputs.logAnalyticsName.value]"
                     }
                 }
             }
