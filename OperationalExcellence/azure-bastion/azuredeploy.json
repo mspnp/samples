@@ -41,7 +41,6 @@
         "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
         "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
-        "virtual-network-spoke-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network-spoke.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]"
     },
     "resources": [
@@ -54,6 +53,17 @@
                 "templateLink": {
                     "uri": "[variables('virtual-network-template')]",
                     "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "virtual-network-hub"
+                    },
+                    "subnetName": {
+                        "value": "subnet-bastion"
+                    },
+                    "nsgName": {
+                        "value": "nsg-bastion"
+                    }
                 }
             }
         },
@@ -64,8 +74,19 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('virtual-network-spoke-template')]",
+                    "uri": "[variables('virtual-network-template')]",
                     "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "virtual-network-spoke"
+                    },
+                    "subnetName": {
+                        "value": "subnet-spoke-resources"
+                    },
+                    "nsgName": {
+                        "value": "nsg-spoke-resources"
+                    }
                 }
             }
         },

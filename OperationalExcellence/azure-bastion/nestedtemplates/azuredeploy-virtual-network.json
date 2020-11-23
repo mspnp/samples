@@ -11,27 +11,50 @@
             "defaultValue": "10.0.0.0/24"
         },
         "subnetName": {
-            "type": "string",
-            "defaultValue": "ResourceSubnet"
+            "type": "string"
         },
         "virtualNetworkName": {
-            "type": "string",
-            "defaultValue": "virtial-network-hub"
+            "type": "string"
+        },
+        "nsgName": {
+            "type": "string"
         }
     },
     "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-11-01",
+            "name": "[parameters('nsgName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [ ]
+            }
+        },
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
             "name": "[parameters('virtualNetworkName')]",
             "location": "[resourceGroup().location]",
-            "dependsOn": [ ],
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+            ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
                         "[parameters('addressPrefix')]"
                     ]
-                }
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                            }
+                        }
+                    }
+                ]
             }
         }
     ],
