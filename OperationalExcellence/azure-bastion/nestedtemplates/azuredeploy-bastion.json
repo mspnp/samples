@@ -21,7 +21,10 @@
             "name": "[concat(parameters('virtualNetworkName'), '/', variables('bastion-subnet-name'))]",
             "location": "[parameters('location')]",
             "properties": {
-                "addressPrefix": "[variables('bastion-subnet-ip-prefix')]"
+                "addressPrefix": "[variables('bastion-subnet-ip-prefix')]",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'bastion-nsg')]"
+                }
             }
         },
         {
@@ -34,6 +37,30 @@
             },
             "properties": {
                 "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "bastion-nsg",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "443",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
             }
         },
         {
