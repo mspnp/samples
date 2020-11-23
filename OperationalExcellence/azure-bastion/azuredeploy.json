@@ -17,14 +17,14 @@
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 1,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
         },
         "linuxVMCount": {
             "type": "int",
-            "defaultValue": 1,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
@@ -80,6 +80,7 @@
             }
         },
         {
+            "condition": "[greater(parameters('windowsVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
@@ -112,6 +113,7 @@
             }
         },
         {
+            "condition": "[greater(parameters('linuxVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "linux-vm",

@@ -42,30 +42,44 @@
                 "publicIPAllocationMethod": "Static"
             }
         },
-        {
-            "name": "bastion-nsg",
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2020-05-01",
-            "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "443",
-                        "properties": {
-                            "description": "description",
-                            "protocol": "Tcp",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "443",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 100,
-                            "direction": "Inbound"
-                        }
-                    }
-                ]
-            }
-        },
+        // {
+        //     "name": "bastion-nsg",
+        //     "type": "Microsoft.Network/networkSecurityGroups",
+        //     "apiVersion": "2020-05-01",
+        //     "location": "[parameters('location')]",
+        //     "properties": {
+        //         "securityRules": [
+        //             {
+        //                 "name": "443",
+        //                 "properties": {
+        //                     "description": "description",
+        //                     "protocol": "Tcp",
+        //                     "sourcePortRange": "*",
+        //                     "destinationPortRange": "443",
+        //                     "sourceAddressPrefix": "*",
+        //                     "destinationAddressPrefix": "*",
+        //                     "access": "Allow",
+        //                     "priority": 100,
+        //                     "direction": "Inbound"
+        //                 }
+        //             },
+        //             {
+        //                 "name": "443",
+        //                 "properties": {
+        //                     "description": "description",
+        //                     "protocol": "Tcp",
+        //                     "sourcePortRange": "*",
+        //                     "destinationPortRange": "443",
+        //                     "sourceAddressPrefix": "*",
+        //                     "destinationAddressPrefix": "*",
+        //                     "access": "Allow",
+        //                     "priority": 100,
+        //                     "direction": "Inbound"
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // },
         {
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2020-05-01",
