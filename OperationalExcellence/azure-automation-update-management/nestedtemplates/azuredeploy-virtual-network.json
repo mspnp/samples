@@ -39,7 +39,9 @@
                         "name": "[parameters('subnetName')]",
                         "properties": {
                             "addressPrefix": "[parameters('subnetPrefix')]",
-                            "networkSecurityGroup": "[resourceId('Microsoft.Network/networkSecurityGroups', 'networkSecurityGroup1')]"
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'networkSecurityGroup1')]"
+                            }
                         }
                     }
                 ]
