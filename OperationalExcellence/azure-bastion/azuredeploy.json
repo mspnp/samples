@@ -1,0 +1,155 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "The admin user name for both the Windows and Linux virtual machines."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The admin password for both the Windows and Linux virtual machines."
+            }
+        },
+        "windowsVMCount": {
+            "type": "int",
+            "defaultValue": 1,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
+        },
+        "linuxVMCount": {
+            "type": "int",
+            "defaultValue": 1,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The location of the Managed Cluster resource."
+            }
+        }
+    },
+    "variables": {
+        "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
+        "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
+        "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
+        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "virtual-network",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtual-network-template')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "bastion-host",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('bastion-host-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "windows-vm",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
+                "[resourceId('Microsoft.Resources/deployments', 'automation-account')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windows-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('windowsVMCount')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    },
+                    "logAnalyticsName": {
+                        "value": "[reference('automation-account').outputs.logAnalyticsName.value]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "linux-vm",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linux-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('linuxVMCount')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network').outputs.subnetName.value]"
+                    },
+                    "logAnalyticsName": {
+                        "value": "[reference('automation-account').outputs.logAnalyticsName.value]"
+                    }
+                }
+            }
+        }
+    ]
+}
