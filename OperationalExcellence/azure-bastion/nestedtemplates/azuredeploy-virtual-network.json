@@ -16,7 +16,7 @@
         },
         "virtualNetworkName": {
             "type": "string",
-            "defaultValue": "virtial-network"
+            "defaultValue": "virtial-network-hub"
         }
     },
     "resources": [

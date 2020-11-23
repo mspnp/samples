@@ -28,4 +28,4 @@ az deployment group create \
     --resource-group bast-hub-spoke-001 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/bastion-hub-spoke/OperationalExcellence/azure-bastion/azuredeploy.json \
     --parameters adminPassword=Password2020!
-```c
+```
