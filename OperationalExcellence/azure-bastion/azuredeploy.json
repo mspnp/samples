@@ -102,35 +102,35 @@
                 }
             }
         },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
-            "name": "bastion-host",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('bastion-host-template')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "virtualNetworkName": {
-                        "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
-                    },
-                    "subnetName": {
-                        "value": "[reference('virtual-network-hub').outputs.subnetName.value]"
-                    },
-                    "nsgName": {
-                        "value": "[reference('virtual-network-hub').outputs.nsgName.value]"
-                    },
-                    "location": {
-                        "value": "[parameters('location')]"
-                    }
-                }
-            }
-        },
+        // {
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2019-10-01",
+        //     "name": "bastion-host",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "templateLink": {
+        //             "uri": "[variables('bastion-host-template')]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "virtualNetworkName": {
+        //                 "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
+        //             },
+        //             "subnetName": {
+        //                 "value": "[reference('virtual-network-hub').outputs.subnetName.value]"
+        //             },
+        //             "nsgName": {
+        //                 "value": "[reference('virtual-network-hub').outputs.nsgName.value]"
+        //             },
+        //             "location": {
+        //                 "value": "[parameters('location')]"
+        //             }
+        //         }
+        //     }
+        // },
         {
             "condition": "[greater(parameters('windowsVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
