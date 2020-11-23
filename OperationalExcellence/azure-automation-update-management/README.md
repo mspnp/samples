@@ -3,7 +3,7 @@
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name update1115 --location eastus
+az group create --name update1116 --location eastus
 ```
 
 Run the following command to initiate the deployment.c

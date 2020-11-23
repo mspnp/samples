@@ -23,7 +23,6 @@
 	},
 	"variables": {
 		"nicName": "windows-nic-",
-		"publicIPAddressName": "windows-pip-",
 		"vmName": "windows-vm-",
 		"windowsOSVersion": "2016-Datacenter",
 		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
@@ -34,18 +33,12 @@
 			"type": "Microsoft.Network/networkInterfaces",
 			"name": "[concat(variables('nicName'), copyIndex())]",
 			"location": "[resourceGroup().location]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName'), copyIndex()))]"
-			],
 			"properties": {
 				"ipConfigurations": [
 					{
 						"name": "ipconfig1",
 						"properties": {
 							"privateIPAllocationMethod": "Dynamic",
-							"publicIPAddress": {
-								"id": "[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName'), copyIndex()))]"
-							},
 							"subnet": {
 								"id": "[variables('subnetRef')]"
 							}
