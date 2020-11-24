@@ -35,6 +35,10 @@
             "metadata": {
                 "description": "The location of the Managed Cluster resource."
             }
+        },
+        "bastionSubnetPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.1.0/29"
         }
     },
     "variables": {
@@ -120,7 +124,7 @@
                         "value": "[parameters('location')]"
                     },
                     "bastionSubnetPrefix": {
-                        "value:": "10.0.1.0/29"
+                        "value:": "[parameters('bastionSubnetPrefix')]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
