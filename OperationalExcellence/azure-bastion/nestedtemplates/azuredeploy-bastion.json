@@ -8,7 +8,7 @@
         "virtualNetworkName": {
             "type": "string"
         },
-        "bastionSubnetPrefix": {
+        "bastionSubnetPrefix2": {
             "type": "string"
         }
     },
@@ -120,7 +120,7 @@
                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastion-nsg-name'))]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('bastionSubnetPrefix')]",
+                "addressPrefix": "[parameters('bastionSubnetPrefix2')]",
                 "networkSecurityGroup": {
                     "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastion-nsg-name'))]"
                 }
