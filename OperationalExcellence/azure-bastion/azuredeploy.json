@@ -35,13 +35,22 @@
             "metadata": {
                 "description": "The location of the Managed Cluster resource."
             }
+        },
+        "virtualNetworkNameHub": {
+            "type": "string",
+            "defaultValue": "virtual-network-hub"
+        },
+        "virtualNetworkNameSpoke": {
+            "type": "string",
+            "defaultValue": "virtual-network-spoke"
         }
     },
     "variables": {
         "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
         "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
-        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]"
+        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
+        "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]"
     },
     "resources": [
         {
@@ -56,7 +65,7 @@
                 },
                 "parameters": {
                     "virtualNetworkName": {
-                        "value": "virtual-network-hub"
+                        "value": "[parameters('virtualNetworkNameHub')]"
                     },
                     "subnetName": {
                         "value": "subnet-hub-management"
@@ -85,7 +94,7 @@
                 },
                 "parameters": {
                     "virtualNetworkName": {
-                        "value": "virtual-network-spoke"
+                        "value": "[parameters('virtualNetworkNameSpoke')]"
                     },
                     "subnetName": {
                         "value": "subnet-spoke-resources"
@@ -98,6 +107,29 @@
                     },
                     "subnetPrefix": {
                         "value": "192.168.0.0/24"
+                    }
+                }
+            }
+        },
+        {
+            "name": "virtual-network-peering",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnet-peering-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkNameHub": {
+                        "value": "[parameters('virtualNetworkNameHub')]"
+                    },
+                    "virtualNetworkNameSpoke": {
+                        "value": "[parameters('virtualNetworkNameSpoke')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
