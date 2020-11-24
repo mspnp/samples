@@ -65,10 +65,10 @@
                         "value": "nsg-hub-management"
                     },
                     "addressPrefix": {
-                        "value": "10.0.0.0/24"
+                        "value": "10.0.0.0/20"
                     },
                     "subnetPrefix": {
-                        "value": "10.0.0.0/24"
+                        "value": "10.0.0.0/25"
                     }
                 }
             }
