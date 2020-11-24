@@ -115,6 +115,10 @@
             "name": "virtual-network-peering",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
