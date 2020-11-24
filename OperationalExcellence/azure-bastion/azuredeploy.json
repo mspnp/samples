@@ -2,6 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The location of the Managed Cluster resource."
+            }
+        },
         "adminUserName": {
             "type": "string",
             "defaultValue": "azureadmin",
@@ -30,20 +37,25 @@
                 "description": "The count of Windows virtual machines to create."
             }
         },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
-            "metadata": {
-                "description": "The location of the Managed Cluster resource."
+        "hubNetwork": {
+            "type": "object",
+            "defaultValue": {
+                "name": "virtual-network-hub",
+                "addressPrefix": "10.0.0.0/20",
+                "subnetName": "subnet-hub-management",
+                "subnetPrefix": "10.0.0.0/25",
+                "subnetNsgName": "nsg-hub-management"
             }
         },
-        "virtualNetworkNameHub": {
-            "type": "string",
-            "defaultValue": "virtual-network-hub"
-        },
-        "virtualNetworkNameSpoke": {
-            "type": "string",
-            "defaultValue": "virtual-network-spoke"
+        "spokeNetwork": {
+            "type": "object",
+            "defaultValue": {
+                "name": "virtual-network-spoke",
+                "addressPrefix": "192.168.0.0/24",
+                "subnetName": "subnet-spoke-resources",
+                "subnetPrefix": "192.168.0.0/24",
+                "subnetNsgName": "nsg-spoke-resources"
+            }
         }
     },
     "variables": {
@@ -66,19 +78,19 @@
                 },
                 "parameters": {
                     "virtualNetworkName": {
-                        "value": "[parameters('virtualNetworkNameHub')]"
+                        "value": "[parameters('hubNetwork').name]"
                     },
                     "subnetName": {
-                        "value": "subnet-hub-management"
+                        "value": "[parameters('hubNetwork').subnetName]"
                     },
                     "nsgName": {
-                        "value": "nsg-hub-management"
+                        "value": "[parameters('hubNetwork').subnetNsgName]"
                     },
                     "addressPrefix": {
-                        "value": "10.0.0.0/20"
+                        "value": "[parameters('hubNetwork').addressPrefix]"
                     },
                     "subnetPrefix": {
-                        "value": "10.0.0.0/25"
+                        "value": "[parameters('hubNetwork').subnetPrefix]"
                     }
                 }
             }
@@ -95,19 +107,19 @@
                 },
                 "parameters": {
                     "virtualNetworkName": {
-                        "value": "[parameters('virtualNetworkNameSpoke')]"
+                        "value": "[parameters('spokeNetwork').name]"
                     },
                     "subnetName": {
-                        "value": "subnet-spoke-resources"
+                        "value": "[parameters('spokeNetwork').subnetName]"
                     },
                     "nsgName": {
-                        "value": "nsg-spoke-resources"
+                        "value": "[parameters('spokeNetwork').subnetNsgName]"
                     },
                     "addressPrefix": {
-                        "value": "192.168.0.0/24"
+                        "value": "[parameters('spokeNetwork').addressPrefix]"
                     },
                     "subnetPrefix": {
-                        "value": "192.168.0.0/24"
+                        "value": "[parameters('spokeNetwork').subnetPrefix]"
                     }
                 }
             }
@@ -128,10 +140,10 @@
                 },
                 "parameters": {
                     "virtualNetworkNameHub": {
-                        "value": "[parameters('virtualNetworkNameHub')]"
+                        "value": "[parameters('hubNetwork').name]"
                     },
                     "virtualNetworkNameSpoke": {
-                        "value": "[parameters('virtualNetworkNameSpoke')]"
+                        "value": "[parameters('spokeNetwork').name]"
                     },
                     "location": {
                         "value": "[parameters('location')]"

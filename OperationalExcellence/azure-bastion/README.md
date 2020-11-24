@@ -24,14 +24,14 @@ az deployment group create \
 
 
 ```azurecli
-az group create --name bast-hub-spoke-071 --location eastus
+az group create --name bast-hub-spoke-091 --location eastus
 ```
 
 
 
 ```azurecli
 az deployment group create \
-    --resource-group bast-hub-spoke-071 \
+    --resource-group bast-hub-spoke-223 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/bastion-hub-spoke/OperationalExcellence/azure-bastion/azuredeploy.json \
-    --parameters adminPassword=Password2020! windowsVMCount=1
+    --parameters adminPassword=Password2020! windowsVMCount=2 linuxVMCount=2
 ```
