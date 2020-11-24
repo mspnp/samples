@@ -16,7 +16,7 @@
     "variables": {
         "public-ip-address-name": "bastion-pip",
         "bastion-subnet-name": "AzureBastionSubnet",
-        "bastion-nsg-name": "bastion-nsg"
+        "bastion-nsg-name": "nsg-hub-bastion"
     },
     "resources": [
         {
