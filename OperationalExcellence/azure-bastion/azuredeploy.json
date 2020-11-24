@@ -35,10 +35,6 @@
             "metadata": {
                 "description": "The location of the Managed Cluster resource."
             }
-        },
-        "bastionSubnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.1.0/29"
         }
     },
     "variables": {
@@ -120,11 +116,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    // Need to fix issue with bastion address null param, set as default value for now.
                     "location": {
                         "value": "[parameters('location')]"
-                    },
-                    "bastionSubnetPrefix": {
-                        "value:": "[parameters('bastionSubnetPrefix')]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
