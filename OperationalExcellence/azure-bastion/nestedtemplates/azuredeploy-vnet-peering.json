@@ -13,13 +13,14 @@
         }
     },
     "variables": {
-        "peering-name": "hub-to-spoke"
+        "peering-name-hub-to-spoke": "hub-to-spoke",
+        "peering-name-spoke-to-hub": "hub-to-spoke"
     },
     "resources": [
         {
             "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-            "name": "[concat(parameters('virtualNetworkNameHub'), '/', variables('peering-name'))]",
+            "name": "[concat(parameters('virtualNetworkNameHub'), '/', variables('peering-name-hub-to-spoke'))]",
             "location": "[parameters('location')]",
             "properties": {
                 "allowVirtualNetworkAccess": true,
@@ -28,6 +29,21 @@
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
                     "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkNameSpoke'))]"
+                }
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "name": "[concat(parameters('virtualNetworkNameSpoke'), '/', variables('peering-name-spoke-to-hub'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkNameHub'))]"
                 }
             }
         }
