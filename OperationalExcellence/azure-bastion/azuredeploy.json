@@ -62,7 +62,7 @@
                         "value": "subnet-hub-management"
                     },
                     "nsgName": {
-                        "value": "nsg-bastion"
+                        "value": "nsg-hub-management"
                     },
                     "addressPrefix": {
                         "value": "10.0.0.0/24"
