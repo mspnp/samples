@@ -127,31 +127,31 @@
                 }
             }
 
-        },
-        {
-            "type": "Microsoft.Network/bastionHosts",
-            "apiVersion": "2020-05-01",
-            "name": "AzureBastionHost",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('bastion-subnet-name'))]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "IpConf",
-                        "properties": {
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastion-subnet-name'))]"
-                            },
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]"
-                            }
-                        }
-                    }
-                ]
-            }
         }
+        // {
+        //     "type": "Microsoft.Network/bastionHosts",
+        //     "apiVersion": "2020-05-01",
+        //     "name": "AzureBastionHost",
+        //     "location": "[parameters('location')]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]",
+        //         "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('bastion-subnet-name'))]"
+        //     ],
+        //     "properties": {
+        //         "ipConfigurations": [
+        //             {
+        //                 "name": "IpConf",
+        //                 "properties": {
+        //                     "subnet": {
+        //                         "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastion-subnet-name'))]"
+        //                     },
+        //                     "publicIPAddress": {
+        //                         "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]"
+        //                     }
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // }
     ]
 }
