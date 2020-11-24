@@ -119,12 +119,13 @@
                     "location": {
                         "value": "[parameters('location')]"
                     },
-                    "virtualNetworkName": {
-                        "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
-                    },
                     "bastionSubnetPrefix": {
                         "value:": "10.0.1.0/29"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     }
+
                 }
             }
         },
