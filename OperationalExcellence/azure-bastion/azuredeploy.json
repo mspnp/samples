@@ -122,7 +122,7 @@
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
-                    "subnetPrefix": {
+                    "bastionSubnetPrefix": {
                         "value:": "10.0.1.0/29"
                     }
                 }
