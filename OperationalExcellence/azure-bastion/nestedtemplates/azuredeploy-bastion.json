@@ -10,7 +10,7 @@
         },
         "subnetPrefix": {
             "type": "string",
-            "defaultValue": "10.1.0.0/27"
+            "defaultValue": "10.0.0.0/30"
         }
     },
     "variables": {
