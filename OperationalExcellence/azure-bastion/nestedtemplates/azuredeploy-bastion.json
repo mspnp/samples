@@ -9,8 +9,7 @@
             "type": "string"
         },
         "subnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.1.0/29"
+            "type": "string"
         }
     },
     "variables": {

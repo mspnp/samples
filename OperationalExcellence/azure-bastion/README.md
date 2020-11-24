@@ -24,7 +24,7 @@ az deployment group create \
 
 
 ```azurecli
-az group create --name bast-hub-spoke-040 --location eastus
+az group create --name bast-hub-spoke-060 --location eastus
 ```
 
 

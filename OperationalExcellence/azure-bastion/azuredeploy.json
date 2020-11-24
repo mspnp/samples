@@ -121,10 +121,10 @@
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetPrefix": {
+                        "value:": "10.0.1.0/29"
                     }
-                    // "subnetPrefix": {
-                    //     "value:": "10.1.0.0/27"
-                    // }
                 }
             }
         },
