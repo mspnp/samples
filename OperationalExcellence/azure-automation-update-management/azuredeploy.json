@@ -29,6 +29,13 @@
                 "description": "The count of Windows virtual machines to create."
             }
         },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_A2_v2",
+            "allowedValues": [
+                "Standard_A2_v2"
+            ]
+        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
@@ -122,6 +129,9 @@
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
                     },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    },
                     "vmCount": {
                         "value": "[parameters('windowsVMCount')]"
                     },
@@ -157,6 +167,9 @@
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
                     },
                     "vmCount": {
                         "value": "[parameters('linuxVMCount')]"

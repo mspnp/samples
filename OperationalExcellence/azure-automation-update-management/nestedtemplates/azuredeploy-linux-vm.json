@@ -8,6 +8,9 @@
 		"adminPassword": {
 			"type": "securestring"
 		},
+		"vmSize": {
+			"type": "string"
+		},
 		"vmCount": {
 			"type": "int"
 		},
@@ -61,7 +64,7 @@
 			],
 			"properties": {
 				"hardwareProfile": {
-					"vmSize": "Standard_A1_v2"
+					"vmSize": "[parameters('vmSize')]"
 				},
 				"osProfile": {
 					"computerName": "[concat(variables('vmName'), copyIndex())]",
@@ -99,23 +102,23 @@
 			"location": "[resourceGroup().location]",
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex())]"
-			  ],
+			],
 			"properties": {
-			  "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-			  "type": "OmsAgentForLinux",
-			  "typeHandlerVersion": "1.7",
-			  "settings": {
-				"workspaceId": "[reference(resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsName')), '2015-11-01-preview').customerId]",
-				"azureResourceId": "[resourceId('Microsoft.Compute/virtualMachines/', concat(variables('vmName'), copyIndex()))]"
-			  },
-			  "protectedSettings": {
-				"workspaceKey": "[listKeys(resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsName')), '2015-11-01-preview').primarySharedKey]"
-			  }
+				"publisher": "Microsoft.EnterpriseCloud.Monitoring",
+				"type": "OmsAgentForLinux",
+				"typeHandlerVersion": "1.7",
+				"settings": {
+					"workspaceId": "[reference(resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsName')), '2015-11-01-preview').customerId]",
+					"azureResourceId": "[resourceId('Microsoft.Compute/virtualMachines/', concat(variables('vmName'), copyIndex()))]"
+				},
+				"protectedSettings": {
+					"workspaceKey": "[listKeys(resourceId(resourceGroup().name, 'Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsName')), '2015-11-01-preview').primarySharedKey]"
+				}
 			},
 			"copy": {
 				"name": "vmcopy",
 				"count": "[parameters('vmCount')]"
 			}
-		  }
+		}
 	]
 }
