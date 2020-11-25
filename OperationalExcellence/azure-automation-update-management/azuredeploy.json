@@ -86,6 +86,8 @@
             }
         },
         {
+            // "condition": "[greater(parameters('windowsVMCount'), 0)]",
+            "condition": "[or(greater(parameters('windowsVMCount'), 0), greater(parameters('windowsVMCount'), 0))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "bastion-host",
@@ -109,6 +111,7 @@
             }
         },
         {
+            "condition": "[greater(parameters('windowsVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
@@ -148,6 +151,7 @@
             }
         },
         {
+            "condition": "[greater(parameters('linuxVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "linux-vm",

@@ -1,6 +1,6 @@
 # Azure Update Management
 
-This sample demonstrates demonstrtes how to use Azure Update Management
+This sample deploys an Azure Automation account with the Azure Updates management solution and optional virtual machines, all auto-onboarded into the update solution.
 
 ## Deploy sample
 
