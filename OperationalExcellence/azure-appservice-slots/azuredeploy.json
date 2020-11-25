@@ -1,0 +1,139 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environments": {
+            "defaultValue": "KnownGood",
+            "type": "string",
+            "metadata": {
+                "description": "The names for the environment slots"
+            },
+            "maxLength": 19
+        },
+        "linuxFxVersion": {
+            "type": "string",
+            "defaultValue": "python|3.7",
+            "metadata": {
+                "description": "The Runtime stack of current web app"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        }
+    },
+    "variables": {
+        "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bootstrap.json')]",
+        "webAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
+        "appServicePlanName": "[concat('AppServicePlan-', variables('webAppName'))]",
+        "sku": "S1",
+        "repoUrl": "https://github.com/neilpeterson/python-docs-hello-world.git",
+        "prod-slot": "broken-production",
+        "known-good-slot": "master"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('appServicePlanName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[variables('sku')]"
+            },
+            "kind": "linux",
+            "properties": {
+                "reserved": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('webAppName')]",
+            "location": "[parameters('location')]",
+            "kind": "app",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+            ],
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+                "siteConfig": {
+                    "linuxFxVersion": "[parameters('linuxFxVersion')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/sourcecontrols",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('webAppName'), '/web')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+            ],
+            "properties": {
+                "repoUrl": "[variables('repoUrl')]",
+                "branch": "[variables('prod-slot')]",
+                "isManualIntegration": true,
+                "isGitHubAction": "false",
+                "deploymentRollbackEnabled": true,
+                "isMercurial": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('webAppName'), '/', parameters('environments'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/Sites', variables('webAppName'))]"
+            ],
+            "kind": "app",
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/sourcecontrols",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('webAppName'), '/', parameters('environments'), '/web')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', variables('webAppName'), parameters('environments'))]"
+            ],
+            "properties": {
+                "repoUrl": "[variables('repoUrl')]",
+                "branch": "[variables('known-good-slot')]",
+                "isManualIntegration": true,
+                "isGitHubAction": "false",
+                "deploymentRollbackEnabled": true,
+                "isMercurial": false
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "bootstrap",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('webAppName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('bootstrap-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "webAppName": {
+                        "value": "[variables('webAppName')]"
+                    },
+                    "slots": {
+                        "value": "[parameters('environments')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        }
+    ]
+}
