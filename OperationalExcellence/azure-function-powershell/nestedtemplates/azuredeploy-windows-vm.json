@@ -1,0 +1,147 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"adminUsername": {
+			"type": "string"
+		},
+		"adminPassword": {
+			"type": "securestring"
+		},
+		"virtualNetworkName": {
+			"type": "string"
+		},
+		"subnetName": {
+			"type": "string"
+		},
+		"workSpaceId": {
+			"type": "string"
+		},
+		"workspaceKey": {
+			"type": "string"
+		},
+		"location": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"nicName": "windows-nic",
+		"publicIPAddressName": "windows-pip",
+		"vmName": "windows-vm",
+		"windowsOSVersion": "2016-Datacenter",
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
+		"bootStrapCommand": "powershell Install-WindowsFeature -name Web-Server -IncludeManagementTools"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Network/publicIPAddresses",
+			"apiVersion": "2020-05-01",
+			"name": "[variables('publicIPAddressName')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"publicIPAllocationMethod": "Dynamic"
+			}
+		},
+		{
+			"type": "Microsoft.Network/networkInterfaces",
+			"apiVersion": "2020-05-01",
+			"name": "[variables('nicName')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName')))]"
+			],
+			"properties": {
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"publicIPAddress": {
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName')))]"
+							},
+							"subnet": {
+								"id": "[variables('subnetRef')]"
+							}
+						}
+					}
+				]
+			}
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines",
+			"apiVersion": "2019-07-01",
+			"name": "[variables('vmName')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+			],
+			"properties": {
+				"hardwareProfile": {
+					"vmSize": "Standard_A2_v2"
+				},
+				"osProfile": {
+					"computerName": "[variables('vmName')]",
+					"adminUsername": "[parameters('adminUsername')]",
+					"adminPassword": "[parameters('adminPassword')]"
+				},
+				"storageProfile": {
+					"imageReference": {
+						"publisher": "MicrosoftWindowsServer",
+						"offer": "WindowsServer",
+						"sku": "[variables('windowsOSVersion')]",
+						"version": "latest"
+					},
+					"osDisk": {
+						"createOption": "FromImage"
+					}
+				},
+				"networkProfile": {
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+						}
+					]
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"apiVersion": "2019-07-01",
+			"name": "[concat(variables('vmName'), '/OMSExtension')]",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+			],
+			"properties": {
+				"publisher": "Microsoft.EnterpriseCloud.Monitoring",
+				"type": "MicrosoftMonitoringAgent",
+				"typeHandlerVersion": "1.0",
+				"autoUpgradeMinorVersion": true,
+				"settings": {
+					"workspaceId": "[parameters('workSpaceId')]"
+				},
+				"protectedSettings": {
+					"workspaceKey": "[parameters('workspaceKey')]"
+				}
+			}
+		},
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2019-03-01",
+			"name": "[concat(variables('vmName'), '/config')]",
+			"location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "commandToExecute": "[variables('bootStrapCommand')]"
+                }
+            }
+        }
+	]
+}
