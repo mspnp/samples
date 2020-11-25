@@ -17,14 +17,14 @@
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 1,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
         },
         "linuxVMCount": {
             "type": "int",
-            "defaultValue": 1,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
