@@ -1,0 +1,91 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string"
+        },
+        "functionKey": {
+            "type": "securestring"
+        },
+        "serviceToMonitor": {
+            "type": "string"
+        },
+        "alertQuery": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "emailAddress": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "microsoft.insights/scheduledqueryrules",
+            "apiVersion": "2018-04-16",
+            "name": "[parameters('serviceToMonitor')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "enabled": "true",
+                "source": {
+                    "query": "[parameters('alertQuery')]",
+                    "authorizedResources": [],
+                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('workspaceName'))]",
+                    "queryType": "ResultCount"
+                },
+                "schedule": {
+                    "frequencyInMinutes": 5,
+                    "timeWindowInMinutes": 5
+                },
+                "action": {
+                    "severity": "3",
+                    "aznsAction": {
+                        "actionGroup": [
+                            "[resourceId('microsoft.insights/actionGroups', parameters('serviceToMonitor'))]"
+                        ]
+                    },
+                    "trigger": {
+                        "thresholdOperator": "GreaterThan",
+                        "threshold": 0
+                    },
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction"
+                }
+            }
+        },
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2019-03-01",
+            "name": "[parameters('serviceToMonitor')]",
+            "location": "Global",
+            "properties": {
+                "groupShortName": "emailService",
+                "enabled": true,
+                "emailReceivers": [
+                    {
+                        "name": "emailAction",
+                        "emailAddress": "[parameters('emailAddress')]",
+                        "useCommonAlertSchema": false
+                    }
+                ],
+                "smsReceivers": [],
+                "webhookReceivers": [],
+                "itsmReceivers": [],
+                "azureAppPushReceivers": [],
+                "automationRunbookReceivers": [],
+                "voiceReceivers": [],
+                "logicAppReceivers": [],
+                "azureFunctionReceivers": [
+                    {
+                        "name": "restart-service-function-action",
+                        "functionAppResourceId": "[resourceId('Microsoft.Web/sites', parameters('workspaceName'))]",
+                        "functionName": "restart-windows-service",
+                        "httpTriggerUrl": "[concat('https://', parameters('workspaceName'), '.azurewebsites.net/api/restart-windows-service?code=', parameters('functionKey'))]",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        }
+    ]
+}
