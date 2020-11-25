@@ -9,34 +9,6 @@
                 "description": "The location of the Managed Cluster resource."
             }
         },
-        "adminUserName": {
-            "type": "string",
-            "defaultValue": "azureadmin",
-            "metadata": {
-                "description": "The admin user name for both the Windows and Linux virtual machines."
-            }
-        },
-        "adminPassword": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The admin password for both the Windows and Linux virtual machines."
-            }
-        },
-        "windowsVMCount": {
-            "type": "int",
-            "defaultValue": 0,
-            "metadata": {
-                "description": "The count of Windows virtual machines to create."
-            }
-        },
-        "linuxVMCount": {
-            "type": "int",
-            "defaultValue": 0,
-            "metadata": {
-                "description": "The count of Windows virtual machines to create."
-            }
-        },
         "hubNetwork": {
             "type": "object",
             "defaultValue": {
@@ -55,6 +27,25 @@
                 "subnetName": "subnet-spoke-resources",
                 "subnetPrefix": "192.168.0.0/24",
                 "subnetNsgName": "nsg-spoke-resources"
+            }
+        },
+        "bastionHost": {
+            "type": "object",
+            "defaultValue": {
+                "name": "AzureBastionHost",
+                "publicIPAddressName": "bastion-pip",
+                "subnetName": "AzureBastionSubnet",
+                "nsgName": "nsg-hub-bastion",
+                "subnetPrefix": "10.0.1.0/29"
+            }
+        },
+        "virtualMachines": {
+            "type": "object",
+            "defaultValue": {
+                "adminUserName": "azureadmin",
+                "adminPassword": "",
+                "windowsVMCount": 0,
+                "linuxVMCount": 0
             }
         }
     },
@@ -125,9 +116,9 @@
             }
         },
         {
-            "name": "virtual-network-peering",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
+            "name": "virtual-network-peering",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
@@ -165,19 +156,32 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    // Need to fix issue with bastion address null param, set as default value for now.
                     "location": {
                         "value": "[parameters('location')]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
+                    },
+                    "bastionHostName": {
+                        "value": "[parameters('bastionHost').name]"
+                    },
+                    "bastionPublicIPName": {
+                        "value": "[parameters('bastionHost').publicIPAddressName]"
+                    },
+                    "bastionSubnetName": {
+                        "value": "[parameters('bastionHost').subnetName]"
+                    },
+                    "bastionSubnetPrefix": {
+                        "value": "[parameters('bastionHost').subnetPrefix]"
+                    },
+                    "bastionNsgName": {
+                        "value": "[parameters('bastionHost').nsgName]"
                     }
-
                 }
             }
         },
         {
-            "condition": "[greater(parameters('windowsVMCount'), 0)]",
+            "condition": "[greater(parameters('virtualMachines').windowsVMCount, 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
@@ -192,13 +196,13 @@
                 },
                 "parameters": {
                     "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
+                        "value": "[parameters('virtualMachines').adminUserName]"
                     },
                     "adminPassword": {
-                        "value": "[parameters('adminPassword')]"
+                        "value": "[parameters('virtualMachines').adminPassword]"
                     },
                     "vmCount": {
-                        "value": "[parameters('windowsVMCount')]"
+                        "value": "[parameters('virtualMachines').windowsVMCount]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-spoke').outputs.virtualNetworkName.value]"
@@ -210,7 +214,7 @@
             }
         },
         {
-            "condition": "[greater(parameters('linuxVMCount'), 0)]",
+            "condition": "[greater(parameters('virtualMachines').linuxVMCount, 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "linux-vm",
@@ -225,13 +229,13 @@
                 },
                 "parameters": {
                     "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
+                        "value": "[parameters('virtualMachines').adminUserName]"
                     },
                     "adminPassword": {
-                        "value": "[parameters('adminPassword')]"
+                        "value": "[parameters('virtualMachines').adminPassword]"
                     },
                     "vmCount": {
-                        "value": "[parameters('linuxVMCount')]"
+                        "value": "[parameters('virtualMachines').linuxVMCount]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-spoke').outputs.virtualNetworkName.value]"

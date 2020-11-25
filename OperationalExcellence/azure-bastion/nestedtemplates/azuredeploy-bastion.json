@@ -8,21 +8,27 @@
         "virtualNetworkName": {
             "type": "string"
         },
+        "bastionHostName": {
+            "type": "string"
+        },
+        "bastionPublicIPName": {
+            "type": "string"
+        },
+        "bastionSubnetName": {
+            "type": "string"
+        },
         "bastionSubnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.1.0/29"
+            "type": "string"
+        },
+        "bastionNsgName": {
+            "type": "string"
         }
-    },
-    "variables": {
-        "public-ip-address-name": "bastion-pip",
-        "bastion-subnet-name": "AzureBastionSubnet",
-        "bastion-nsg-name": "nsg-hub-bastion"
     },
     "resources": [
         {
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2020-05-01",
-            "name": "[variables('public-ip-address-name')]",
+            "name": "[parameters('bastionPublicIPName')]",
             "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard"
@@ -34,7 +40,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
-            "name": "[variables('bastion-nsg-name')]",
+            "name": "[parameters('bastionNsgName')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [
@@ -116,14 +122,14 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('virtualNetworkName'), '/', variables('bastion-subnet-name'))]",
+            "name": "[concat(parameters('virtualNetworkName'), '/', parameters('bastionSubnetName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastion-nsg-name'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionNsgName'))]"
             ],
             "properties": {
                 "addressPrefix": "[parameters('bastionSubnetPrefix')]",
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastion-nsg-name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionNsgName'))]"
                 }
             }
 
@@ -131,11 +137,11 @@
         {
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2020-05-01",
-            "name": "AzureBastionHost",
+            "name": "[parameters('bastionHostName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastion-subnet-name'))]"
+                "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionPublicIPName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('bastionSubnetName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -143,10 +149,10 @@
                         "name": "IpConf",
                         "properties": {
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('bastion-subnet-name'))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('bastionSubnetName'))]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', variables('public-ip-address-name'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionPublicIPName'))]"
                             }
                         }
                     }
