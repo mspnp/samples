@@ -1,6 +1,10 @@
 # Azure Update Management
 
-This sample deploys an Azure Automation account with the Azure Updates management solution and optional virtual machines, all auto-onboarded into the update solution.
+This sample deploys an Azure Automation account with the Azure Updates management solution and optional virtual machines, all auto-onboarded into the update solution. 
+
+Azure Automation Update Management relies on linked automation and Log Analytics workspace, which has some regional requirements. For more information, see [Supported regions for linked Log Analytics workspace](https://docs.microsoft.com/azure/automation/how-to/region-mappings).
+
+The `WestUS2` and `SoutheastAsia` regions are good options for this sample.
 
 ## Deploy sample
 

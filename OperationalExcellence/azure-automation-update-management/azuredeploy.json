@@ -11,6 +11,7 @@
         },
         "adminPassword": {
             "type": "securestring",
+            "defaultValue": "",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
@@ -86,8 +87,7 @@
             }
         },
         {
-            // "condition": "[greater(parameters('windowsVMCount'), 0)]",
-            "condition": "[or(greater(parameters('windowsVMCount'), 0), greater(parameters('windowsVMCount'), 0))]",
+            "condition": "[or(greater(parameters('windowsVMCount'), 0), greater(parameters('linuxVMCount'), 0))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "bastion-host",
