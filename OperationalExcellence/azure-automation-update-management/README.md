@@ -8,15 +8,13 @@ The `WestUS2` and `SoutheastAsia` regions are good options for this sample.
 
 ## Deploy sample
 
-### Azure portal
+**Azure Portal**
 
 To deploy this template using the Azure portal, click this button.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-automation-update-management%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>  
-
-### Azure CLI
 
 **Azure CLI**
 
