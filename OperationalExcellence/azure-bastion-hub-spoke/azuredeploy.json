@@ -2,11 +2,32 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "location": {
+        "adminUserName": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]",
+            "defaultValue": "azureadmin",
             "metadata": {
-                "description": "The location of the Managed Cluster resource."
+                "description": "The admin user name for both the Windows and Linux virtual machines."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The admin password for both the Windows and Linux virtual machines."
+            }
+        },
+        "windowsVMCount": {
+            "type": "int",
+            "defaultValue": 0,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
+        },
+        "linuxVMCount": {
+            "type": "int",
+            "defaultValue": 0,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
             }
         },
         "hubNetwork": {
@@ -38,34 +59,6 @@
                 "nsgName": "nsg-hub-bastion",
                 "subnetPrefix": "10.0.1.0/29"
             }
-        },
-        "adminUserName": {
-            "type": "string",
-            "defaultValue": "azureadmin",
-            "metadata": {
-                "description": "The admin user name for both the Windows and Linux virtual machines."
-            }
-        },
-        "adminPassword": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The admin password for both the Windows and Linux virtual machines."
-            }
-        },
-        "windowsVMCount": {
-            "type": "int",
-            "defaultValue": 0,
-            "metadata": {
-                "description": "The count of Windows virtual machines to create."
-            }
-        },
-        "linuxVMCount": {
-            "type": "int",
-            "defaultValue": 0,
-            "metadata": {
-                "description": "The count of Windows virtual machines to create."
-            }
         }
     },
     "variables": {
@@ -73,7 +66,8 @@
         "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
-        "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]"
+        "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]",
+        "location": "[resourceGroup().location]"
     },
     "resources": [
         {
@@ -156,7 +150,7 @@
                         "value": "[parameters('spokeNetwork').name]"
                     },
                     "location": {
-                        "value": "[parameters('location')]"
+                        "value": "[variables('location')]"
                     }
                 }
             }
@@ -176,7 +170,7 @@
                 },
                 "parameters": {
                     "location": {
-                        "value": "[parameters('location')]"
+                        "value": "[variables('location')]"
                     },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
