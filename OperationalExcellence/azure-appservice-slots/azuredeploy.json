@@ -19,7 +19,8 @@
         }
     },
     "variables": {
-        "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bootstrap.json')]",
+        // "bootstrap-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bootstrap.json')]",
+        "bootstrap-template-two": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bootstrap.json')]",
         "webAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "appServicePlanName": "[concat('AppServicePlan-', variables('webAppName'))]",
         "sku": "S1",
@@ -113,7 +114,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('bootstrap-template')]",
+                    "uri": "[variables('bootstrap-template-two')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
