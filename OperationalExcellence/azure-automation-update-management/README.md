@@ -8,27 +8,17 @@ The `WestUS2` and `SoutheastAsia` regions are good options for this sample.
 
 ## Deploy sample
 
-**Azure Portal**
-
-To deploy this template using the Azure portal, click this button.
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-automation-update-management%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>  
-
-**Azure CLI**
-
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name update-management --location eastus
+az group create --name update-management --location SoutheastAsia
 ```
 
 Run the following command to initiate the deployment.
 
 ```azurecli
 az deployment group create \
-    --resource-group wsus001 \
+    --resource-group update-management \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-update-management/azuredeploy.json \
     --parameters adminUserName=azureadmin adminPassword=Password2020! windowsVMCount=1 linuxVMCount=1
 ```

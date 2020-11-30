@@ -4,16 +4,6 @@ This sample demonstrates how to use Azure App Service Slots to rollback to a kno
 
 ## Deploy sample
 
-### Azure portal
-
-To deploy this template using the Azure portal, click this button.
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-appservice-slots%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>  
-
-### Azure CLI
-
 Create a resource group for the deployment.
 
 ```azurecli
