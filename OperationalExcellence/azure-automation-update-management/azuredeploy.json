@@ -2,20 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "adminUserName": {
-            "type": "string",
-            "defaultValue": "azureadmin",
-            "metadata": {
-                "description": "The admin user name for both the Windows and Linux virtual machines."
-            }
-        },
-        "adminPassword": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The admin password for both the Windows and Linux virtual machines."
-            }
-        },
         "windowsVMCount": {
             "type": "int",
             "defaultValue": 0,
@@ -35,13 +21,23 @@
             "defaultValue": "Standard_A2_v2",
             "allowedValues": [
                 "Standard_A2_v2"
-            ]
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
+            ],
             "metadata": {
-                "description": "The location of the Managed Cluster resource."
+                "description": "The virtual machine size. This value is not used if both 'windowsVMCount' and 'linuxVMCount' are set to 0."
+            }
+        },
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "The admin user name for both the Windows and Linux virtual machines. This value is not used if both 'windowsVMCount' and 'linuxVMCount' are set to 0."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The admin password for both the Windows and Linux virtual machines. This value is not used if both 'windowsVMCount' and 'linuxVMCount' are set to 0."
             }
         }
     },
@@ -51,7 +47,8 @@
         "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
         "unique-name": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
-        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]"
+        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
+        "location": "[resourceGroup().location]"
     },
     "resources": [
         {
@@ -66,7 +63,7 @@
                 },
                 "parameters": {
                     "location": {
-                        "value": "[parameters('location')]"
+                        "value": "[variables('location')]"
                     },
                     "unique-name": {
                         "value": "[variables('unique-name')]"
@@ -75,6 +72,7 @@
             }
         },
         {
+            "condition": "[or(greater(parameters('windowsVMCount'), 0), greater(parameters('linuxVMCount'), 0))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network",
@@ -105,7 +103,7 @@
                         "value": "[reference('virtual-network').outputs.virtualNetworkName.value]"
                     },
                     "location": {
-                        "value": "[parameters('location')]"
+                        "value": "[variables('location')]"
                     }
                 }
             }

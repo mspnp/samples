@@ -4,18 +4,6 @@ This sample deploys two peered Azure Virtual Networks, an Azure Bastion host, an
 
 ## Deploy sample
 
-**Azure Portal**
-
-To deploy this template using the Azure portal, click this button.  
-
-<br />
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Fazure-bastion-hub-spoke%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>
-
-**Azure CLI**
-
 Create a resource group for the deployment.
 
 ```azurecli
