@@ -102,6 +102,10 @@ $ az policy assignment delete --name pod-labels --resource-group azurePolicyDemo
 $ az policy assignment delete --name allowed-images --resource-group azurePolicyDemo
 ```
 
+## Note on Public Container Usage
+
+This pattern's example pulls container images from a public registry. When implementing this or any pattern in production, always ensure you're pulling images from a container registry that meets your SLO requirements, such as an Azure Container Registry owned by your organization.
+
 ## Code of conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
