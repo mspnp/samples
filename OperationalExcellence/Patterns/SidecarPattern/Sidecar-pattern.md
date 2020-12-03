@@ -36,4 +36,4 @@ curl 'http://localhost:80/cpu-usage-log.txt'
 
 ### Note on Public Container Usage
 
-This pattern's example yaml file pulls containers from a public registry. When implementing this or any pattern in production, always ensure you're pulling images from a container registry that meets your SLO requirements, such as an Azure Container Registry owned by your organization.
+This pattern's example yaml file pulls container images from a public registry. When implementing this or any pattern in production, always ensure you're pulling images from a container registry that meets your SLO requirements, such as an Azure Container Registry owned by your organization.
