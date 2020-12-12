@@ -49,7 +49,10 @@
                 "forceUpdateTag": "1",
                 "azCliVersion": "2.15.1",
                 "arguments": "[concat(parameters('webAppName'), ' ', resourceGroup().name, ' ',parameters('slots'))]",
-                "scriptContent": "az vm list -o table",
+                "scriptContent": "
+                    az webapp deployment source delete --resource-group $2 --name $1
+                    az webapp deployment source delete --resource-group $2 --name $1 --slot $3
+                ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"

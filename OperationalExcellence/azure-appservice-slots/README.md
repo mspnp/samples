@@ -15,7 +15,7 @@ Run the following command to initiate the deployment.
 ```
 az deployment group create \
     --resource-group slotsDemo \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-appservice-slots/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/deployment-script-az-cli/OperationalExcellence/azure-appservice-slots/azuredeploy.json
 ```
 
 ## Demo Solution
