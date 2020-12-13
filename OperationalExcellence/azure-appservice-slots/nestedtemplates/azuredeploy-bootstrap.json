@@ -12,8 +12,6 @@
             "type": "string"
         }
     },
-    "functions": [],
-    "variables": {},
     "resources": [
         {
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
@@ -35,13 +33,12 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'deploymentScript')]"
             ]
         },
-        // Using PowerShell here for container image flexibility (Ubuntu vs. alpine).
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
-            "name": "runPowerShellInline",
+            "name": "runAZCLIInline",
             "location": "[resourceGroup().location]",
-            "kind": "AzurePowerShell",
+            "kind": "AzureCLI",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -50,26 +47,12 @@
             },
             "properties": {
                 "forceUpdateTag": "1",
-                "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-webAppName ', parameters('webAppName'), ' -resourceGroup ', resourceGroup().name, ' -slots ', parameters('slots'))]",
+                "azCliVersion": "2.15.1",
+                "arguments": "[concat(parameters('webAppName'), ' ', resourceGroup().name, ' ',parameters('slots'))]",
                 "scriptContent": "
-                    param(
-                        [string] [Parameter(Mandatory=$true)] $webAppName,
-                        [string] [Parameter(Mandatory=$true)] $resourceGroup,
-                        [string] [Parameter(Mandatory=$true)] $slots
-                    )
-
-                    # Install Azure CLI
-                    bash -c \"curl -sL https://aka.ms/InstallAzureCLIDeb | bash\"
-                    bash -c \"az login --identity\"
-
-                    # $ErrorActionPreference = 'Stop'
-                    bash -c \"echo $resourceGroup\"
-                    bash -c \"echo $webAppName\"
-                    bash -c \"echo $slots\"
-                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName\"
-                    bash -c \"az webapp deployment source delete --resource-group $resourceGroup --name $webAppName --slot $slots\"
-                    ",
+                     az webapp deployment source delete --resource-group $2 --name $1
+                     az webapp deployment source delete --resource-group $2 --name $1 --slot $3
+                ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
@@ -78,6 +61,5 @@
                 "[resourceId('Microsoft.Authorization/roleAssignments',guid(resourceGroup().id))]"
             ]
         }
-    ],
-    "outputs": {}
+    ]
 }
