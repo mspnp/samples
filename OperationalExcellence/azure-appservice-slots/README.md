@@ -23,13 +23,13 @@ az deployment group create \
 Once the deployment has completed, run the following command to return both the application name and URL.
 
 ```azurecli-interactive
-az webapp list --resource-group app-service-slots --output table
+az webapp list --resource-group slotsDemo --output table
 ```
 
 Use the _curl_ command to see the application content. Replace the URL with that from your application. The application should return 'Hello World', notice this it is malformed.
 
 ```azurecli-interactive
-curl wh7srjrdniwve.azurewebsites.net
+curl jnmdzncbja5qe.azurewebsites.net
 ```
 
 The results will look similar to the following:
@@ -41,13 +41,13 @@ Hello, Wa*rld!
 Use the _az webapp deployment slot list_ command to return a list of application slots. Replace the application name with the name from your deployment.
 
 ```azurecli-interactive
-az webapp deployment slot list --resource-group app-service-slots --name wh7srjrdniwve --output table
+az webapp deployment slot list --resource-group slotsDemo --name jnmdzncbja5qe --output table
 ```
 
 Use the _az webapp deployment slot swap_ command to swap the known good and production slot. Replace the application name with the name from your deployment.
 
 ```azurecli-interactive
-az webapp deployment slot swap --slot KnownGood --target-slot production --resource-group app-service-slots --name wh7srjrdniwve 
+az webapp deployment slot swap --slot KnownGood --target-slot production --resource-group slotsDemo --name jnmdzncbja5qe 
 ```
 
 ## Delete solution
@@ -55,7 +55,7 @@ az webapp deployment slot swap --slot KnownGood --target-slot production --resou
 Once done with this solution experience, delete the resource group, which also deletes the App Service Plan and applications.
 
 ```azurecli-interactive
-az group delete --name app-service-slots --yes --no-wait
+az group delete --name slotsDemo --yes --no-wait
 ```
 
 ## Code of conduct
