@@ -9,8 +9,6 @@
             "type": "string"
         }
     },
-    "functions": [],
-    "variables": {},
     "resources": [
         {
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
@@ -32,13 +30,12 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'deploymentScript')]"
             ]
         },
-        // Using PowerShell here for container image flexibility (Ubuntu vs. alpine).
         {
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
-            "name": "runPowerShellInline",
+            "name": "runAZCLIInline",
             "location": "[resourceGroup().location]",
-            "kind": "AzurePowerShell",
+            "kind": "AzureCLI",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -47,21 +44,11 @@
             },
             "properties": {
                 "forceUpdateTag": "1",
-                "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-functionAppName ', parameters('functionAppName'), ' -resourceGroup ', resourceGroup().name)]",
+                "azCliVersion": "2.15.1",
+                "arguments": "[concat(parameters('functionAppName'), ' ', resourceGroup().name)]",
                 "scriptContent": "
-                    param(
-                        [string] [Parameter(Mandatory=$true)] $functionAppName,
-                        [string] [Parameter(Mandatory=$true)] $resourceGroup
-                    )
-
-                    # Install Azure CLI
-                    bash -c \"curl -sL https://aka.ms/InstallAzureCLIDeb | bash\"
-                    bash -c \"az login --identity\"
-
-                    $ErrorActionPreference = 'Stop'
-                    bash -c \"az functionapp deployment source delete --resource-group $resourceGroup --name $functionAppName\"
-                    ",
+                     az functionapp deployment source delete --resource-group $2 --name $1
+                ",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
@@ -70,6 +57,5 @@
                 "[resourceId('Microsoft.Authorization/roleAssignments',guid(resourceGroup().id))]"
             ]
         }
-    ],
-    "outputs": {}
+    ]
 }
