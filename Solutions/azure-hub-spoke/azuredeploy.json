@@ -1,0 +1,302 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "The admin user name for both the Windows and Linux virtual machines."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The admin password for both the Windows and Linux virtual machines."
+            }
+        },
+        "windowsVMCount": {
+            "type": "int",
+            "defaultValue": 0,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
+        },
+        "linuxVMCount": {
+            "type": "int",
+            "defaultValue": 0,
+            "metadata": {
+                "description": "The count of Windows virtual machines to create."
+            }
+        },
+        "hubNetwork": {
+            "type": "object",
+            "defaultValue": {
+                "name": "virtual-network-hub",
+                "addressPrefix": "10.0.0.0/20",
+                "subnetName": "subnet-hub-management",
+                "subnetPrefix": "10.0.0.0/25",
+                "subnetNsgName": "nsg-hub-management"
+            }
+        },
+        "spokeNetwork": {
+            "type": "object",
+            "defaultValue": {
+                "name": "virtual-network-spoke",
+                "addressPrefix": "192.168.0.0/24",
+                "subnetName": "subnet-spoke-resources",
+                "subnetPrefix": "192.168.0.0/24",
+                "subnetNsgName": "nsg-spoke-resources"
+            }
+        },
+        "spokeNetworkTwo": {
+            "type": "object",
+            "defaultValue": {
+                "name": "virtual-network-spoke",
+                "addressPrefix": "192.168.100.0/24",
+                "subnetName": "subnet-spoke-resources",
+                "subnetPrefix": "192.168.100.0/24",
+                "subnetNsgName": "nsg-spoke-resources"
+            }
+        },
+        "bastionHost": {
+            "type": "object",
+            "defaultValue": {
+                "name": "AzureBastionHost",
+                "publicIPAddressName": "bastion-pip",
+                "subnetName": "AzureBastionSubnet",
+                "nsgName": "nsg-hub-bastion",
+                "subnetPrefix": "10.0.1.0/29"
+            }
+        }
+    },
+    "variables": {
+        "bastion-host-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-bastion.json')]",
+        "linux-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-linux-vm.json')]",
+        "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
+        "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
+        "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]",
+        "location": "[resourceGroup().location]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "virtual-network-hub",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtual-network-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[parameters('hubNetwork').name]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('hubNetwork').subnetName]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('hubNetwork').subnetNsgName]"
+                    },
+                    "addressPrefix": {
+                        "value": "[parameters('hubNetwork').addressPrefix]"
+                    },
+                    "subnetPrefix": {
+                        "value": "[parameters('hubNetwork').subnetPrefix]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "virtual-network-spoke",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtual-network-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[parameters('spokeNetwork').name]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('spokeNetwork').subnetName]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('spokeNetwork').subnetNsgName]"
+                    },
+                    "addressPrefix": {
+                        "value": "[parameters('spokeNetwork').addressPrefix]"
+                    },
+                    "subnetPrefix": {
+                        "value": "[parameters('spokeNetwork').subnetPrefix]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "virtual-network-spoke-two",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtual-network-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[parameters('spokeNetworkTwo').name]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('spokeNetworkTwo').subnetName]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('spokeNetworkTwo').subnetNsgName]"
+                    },
+                    "addressPrefix": {
+                        "value": "[parameters('spokeNetworkTwo').addressPrefix]"
+                    },
+                    "subnetPrefix": {
+                        "value": "[parameters('spokeNetworkTwo').subnetPrefix]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "virtual-network-peering",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vnet-peering-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkNameHub": {
+                        "value": "[parameters('hubNetwork').name]"
+                    },
+                    "virtualNetworkNameSpoke": {
+                        "value": "[parameters('spokeNetwork').name]"
+                    },
+                    "location": {
+                        "value": "[variables('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "bastion-host",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('bastion-host-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[variables('location')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
+                    },
+                    "bastionHostName": {
+                        "value": "[parameters('bastionHost').name]"
+                    },
+                    "bastionPublicIPName": {
+                        "value": "[parameters('bastionHost').publicIPAddressName]"
+                    },
+                    "bastionSubnetName": {
+                        "value": "[parameters('bastionHost').subnetName]"
+                    },
+                    "bastionSubnetPrefix": {
+                        "value": "[parameters('bastionHost').subnetPrefix]"
+                    },
+                    "bastionNsgName": {
+                        "value": "[parameters('bastionHost').nsgName]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greater(parameters('windowsVMCount'), 0)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "windows-vm",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windows-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUserName')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('windowsVMCount')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network-spoke').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network-spoke').outputs.subnetName.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greater(parameters('linuxVMCount'), 0)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "linux-vm",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linux-vm-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUserName')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "vmCount": {
+                        "value": "[parameters('linuxVMCount')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network-spoke').outputs.virtualNetworkName.value]"
+                    },
+                    "subnetName": {
+                        "value": "[reference('virtual-network-spoke').outputs.subnetName.value]"
+                    }
+                }
+            }
+        }
+    ]
+}

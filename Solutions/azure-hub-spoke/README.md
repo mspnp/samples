@@ -7,7 +7,7 @@ This sample deploys two peered Azure Virtual Networks, an Azure Bastion host, an
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name bast-hub-spoke --location eastus
+az group create --name hub-spoke --location eastus
 ```
 
 Run the following command to initiate the deployment.c
@@ -15,8 +15,7 @@ Run the following command to initiate the deployment.c
 ```azurecli
 az deployment group create \
     --resource-group bast-hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-bastion-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2020! windowsVMCount=1 linuxVMCount=1
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/Solutions/azure-hub-spoke/azuredeploy.json
 ```
 
 ## Code of conduct
