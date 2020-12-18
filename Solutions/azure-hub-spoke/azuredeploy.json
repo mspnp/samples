@@ -34,19 +34,19 @@
             "type": "object",
             "defaultValue": {
                 "name": "virtual-network-hub",
-                "addressPrefix": "10.0.0.0/20",
+                "addressPrefix": "192.168.0.0/24",
                 "subnetName": "subnet-hub-management",
-                "subnetPrefix": "10.0.0.0/25",
+                "subnetPrefix": "192.168.0.0/24",
                 "subnetNsgName": "nsg-hub-management"
             }
         },
         "spokeNetwork": {
             "type": "object",
             "defaultValue": {
-                "name": "virtual-network-spoke",
-                "addressPrefix": "192.168.0.0/24",
+                "name": "virtual-network-spoke-one",
+                "addressPrefix": "10.0.0.0/16",
                 "subnetName": "subnet-spoke-resources",
-                "subnetPrefix": "192.168.0.0/24",
+                "subnetPrefix": "10.0.0.0/16",
                 "subnetNsgName": "nsg-spoke-resources"
             }
         },
@@ -67,7 +67,7 @@
                 "publicIPAddressName": "bastion-pip",
                 "subnetName": "AzureBastionSubnet",
                 "nsgName": "nsg-hub-bastion",
-                "subnetPrefix": "10.0.1.0/29"
+                "subnetPrefix": "192.168.1.0/29"
             }
         }
     },
