@@ -46,7 +46,7 @@
                 "name": "virtual-network-spoke-one",
                 "addressPrefix": "10.100.0.0/16",
                 "subnetName": "subnet-spoke-resources",
-                "subnetPrefix": "10.0.0.0/16",
+                "subnetPrefix": "10.100.0.0/16",
                 "subnetNsgName": "nsg-spoke-resources"
             }
         },
