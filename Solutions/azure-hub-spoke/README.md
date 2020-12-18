@@ -14,8 +14,8 @@ Run the following command to initiate the deployment.c
 
 ```azurecli
 az deployment group create \
-    --resource-group bast-hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/Solutions/azure-hub-spoke/azuredeploy.json
+    --resource-group hub-spoke-three \
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json
 ```
 
 ## Code of conduct
