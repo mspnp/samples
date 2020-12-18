@@ -7,14 +7,14 @@ This sample deploys two peered Azure Virtual Networks, an Azure Bastion host, an
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name hub-spoke --location eastus
+az group create --name hub-spoke-updated-001 --location eastus
 ```
 
-Run the following command to initiate the deployment.c
+Run the following command to initiate the deployment.
 
 ```azurecli
 az deployment group create \
-    --resource-group hub-spoke-three \
+    --resource-group hub-spoke-updated-001 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json
 ```
 

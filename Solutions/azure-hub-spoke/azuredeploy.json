@@ -54,10 +54,10 @@
             "type": "object",
             "defaultValue": {
                 "name": "virtual-network-spoke-two",
-                "addressPrefix": "192.168.100.0/24",
+                "addressPrefix": "10.100.0.0/16",
                 "subnetName": "subnet-spoke-resources",
-                "subnetPrefix": "192.168.100.0/24",
-                "subnetNsgName": "nsg-spoke-resources"
+                "subnetPrefix": "10.100.0.0/16",
+                "subnetNsgName": "nsg-spoke-resources-two"
             }
         },
         "bastionHost": {
@@ -173,7 +173,8 @@
             "name": "virtual-network-peering",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-two')]"
             ],
             "properties": {
                 "mode": "Incremental",
