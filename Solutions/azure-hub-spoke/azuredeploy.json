@@ -47,7 +47,7 @@
                 "addressPrefix": "10.100.0.0/16",
                 "subnetName": "subnet-spoke-resources",
                 "subnetPrefix": "10.100.0.0/16",
-                "subnetNsgName": "nsg-spoke-resources"
+                "subnetNsgName": "nsg-spoke-one-resources"
             }
         },
         "spokeNetworkTwo": {
@@ -57,7 +57,7 @@
                 "addressPrefix": "10.200.0.0/16",
                 "subnetName": "subnet-spoke-resources",
                 "subnetPrefix": "10.200.0.0/16",
-                "subnetNsgName": "nsg-spoke-resources-two"
+                "subnetNsgName": "nsg-spoke-two-resources"
             }
         },
         "bastionHost": {
@@ -173,7 +173,7 @@
             "name": "virtual-network-peering",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-two')]"
             ],
             "properties": {
@@ -242,7 +242,7 @@
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -261,10 +261,10 @@
                         "value": "[parameters('windowsVMCount')]"
                     },
                     "virtualNetworkName": {
-                        "value": "[reference('virtual-network-spoke').outputs.virtualNetworkName.value]"
+                        "value": "[reference('virtual-network-spoke-one').outputs.virtualNetworkName.value]"
                     },
                     "subnetName": {
-                        "value": "[reference('virtual-network-spoke').outputs.subnetName.value]"
+                        "value": "[reference('virtual-network-spoke-one').outputs.subnetName.value]"
                     }
                 }
             }
@@ -275,7 +275,7 @@
             "apiVersion": "2019-10-01",
             "name": "linux-vm",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke')]"
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -294,10 +294,10 @@
                         "value": "[parameters('linuxVMCount')]"
                     },
                     "virtualNetworkName": {
-                        "value": "[reference('virtual-network-spoke').outputs.virtualNetworkName.value]"
+                        "value": "[reference('virtual-network-spoke-one').outputs.virtualNetworkName.value]"
                     },
                     "subnetName": {
-                        "value": "[reference('virtual-network-spoke').outputs.subnetName.value]"
+                        "value": "[reference('virtual-network-spoke-one').outputs.subnetName.value]"
                     }
                 }
             }
