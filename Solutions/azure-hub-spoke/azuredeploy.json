@@ -190,7 +190,7 @@
                         "value": "[parameters('spokeNetwork').name]"
                     },
                     "virtualNetworkNameSpokeTwo": {
-                        "value": "[parameters('spokeNetwork').name]"
+                        "value": "[parameters('spokeNetworkTwo').name]"
                     },
                     "location": {
                         "value": "[variables('location')]"
