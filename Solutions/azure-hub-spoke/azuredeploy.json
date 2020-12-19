@@ -112,7 +112,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "name": "virtual-network-spoke",
+            "name": "virtual-network-spoke-one",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -186,7 +186,10 @@
                     "virtualNetworkNameHub": {
                         "value": "[parameters('hubNetwork').name]"
                     },
-                    "virtualNetworkNameSpoke": {
+                    "virtualNetworkNameSpokeOne": {
+                        "value": "[parameters('spokeNetwork').name]"
+                    },
+                    "virtualNetworkNameSpokeTwo": {
                         "value": "[parameters('spokeNetwork').name]"
                     },
                     "location": {
