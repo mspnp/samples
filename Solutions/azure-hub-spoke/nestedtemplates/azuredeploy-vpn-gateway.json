@@ -21,7 +21,7 @@
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('virtualNetworkName'), '/', parameters('GatewaySubnetName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('GatewayNsgName'))]"
+                // "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('GatewayNsgName'))]"
             ],
             "properties": {
                 "addressPrefix": "[parameters('GatewaySubnetPrefix')]",
