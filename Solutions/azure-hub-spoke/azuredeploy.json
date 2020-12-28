@@ -65,7 +65,7 @@
             "defaultValue": {
                 "install": 1,
                 "subnetName": "subnet-dmz",
-                "subnetPrefix": "10.0.2.0/25",
+                "subnetPrefix": "10.0.2.0/24",
                 "subnetNsgName": "nsg-subnet-dmz"
             }
         },
