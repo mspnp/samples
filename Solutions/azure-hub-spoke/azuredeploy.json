@@ -60,6 +60,15 @@
                 "subnetNsgName": "nsg-spoke-two-resources"
             }
         },
+        "gatewaySubnet": {
+            "type": "object",
+            "defaultValue": {
+                "install": 1,
+                "subnetName": "subnet-dmz",
+                "subnetPrefix": "10.0.2.0/25",
+                "subnetNsgName": "nsg-subnet-dmz"
+            }
+        },
         "bastionHost": {
             "type": "object",
             "defaultValue": {
@@ -77,6 +86,7 @@
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
         "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]",
+        "vpn-gateway-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vpn-gateway.json')]",
         "location": "[resourceGroup().location]"
     },
     "resources": [
@@ -232,6 +242,33 @@
                     },
                     "bastionNsgName": {
                         "value": "[parameters('bastionHost').nsgName]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[greater(parameters('gatewaySubnet').install, 0)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "vpn-gateway",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vpn-gateway-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network-spoke-one').outputs.virtualNetworkName.value]"
+                    },
+                    "GatewaySubnetName": {
+                        "value": "[parameters('gatewaySubnet').subnetName]"
+                    },
+                    "GatewayNsgName": {
+                        "value": "[parameters('gatewaySubnet').subnetNsgName]"
+                    },
+                    "GatewaySubnetPrefix": {
+                        "value": "[parameters('gatewaySubnet').subnetPrefix]"
                     }
                 }
             }

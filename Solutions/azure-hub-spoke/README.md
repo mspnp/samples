@@ -16,7 +16,7 @@ Run the following command to initiate the deployment.
 az deployment group create \
     --resource-group hub-spoke-updated-003 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2020! windowsVMCount=1 linuxVMCount=1
+    --parameters adminPassword=Password2020! linuxVMCount=1
 ```
 
 ## Code of conduct
