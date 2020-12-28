@@ -251,6 +251,9 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
