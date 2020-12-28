@@ -65,7 +65,7 @@
             "defaultValue": {
                 "install": 1,
                 "subnetName": "subnet-dmz",
-                "subnetPrefix": "10.0.2.0/24",
+                "subnetPrefix": "10.0.2.0/27",
                 "subnetNsgName": "nsg-subnet-dmz"
             }
         },
@@ -262,7 +262,7 @@
                 },
                 "parameters": {
                     "virtualNetworkName": {
-                        "value": "[reference('virtual-network-spoke-one').outputs.virtualNetworkName.value]"
+                        "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
                     "GatewaySubnetName": {
                         "value": "[parameters('gatewaySubnet').subnetName]"
