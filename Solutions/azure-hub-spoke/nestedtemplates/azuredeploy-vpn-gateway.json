@@ -25,9 +25,9 @@
             ],
             "properties": {
                 "addressPrefix": "[parameters('GatewaySubnetPrefix')]",
-                "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('GatewayNsgName'))]"
-                }
+                // "networkSecurityGroup": {
+                //     "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('GatewayNsgName'))]"
+                // }
             }
         }
     ]
