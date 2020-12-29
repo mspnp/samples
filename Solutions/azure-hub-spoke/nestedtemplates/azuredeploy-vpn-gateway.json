@@ -40,13 +40,13 @@
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('virtualNetworkName'), '/', parameters('gatewaySubnetName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('gatewayNsgName'))]"
+                // "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('gatewayNsgName'))]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
-                "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('gatewayNsgName'))]"
-                }
+                "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+                // "networkSecurityGroup": {
+                //     "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('gatewayNsgName'))]"
+                // }
             }
         },
         {
