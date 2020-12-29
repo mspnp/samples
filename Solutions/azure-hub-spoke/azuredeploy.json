@@ -61,7 +61,7 @@
             }
         },
         "deployVpnGateway": {
-            "type": "string",
+            "type": "bool",
             "defaultValue": false
         },
         "vpnGateway": {
@@ -252,7 +252,7 @@
             }
         },
         {
-            "condition": "[equals(parameters('deployVpnGateway').deploy, 'true')]",
+            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
