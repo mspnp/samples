@@ -76,7 +76,7 @@
                                 "id": "[variables('subnetGatewayId')]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('gatewayPIPName'))]"
                             }
                         },
                         "name": "vnetGatewayConfig"
