@@ -270,7 +270,7 @@
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
                     "gatewayName": {
-                        "type": "[parameters('vpnGateway').name]"
+                        "value": "[parameters('vpnGateway').name]"
                     },
                     "gatewaySubnetName": {
                         "value": "[parameters('vpnGateway').subnetName]"
