@@ -7,7 +7,7 @@ This sample deploys two peered Azure Virtual Networks, an Azure Bastion host, an
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name hub-spoke-updated-niner --location eastus
+az group create --name hub-spoke-updated --location eastus
 ```
 
 Run the following command to initiate the deployment.
@@ -15,15 +15,24 @@ Run the following command to initiate the deployment.
 ```azurecli
 az deployment group create \
     --resource-group hub-spoke-updated \
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json
+```
+
+Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network.
+
+```
+```azurecli
+az deployment group create \
+    --resource-group hub-spoke-updated \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1
 ```
 
-To deploy with a VPN Gateway, run the following command.
+Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a virtual network gateway deployed into the hub virtual network.
 
 ```azurecli
 az deployment group create \
-    --resource-group hub-spoke-updated-niner \
+    --resource-group hub-spoke-updated \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
 ```
