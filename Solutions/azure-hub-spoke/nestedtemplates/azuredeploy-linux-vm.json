@@ -65,7 +65,7 @@
 			],
 			"properties": {
 				"hardwareProfile": {
-					"defaultValue": "[parameters('vmSize')]"
+					"vmSize": "[parameters('vmSize')]"
 				},
 				"osProfile": {
 					"computerName": "[concat(variables('vmName'), copyIndex())]",
