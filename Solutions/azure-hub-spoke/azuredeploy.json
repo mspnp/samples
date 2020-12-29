@@ -63,7 +63,7 @@
         "vpnGateway": {
             "type": "object",
             "defaultValue": {
-                "install": 1,
+                "deploy": "no",
                 "name": "vpngateway",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
