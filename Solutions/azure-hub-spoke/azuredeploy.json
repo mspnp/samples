@@ -65,9 +65,9 @@
             "defaultValue": {
                 "install": 1,
                 "name": "vpngateway",
-                "subnetName": "subnet-dmz",
+                "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
-                "subnetNsgName": "nsg-subnet-dmz",
+                "subnetNsgName": "gateway-subnet-dmz",
                 "pipName": "vpn-gateway-pip"
             }
         },
