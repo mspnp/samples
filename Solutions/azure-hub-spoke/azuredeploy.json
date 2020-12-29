@@ -60,10 +60,13 @@
                 "subnetNsgName": "nsg-spoke-two-resources"
             }
         },
+        "deployVpcGateway": {
+            "type": "bool",
+            "defaultValue": false
+        },
         "vpnGateway": {
             "type": "object",
             "defaultValue": {
-                "deploy": "no",
                 "name": "vpngateway",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
@@ -249,7 +252,7 @@
             }
         },
         {
-            "condition": "[equals(parameters('vpnGateway').deploy, 'yes')]",
+            "condition": "[equals(parameters('deployVpcGateway').deploy, 'yes')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
