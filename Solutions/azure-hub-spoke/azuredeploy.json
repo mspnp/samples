@@ -60,7 +60,7 @@
                 "subnetNsgName": "nsg-spoke-two-resources"
             }
         },
-        "deployVpcGateway": {
+        "deployVpnGateway": {
             "type": "bool",
             "defaultValue": false
         },
