@@ -8,22 +8,32 @@
         "virtualNetworkName": {
             "type": "string"
         },
+        "gatewayName": {
+            "type": "string"
+        },
         "gatewaySubnetName": {
             "type": "string"
         },
         "gatewayNsgName": {
             "type": "string"
         },
-        "GatewaySubnetPrefix": {
+        "gatewaySubnetPrefix": {
+            "type": "string"
+        },
+        "gatewayPIPName": {
             "type": "string"
         }
+    },
+    "variables": {
+        "subnetGatewayId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('gatewaySubnetName'))]"
     },
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
             "name": "[parameters('gatewayNsgName')]",
-            "location": "[parameters('location')]"
+            "location": "[parameters('location')]",
+            "properties": {}
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
@@ -33,10 +43,52 @@
                 "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('gatewayNsgName'))]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('GatewaySubnetPrefix')]",
+                "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
                 "networkSecurityGroup": {
                     "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('gatewayNsgName'))]"
                 }
+            }
+        },
+        {
+            "apiVersion": "2019-11-01",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('gatewayPIPName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "apiVersion": "2019-11-01",
+            "type": "Microsoft.Network/virtualNetworkGateways",
+            "name": "[parameters('gatewayName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('gatewayPIPName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('gatewaySubnetName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnetGatewayId')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gatewayPIPName'))]"
+                            }
+                        },
+                        "name": "vnetGatewayConfig"
+                    }
+                ],
+                "sku": {
+                    "name": "Basic",
+                    "tier": "Basic"
+                },
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "enableBgp": false
             }
         }
     ]

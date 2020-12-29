@@ -60,13 +60,15 @@
                 "subnetNsgName": "nsg-spoke-two-resources"
             }
         },
-        "gatewaySubnet": {
+        "vpnGateway": {
             "type": "object",
             "defaultValue": {
                 "install": 1,
+                "name": "vpn-gateway",
                 "subnetName": "subnet-dmz",
                 "subnetPrefix": "10.0.2.0/27",
-                "subnetNsgName": "nsg-subnet-dmz"
+                "subnetNsgName": "nsg-subnet-dmz",
+                "pipName": "vpn-gateway-pip"
             }
         },
         "bastionHost": {
@@ -247,7 +249,7 @@
             }
         },
         {
-            "condition": "[greater(parameters('gatewaySubnet').install, 0)]",
+            "condition": "[greater(parameters('vpnGateway').install, 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
@@ -267,14 +269,20 @@
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
-                    "GatewaySubnetName": {
-                        "value": "[parameters('gatewaySubnet').subnetName]"
+                    "gatewayName": {
+                        "type": "[parameters('vpnGateway').name]"
                     },
-                    "GatewayNsgName": {
-                        "value": "[parameters('gatewaySubnet').subnetNsgName]"
+                    "gatewaySubnetName": {
+                        "value": "[parameters('vpnGateway').subnetName]"
                     },
-                    "GatewaySubnetPrefix": {
-                        "value": "[parameters('gatewaySubnet').subnetPrefix]"
+                    "gatewayNsgName": {
+                        "value": "[parameters('vpnGateway').subnetNsgName]"
+                    },
+                    "gatewaySubnetPrefix": {
+                        "value": "[parameters('vpnGateway').subnetPrefix]"
+                    },
+                    "gatewayPIPName": {
+                        "value": "[parameters('vpnGateway').pipName]"
                     }
                 }
             }
