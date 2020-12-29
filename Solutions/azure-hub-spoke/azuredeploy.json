@@ -70,7 +70,6 @@
                 "name": "vpngateway",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
-                "subnetNsgName": "gateway-subnet-dmz",
                 "pipName": "vpn-gateway-pip"
             }
         },
@@ -277,9 +276,6 @@
                     },
                     "gatewaySubnetName": {
                         "value": "[parameters('vpnGateway').subnetName]"
-                    },
-                    "gatewayNsgName": {
-                        "value": "[parameters('vpnGateway').subnetNsgName]"
                     },
                     "gatewaySubnetPrefix": {
                         "value": "[parameters('vpnGateway').subnetPrefix]"
