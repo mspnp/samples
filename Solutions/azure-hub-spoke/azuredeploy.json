@@ -61,7 +61,7 @@
             }
         },
         "deployVpnGateway": {
-            "type": "bool",
+            "type": "string",
             "defaultValue": false
         },
         "vpnGateway": {
