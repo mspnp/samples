@@ -30,6 +30,10 @@
                 "description": "The count of Windows virtual machines to create."
             }
         },
+        "deployVpnGateway": {
+            "type": "bool",
+            "defaultValue": false
+        },
         "hubNetwork": {
             "type": "object",
             "defaultValue": {
@@ -60,10 +64,6 @@
                 "subnetNsgName": "nsg-spoke-two-resources"
             }
         },
-        "deployVpnGateway": {
-            "type": "bool",
-            "defaultValue": false
-        },
         "vpnGateway": {
             "type": "object",
             "defaultValue": {
@@ -82,6 +82,10 @@
                 "nsgName": "nsg-hub-bastion",
                 "subnetPrefix": "10.0.1.0/29"
             }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
         }
     },
     "variables": {
@@ -90,14 +94,14 @@
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
         "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]",
-        "vpn-gateway-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vpn-gateway.json')]",
-        "location": "[resourceGroup().location]"
+        "vpn-gateway-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vpn-gateway.json')]"
     },
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-hub",
+            "comments": "Deploys the hub virtual network, a management subnet, and an NSG connect to the management subnet.",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -119,6 +123,9 @@
                     },
                     "subnetPrefix": {
                         "value": "[parameters('hubNetwork').subnetPrefix]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -127,6 +134,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-spoke-one",
+            "comments": "Deploys a spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -148,6 +156,9 @@
                     },
                     "subnetPrefix": {
                         "value": "[parameters('spokeNetwork').subnetPrefix]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -156,6 +167,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-spoke-two",
+            "comments": "Deploys a second spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -177,6 +189,9 @@
                     },
                     "subnetPrefix": {
                         "value": "[parameters('spokeNetworkTwo').subnetPrefix]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -185,6 +200,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-peering",
+            "comments": "Creates a virtual network peer relationship between the hub and spoke virtual networks.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
@@ -207,7 +223,7 @@
                         "value": "[parameters('spokeNetworkTwo').name]"
                     },
                     "location": {
-                        "value": "[variables('location')]"
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -216,6 +232,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "bastion-host",
+            "comments": "Deploys a Bastion subnet into the hub network, an NSG connected to the subnet, all Bastion NSG rules, and a Bastion host.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
             ],
@@ -226,9 +243,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "location": {
-                        "value": "[variables('location')]"
-                    },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
@@ -246,6 +260,9 @@
                     },
                     "bastionNsgName": {
                         "value": "[parameters('bastionHost').nsgName]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -255,6 +272,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
+            "comments": "Conditionally deploys a gateway subnet into the hub virtual network, a vpn public IP address, and a virtual network gateway.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
             ],
@@ -265,9 +283,6 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "location": {
-                        "value": "[variables('location')]"
-                    },
                     "virtualNetworkName": {
                         "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
                     },
@@ -282,6 +297,9 @@
                     },
                     "gatewayPIPName": {
                         "value": "[parameters('vpnGateway').pipName]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -291,6 +309,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
+            "comments": "Conditionally deploys 1 - many Windows virtual machines into the spoke one virtual network and resources subnet",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],
@@ -315,6 +334,9 @@
                     },
                     "subnetName": {
                         "value": "[reference('virtual-network-spoke-one').outputs.subnetName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -324,6 +346,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "linux-vm",
+            "comments": "Conditionally deploys 1 - many Linux virtual machines into the spoke one virtual network and resources subnet",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],
@@ -348,6 +371,9 @@
                     },
                     "subnetName": {
                         "value": "[reference('virtual-network-spoke-one').outputs.subnetName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }

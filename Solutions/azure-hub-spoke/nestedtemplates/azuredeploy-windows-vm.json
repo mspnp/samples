@@ -16,7 +16,14 @@
 		},
 		"subnetName": {
 			"type": "string"
-		}
+		},
+		"vmSize": {
+			"type": "string",
+			"defaultValue": "Standard_A1_v2"	
+		},
+        "location": {
+            "type": "string"
+        }
 	},
 	"variables": {
 		"nicName": "windows-nic-",
@@ -29,7 +36,7 @@
 			"type": "Microsoft.Network/networkInterfaces",
 			"apiVersion": "2020-05-01",
 			"name": "[concat(variables('nicName'), copyIndex())]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"ipConfigurations": [
 					{
@@ -52,13 +59,13 @@
 			"type": "Microsoft.Compute/virtualMachines",
 			"apiVersion": "2019-07-01",
 			"name": "[concat(variables('vmName'), copyIndex())]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"dependsOn": [
 				"[concat(variables('nicName'), copyIndex())]"
 			],
 			"properties": {
 				"hardwareProfile": {
-					"vmSize": "Standard_A1_v2"
+					"vmSize": "[parameters('vmSize')]"
 				},
 				"osProfile": {
 					"computerName": "[concat(variables('vmName'), copyIndex())]",
