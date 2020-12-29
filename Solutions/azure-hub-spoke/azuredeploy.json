@@ -249,7 +249,7 @@
             }
         },
         {
-            "condition": "[equals(parameters('vpnGateway').install, 'yes')]",
+            "condition": "[equals(parameters('vpnGateway').deploy, 'yes')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
