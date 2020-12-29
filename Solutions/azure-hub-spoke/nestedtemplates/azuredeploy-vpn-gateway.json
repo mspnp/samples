@@ -14,9 +14,6 @@
         "gatewaySubnetName": {
             "type": "string"
         },
-        "gatewayNsgName": {
-            "type": "string"
-        },
         "gatewaySubnetPrefix": {
             "type": "string"
         },
@@ -28,13 +25,6 @@
         "subnetGatewayId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('gatewaySubnetName'))]"
     },
     "resources": [
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2019-11-01",
-            "name": "[parameters('gatewayNsgName')]",
-            "location": "[parameters('location')]",
-            "properties": {}
-        },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2020-05-01",

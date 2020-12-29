@@ -7,7 +7,7 @@ This sample deploys two peered Azure Virtual Networks, an Azure Bastion host, an
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name hub-spoke-updated --location eastus
+az group create --name hub-spoke-updated-niner --location eastus
 ```
 
 Run the following command to initiate the deployment.
@@ -23,7 +23,7 @@ To deploy with a VPN Gateway, run the following command.
 
 ```azurecli
 az deployment group create \
-    --resource-group hub-spoke-updated \
+    --resource-group hub-spoke-updated-niner \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
 ```
