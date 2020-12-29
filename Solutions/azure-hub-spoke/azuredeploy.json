@@ -64,7 +64,7 @@
             "type": "object",
             "defaultValue": {
                 "install": 1,
-                "name": "vpn-gateway",
+                "name": "vpngateway",
                 "subnetName": "subnet-dmz",
                 "subnetPrefix": "10.0.2.0/27",
                 "subnetNsgName": "nsg-subnet-dmz",
