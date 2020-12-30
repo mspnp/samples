@@ -19,7 +19,7 @@
 		},
 		"vmSize": {
 			"type": "string",
-			"defaultValue": "[parameters('vmSize')]"
+			"defaultValue": "Standard_A1_v2"	
 		},
         "location": {
             "type": "string"
