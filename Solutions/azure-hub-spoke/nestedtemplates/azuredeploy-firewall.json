@@ -47,6 +47,10 @@
             "apiVersion": "2020-05-01",
             "name": "[parameters('firewallName')]",
             "location": "eastus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('firewallSubnetName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('firewallPipName'))]"
+            ],
             "properties": {
                 "sku": {
                     "name": "AZFW_VNet",
