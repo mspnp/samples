@@ -88,7 +88,7 @@
             "defaultValue": {
                 "name": "AzureFirewall",
                 "publicIPAddressName": "firewall-pip",
-                "subnetName": "FirewallSubnet",
+                "subnetName": "AzureFirewallSubnet",
                 "subnetPrefix": "10.0.3.0/26"
             }
         },
