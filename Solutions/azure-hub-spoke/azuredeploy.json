@@ -89,7 +89,7 @@
                 "name": "AzureFirewall",
                 "publicIPAddressName": "firewall-pip",
                 "subnetName": "FirewallSubnet",
-                "subnetPrefix": "10.0.3.0/27"
+                "subnetPrefix": "10.0.3.0/26"
             }
         },
         "location": {
