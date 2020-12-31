@@ -35,6 +35,9 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('firewallPipName')]",
             "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
             }
