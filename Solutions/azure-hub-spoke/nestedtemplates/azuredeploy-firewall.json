@@ -59,7 +59,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('firewallPipName'))]"
                             },
                             "subnet": {
-                                "id": "[concat(parameters('virtualNetworkName'), '/subnets/', parameters('firewallSubnetName'))]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'))]"
                             }
                         }
                     }
