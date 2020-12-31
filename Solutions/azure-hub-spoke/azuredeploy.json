@@ -320,7 +320,9 @@
             "name": "vpn-gateway",
             "comments": "Conditionally deploys a gateway subnet into the hub virtual network, a vpn public IP address, and a virtual network gateway.",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
+                "[resourceId('Microsoft.Resources/deployments', 'azure-firewall')]",
+                "[resourceId('Microsoft.Resources/deployments', 'bastion-host')]"
             ],
             "properties": {
                 "mode": "Incremental",
