@@ -1,0 +1,70 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "firewallName": {
+            "type": "string"
+        },
+        "firewallPipName": {
+            "type": "string"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "firewallSubnetName": {
+            "type": "string"
+        },
+        "firewallSubnetPrefix": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('virtualNetworkName'), '/', parameters('firewallSubnetName'))]",
+            "properties": {
+                "addressPrefix": "[parameters('firewallSubnetPrefix')]"
+            }
+        },
+        {
+            "apiVersion": "2019-11-01",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('firewallPipName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "type": "Microsoft.Network/azureFirewalls",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('firewallName')]",
+            "location": "eastus",
+            "properties": {
+                "sku": {
+                    "name": "AZFW_VNet",
+                    "tier": "Standard"
+                },
+                "threatIntelMode": "Alert",
+                "additionalProperties": {},
+                "ipConfigurations": [
+                    {
+                        "name": "[parameters('firewallName')]",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('firewallPipName'))]"
+                            },
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworkName'), '/subnets/', parameters('firewallSubnetName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

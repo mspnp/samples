@@ -83,6 +83,15 @@
                 "subnetPrefix": "10.0.1.0/29"
             }
         },
+        "azureFirewall": {
+            "type": "object",
+            "defaultValue": {
+                "name": "AzureFirewall",
+                "publicIPAddressName": "firewall-pip",
+                "subnetName": "FirewallSubnet",
+                "subnetPrefix": "10.0.3.0/27"
+            }
+        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
@@ -94,7 +103,8 @@
         "virtual-network-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-virtual-network.json')]",
         "windows-vm-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-windows-vm.json')]",
         "vnet-peering-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vnet-peering.json')]",
-        "vpn-gateway-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vpn-gateway.json')]"
+        "vpn-gateway-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-vpn-gateway.json')]",
+        "azure-firewall-template": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azuredeploy-firewall.json')]"
     },
     "resources": [
         {
@@ -260,6 +270,42 @@
                     },
                     "bastionNsgName": {
                         "value": "[parameters('bastionHost').nsgName]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "azure-firewall",
+            "comments": "Deploys an Azure Firewall into the hub network.",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('azure-firewall-template')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "firewallName": {
+                        "value": "[parameters('azureFirewall').name]"
+                    },
+                    "firewallPipName": {
+                        "value": "[parameters('azureFirewall').publicIPAddressName]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[reference('virtual-network-hub').outputs.virtualNetworkName.value]"
+                    },
+                    "firewallSubnetName": {
+                        "value": "[parameters('azureFirewall').subnetName]"
+                    },
+                    "firewallSubnetPrefix": {
+                        "value": "[parameters('azureFirewall').subnetPrefix]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
