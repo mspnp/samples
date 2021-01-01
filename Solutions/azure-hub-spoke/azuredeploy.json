@@ -108,10 +108,10 @@
     },
     "resources": [
         {
+            "comments": "Deploys the hub virtual network, a management subnet, and an NSG connect to the management subnet.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-hub",
-            "comments": "Deploys the hub virtual network, a management subnet, and an NSG connect to the management subnet.",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -141,10 +141,10 @@
             }
         },
         {
+            "comments": "Deploys a spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-spoke-one",
-            "comments": "Deploys a spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -174,10 +174,10 @@
             }
         },
         {
+            "comments": "Deploys a second spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-spoke-two",
-            "comments": "Deploys a second spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -207,10 +207,10 @@
             }
         },
         {
+            "comments": "Creates a virtual network peer relationship between the hub and spoke virtual networks.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "virtual-network-peering",
-            "comments": "Creates a virtual network peer relationship between the hub and spoke virtual networks.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
@@ -239,10 +239,10 @@
             }
         },
         {
+            "comments": "Deploys a Bastion subnet into the hub network, an NSG connected to the subnet, all Bastion NSG rules, and a Bastion host.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "bastion-host",
-            "comments": "Deploys a Bastion subnet into the hub network, an NSG connected to the subnet, all Bastion NSG rules, and a Bastion host.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
             ],
@@ -278,10 +278,10 @@
             }
         },
         {
+            "comments": "Deploys an Azure Firewall into the hub network.",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "azure-firewall",
-            "comments": "Deploys an Azure Firewall into the hub network.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]"
             ],
@@ -314,11 +314,11 @@
             }
         },
         {
+            "comments": "Conditionally deploys a gateway subnet into the hub virtual network, a vpn public IP address, and a virtual network gateway.",
             "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "vpn-gateway",
-            "comments": "Conditionally deploys a gateway subnet into the hub virtual network, a vpn public IP address, and a virtual network gateway.",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
                 "[resourceId('Microsoft.Resources/deployments', 'azure-firewall')]",
@@ -353,11 +353,11 @@
             }
         },
         {
+            "comments": "Conditionally deploys 1 - many Windows virtual machines into the spoke one virtual network and resources subnet",
             "condition": "[greater(parameters('windowsVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
-            "comments": "Conditionally deploys 1 - many Windows virtual machines into the spoke one virtual network and resources subnet",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],
@@ -390,11 +390,11 @@
             }
         },
         {
+            "comments": "Conditionally deploys 1 - many Linux virtual machines into the spoke one virtual network and resources subnet",
             "condition": "[greater(parameters('linuxVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "linux-vm",
-            "comments": "Conditionally deploys 1 - many Linux virtual machines into the spoke one virtual network and resources subnet",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],

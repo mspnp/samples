@@ -1,16 +1,15 @@
 # Azure Bastion in a Hub and Spoke configuration
 
-This sample deploys two peered Azure Virtual Networks, an Azure Bastion host, and optionally multiple Azure virtual machines. Use this sample to experience an Azure Bastion host in a hub and spoke configuration. To learn more about Bastion and peered VNets, see [VNet peering and Azure Bastion](https://docs.microsoft.com/en-us/azure/bastion/vnet-peering).
 
 ## Deploy sample
 
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name hub-spoke-updated-ny-002 --location eastus
+az group create --name hub-spoke-updated --location eastus
 ```
 
-Run the following command to initiate the deployment.
+Run the following command to initiate the deployment. If you would like to also deploy this sample with virtual machines and / or an Azure VPN gateway, see the `az deployment group create` examples found later in this document.
 
 ```azurecli
 az deployment group create \
@@ -36,6 +35,23 @@ az deployment group create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
 ```
+
+## Solution deployment parameters
+
+| Parameter | Type | Description | Default |
+|---|---|---|
+| windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 0 |
+| linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 0 |
+| adminUserName | string | If deploying virtual machines, the admin user name. | azureadmin |
+| adminPassword | securestring | If deploying virtual machines, the admin password. | null |
+| deployVpnGateway | bool | If true, a virtual network gateway is deployed into the hub network (30 min deployment. | false |
+| hubNetwork | object | Network configuration for the hub virtual network. | [see template] |
+| spokeOneNetwork | object | Network configuration for the first spoke virtual network. | [see template] |
+| spokeTwoNetwork | object | Network configuration for the second spoke virtual network. | [see template] |
+| vpnGateway | object | Network configuration for the vpn gateway. | [see template] |
+| bastionHost | object | Configuration for the Bastion host. | [see template] |
+| azureFirewall | object | Network configuration for the firewall instance. | [see template] |
+| location | string | Deployment location. | resourceGroup().location | 
 
 ## Code of conduct
 
