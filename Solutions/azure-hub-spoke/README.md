@@ -9,6 +9,8 @@ Create a resource group for the deployment.
 az group create --name hub-spoke-updated --location eastus
 ```
 
+** Basic deployment **
+
 Run the following command to initiate the deployment. If you would like to also deploy this sample with virtual machines and / or an Azure VPN gateway, see the `az deployment group create` examples found later in this document.
 
 ```azurecli
@@ -17,15 +19,18 @@ az deployment group create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json
 ```
 
+** Deploy with virtual machines **
+
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network.
 
-```
 ```azurecli
 az deployment group create \
     --resource-group hub-spoke-updated-fw-003 \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1
 ```
+
+** Deploy with VPN gateway **
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a virtual network gateway deployed into the hub virtual network.
 
@@ -39,7 +44,7 @@ az deployment group create \
 ## Solution deployment parameters
 
 | Parameter | Type | Description | Default |
-|---|---|---|
+|---|---|---|--|
 | windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 0 |
 | linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 0 |
 | adminUserName | string | If deploying virtual machines, the admin user name. | azureadmin |
