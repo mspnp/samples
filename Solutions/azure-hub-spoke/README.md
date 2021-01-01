@@ -1,4 +1,8 @@
-# Azure Bastion in a Hub and Spoke configuration
+# Hub and spoke virtual networks with Azure Firewall and optional VPN Gateway
+
+This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed.
+
+For detailed information, see the Azure Hub and Spoke reference architecture - [doc](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke).
 
 
 ## Deploy sample
