@@ -9,7 +9,7 @@ Create a resource group for the deployment.
 az group create --name hub-spoke-updated --location eastus
 ```
 
-** Basic deployment **
+**Basic deployment**
 
 Run the following command to initiate the deployment. If you would like to also deploy this sample with virtual machines and / or an Azure VPN gateway, see the `az deployment group create` examples found later in this document.
 
@@ -19,7 +19,7 @@ az deployment group create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json
 ```
 
-** Deploy with virtual machines **
+**Deploy with virtual machines**
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network.
 
@@ -30,7 +30,7 @@ az deployment group create \
     --parameters adminPassword=Password2020! linuxVMCount=1
 ```
 
-** Deploy with VPN gateway **
+**Deploy with VPN gateway**
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a virtual network gateway deployed into the hub virtual network.
 
