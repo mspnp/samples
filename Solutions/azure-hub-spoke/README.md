@@ -49,7 +49,7 @@ az deployment group create \
 | linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 0 |
 | adminUserName | string | If deploying virtual machines, the admin user name. | azureadmin |
 | adminPassword | securestring | If deploying virtual machines, the admin password. | null |
-| deployVpnGateway | bool | If true, a virtual network gateway is deployed into the hub network (30 min deployment. | false |
+| deployVpnGateway | bool | If true, a virtual network gateway is deployed into the hub network (30 min deployment). | false |
 | hubNetwork | object | Network configuration for the hub virtual network. | [see template] |
 | spokeOneNetwork | object | Network configuration for the first spoke virtual network. | [see template] |
 | spokeTwoNetwork | object | Network configuration for the second spoke virtual network. | [see template] |
