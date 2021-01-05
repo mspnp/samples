@@ -17,7 +17,7 @@ Get-AzNetworkUsage -Location westus | Where-Object {$_.CurrentValue -gt 0} | For
 Get-AzNetworkUsage -Location westus | Where-Object {$_.ResourceType -eq 'Route Tables'}  | Format-Table ResourceType, Limit
 
 
-# Use this command to Get all limits that apply to a spcefici Azure Sql Intance
+# Use this command to Get all limits that apply to a specific Azure SQL Instance
 
 Get-AzSqlInstancePoolUsage -ResourceGroupName $ResourceGroup -Name $AzureSQLinstance | Format-Table Name, Limit
  
