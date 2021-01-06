@@ -19,7 +19,7 @@ Run the following command to initiate the deployment. If you would like to also 
 
 ```azurecli
 az deployment group create \
-    --resource-group hub-spoke-updated-fw-002 \
+    --resource-group hub-spoke-updated \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json
 ```
 
@@ -29,7 +29,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 
 ```azurecli
 az deployment group create \
-    --resource-group hub-spoke-updated-fw-003 \
+    --resource-group hub-spoke-updated \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1
 ```
@@ -40,7 +40,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 
 ```azurecli
 az deployment group create \
-    --resource-group hub-spoke-updated-ny-002 \
+    --resource-group hub-spoke-updated-full \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/hub-spoke-deployment/Solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
 ```
