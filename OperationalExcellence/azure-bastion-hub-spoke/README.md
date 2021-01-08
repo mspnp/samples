@@ -14,7 +14,7 @@ Run the following command to initiate the deployment.c
 
 ```azurecli
 az deployment group create \
-    --resource-group bast-hub-spoke-303 \
+    --resource-group bast-hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-bastion-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! windowsVMCount=1 linuxVMCount=1
 ```
