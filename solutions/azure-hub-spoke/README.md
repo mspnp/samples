@@ -11,7 +11,7 @@ For detailed information, see the Azure Hub and Spoke reference architecture - [
 Create a resource group for the deployment.
 
 ```azurecli
-az group create --name hub-spoke-updated-sun-300 --location eastus
+az group create --name hub-spoke --location eastus
 ```
 
 **Basic deployment**
