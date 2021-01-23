@@ -11,19 +11,22 @@ products:
   - azure-vpn-gateway
 ---
 
-# Hub and spoke virtual networks with Azure Firewall and optional VPN Gateway
+# Hub and spoke deployment
 
-This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
-![Benjamin Bannekat](images/hub-spoke.png)
+This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
-For detailed information, see the Azure Hub and Spoke reference architecture - [doc](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke).
+Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
+
+![Hub and spoke architectural diagram.](images/hub-spoke.png)
+
+For detailed information, see the Azure Hub and Spoke reference architecture: [Hub and spoke reference architecture.](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke).
 
 ## Deploy sample
 
 Create a resource group for the deployment.
 
-```azurecli
+```azurecli-interactive
 az group create --name hub-spoke --location eastus
 ```
 
@@ -31,7 +34,7 @@ az group create --name hub-spoke --location eastus
 
 Run the following command to initiate the deployment. If you would like to also deploy this sample with virtual machines and / or an Azure VPN gateway, see the `az deployment group create` examples found later in this document.
 
-```azurecli
+```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json
@@ -41,7 +44,7 @@ az deployment group create \
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network.
 
-```azurecli
+```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
@@ -52,7 +55,7 @@ az deployment group create \
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a virtual network gateway deployed into the hub virtual network.
 
-```azurecli
+```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
