@@ -101,8 +101,8 @@ stages:
          az deployment group create --resource-group $(resource-group) --template-spec $id
         
 # Clean up deployment
-- stage: cleanupResourceGrou
-  dependsOn: integration
+- stage: cleanupResourceGroup
+  dependsOn: deploy
 
   jobs:
   - job: deleteResourceGroup
