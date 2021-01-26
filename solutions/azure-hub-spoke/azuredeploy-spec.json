@@ -236,8 +236,7 @@
             "name": "virtual-network-peering",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-two')]"
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]"
             ],
             "properties": {
                 "mode": "Incremental",
