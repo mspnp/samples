@@ -102,13 +102,8 @@ stages:
          az deployment group create --resource-group $(resource-group) --template-spec $id
         
 # Clean up deployment
-<<<<<<< HEAD
-- stage: cleanupResourceGrou
-  dependsOn: integration
-=======
 - stage: cleanupResourceGroup
   dependsOn: deploy
->>>>>>> upstream/hub-spoke-pipeline
 
   jobs:
   - job: deleteResourceGroup
