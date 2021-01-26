@@ -1,4 +1,5 @@
 # List of ARM TTK Test: https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate
+# test
 
 trigger:
   branches:
