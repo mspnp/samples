@@ -1,4 +1,5 @@
 # List of ARM TTK Test: https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate
+# test
 
 trigger:
   branches:
@@ -20,7 +21,7 @@ variables:
 - name: spec-version
   value: $(Build.BuildId)
 - name: ttk-skip-test
-  value: 'Location-Should-Not-Be-Hardcoded,IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'Location-Should-Not-Be-Hardcoded,IDs-Should-Be-Derived-From-ResourceIDs,DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks'
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
@@ -101,8 +102,13 @@ stages:
          az deployment group create --resource-group $(resource-group) --template-spec $id
         
 # Clean up deployment
+<<<<<<< HEAD
 - stage: cleanupResourceGrou
   dependsOn: integration
+=======
+- stage: cleanupResourceGroup
+  dependsOn: deploy
+>>>>>>> upstream/hub-spoke-pipeline
 
   jobs:
   - job: deleteResourceGroup
