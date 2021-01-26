@@ -99,7 +99,7 @@
         {
             "comments": "Deploys a Log Analytics workspace.",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "log-analytics",
             "properties": {
                 "mode": "Incremental",
@@ -116,7 +116,7 @@
         {
             "comments": "Deploys the hub virtual network, a management subnet, and an NSG connect to the management subnet.",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "virtual-network-hub",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]"
@@ -145,7 +145,7 @@
         {
             "comments": "Deploys an Azure Firewall into the hub network and a route table to the firewall.",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "azure-firewall",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
@@ -187,7 +187,7 @@
         {
             "comments": "Deploys a spoke virtual network, a resources subnet, and an NSG connect to the resources subnet.",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "virtual-network-spoke-one",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'azure-firewall')]",
@@ -232,7 +232,7 @@
         {
             "comments": "Creates a virtual network peer relationship between the hub and spoke virtual networks.",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "virtual-network-peering",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
@@ -262,7 +262,7 @@
         {
             "comments": "Deploys a Bastion subnet into the hub network, an NSG connected to the subnet, all Bastion NSG rules, and a Bastion host.",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "bastion-host",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
@@ -305,7 +305,7 @@
             "comments": "Conditionally deploys a gateway subnet into the hub virtual network, a vpn public IP address, and a virtual network gateway.",
             "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "vpn-gateway",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-hub')]",
@@ -345,7 +345,7 @@
             "comments": "Conditionally deploys 1 - many Windows virtual machines into the spoke one virtual network and resources subnet",
             "condition": "[greater(parameters('windowsVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "windows-vm",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
@@ -382,7 +382,7 @@
             "comments": "Conditionally deploys 1 - many Linux virtual machines into the spoke one virtual network and resources subnet",
             "condition": "[greater(parameters('linuxVMCount'), 0)]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2020-06-01",
             "name": "linux-vm",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
