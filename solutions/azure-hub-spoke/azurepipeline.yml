@@ -25,7 +25,7 @@ variables:
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
-  value: 'azuredeploy-spec.json'
+  value: 'azuredeploy.json'
 
 stages:
 
@@ -73,13 +73,13 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: 'az group create --name $(resource-group) --location $(location)'
         
-    - task: AzureCLI@2
-      displayName: Create template spec
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az ts create --name $(spec) --version $(spec-version) --resource-group $(resource-group) --location $(location) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)' 
+    # - task: AzureCLI@2
+    #   displayName: Create template spec
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: 'az ts create --name $(spec) --version $(spec-version) --resource-group $(resource-group) --location $(location) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)' 
         
     - task: AzureCLI@2
       displayName: Validate template spec
@@ -88,8 +88,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         id=$(az ts show --name $(spec) --version $(spec-version) --resource-group $(resource-group) --query id -o tsv)
-         az deployment group validate --resource-group $(resource-group) --template-spec $id
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
 
     - task: AzureCLI@2
       displayName: Deploy template spec
@@ -98,8 +97,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         id=$(az ts show --name $(spec) --version $(spec-version) --resource-group $(resource-group) --query id -o tsv)
-         az deployment group create --resource-group $(resource-group) --template-spec $id
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
         
 # Clean up deployment
 - stage: cleanupResourceGroup

@@ -37,7 +37,7 @@ Run the following command to initiate the deployment. If you would like to also 
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/hub-spoke-pipeline/solutions/azure-hub-spoke/azuredeploy.json
 ```
 
 **Deploy with virtual machines**
@@ -47,7 +47,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/hub-spoke-pipeline/solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1
 ```
 
@@ -58,7 +58,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/hub-spoke-pipeline/solutions/azure-hub-spoke/azuredeploy.json \
     --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
 ```
 
