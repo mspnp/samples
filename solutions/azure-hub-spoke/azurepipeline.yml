@@ -104,13 +104,13 @@ stages:
 
     steps:
 
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+    # - task: AzureCLI@2
+    #   displayName: Delete resource group
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
 
 # Deploy template (virtual machines)
 - stage: deployVM
@@ -162,10 +162,68 @@ stages:
 
     steps:
 
+    # - task: AzureCLI@2
+    #   displayName: Delete resource group
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: 'az group delete --resource-group $(resource-group)-vm --yes --no-wait'
+
+# Deploy template (VPN Gateway)
+- stage: deployVPN
+  dependsOn: []
+
+  jobs:
+  - job: arm
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+
+    steps:    
+    
     - task: AzureCLI@2
-      displayName: Delete resource group
+      displayName: Create resource group
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: 'az group delete --resource-group $(resource-group)-vm --yes --no-wait'
+        inlineScript: 'az group create --name $(resource-group)-vpm --location $(location)'
+               
+    - task: AzureCLI@2
+      displayName: Validate template (validation api)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group validate --resource-group $(resource-group)-vpn --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters deployVpnGateway=true
+
+    - task: AzureCLI@2
+      displayName: Deploy template
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group create --resource-group $(resource-group)-vpn --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
+        
+# Clean up deployment
+- stage: cleanupResourceGroupVPN
+  dependsOn: deployVPN
+  condition: always()
+
+  jobs:
+  - job: deleteResourceGroup
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+
+    # - task: AzureCLI@2
+    #   displayName: Delete resource group
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: 'az group delete --resource-group $(resource-group)-vpn --yes --no-wait'
