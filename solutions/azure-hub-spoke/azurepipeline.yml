@@ -54,8 +54,8 @@ stages:
         testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
       condition: always()
 
-# Create template spec and deploy
-- stage: deploy
+# Deploy template (basic)
+- stage: deploy-basic
   dependsOn: []
 
   jobs:
@@ -92,7 +92,7 @@ stages:
          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
         
 # Clean up deployment
-- stage: cleanupResourceGroup
+- stage: cleanupResourceGroup-basic
   dependsOn: deploy
   condition: always()
 
@@ -111,3 +111,61 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+
+# Deploy template (virtual machines)
+- stage: deploy-vm
+  dependsOn: []
+
+  jobs:
+  - job: arm
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+
+    steps:    
+    
+    - task: AzureCLI@2
+      displayName: Create resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group create --name $(resource-group)-vm --location $(location)'
+               
+    - task: AzureCLI@2
+      displayName: Validate template (validation api)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group validate --resource-group $(resource-group)-vm --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=Password2020!
+
+    - task: AzureCLI@2
+      displayName: Deploy template
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group create --resource-group $(resource-group)-vm --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
+        
+# Clean up deployment
+- stage: cleanupResourceGroup-vm
+  dependsOn: deploy
+  condition: always()
+
+  jobs:
+  - job: deleteResourceGroup
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+
+    - task: AzureCLI@2
+      displayName: Delete resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group delete --resource-group $(resource-group)-vm --yes --no-wait'
