@@ -55,7 +55,7 @@ stages:
       condition: always()
 
 # Deploy template (basic)
-- stage: deploy-basic
+- stage: deployBasic
   dependsOn: []
 
   jobs:
@@ -92,8 +92,8 @@ stages:
          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
         
 # Clean up deployment
-- stage: cleanupResourceGroup-basic
-  dependsOn: deploy
+- stage: cleanupResourceGroupBasic
+  dependsOn: deployBasic
   condition: always()
 
   jobs:
@@ -113,7 +113,7 @@ stages:
         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
 
 # Deploy template (virtual machines)
-- stage: deploy-vm
+- stage: deployVM
   dependsOn: []
 
   jobs:
@@ -150,8 +150,8 @@ stages:
          az deployment group create --resource-group $(resource-group)-vm --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
         
 # Clean up deployment
-- stage: cleanupResourceGroup-vm
-  dependsOn: deploy
+- stage: cleanupResourceGroupVM
+  dependsOn: deployVM
   condition: always()
 
   jobs:
