@@ -72,17 +72,9 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: 'az group create --name $(resource-group) --location $(location)'
-        
-    # - task: AzureCLI@2
-    #   displayName: Create template spec
-    #   inputs:
-    #     azureSubscription: $(serviceConnection)
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: 'az ts create --name $(spec) --version $(spec-version) --resource-group $(resource-group) --location $(location) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)' 
-        
+               
     - task: AzureCLI@2
-      displayName: Validate template spec
+      displayName: Validate template (validation api)
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
@@ -91,7 +83,7 @@ stages:
          az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
 
     - task: AzureCLI@2
-      displayName: Deploy template spec
+      displayName: Deploy template
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
@@ -102,6 +94,7 @@ stages:
 # Clean up deployment
 - stage: cleanupResourceGroup
   dependsOn: deploy
+  condition: always()
 
   jobs:
   - job: deleteResourceGroup
