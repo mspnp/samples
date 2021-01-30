@@ -104,13 +104,13 @@ stages:
 
     steps:
 
-    # - task: AzureCLI@2
-    #   displayName: Delete resource group
-    #   inputs:
-    #     azureSubscription: $(serviceConnection)
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+    - task: AzureCLI@2
+      displayName: Delete resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
 
 # Deploy template (virtual machines)
 - stage: deployVM
@@ -162,13 +162,13 @@ stages:
 
     steps:
 
-    # - task: AzureCLI@2
-    #   displayName: Delete resource group
-    #   inputs:
-    #     azureSubscription: $(serviceConnection)
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: 'az group delete --resource-group $(resource-group)-vm --yes --no-wait'
+    - task: AzureCLI@2
+      displayName: Delete resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group delete --resource-group $(resource-group)-vm --yes --no-wait'
 
 # Deploy template (VPN Gateway)
 - stage: deployVPN
@@ -220,10 +220,10 @@ stages:
 
     steps:
 
-    # - task: AzureCLI@2
-    #   displayName: Delete resource group
-    #   inputs:
-    #     azureSubscription: $(serviceConnection)
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: 'az group delete --resource-group $(resource-group)-vpn --yes --no-wait'
+    - task: AzureCLI@2
+      displayName: Delete resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group delete --resource-group $(resource-group)-vpn --yes --no-wait'
