@@ -11,21 +11,20 @@
         },
         "adminPassword": {
             "type": "securestring",
-            "defaultValue": "Password2020!",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 2,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
         },
         "linuxVMCount": {
             "type": "int",
-            "defaultValue": 2,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
