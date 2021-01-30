@@ -11,6 +11,7 @@
         },
         "adminPassword": {
             "type": "securestring",
+            "defaultValue": "",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
