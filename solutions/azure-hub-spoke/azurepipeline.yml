@@ -20,8 +20,7 @@ variables:
 - name: spec-version
   value: $(Build.BuildId)
 - name: ttk-skip-test
-  value: ''
-  # value: 'IDs-Should-Be-Derived-From-ResourceIDs,DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks'
+  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks'
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
