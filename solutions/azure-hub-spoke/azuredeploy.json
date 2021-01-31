@@ -412,7 +412,7 @@
             "apiVersion": "2019-10-01",
             "name": "windows-vm",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-one')]",
+                "[resourceId('Microsoft.Resources/deployments', 'virtual-network-spoke-two')]",
                 "[resourceId('Microsoft.Resources/deployments', 'log-analytics')]"
             ],
             "properties": {
@@ -432,10 +432,10 @@
                         "value": "[parameters('windowsVMCount')]"
                     },
                     "virtualNetworkName": {
-                        "value": "[reference('virtual-network-spoke-one').outputs.virtualNetworkName.value]"
+                        "value": "[reference('virtual-network-spoke-two').outputs.virtualNetworkName.value]"
                     },
                     "subnetName": {
-                        "value": "[reference('virtual-network-spoke-one').outputs.subnetName.value]"
+                        "value": "[reference('virtual-network-spoke-two').outputs.subnetName.value]"
                     },
                     "location": {
                         "value": "[parameters('location')]"
