@@ -84,7 +84,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=$(admin-password) deployVpnGateway=true
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=$(admin-password)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
