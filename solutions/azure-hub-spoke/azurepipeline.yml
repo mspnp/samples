@@ -72,14 +72,14 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: 'az group create --name $(resource-group) --location $(location)'
                
-    - task: AzureCLI@2
-      displayName: Validate template (validation api)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=$(admin-password)
+    # - task: AzureCLI@2
+    #   displayName: Validate template (validation api)
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #      az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=$(admin-password)
 
     - task: AzureCLI@2
       displayName: Deploy template
