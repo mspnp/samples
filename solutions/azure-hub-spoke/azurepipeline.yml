@@ -20,7 +20,7 @@ variables:
 - name: spec-version
   value: $(Build.BuildId)
 - name: ttk-skip-test
-  value: 'Location-Should-Not-Be-Hardcoded,IDs-Should-Be-Derived-From-ResourceIDs,DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks'
+  value: 'IDs-Should-Be-Derived-From-ResourceIDs,DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks'
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
@@ -93,22 +93,22 @@ stages:
          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters deployVpnGateway=true
         
 # Clean up deployment
-- stage: cleanupResourceGroupBasic
-  dependsOn: deploy
-  condition: always()
+# - stage: cleanupResourceGroupBasic
+#   dependsOn: deploy
+#   condition: always()
 
-  jobs:
-  - job: deleteResourceGroup
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 20
+#   jobs:
+#   - job: deleteResourceGroup
+#     pool: Hosted Ubuntu 1604
+#     continueOnError: false
+#     timeoutInMinutes: 20
 
-    steps:
+#     steps:
 
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+#     - task: AzureCLI@2
+#       displayName: Delete resource group
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
