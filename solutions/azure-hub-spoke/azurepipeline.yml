@@ -25,7 +25,7 @@ variables:
 stages:
 
 # Run ARM TTK and publish test results
-- stage: staticanalysis
+- stage: arm-template-toolkit
 
   jobs:
   - job: armttk
@@ -50,7 +50,7 @@ stages:
       condition: always()
 
 # Deploy template (basic)
-- stage: deploy
+- stage: validate-and-deploy
   dependsOn: []
 
   jobs:
@@ -84,7 +84,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=$(admin-password)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters windowsVMCount=1 linuxVMCount=1 adminPassword=$(admin-password) deployVpnGateway=true
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic

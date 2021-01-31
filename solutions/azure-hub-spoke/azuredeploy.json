@@ -94,10 +94,10 @@
                 "routeName": "r-nexthop-to-fw"
             }
         },
-    "workbookDisplayName": {
-      "type": "string",
-      "defaultValue": "Azure Firewall Workbook"
-    },
+        "workbookDisplayName": {
+            "type": "string",
+            "defaultValue": "Azure Firewall Workbook"
+        },
         "workbookId": {
             "type": "string",
             "defaultValue": "[newGuid()]"
@@ -1024,7 +1024,6 @@
             "kind": "shared",
             "properties": {
                 "version": "1.0",
-                // "sourceId": "[concat('/subscriptions', subscription().id ,'/resourcegroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', variables('logAnalyticsWorkspace'))]",
                 "sourceId": "[resourceId('Microsoft.OperationalInsights/workspaces',variables('logAnalyticsWorkspace'))]",
                 "category": "workbook",
                 "displayName": "[parameters('workbookDisplayName')]",
