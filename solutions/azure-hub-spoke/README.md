@@ -13,7 +13,6 @@ products:
 
 # Hub and spoke deployment
 
-
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
