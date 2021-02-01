@@ -12,31 +12,37 @@ variables:
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
 
-trigger:
-  branches:
-    include:
-    - master
-  paths:
-    include:
-      - /solutions/azure-hub-spoke/*
+  trigger:
+  - master
+
+  pr:
+  - master
       
-pr:
-  branches:
-    include:
-    - master
-  paths:
-    include:
-      - /solutions/azure-hub-spoke/*
+
+# trigger:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     include:
+#       - /solutions/azure-hub-spoke/*
+      
+# pr:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     include:
+#       - /solutions/azure-hub-spoke/*
       
 stages:
 
-# Run ARM TTK and publish test results
+# Run ARM TTK and publish test results (Windows only)
 - stage: armTemplateToolkit
 
   jobs:
   - job: armttk
     pool:
-      # ARM TTK Extension Windows only
       vmImage: 'windows-latest'
     continueOnError: false
     timeoutInMinutes: 20
@@ -55,7 +61,7 @@ stages:
         testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
       condition: always()
 
-# Deploy template (basic)
+# Deploy template
 - stage: validateAndDeploy
   dependsOn: []
 

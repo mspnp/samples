@@ -11,7 +11,7 @@ products:
   - azure-vpn-gateway
 ---
 
-# Hub and spoke deployment
+# Hub and spoke deployment  
 
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
