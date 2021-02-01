@@ -30,13 +30,12 @@ pr:
       
 stages:
 
-# Run ARM TTK and publish test results
+# Run ARM TTK and publish test results (Windows only)
 - stage: armTemplateToolkit
 
   jobs:
   - job: armttk
     pool:
-      # ARM TTK Extension Windows only
       vmImage: 'windows-latest'
     continueOnError: false
     timeoutInMinutes: 20
@@ -55,7 +54,7 @@ stages:
         testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
       condition: always()
 
-# Deploy template (basic)
+# Deploy template
 - stage: validateAndDeploy
   dependsOn: []
 
