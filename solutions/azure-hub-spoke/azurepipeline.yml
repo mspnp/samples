@@ -17,9 +17,9 @@ trigger:
   # branches:
   #   include:
   #     - hub-spoke-pipeline
-  paths:
-    include:
-      - $(template-location)
+paths:
+  include:
+    - $(template-location)
 
 stages:
 
