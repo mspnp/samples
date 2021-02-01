@@ -25,7 +25,7 @@ variables:
 stages:
 
 # Run ARM TTK and publish test results
-- stage: arm-template-toolkit
+- stage: armTemplateToolkit
 
   jobs:
   - job: armttk
@@ -50,7 +50,7 @@ stages:
       condition: always()
 
 # Deploy template (basic)
-- stage: validate-and-deploy
+- stage: validateAndDeploy
   dependsOn: []
 
   jobs:
@@ -88,7 +88,7 @@ stages:
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
-  dependsOn: deploy
+  dependsOn: validateAndDeploy
   condition: always()
 
   jobs:
