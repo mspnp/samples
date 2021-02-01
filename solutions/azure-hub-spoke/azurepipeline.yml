@@ -13,13 +13,12 @@ variables:
   value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
 
 trigger:
-  hub-spoke-pipeline
-  # branches:
-  #   include:
-  #     - hub-spoke-pipeline
-paths:
-  include:
-    - $(template-location)
+  branches:
+    include:
+      - hub-spoke-pipeline
+  paths:
+    include:
+      - $(template-location)
 
 stages:
 
