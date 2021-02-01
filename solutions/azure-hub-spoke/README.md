@@ -58,7 +58,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/hub-spoke-pipeline/solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
+    --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
 ```
 
 ## Solution deployment parameters

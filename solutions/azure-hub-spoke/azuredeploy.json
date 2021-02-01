@@ -122,7 +122,7 @@
     },
     "resources": [
         {
-            "comments": "Deploys a Log Analytics workspace.",
+            "comments": "Log Analytics workspace",
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2020-03-01-preview",
             "name": "[variables('logAnalyticsWorkspace')]",
@@ -137,7 +137,7 @@
             }
         },
         {
-            "comments": "Deploys the hub virtual network and configures diagnostic logging.",
+            "comments": "Hub virtual network and diagnostic configuration",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
             "name": "[parameters('hubNetwork').name]",
@@ -171,6 +171,7 @@
             ]
         },
         {
+            "comments": "Subnet for Azure Firewall",
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('hubNetwork').name, '/', parameters('azureFirewall').subnetName)]",
@@ -182,6 +183,7 @@
             }
         },
         {
+            "comments": "Public IP address for Azure Firewall",
             "apiVersion": "2019-11-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('azureFirewall').publicIPAddressName]",
@@ -194,6 +196,7 @@
             }
         },
         {
+            "comments": "Azure Firewall and diagnostic configuration",
             "type": "Microsoft.Network/azureFirewalls",
             "apiVersion": "2020-05-01",
             "name": "[parameters('azureFirewall').name]",
@@ -254,6 +257,7 @@
             ]
         },
         {
+            "comments": "Route / force tunnel from spokes to Azure firewall",
             "type": "Microsoft.Network/routeTables",
             "apiVersion": "2020-05-01",
             "name": "[parameters('azureFirewall').routeName]",
@@ -276,6 +280,7 @@
             }
         },
         {
+            "comments": "Network security group + rules for spoke network and diagnostic configuration",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
             "name": "[parameters('spokeNetwork').subnetNsgName]",
@@ -339,6 +344,7 @@
             ]
         },
         {
+            "comments": "Spoke virtual network, subnet, and diagnostic configuration",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
             "name": "[parameters('spokeNetwork').name]",
@@ -390,6 +396,7 @@
             ]
         },
         {
+            "comments": "Network security group + rules for spoke network and diagnostic configuration",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
             "name": "[parameters('spokeNetworkTwo').subnetNsgName]",
@@ -453,6 +460,7 @@
             ]
         },
         {
+            "comments": "Spoke virtual network, subnet, and diagnostic configuration",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
             "name": "[parameters('spokeNetworkTwo').name]",
@@ -504,7 +512,7 @@
             ]
         },
         {
-            "comments": "Hub > spoke one.",
+            "comments": "Virtual network peering hub to spoke one",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('hubNetwork').name, '/', variables('peering-name-hub-to-spoke-one'))]",
@@ -524,7 +532,7 @@
             }
         },
         {
-            "comments": "Hub > spoke two.",
+            "comments": "Virtual network peering hub to spoke two",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('hubNetwork').name, '/', variables('peering-name-hub-to-spoke-two'))]",
@@ -544,7 +552,7 @@
             }
         },
         {
-            "comments": "Spoke one > hub",
+            "comments": "Virtual network peering spoke one to hub",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('spokeNetwork').name, '/', variables('peering-name-spoke-to-hub-one'))]",
@@ -564,7 +572,7 @@
             }
         },
         {
-            "comments": "Spoke two > hub",
+            "comments": "Virtual network peering spoke two to hub",
             "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('spokeNetworkTwo').name, '/', variables('peering-name-spoke-to-hub-two'))]",
@@ -584,6 +592,7 @@
             }
         },
         {
+            "comments": "Public IP address for Bastion",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2020-05-01",
             "name": "[parameters('bastionHost').publicIPAddressName]",
@@ -596,6 +605,7 @@
             }
         },
         {
+            "comments": "Network security group, rules for Bastion + diagnostic configuration",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
             "name": "[parameters('bastionHost').nsgName]",
@@ -730,6 +740,7 @@
             ]
         },
         {
+            "comments": "Subnet for Bastion",
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2020-05-01",
             "name": "[concat(parameters('hubNetwork').name, '/', parameters('bastionHost').subnetName)]",
@@ -745,6 +756,7 @@
             }
         },
         {
+            "comments": "Azure Bastion and diagnostic configuration",
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2020-06-01",
             "name": "[parameters('bastionHost').name]",
@@ -790,6 +802,7 @@
             ]
         },
         {
+            "comments": "Subnet for VPN Gateway",
             "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2020-05-01",
@@ -802,6 +815,7 @@
             }
         },
         {
+            "comments": "Public IP address for VPN Gateway",
             "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
@@ -812,6 +826,7 @@
             }
         },
         {
+            "comments": "VPN Gateway and diagnostic configuration (optional)",
             "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
@@ -883,6 +898,7 @@
             ]
         },
         {
+            "comments": "Network interface for Windows VMs (optional)",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
             "name": "[concat(variables('nicNameWindows'), copyIndex())]",
@@ -909,6 +925,7 @@
             }
         },
         {
+            "comments": "Windows VMs (optional)",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "name": "[concat(variables('vmNameWindows'), copyIndex())]",
@@ -950,6 +967,7 @@
             }
         },
         {
+            "comments": "Network interface for Ubuntu VMs (optional)",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-05-01",
             "name": "[concat(variables('nicNameLinux'), copyIndex())]",
@@ -976,6 +994,7 @@
             }
         },
         {
+            "comments": "Ubuntu VMs (optional)",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2019-07-01",
             "name": "[concat(variables('vmNameLinux'), copyIndex())]",
@@ -1017,6 +1036,7 @@
             }
         },
         {
+            "comments": "Azure Firewall Log Analytics workbook",
             "type": "microsoft.insights/workbooks",
             "apiVersion": "2018-06-17-preview",
             "name": "[parameters('workbookId')]",
