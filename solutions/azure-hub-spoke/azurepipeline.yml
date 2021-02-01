@@ -12,28 +12,21 @@ variables:
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
 
-  trigger:
-  - master
-
-  pr:
-  - master
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - /solutions/azure-hub-spoke/*
       
-
-# trigger:
-#   branches:
-#     include:
-#     - master
-#   paths:
-#     include:
-#       - /solutions/azure-hub-spoke/*
-      
-# pr:
-#   branches:
-#     include:
-#     - master
-#   paths:
-#     include:
-#       - /solutions/azure-hub-spoke/*
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - /solutions/azure-hub-spoke/*
       
 stages:
 
