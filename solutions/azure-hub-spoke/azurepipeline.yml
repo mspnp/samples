@@ -1,13 +1,3 @@
-# List of ARM TTK Test: https://github.com/Azure/arm-ttk/tree/master/arm-ttk/testcases/deploymentTemplate
-
-trigger:
-  branches:
-    include:
-      - master
-  paths:
-    include:
-      - solutions/azure-hub-spoke/*
-
 variables:
 - name: serviceConnection
   value: azure-service-connection-mg
@@ -15,12 +5,20 @@ variables:
   value: hub-spoke-$(Build.BuildId)
 - name: location
   value: eastus
-- name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
   value: 'azuredeploy.json'
+- name: ttk-skip-test
+  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
+
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - $(template-location)
 
 stages:
 
