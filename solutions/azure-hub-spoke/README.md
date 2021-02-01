@@ -13,7 +13,6 @@ products:
 
 # Hub and spoke deployment
 
-
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
@@ -59,7 +58,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2020! linuxVMCount=1 deployVpnGateway=true
+    --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
 ```
 
 ## Solution deployment parameters
