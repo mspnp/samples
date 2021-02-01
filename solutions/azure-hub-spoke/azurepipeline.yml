@@ -19,7 +19,15 @@ trigger:
   paths:
     include:
       - /solutions/azure-hub-spoke/*
-
+      
+pr:
+  branches:
+    include:
+    - hub-spoke-pipeline
+  paths:
+    include:
+      - /solutions/azure-hub-spoke/*
+      
 stages:
 
 # Run ARM TTK and publish test results
