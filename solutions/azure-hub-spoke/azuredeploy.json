@@ -10,7 +10,6 @@
             }
         },
         "adminPassword": {
-            // test
             "type": "securestring",
             "defaultValue": "",
             "metadata": {
