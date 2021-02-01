@@ -8,14 +8,14 @@ variables:
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
-  value: 'azuredeploy.json'
+  value: 'azuredeploy.json'  
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
 
 trigger:
   branches:
     include:
-      - master
+      - hub-spoke-pipeline
   paths:
     include:
       - $(template-location)
@@ -28,7 +28,7 @@ stages:
   jobs:
   - job: armttk
     pool:
-      # Sams ARM TTK Extension Windows only
+      # ARM TTK Extension Windows only
       vmImage: 'windows-latest'
     continueOnError: false
     timeoutInMinutes: 20
