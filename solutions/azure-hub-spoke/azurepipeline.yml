@@ -18,7 +18,7 @@ trigger:
       - hub-spoke-pipeline
   paths:
     include:
-      - $(template-location)
+      - /solutions/azure-hub-spoke/*
 
 stages:
 
