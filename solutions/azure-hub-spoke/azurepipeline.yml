@@ -15,7 +15,7 @@ variables:
 trigger:
   branches:
     include:
-    - hub-spoke-pipeline
+    - master
   paths:
     include:
       - /solutions/azure-hub-spoke/*
@@ -23,7 +23,7 @@ trigger:
 pr:
   branches:
     include:
-    - hub-spoke-pipeline
+    - master
   paths:
     include:
       - /solutions/azure-hub-spoke/*
@@ -81,7 +81,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -90,7 +90,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
