@@ -1,0 +1,816 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "The admin user name for the Azure SQL instance."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The admin password for the Azure SQL instance."
+            }
+        },
+        "logAnalytics": {
+            "type": "object",
+            "defaultValue": {
+                "name": "[concat('la', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "skuName": "free"
+            },
+            "metadata": {
+                "description": "Deployment settings for the Log Analytics workspace."
+            }
+        },
+        "azureSqlDatabase": {
+            "type": "object",
+            "defaultValue": {
+                "name": "[concat('sql', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "databaseName": "master",
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "edition": "Standard",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "S0"
+            },
+            "metadata": {
+                "description": "Deployment settings for Azure SQL and Azure SQL database instances."
+            }
+        },
+        "keyVault": {
+            "type": "object",
+            "defaultValue": {
+                "name": "[concat('kv', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "skuName": "standard",
+                "skuFamily": "A"
+            },
+            "metadata": {
+                "description": "Deployment settings for Azure Key Vault instances."
+            }
+        },
+        "azureAppService": {
+            "type": "object",
+            "defaultValue": {
+                "name": "[concat('app', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "webSiteName": "[concat('app', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "skuName": "S1",
+                "skuCapacity": 1,
+                "autoScaleMin": 1,
+                "autoscaleMax": 2,
+                "autoscaleDefault": 1
+
+            },
+            "metadata": {
+                "description": "Deployment settings for Azure App Service instance."
+            }
+        },
+        "storageAccount": {
+            "type": "object",
+            "defaultValue": {
+                "name": "[concat('str', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "skuName": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "metadata": {
+                "description": "Deployment settings for Azure Storage account instance."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
+        }
+    },
+    "variables": {
+        "emailAlertRole": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+    },
+    "resources": [
+        {
+            "comments": "Log Analytics workspace",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[parameters('logAnalytics').name]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "[parameters('logAnalytics').skuName]"
+                },
+                "features": {
+                    "searchVersion": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2019-06-01-preview",
+            "name": "[parameters('azureSqlDatabase').name]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "administratorLogin": "[parameters('adminUserName')]",
+                "administratorLoginPassword": "[parameters('adminPassword')]"
+            },
+            "resources": [
+                {
+                    "type": "databases",
+                    "apiVersion": "2020-08-01-preview",
+                    "name": "[parameters('azureSqlDatabase').databaseName]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', parameters('azureSqlDatabase').name)]"
+                    ],
+                    "properties": {
+                        "edition": "[parameters('azureSqlDatabase').edition]",
+                        "collation": "[parameters('azureSqlDatabase').collation]",
+                        "maxSizeBytes": "[parameters('azureSqlDatabase').maxSizeBytes]",
+                        "requestedServiceObjectiveName": "[parameters('azureSqlDatabase').requestedServiceObjectiveName]"
+                    },
+                    "resources": [
+                        {
+                            "type": "providers/diagnosticSettings",
+                            "apiVersion": "2017-05-01-preview",
+                            "name": "[concat('Microsoft.Insights/default', parameters('logAnalytics').name)]",
+                            "dependsOn": [
+                                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                                "[resourceId('Microsoft.Sql/servers/databases', parameters('azureSqlDatabase').name, parameters('azureSqlDatabase').databaseName)]"
+                            ],
+                            "properties": {
+                                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                                "logs": [
+                                    {
+                                        "category": "SQLInsights",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AutomaticTuning",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "QueryStoreRuntimeStatistics",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "QueryStoreWaitStatistics",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "Errors",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "DatabaseWaitStatistics",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "Timeouts",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "Blocks",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "Deadlocks",
+                                        "enabled": true
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "category": "Basic",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "InstanceAndAppAdvanced",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "WorkloadManagement",
+                                        "enabled": true
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "2014-04-01",
+                    "name": "AllowAllWindowsAzureIps",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', parameters('azureSqlDatabase').name)]"
+                    ],
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    }
+                },
+                {
+                    "apiVersion": "2017-03-01-preview",
+                    "type": "auditingSettings",
+                    "name": "DefaultAuditingSettings",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', parameters('azureSqlDatabase').name)]"
+                    ],
+                    "properties": {
+                        "State": "Enabled",
+                        "auditActionsAndGroups": null,
+                        "isAzureMonitorTargetEnabled": true
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "name": "[parameters('keyVault').name]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": true,
+                "tenantId": "[subscription().tenantId]",
+                "sku": {
+                    "name": "[parameters('keyVault').skuName]",
+                    "family": "[parameters('keyVault').skuFamily]"
+                },
+                "accessPolicies": [
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[reference(resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName), '2019-08-01', 'full').identity.principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "Get"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVault').name)]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                        "logs": [
+                            {
+                                "category": "AuditEvent",
+                                "enabled": true
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2019-09-01",
+            "name": "[concat(parameters('keyVault').name, '/sqlServer')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVault').name)]",
+                "[resourceId('Microsoft.Sql/servers', parameters('azureSqlDatabase').name)]"
+            ],
+            "properties": {
+                "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('azureSqlDatabase').name)).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('azureSqlDatabase').databaseName, ';User Id=', parameters('adminUserName'), '@', parameters('azureSqlDatabase').name, ';Password=', parameters('adminPassword'), ';')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('azureAppService').name]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('azureAppService').skuName]",
+                "capacity": "[parameters('azureAppService').skuCapacity]"
+            },
+            "properties": {
+                "name": "[parameters('azureAppService').name]"
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                        "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('azureAppService').webSiteName]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "name": "[parameters('azureAppService').webSiteName]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+            },
+            "resources": [
+                {
+                    "type": "config",
+                    "apiVersion": "2020-06-01",
+                    "name": "connectionstrings",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
+                    ],
+                    "properties": {
+                        "DefaultConnection": {
+                            "value": "[concat('@Microsoft.KeyVault(SecretUri=', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('keyVault').name, 'sqlServer')).secretUriWithVersion, ')')]",
+                            "type": "SQLServer"
+                        }
+                    }
+                },
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
+                    "dependsOn": [
+                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                        "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                        "logs": [
+                            {
+                                "category": "AppServiceAntivirusScanAuditLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServiceHTTPLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServiceConsoleLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServiceAppLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServiceFileAuditLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServiceAuditLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServiceIPSecAuditLogs",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AppServicePlatformLogs",
+                                "enabled": true
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "slots",
+                    "apiVersion": "2020-06-01",
+                    "name": "Staging",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
+                    ],
+                    "properties": {},
+                    "resources": [
+                        {
+                            "type": "config",
+                            "apiVersion": "2020-06-01",
+                            "name": "connectionstrings",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Web/sites/slots', parameters('azureAppService').webSiteName, 'Staging')]"
+                            ],
+                            "properties": {
+                                "DefaultConnection": {
+                                    "value": "[concat('@Microsoft.KeyVault(SecretUri=', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('keyVault').name, 'sqlServer')).secretUriWithVersion, ')')]",
+                                    "type": "SQLServer"
+                                }
+                            }
+                        },
+                        {
+                            "type": "providers/diagnosticSettings",
+                            "apiVersion": "2017-05-01-preview",
+                            "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
+                            "dependsOn": [
+                                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                                "[resourceId('Microsoft.Web/sites/slots', parameters('azureAppService').webSiteName, 'Staging')]"
+                            ],
+                            "properties": {
+                                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                                "logs": [
+                                    {
+                                        "category": "AppServiceAntivirusScanAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceHTTPLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceConsoleLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceAppLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceFileAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceIPSecAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServicePlatformLogs",
+                                        "enabled": true
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "category": "AllMetrics",
+                                        "enabled": true
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "slots",
+                    "apiVersion": "2020-06-01",
+                    "name": "LastKnownGood",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
+                    ],
+                    "properties": {},
+                    "resources": [
+                        {
+                            "type": "config",
+                            "apiVersion": "2020-06-01",
+                            "name": "connectionstrings",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Web/sites/slots', parameters('azureAppService').webSiteName, 'LastKnownGood')]"
+                            ],
+                            "properties": {
+                                "DefaultConnection": {
+                                    "value": "[concat('@Microsoft.KeyVault(SecretUri=', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('keyVault').name, 'sqlServer')).secretUriWithVersion, ')')]",
+                                    "type": "SQLServer"
+                                }
+                            }
+                        },
+                        {
+                            "type": "providers/diagnosticSettings",
+                            "apiVersion": "2017-05-01-preview",
+                            "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
+                            "dependsOn": [
+                                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                                "[resourceId('Microsoft.Web/sites/slots', parameters('azureAppService').webSiteName, 'LastKnownGood')]"
+                            ],
+                            "properties": {
+                                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                                "logs": [
+                                    {
+                                        "category": "AppServiceAntivirusScanAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceHTTPLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceConsoleLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceAppLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceFileAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServiceIPSecAuditLogs",
+                                        "enabled": true
+                                    },
+                                    {
+                                        "category": "AppServicePlatformLogs",
+                                        "enabled": true
+                                    }
+                                ],
+                                "metrics": [
+                                    {
+                                        "category": "AllMetrics",
+                                        "enabled": true
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Insights/autoscalesettings",
+            "apiVersion": "2015-04-01",
+            "name": "[concat(parameters('azureAppService').name, '-', resourceGroup().name)]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+            ],
+            "properties": {
+                "profiles": [
+                    {
+                        "name": "Default",
+                        "capacity": {
+                            "minimum": "[parameters('azureAppService').autoScaleMin]",
+                            "maximum": "[parameters('azureAppService').autoscaleMax]",
+                            "default": "[parameters('azureAppService').autoscaleDefault]"
+                        },
+                        "rules": [
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('azureAppService').name)]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT10M",
+                                    "timeAggregation": "Average",
+                                    "operator": "GreaterThan",
+                                    "threshold": 80.0
+                                },
+                                "scaleAction": {
+                                    "direction": "Increase",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT10M"
+                                }
+                            },
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('azureAppService').name)]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT1H",
+                                    "timeAggregation": "Average",
+                                    "operator": "LessThan",
+                                    "threshold": 60.0
+                                },
+                                "scaleAction": {
+                                    "direction": "Decrease",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT1H"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "enabled": true,
+                "name": "[concat(parameters('azureAppService').name, '-', resourceGroup().name)]",
+                "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('azureAppService').name)]"
+            }
+        },
+        {
+            "type": "microsoft.insights/actionGroups",
+            "apiVersion": "2019-06-01",
+            "name": "email-alert",
+            "location": "global",
+            "properties": {
+                "groupShortName": "email-alert",
+                "enabled": true,
+                "armRoleReceivers": [
+                    {
+                        "name": "email-alert",
+                        "roleId": "[variables('emailAlertRole')]",
+                        "useCommonAlertSchema": true
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[concat('ServerErrors ', parameters('azureAppService').webSiteName)]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]",
+                "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+            ],
+            "properties": {
+                "description": "[concat(parameters('azureAppService').webSiteName, ' has some server errors, status code 5xx.')]",
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 0,
+                            "name": "[concat('ServerErrors ', parameters('azureAppService').webSiteName)]",
+                            "metricNamespace": "Microsoft.Web/sites",
+                            "metricName": "Http5xx",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Total",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "Microsoft.Web/sites",
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[concat('ForbiddenRequests ', parameters('azureAppService').webSiteName)]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]",
+                "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+            ],
+            "properties": {
+                "description": "[concat(parameters('azureAppService').webSiteName, ' has some requests that are forbidden, status code 403.')]",
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 0,
+                            "name": "[concat('ForbiddenRequests ', parameters('azureAppService').webSiteName)]",
+                            "metricNamespace": "Microsoft.Web/sites",
+                            "metricName": "Http403",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Total",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "Microsoft.Web/sites",
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[concat('CPUHigh ', parameters('azureAppService').name)]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]",
+                "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+            ],
+            "properties": {
+                "description": "[concat('The average CPU is high across all the instances of ', parameters('azureAppService').name)]",
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 90,
+                            "name": "[concat('CPUHigh ', parameters('azureAppService').name)]",
+                            "metricNamespace": "Microsoft.Web/serverfarms",
+                            "metricName": "CpuPercentage",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "Microsoft.Web/serverfarms",
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "microsoft.insights/metricAlerts",
+            "apiVersion": "2018-03-01",
+            "name": "[concat('LongHttpQueue ', parameters('azureAppService').name)]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]",
+                "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+            ],
+            "properties": {
+                "description": "[concat('The HTTP queue for the instances of ', parameters('azureAppService').name, ' has a large number of pending requests.')]",
+                "severity": 3,
+                "enabled": true,
+                "scopes": [
+                    "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+                ],
+                "evaluationFrequency": "PT1M",
+                "windowSize": "PT5M",
+                "criteria": {
+                    "allOf": [
+                        {
+                            "threshold": 100.00,
+                            "name": "[concat('CPUHigh ', parameters('azureAppService').name)]",
+                            "metricNamespace": "Microsoft.Web/serverfarms",
+                            "metricName": "HttpQueueLength",
+                            "operator": "GreaterThan",
+                            "timeAggregation": "Average",
+                            "criterionType": "StaticThresholdCriterion"
+                        }
+                    ],
+                    "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                },
+                "autoMitigate": true,
+                "targetResourceType": "Microsoft.Web/serverfarms",
+                "actions": [
+                    {
+                        "actionGroupId": "[resourceId('microsoft.insights/actionGroups', 'email-alert')]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('storageAccount').name]",
+            "location": "[parameters('location')]",
+            "apiVersion": "2019-06-01",
+            "sku": {
+                "name": "[parameters('storageAccount').skuName]",
+                "tier": "[parameters('storageAccount').tier]"
+            },
+            "kind": "Storage"
+        }
+    ]
+}
