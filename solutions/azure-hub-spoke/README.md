@@ -21,7 +21,10 @@ Where applicable, each resource is configured to send diagnostics to an Azure Lo
 
 ![Hub and spoke architectural diagram.](images/hub-spoke.png)
 
-For detailed information, see the Azure Hub and Spoke reference architecture: [Hub and spoke reference architecture.](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke).
+For detailed information, see the Azure Hub and Spoke reference architecture:
+
+> [!div class="nextstepaction"]
+> [Hub and spoke reference architecture](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
 
 ## Deploy sample
 
