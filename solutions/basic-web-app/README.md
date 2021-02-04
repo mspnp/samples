@@ -16,7 +16,10 @@ This sample deploys an empty web app, two web app slots, web app metric alerts, 
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
-For detailed information, see the Abasic web app reference architecture: [Hub and spoke reference architecture.](https://docs.microsoft.com/azure/architecture/reference-architectures/app-service-web-app/basic-web-app).
+For detailed information, see the Basic web application reference architecture:
+
+> [!div class="nextstepaction"]
+> [Basic web application reference architecture](https://docs.microsoft.com/azure/architecture/reference-architectures/app-service-web-app/basic-web-app)
 
 ## Deploy sample
 
@@ -56,9 +59,6 @@ The following resources are configured to send diagnostic logs and metric data t
 - Key Vaule
 - App Service instance
 - Web app and all slots
-- Azure Bastion
-
-Note, this deployment includes optional virtual machines. These are not configured with a Log Analytics workspace, however they can be with the Log Analytics virtual machine extension for [Windows](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-linux).
 
 ## Code of conduct
 
