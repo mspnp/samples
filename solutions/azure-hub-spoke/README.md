@@ -13,7 +13,7 @@ products:
 
 # Hub and spoke deployment
 
-[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/hub-spoke-bastion?branchName=refs%2Fpull%2F98%2Fmerge)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=129&branchName=refs%2Fpull%2F98%2Fmerge)
+[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/hub-spoke-bastion?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/hub-spoke-bastion?branchName=master)
 
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
