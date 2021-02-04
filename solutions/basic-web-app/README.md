@@ -4,11 +4,10 @@ languages:
 - azurepowershell
 - azurecli
 products:
-  - azure
-  - azure-firewall
-  - azure-virtual-network
-  - azure-bastion
-  - azure-vpn-gateway
+  - azure-app-service
+  - azure-log-analytics
+  - azure-key-vault
+  - azure-sql-database
 ---
 
 # Basic web app deployment
@@ -59,7 +58,7 @@ The following resources are configured to send diagnostic logs and metric data t
 - Web app and all slots
 - Azure Bastion
 
-Note, this deployment includes optional virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-linux).
+Note, this deployment includes optional virtual machines. These are not configured with a Log Analytics workspace, however they can be with the Log Analytics virtual machine extension for [Windows](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-linux).
 
 ## Code of conduct
 
