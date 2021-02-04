@@ -29,7 +29,7 @@
             "type": "object",
             "defaultValue": {
                 "name": "[concat('sql', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
-                "databaseName": "master",
+                "databaseName": "basic-web-app",
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
                 "edition": "Standard",
                 "maxSizeBytes": "1073741824",
@@ -89,7 +89,7 @@
         {
             "comments": "Log Analytics workspace",
             "type": "Microsoft.OperationalInsights/workspaces",
-            "apiVersion": "2020-03-01-preview",
+            "apiVersion": "2020-08-01",
             "name": "[parameters('logAnalytics').name]",
             "location": "[parameters('location')]",
             "properties": {
@@ -103,7 +103,7 @@
         },
         {
             "type": "Microsoft.Sql/servers",
-            "apiVersion": "2019-06-01-preview",
+            "apiVersion": "2020-02-02-preview",
             "name": "[parameters('azureSqlDatabase').name]",
             "location": "[parameters('location')]",
             "properties": {
@@ -116,22 +116,20 @@
                     "apiVersion": "2020-08-01-preview",
                     "name": "[parameters('azureSqlDatabase').databaseName]",
                     "location": "[parameters('location')]",
+                    "sku": {
+                        "name": "Standard",
+                        "tier": "Standard"
+                    },
                     "dependsOn": [
                         "[resourceId('Microsoft.Sql/servers', parameters('azureSqlDatabase').name)]"
                     ],
-                    "properties": {
-                        "edition": "[parameters('azureSqlDatabase').edition]",
-                        "collation": "[parameters('azureSqlDatabase').collation]",
-                        "maxSizeBytes": "[parameters('azureSqlDatabase').maxSizeBytes]",
-                        "requestedServiceObjectiveName": "[parameters('azureSqlDatabase').requestedServiceObjectiveName]"
-                    },
                     "resources": [
                         {
                             "type": "providers/diagnosticSettings",
                             "apiVersion": "2017-05-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('logAnalytics').name)]",
                             "dependsOn": [
-                                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
                                 "[resourceId('Microsoft.Sql/servers/databases', parameters('azureSqlDatabase').name, parameters('azureSqlDatabase').databaseName)]"
                             ],
                             "properties": {
@@ -194,7 +192,7 @@
                 },
                 {
                     "type": "firewallrules",
-                    "apiVersion": "2014-04-01",
+                    "apiVersion": "2020-02-02-preview",
                     "name": "AllowAllWindowsAzureIps",
                     "location": "[parameters('location')]",
                     "dependsOn": [
@@ -206,7 +204,7 @@
                     }
                 },
                 {
-                    "apiVersion": "2017-03-01-preview",
+                    "apiVersion": "2020-02-02-preview",
                     "type": "auditingSettings",
                     "name": "DefaultAuditingSettings",
                     "dependsOn": [
@@ -214,7 +212,6 @@
                     ],
                     "properties": {
                         "State": "Enabled",
-                        "auditActionsAndGroups": null,
                         "isAzureMonitorTargetEnabled": true
                     }
                 }
@@ -252,7 +249,7 @@
                     "apiVersion": "2017-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVault').name)]"
                     ],
                     "properties": {
@@ -282,7 +279,7 @@
                 "[resourceId('Microsoft.Sql/servers', parameters('azureSqlDatabase').name)]"
             ],
             "properties": {
-                "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('azureSqlDatabase').name)).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('azureSqlDatabase').databaseName, ';User Id=', parameters('adminUserName'), '@', parameters('azureSqlDatabase').name, ';Password=', parameters('adminPassword'), ';')]"
+                "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers',parameters('azureSqlDatabase').name)).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('azureSqlDatabase').databaseName, ';User Id=', parameters('adminUserName'), '@', parameters('azureSqlDatabase').name, ';Password=', parameters('adminPassword'), ';')]"
             }
         },
         {
@@ -303,7 +300,7 @@
                     "apiVersion": "2017-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
                         "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
                     ],
                     "properties": {
@@ -320,7 +317,7 @@
         },
         {
             "type": "Microsoft.Web/sites",
-            "apiVersion": "2018-11-01",
+            "apiVersion": "2020-06-01",
             "name": "[parameters('azureAppService').webSiteName]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -353,7 +350,7 @@
                     "apiVersion": "2017-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                     "dependsOn": [
-                        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
                         "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
                     ],
                     "properties": {
@@ -429,7 +426,7 @@
                             "apiVersion": "2017-05-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                             "dependsOn": [
-                                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
                                 "[resourceId('Microsoft.Web/sites/slots', parameters('azureAppService').webSiteName, 'Staging')]"
                             ],
                             "properties": {
@@ -507,7 +504,7 @@
                             "apiVersion": "2017-05-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                             "dependsOn": [
-                                "[concat('Microsoft.OperationalInsights/workspaces/', parameters('logAnalytics').name)]",
+                                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
                                 "[resourceId('Microsoft.Web/sites/slots', parameters('azureAppService').webSiteName, 'LastKnownGood')]"
                             ],
                             "properties": {
