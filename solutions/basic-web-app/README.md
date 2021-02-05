@@ -12,9 +12,11 @@ products:
 
 # Basic web app deployment
 
-This sample deploys an empty web app, two web app slots, web app metric alerts, and autoscale rules. A SQL database is also deployed, the connection string stored in Azure Key Vault, and configured on the web app.
+[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/basic-web-application?branchName=basic-web-app)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/basic-web-application?branchName=basic-web-app)
 
-Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
+This sample deploys an empty web app, two web app slots, web app metric alerts, and autoscale rules. A SQL database is also deployed, the connection string stored in Azure Key Vault, and configured on the web application.
+
+Where applicable, each resource is configured to send diagnostics and metrics to an Azure Log Analytics workspace.
 
 For detailed information, see the Basic web application reference architecture:
 
@@ -43,20 +45,19 @@ az deployment group create \
 |---|---|---|--|
 | adminUserName | string | The admin user name for the Azure SQL instance. | azureadmin |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
-| hubNetwork | object | Network configuration for the hub virtual network. | [see template] |
-| logAnalytics | object | Network configuration for the Log Analytics workspace. | [see template] |
-| azureSqlDatabase | object | Network configuration for the Azure SQL and Azure SQL database instances. | [see template] |
-| keyVault | object | Network configuration for the Azure Key Vault instance. | [see template] |
-| azureAppService | object | Network configuration for the Azure App Service instance. | [see template] |
-| storageAccount | object | Network configuration for the Azure Storage Account instance. | [see template] |
+| logAnalytics | object | Network configuration for the Log Analytics workspace. | name, skuName |
+| azureSqlDatabase | object | Network configuration for the Azure SQL and Azure SQL database instances. | name, databaseName, collation, edition, maxSizeBytes, requestedServiceObjectiveName |
+| keyVault | object | Network configuration for the Azure Key Vault instance. | name, skuName, skuFamily |
+| azureAppService | object | Network configuration for the Azure App Service instance. | name, webSiteName, skuName, skuCapacity, autoScaleMin, autoscaleMax, autoscaleDefault |
+| storageAccount | object | Network configuration for the Azure Storage Account instance. | name, skuName, tier |
 
 
 ## Diagnostic configurations
 
-The following resources are configured to send diagnostic logs and metric data to the included Log Analytics workspace.
+The following resources are configured to send diagnostic logs, and metric data to the included Log Analytics workspace.
 
 - SQL instance
-- Key Vaule
+- Key Vault
 - App Service instance
 - Web app and all slots
 
