@@ -8,6 +8,7 @@ products:
   - azure-log-analytics
   - azure-key-vault
   - azure-sql-database
+description: This sample deploys an empty web app, two web app slots, web app metric alerts, and autoscale rules. A SQL database is also deployed, the connection string stored in Azure Key Vault, and configured on the web application. 
 ---
 
 # Basic web app deployment
