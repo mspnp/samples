@@ -4,7 +4,6 @@
     "parameters": {
         "adminUserName": {
             "type": "string",
-            "defaultValue": "azureadmin",
             "metadata": {
                 "description": "The admin user name for the Azure SQL instance."
             }
@@ -64,17 +63,6 @@
             },
             "metadata": {
                 "description": "Deployment settings for Azure App Service instance."
-            }
-        },
-        "storageAccount": {
-            "type": "object",
-            "defaultValue": {
-                "name": "[concat('str', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
-                "skuName": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "metadata": {
-                "description": "Deployment settings for Azure Storage account instance."
             }
         },
         "location": {
@@ -797,17 +785,6 @@
                     }
                 ]
             }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[parameters('storageAccount').name]",
-            "location": "[parameters('location')]",
-            "apiVersion": "2019-06-01",
-            "sku": {
-                "name": "[parameters('storageAccount').skuName]",
-                "tier": "[parameters('storageAccount').tier]"
-            },
-            "kind": "Storage"
         }
     ]
 }
