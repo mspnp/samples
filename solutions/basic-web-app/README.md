@@ -36,8 +36,8 @@ Run the following command to initiate the deployment.
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group basic-web-app \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json --parameters adminPassword=Password2020!
+    --resource-group basic-web-app  \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json --parameters adminUserName=azureadmin adminPassword=Password2020!
 ```
 
 ## Solution deployment parameters
@@ -50,7 +50,6 @@ az deployment group create \
 | azureSqlDatabase | object | Network configuration for the Azure SQL and Azure SQL database instances. | name, databaseName, collation, edition, maxSizeBytes, requestedServiceObjectiveName |
 | keyVault | object | Network configuration for the Azure Key Vault instance. | name, skuName, skuFamily |
 | azureAppService | object | Network configuration for the Azure App Service instance. | name, webSiteName, skuName, skuCapacity, autoScaleMin, autoscaleMax, autoscaleDefault |
-| storageAccount | object | Network configuration for the Azure Storage Account instance. | name, skuName, tier |
 
 
 ## Diagnostic configurations
