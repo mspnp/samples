@@ -28,7 +28,7 @@
             "type": "object",
             "defaultValue": {
                 "name": "[concat('sql', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
-                "databaseName": "basic-web-app",
+                "databaseName": "master",
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
                 "edition": "Standard",
                 "maxSizeBytes": "1073741824",
@@ -96,7 +96,8 @@
             "location": "[parameters('location')]",
             "properties": {
                 "administratorLogin": "[parameters('adminUserName')]",
-                "administratorLoginPassword": "[parameters('adminPassword')]"
+                "administratorLoginPassword": "[parameters('adminPassword')]",
+                "version": "12.0"
             },
             "resources": [
                 {
