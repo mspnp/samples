@@ -32,12 +32,12 @@ Create a resource group for the deployment.
 az group create --name basic-web-app --location eastus
 ```
 
-Run the following command to initiate the deployment.
+Run the following command to initiate the deployment. When prompted, enter values for an Azure SQL DB admin user name and password.
 
 ```azurecli-interactive
 az deployment group create \
     --resource-group basic-web-app  \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json --parameters adminUserName=azureadmin adminPassword=Password2020!
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json
 ```
 
 ## Solution deployment parameters
