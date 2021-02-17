@@ -4,7 +4,7 @@ variables:
 - name: resource-group
   value: hub-spoke-$(Build.BuildId)
 - name: location
-  value: eastus
+  value: westus
 - name: template-location
   value: '/solutions/azure-hub-spoke/*'
 - name: template-name
@@ -84,6 +84,15 @@ stages:
 
     - task: AzureCLI@2
       displayName: Deploy template
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+
+    - task: AzureCLI@2
+      displayName: Deploy template again 
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
