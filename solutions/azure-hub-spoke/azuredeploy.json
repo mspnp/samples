@@ -775,8 +775,8 @@
             "name": "[parameters('bastionHost').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionHost').publicIPAddressName)]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+                "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionHost').publicIPAddressName)]"
             ],
             "properties": {
                 "ipConfigurations": [
