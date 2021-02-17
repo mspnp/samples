@@ -160,6 +160,12 @@
                         "properties": {
                             "addressPrefix": "[parameters('bastionHost').subnetPrefix]"
                         }
+                    },
+                    {
+                        "name": "[parameters('vpnGateway').subnetName]",
+                        "properties": {
+                            "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
+                        }
                     }
                 ]
             },
@@ -814,19 +820,19 @@
                 }
             ]
         },
-        {
-            "comments": "Subnet for VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(parameters('hubNetwork').name, '/', parameters('vpnGateway').subnetName)]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
-            ],
-            "properties": {
-                "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
-            }
-        },
+        // {
+        //     "comments": "Subnet for VPN Gateway",
+        //     "condition": "[parameters('deployVpnGateway')]",
+        //     "type": "Microsoft.Network/virtualNetworks/subnets",
+        //     "apiVersion": "2020-05-01",
+        //     "name": "[concat(parameters('hubNetwork').name, '/', parameters('vpnGateway').subnetName)]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+        //     ],
+        //     "properties": {
+        //         "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
+        //     }
+        // },
         {
             "comments": "Public IP address for VPN Gateway",
             "condition": "[parameters('deployVpnGateway')]",
@@ -846,9 +852,8 @@
             "name": "[parameters('vpnGateway').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpnGateway').pipName)]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('vpnGateway').subnetName)]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpnGateway').pipName)]"
             ],
             "properties": {
                 "ipConfigurations": [
