@@ -20,13 +20,13 @@ trigger:
     include:
       - /solutions/azure-hub-spoke/*
       
-pr:
-  branches:
-    include:
-    - master
-  paths:
-    include:
-      - /solutions/azure-hub-spoke/*
+# pr:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     include:
+#       - /solutions/azure-hub-spoke/*
       
 stages:
 
