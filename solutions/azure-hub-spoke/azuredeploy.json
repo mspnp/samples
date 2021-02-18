@@ -820,19 +820,6 @@
                 }
             ]
         },
-        // {
-        //     "comments": "Subnet for VPN Gateway",
-        //     "condition": "[parameters('deployVpnGateway')]",
-        //     "type": "Microsoft.Network/virtualNetworks/subnets",
-        //     "apiVersion": "2020-05-01",
-        //     "name": "[concat(parameters('hubNetwork').name, '/', parameters('vpnGateway').subnetName)]",
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
-        //     ],
-        //     "properties": {
-        //         "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
-        //     }
-        // },
         {
             "comments": "Public IP address for VPN Gateway",
             "condition": "[parameters('deployVpnGateway')]",
