@@ -91,6 +91,15 @@ stages:
         inlineScript: |
          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1
 
+    - task: AzureCLI@2
+      displayName: Deploy template (second pass)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+        
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
   dependsOn: validateAndDeploy
