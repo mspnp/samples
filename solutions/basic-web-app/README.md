@@ -8,6 +8,7 @@ products:
   - azure-log-analytics
   - azure-key-vault
   - azure-sql-database
+description: This sample deploys an empty web app, two web app slots, web app metric alerts, and autoscale rules. A SQL database is also deployed, the connection string stored in Azure Key Vault, and configured on the web application. 
 ---
 
 # Basic web app deployment
@@ -31,12 +32,12 @@ Create a resource group for the deployment.
 az group create --name basic-web-app --location eastus
 ```
 
-Run the following command to initiate the deployment.
+Run the following command to initiate the deployment. When prompted, enter values for an Azure SQL DB admin user name and password.
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group basic-web-app \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json --parameters adminPassword=Password2020!
+    --resource-group basic-web-app  \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json
 ```
 
 ## Solution deployment parameters
@@ -49,7 +50,6 @@ az deployment group create \
 | azureSqlDatabase | object | Network configuration for the Azure SQL and Azure SQL database instances. | name, databaseName, collation, edition, maxSizeBytes, requestedServiceObjectiveName |
 | keyVault | object | Network configuration for the Azure Key Vault instance. | name, skuName, skuFamily |
 | azureAppService | object | Network configuration for the Azure App Service instance. | name, webSiteName, skuName, skuCapacity, autoScaleMin, autoscaleMax, autoscaleDefault |
-| storageAccount | object | Network configuration for the Azure Storage Account instance. | name, skuName, tier |
 
 
 ## Diagnostic configurations

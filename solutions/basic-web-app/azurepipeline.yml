@@ -80,7 +80,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(sqlAdminPassword)
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -89,7 +89,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(sqlAdminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
