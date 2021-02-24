@@ -6,7 +6,7 @@ For more information on this deployment and other highly available NVA options, 
 
 ![Highly Available Ingress with layer 7 NVAs architectural diagram.](l7-ingress.png)
 
-This sample architecture leverages concepts from the [Example Parameterized Deployment With Linked Templates](https://azure.microsoft.com/resources/templates/301-parameterized-linked-templates/) and [Create ssh-keys and store in KeyVault](https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/) samples.
+This sample architecture leverages concepts from the [Example Parameterized Deployment With Linked Templates](https://azure.microsoft.com/resources/templates/301-parameterized-linked-templates/) and [Create ssh-keys and store in Key Vault](https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/) samples.
 
 ## Deploy this template to Azure
 
@@ -50,6 +50,12 @@ New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
     -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/azuredeploy.json
 ```
 
+#### Redeploying the architecture to the same Resource Group or Resource Group name
+
+You cannot redeploy this template to the same Resource Group without first deleting the NVA and web VM resources. The deployment script that generates the SSH key will generate a new key with each deployment and Azure does not allow redeployment of VMs that change the `linuxConfiguration.ssh.publicKeys` property.
+
+If you are redeploying the template using the same Resource Group name, you will need to purge the previously created Azure Key Vault.  Azure requires globally unique names for Key Vault resources and this template will generate a unique name based on your subscription and Resource Group. Additionally Key Vault implements a soft-delete feature which is enabled by default. If you want to deploy the template to a Resource Group of the same name, you will have to purge the previous instance of the Key Vault following the instructions at [List, recover, or purge a soft-deleted key vault](https://docs.microsoft.com/azure/key-vault/general/key-vault-recovery#list-recover-or-purge-a-soft-deleted-key-vault).
+
 ### Solution deployment parameters
 
 | Parameter | Type | Description | Default |
@@ -59,7 +65,7 @@ New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
 |VirtualNetworkName|String|Name of the VNET for all Resources|vnet-hanva|
 |OperatingSystemImage|string|OS Image to use for All VMs|CentOS 7 (latest, LVM)|
 |AdminUserForVMAccess|String|Admin User for all VMs|null|
-|PassphraseForSshKey|securestring|Passphrase to access SSH Key (New key will be stored in KeyVault)|null|
+|PassphraseForSshKey|securestring|Passphrase to access SSH Key (New key will be stored in Key Vault)|null|
 |NvaNetworkSecurityGroupName|String|Name of the Network Security Group for the NVA Resources|nsg-NVA|
 |NvaVMNameBase|String|Prefix for naming NVA VMs|vm-nva|
 |NvaVMCount|Int|How many NVA VMs to provision|2|
@@ -93,6 +99,6 @@ To test the deployment, find the public IP address of the Application Gateway (a
 
 ## Connecting to deployed VMs with Azure Bastion
 
-An Azure Bastion service is deployed to provide access to the VMs in this architecture. The SSH Key required to connect to the VMs is generated at deployment time and stored in Azure KeyVault using the nested deployment script [nested/storekeyinkeyvault.json](nested/storekeyinkeyvault.json), which was adapted from [Create ssh-keys and store in KeyVault](https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/).
+An Azure Bastion service is deployed to provide access to the VMs in this architecture. The SSH Key required to connect to the VMs is generated at deployment time and stored in Azure Key Vault using the nested deployment script [nested/storekeyinkeyvault.json](nested/storekeyinkeyvault.json), which was adapted from [Create ssh-keys and store in Key Vault](https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/).
 
 > Note: When connecting to VMs using Azure Bastion from the Azure Portal, you will need to click *Advanced* and enter the SSH Key passphrase that you entered when deploying the solution.

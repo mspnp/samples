@@ -45,7 +45,7 @@
             "minLength": 6,
             "maxLength": 64,
             "metadata": {
-                "description": "Passphrase to access SSH Key (New key will be stored in KeyVault)"
+                "description": "Passphrase to access SSH Key (New key will be stored in Key Vault)"
             }
         },
         "NvaNetworkSecurityGroupName": {
