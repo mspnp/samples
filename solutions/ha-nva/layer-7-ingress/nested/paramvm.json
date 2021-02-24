@@ -1,0 +1,229 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure region for VM"
+            }
+        },
+        "vm_name": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for VM"
+            }
+        },
+        "vm_size": {
+            "type": "string",
+            "metadata": {
+                "description": "VM Size"
+            }
+        },
+        "admin_user": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin User for VM"
+            }
+        },
+        "ssh_pub_key": {
+            "type": "string",
+            "metadata": {
+                "description": "ssh Public Key used to access VM"
+            }
+        },
+        "vnet_name": {
+            "type": "string",
+            "metadata": {
+                "description": "Virtual Network for VM"
+            }
+        },
+        "vnet_subnet_name": {
+            "type": "string",
+            "metadata": {
+                "description": "Subnet for VM"
+            }
+        },
+        "os_image": {
+            "type": "object",
+            "metadata": {
+                "description": "Object containing VM Image definition"
+            }
+        },
+        "post_install_actions": {
+            "type": "object",
+            "metadata": {
+                "description": "Object containing post install actions for Custom Script Extension"
+            }
+        },
+        "publicip_id_or_empty": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource ID for Public IP or an empty string if not used"
+            }
+        },
+        "loadbalancerbackend_id_or_empty": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource ID for Load Balancer backend or an empty string if not used"
+            }
+        },
+        "availabilityzone": {
+            "type": "int",
+            "metadata": {
+                "description": "Availability Zone for VM"
+            }
+        }
+    },
+    "variables": {
+        "public_ip_if_not_empty": {
+            "id": "[parameters('publicip_id_or_empty')]"
+        },
+        "loadbalancerbackend_if_not_empty": [
+            {
+                "id": "[parameters('loadbalancerbackend_id_or_empty')]"
+            }
+        ]
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2019-07-01",
+            "name": "[parameters('vm_name')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces',concat(parameters('vm_name'), '_nic'))]"
+            ],
+            "zones": [ "[parameters('availabilityzone')]" ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vm_size')]"
+                },
+                "storageProfile": {
+                    "imageReference": "[parameters('os_image')]",
+                    "osDisk": {
+                        "osType": "Linux",
+                        "name": "[concat(parameters('vm_name'), '_OsDisk')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "Premium_LRS"
+                        }
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(parameters('vm_name'), '_nic'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vm_name')]",
+                    "adminUsername": "[parameters('admin_user')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('admin_user'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('ssh_pub_key')]"
+                                }
+                            ]
+                        },
+                        "provisionVMAgent": true
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "apiVersion": "2019-07-01",
+                    "name": "[concat(parameters('vm_name'), '/post_install_actions')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines',parameters('vm_name'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "protectedSettings": "[parameters('post_install_actions')]"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2019-12-01",
+            "name": "[concat(parameters('vm_name'), '_nic')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'),  parameters('vnet_subnet_name'))]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "publicIPAddress": "[if(empty(parameters('publicip_id_or_empty')),json('null'),variables('public_ip_if_not_empty'))]"
+                        }
+                    }
+                ],
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "apiVersion": "2015-01-01",
+            "type": "Microsoft.Resources/deployments",
+            "name": "[concat(parameters('vm_name'), '_update_loadbalancer')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vm_name'), 'post_install_actions')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "parameters": {},
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/networkInterfaces",
+                            "apiVersion": "2019-12-01",
+                            "name": "[concat(parameters('vm_name'), '_nic')]",
+                            "location": "[parameters('location')]",
+                            "properties": {
+                                "ipConfigurations": [
+                                    {
+                                        "name": "ipconfig1",
+                                        "properties": {
+                                            "privateIPAllocationMethod": "Dynamic",
+                                            "subnet": {
+                                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'),  parameters('vnet_subnet_name'))]"
+                                            },
+                                            "applicationGatewayBackendAddressPools": "[if(contains(parameters('loadbalancerbackend_id_or_empty'),'Microsoft.Network/applicationGateways'),variables('loadbalancerbackend_if_not_empty'),json('[]'))]",
+                                            "loadBalancerBackendAddressPools": "[if(contains(parameters('loadbalancerbackend_id_or_empty'),'Microsoft.Network/loadBalancers'),variables('loadbalancerbackend_if_not_empty'),json('[]'))]",
+                                            "primary": true,
+                                            "privateIPAddressVersion": "IPv4",
+                                            "publicIPAddress": "[if(empty(parameters('publicip_id_or_empty')),json('null'),variables('public_ip_if_not_empty'))]"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "privateIp": {
+            "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vm_name'), '_nic'))).ipConfigurations[0].properties.privateIPAddress]",
+            "type": "string"
+        }
+    }
+}

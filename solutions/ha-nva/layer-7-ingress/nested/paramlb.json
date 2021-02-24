@@ -1,0 +1,105 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure region for Load Balancer"
+            }
+        },
+        "loadbalancer_name": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the Load Balancer"
+            }
+        },
+        "vnet_name": {
+            "type": "string",
+            "metadata": {
+                "description": "Virtual Network for Load Balancer"
+            }
+        },
+        "vnet_subnet_name": {
+            "type": "string",
+            "metadata": {
+                "description": "Subnet for Load Balancer"
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('loadbalancer_name')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerWebFrontEnd",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnet_name'),  parameters('vnet_subnet_name'))]"
+                            },
+                            "loadBalancingRules": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/loadBalancers/loadBalancingRules', parameters('loadbalancer_name'),  'http')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "default-backend"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "http",
+                        "type": "Microsoft.Network/loadBalancers/loadBalancingRules",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', parameters('loadbalancer_name'), 'LoadBalancerWebFrontEnd')]"
+                            },
+                            "frontendPort": 80,
+                            "backendPort": 80,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "Tcp",
+                            "enableDestinationServiceEndpoint": false,
+                            "enableTcpReset": false,
+                            "loadDistribution": "SourceIP",
+                            "disableOutboundSnat": false,
+                            "backendAddressPool": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('loadbalancer_name'), 'default-backend')]"
+                            },
+                            "probe": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('loadbalancer_name'), 'http')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "type": "Microsoft.Network/loadBalancers/probes",
+                        "name": "http",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 80,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

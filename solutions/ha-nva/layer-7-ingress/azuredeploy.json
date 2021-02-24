@@ -1,0 +1,801 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "The Azure Region to Use"
+            }
+        },
+        "AvailabilityZoneCount": {
+            "type": "int",
+            "defaultValue": 2,
+            "metadata": {
+                "description": "The number of Availability Zones to Use"
+            }
+        },
+        "VirtualNetworkName": {
+            "defaultValue": "vnet-hanva",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the VNET for all Resources"
+            }
+        },
+        "OperatingSystemImage": {
+            "type": "string",
+            "defaultValue": "CentOS 7 (latest, LVM)",
+            "allowedValues": [
+                "CentOS 7 (latest, LVM)",
+                "Red Hat Enterprise Linux 7 (latest, LVM)"
+            ],
+            "metadata": {
+                "description": "OS Image to use for All VMs"
+            }
+        },
+        "AdminUserForVMAccess": {
+            "type": "String",
+            "metadata": {
+                "description": "Admin User for all VMs"
+            }
+        },
+        "PassphraseForSshKey": {
+            "type": "securestring",
+            "minLength": 6,
+            "maxLength": 64,
+            "metadata": {
+                "description": "Passphrase to access SSH Key (New key will be stored in KeyVault)"
+            }
+        },
+        "NvaNetworkSecurityGroupName": {
+            "defaultValue": "nsg-NVA",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Network Security Group for the NVA Resources"
+            }
+        },
+        "NvaVMNameBase": {
+            "defaultValue": "vm-nva",
+            "type": "String",
+            "metadata": {
+                "description": "Prefix for naming NVA VMs"
+            }
+        },
+        "NvaVMCount": {
+            "defaultValue": 2,
+            "type": "Int",
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "metadata": {
+                "description": "How many NVA VMs to provision"
+            }
+        },
+        "NvaVMSize": {
+            "defaultValue": "Standard_D2s_v3",
+            "type": "String",
+            "allowedValues": [
+                "Standard_D2s_v3",
+                "Standard_D4s_v3"
+            ],
+            "metadata": {
+                "description": "VM Size for NVA VMs"
+            }
+        },
+        "WebNetworkSecurityGroupName": {
+            "defaultValue": "nsg-Web",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Network Security Group for the Web Resources"
+            }
+        },
+        "WebVMNameBase": {
+            "defaultValue": "vm-web",
+            "type": "String",
+            "metadata": {
+                "description": "Prefix for naming Web VMs"
+            }
+        },
+        "WebVMCount": {
+            "defaultValue": 2,
+            "type": "Int",
+            "minValue": 0,
+            "maxValue": 20,
+            "metadata": {
+                "description": "How many Web VMs to provision"
+            }
+        },
+        "WebVMSize": {
+            "defaultValue": "Standard_D2s_v3",
+            "type": "String",
+            "allowedValues": [
+                "Standard_D2s_v3",
+                "Standard_D4s_v3"
+            ],
+            "metadata": {
+                "description": "VM Size for NVA VMs"
+            }
+        },
+        "DmzNetworkSecurityGroupName": {
+            "defaultValue": "nsg-DMZ",
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Network Security Group for the Dmz Resources"
+            }
+        },
+        "AllowDmzConnectionFromIPOrCIDRBlock": {
+            "defaultValue": "0.0.0.0/0",
+            "type": "string",
+            "metadata": {
+                "description": "Default value of 0.0.0.0/0 allows management and connections from the entire Internet"
+            }
+        },
+        "DeployAzureBastionDmz": {
+            "defaultValue": "Yes",
+            "type": "String",
+            "allowedValues": [
+                "No",
+                "Yes"
+            ],
+            "metadata": {
+                "description": "Selection to deploy Azure Bastion"
+            }
+        },
+        "DeployAppGatewayDmz": {
+            "defaultValue": "Yes",
+            "type": "String",
+            "allowedValues": [
+                "No",
+                "Yes"
+            ],
+            "metadata": {
+                "description": "Selection to deploy Azure Application Gateway for the Dmz"
+            }
+        },
+        "DeployLoadBalancerWeb": {
+            "defaultValue": "Yes",
+            "type": "String",
+            "allowedValues": [
+                "No",
+                "Yes"
+            ],
+            "metadata": {
+                "description": "Selection to deploy Azure Application Gateway for the Web"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+            },
+            "defaultValue": "https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation"
+            },
+            "defaultValue": ""
+        }
+    },
+    "variables": {
+        "ostag": "[if(equals(parameters('OperatingSystemImage'),'Red Hat Enterprise Linux 7 (latest, LVM)'),'RH7x','Cent7x')]",
+        "osProfile": {
+            "RH7x": {
+                "image": {
+                    "publisher": "RedHat",
+                    "offer": "RHEL",
+                    "sku": "7-LVM",
+                    "version": "latest"
+                }
+            },
+            "Cent7x": {
+                "image": {
+                    "offer": "CentOS-LVM",
+                    "publisher": "OpenLogic",
+                    "sku": "7-LVM",
+                    "version": "latest"
+                }
+            }
+        },
+        "postInstallActions": {
+            "web": {
+                "commandToExecute": "sh simpleweb.sh",
+                "fileUris": [
+                    "[uri(parameters('_artifactsLocation'), concat('scripts/simpleweb.sh', parameters('_artifactsLocationSasToken')))]"
+                ]
+            },
+            "nva": {
+                "commandToExecute": "sh simpleproxy.sh",
+                "fileUris": [
+                    "[uri(parameters('_artifactsLocation'), concat('scripts/simpleproxy.sh', parameters('_artifactsLocationSasToken')))]"
+                ]
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('WebNetworkSecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowHTTPfromDMZtoWeb",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "10.0.0.64/27",
+                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "AllowHTTPfromAzureLoadBalancertoWeb",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "AzureLoadBalancer",
+                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "access": "Allow",
+                            "priority": 105,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "AllowSSHfromBastiontoWeb",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "10.0.253.224/27",
+                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "DenyAll",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 4000,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('NvaNetworkSecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowHTTPfromAppGatewaytoNVA",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "10.0.252.224/27",
+                            "destinationAddressPrefix": "10.0.0.64/27",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "AllowSSHfromBastiontoNVA",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "10.0.253.224/27",
+                            "destinationAddressPrefix": "10.0.0.64/27",
+                            "access": "Allow",
+                            "priority": 110,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "DenyAll",
+                        "id": "/subscriptions/5ed3b632-2a1b-416a-b719-16b1a7dd8b94/resourceGroups/test3/providers/Microsoft.Network/networkSecurityGroups/NvaNSG/securityRules/DenyAll",
+                        "etag": "W/\"3b9b2885-5ed3-4349-a1b4-7c4ac5a1a94e\"",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 4000,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('DmzNetworkSecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "allow_http_from_ip_or_range_forwebhttp",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "[parameters('AllowDmzConnectionFromIPorCIDRBlock')]",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "allow_https_from_ip_or_range_for_bastion",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "[parameters('AllowDmzConnectionFromIPorCIDRBlock')]",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 520,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "allow_ssh_to_vnet_for_bastion",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 530,
+                            "direction": "Outbound"
+                        }
+                    },
+                    {
+                        "name": "allow_rdp_to_vnet_for_bastion",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 540,
+                            "direction": "Outbound"
+                        }
+                    },
+                    {
+                        "name": "allow_https_to_azurecloud_for_bastion",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "AzureCloud",
+                            "access": "Allow",
+                            "priority": 550,
+                            "direction": "Outbound"
+                        }
+                    },
+                    {
+                        "name": "allow_management_from_gateway_manager_for_appgateway",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "65200-65535",
+                            "sourceAddressPrefix": "GatewayManager",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 560,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "allow_https_from_gateway_manager_for_appgateway",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "GatewayManager",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 570,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "condition": "[equals(parameters('DeployAppGatewayDmz'), 'Yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "ParameterizedAppGateway",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'pip-appgateway-hanva')]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('nested/paramappgateway.json', parameters('_artifactsLocationSasToken')))]"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "appgateway_name": {
+                        "value": "ag-dmz"
+                    },
+                    "public_ip": {
+                        "value": "[resourceId('Microsoft.Network/publicIPAddresses', 'pip-appgateway-hanva')]"
+                    },
+                    "vnet_name": {
+                        "value": "[parameters('VirtualNetworkName')]"
+                    },
+                    "vnet_subnet_name": {
+                        "value": "ApplicationGatewaySubnet"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('DeployLoadBalancerWeb'), 'Yes')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "ParameterizedLoadBalancer",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('nested/paramlb.json', parameters('_artifactsLocationSasToken')))]"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "loadbalancer_name": {
+                        "value": "lb-web"
+                    },
+                    "vnet_name": {
+                        "value": "[parameters('VirtualNetworkName')]"
+                    },
+                    "vnet_subnet_name": {
+                        "value": "snet-web"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[concat('kv-hanva-',uniqueString(resourceGroup().id))]",
+            "apiVersion": "2019-09-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "Standard",
+                    "family": "A"
+                },
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": []
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "StoreSshKeyinVault",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', concat('kv-hanva-',uniqueString(resourceGroup().id)))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('nested/storekeyinkeyvault.json', parameters('_artifactsLocationSasToken')))]"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[resourceGroup().location]"
+                    },
+                    "passPhrase": {
+                        "value": "[parameters('PassphraseForSshKey')]"
+                    },
+                    "vaultName": {
+                        "value": "[concat('kv-hanva-',uniqueString(resourceGroup().id))]"
+                    },
+                    "secretName": {
+                        "value": "sshKeyForHANVAVMAccess"
+                    },
+                    "vaultResourceGroup": {
+                        "value": "[resourceGroup().name]"
+                    },
+                    "vaultSubscriptionId": {
+                        "value": "[subscription().subscriptionId]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('ParameterizedNvaVM-', copyIndex())]",
+            "copy": {
+                "name": "ParameterizedNvaVM-Copy",
+                "count": "[parameters('NvaVMCount')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]",
+                "[resourceId('Microsoft.Resources/deployments', 'ParameterizedAppGateway')]",
+                "[resourceId('Microsoft.Resources/deployments', 'StoreSshKeyinVault')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('nested/paramvm.json', parameters('_artifactsLocationSasToken')))]"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vm_name": {
+                        "value": "[concat(parameters('NvaVMNameBase'),'-', copyIndex())]"
+                    },
+                    "vm_size": {
+                        "value": "[parameters('NvaVMSize')]"
+                    },
+                    "admin_user": {
+                        "value": "[parameters('AdminUserForVMAccess')]"
+                    },
+                    "ssh_pub_key": {
+                        "value": "[reference('StoreSshKeyinVault').outputs.outputs.value]"
+                    },
+                    "vnet_name": {
+                        "value": "[parameters('VirtualNetworkName')]"
+                    },
+                    "vnet_subnet_name": {
+                        "value": "snet-dmz"
+                    },
+                    "os_image": {
+                        "value": "[variables('osProfile')[variables('ostag')]['image']]"
+                    },
+                    "post_install_actions": {
+                        "value": "[variables('postInstallActions')['nva']]"
+                    },
+                    "publicip_id_or_empty": {
+                        "value": ""
+                    },
+                    "loadbalancerbackend_id_or_empty": {
+                        "value": "[if(equals(parameters('DeployAppGatewayDmz'),'Yes'),resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'ag-dmz', 'default-backend'),'')]"
+                    },
+                    "availabilityzone": {
+                        "value": "[add(1,mod(copyIndex(),parameters('AvailabilityZoneCount')))]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat('ParameterizedWebVM-', copyIndex())]",
+            "copy": {
+                "name": "ParameterizedWebVM-Copy",
+                "count": "[parameters('WebVMCount')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]",
+                "[resourceId('Microsoft.Resources/deployments', 'ParameterizedLoadBalancer')]",
+                "[resourceId('Microsoft.Resources/deployments', 'StoreSshKeyinVault')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('_artifactsLocation'), concat('nested/paramvm.json', parameters('_artifactsLocationSasToken')))]"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vm_name": {
+                        "value": "[concat(parameters('WebVMNameBase'),'-', copyIndex())]"
+                    },
+                    "vm_size": {
+                        "value": "[parameters('WebVMSize')]"
+                    },
+                    "admin_user": {
+                        "value": "[parameters('AdminUserForVMAccess')]"
+                    },
+                    "ssh_pub_key": {
+                        "value": "[reference('StoreSshKeyinVault').outputs.outputs.value]"
+                    },
+                    "vnet_name": {
+                        "value": "[parameters('VirtualNetworkName')]"
+                    },
+                    "vnet_subnet_name": {
+                        "value": "snet-web"
+                    },
+                    "os_image": {
+                        "value": "[variables('osProfile')[variables('ostag')]['image']]"
+                    },
+                    "post_install_actions": {
+                        "value": "[variables('postInstallActions')['web']]"
+                    },
+                    "publicip_id_or_empty": {
+                        "value": ""
+                    },
+                    "loadbalancerbackend_id_or_empty": {
+                        "value": "[if(equals(parameters('DeployLoadBalancerWeb'),'Yes'),resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'lb-web', 'default-backend'),'')]"
+                    },
+                    "availabilityzone": {
+                        "value": "[add(1,mod(copyIndex(),parameters('AvailabilityZoneCount')))]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-12-01",
+            "name": "[parameters('VirtualNetworkName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('WebNetworkSecurityGroupName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('NvaNetworkSecurityGroupName'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.255.224/27"
+                        }
+                    },
+                    {
+                        "name": "ApplicationGatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.252.224/27",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "AzureBastionSubnet",
+                        "properties": {
+                            "addressPrefix": "10.0.253.224/27",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "snet-dmz",
+                        "properties": {
+                            "addressPrefix": "10.0.0.64/27",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "snet-web",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('WebNetworkSecurityGroupName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "condition": "[equals(parameters('DeployAzureBastionDmz'), 'Yes')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-12-01",
+            "name": "pip-bastion-hanva",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "condition": "[equals(parameters('DeployAppGatewayDmz'), 'Yes')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-12-01",
+            "name": "pip-appgateway-hanva",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "condition": "[equals(parameters('DeployAzureBastionDmz'), 'Yes')]",
+            "type": "Microsoft.Network/bastionHosts",
+            "apiVersion": "2019-12-01",
+            "name": "bastion-hanva",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'pip-bastion-hanva')]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), 'AzureBastionSubnet')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
