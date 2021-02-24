@@ -81,6 +81,7 @@ If you are redeploying the template using the same Resource Group name, you will
 |DeployLoadBalancerWeb|String|Selection to deploy Azure Application Gateway for the Web|Yes|
 |_artifactsLocation|string|The base URI where artifacts required by this template are located including a trailing '/'|[https://raw.githubusercontent.com/...](https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/)|
 |_artifactsLocationSasToken|securestring|The sasToken required to access _artifactsLocation||
+
 ## Architecture details
 
 This deployment will set up a simulated environment representing the architecture above.  Clients from the Internet will reach the application via the Public IP on the Application Gateway.  The Application Gateway will forward the request to one of the available deployed NVA VMs. In a real deployment, the NVA VMs may perform other analysis, but for this sample they just forward the request to the erb tier Load Balancer.  The web tier Load Balancer will forward the request to one of the available web VMs.

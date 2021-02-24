@@ -101,5 +101,11 @@
                 ]
             }
         }
-    ]
+    ],
+    "outputs": {
+        "privateIp": {
+            "value": "[reference(resourceId('Microsoft.Network/loadBalancers', parameters('loadbalancer_name'))).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "type": "string"
+        }
+    }
 }

@@ -23,6 +23,48 @@
                 "description": "Name of the VNET for all Resources"
             }
         },
+        "DMZSubnetPrefix": {
+            "defaultValue": "10.0.0.64/27",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address/subnet definition for DMZ"
+            }
+        },
+        "VNETPrefix": {
+            "defaultValue": "10.0.0.0/16",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address space definition for VNet"
+            }
+        },
+        "WebSubnetPrefix": {
+            "defaultValue": "10.0.1.0/24",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address/subnet definition for Web"
+            }
+        },
+        "AppGatewaySubnetPrefix": {
+            "defaultValue": "10.0.252.224/27",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address/subnet definition for AppGateway"
+            }
+        },
+        "BastionSubnetPrefix": {
+            "defaultValue": "10.0.253.224/27",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address/subnet definition for Bastion"
+            }
+        },
+        "GatewaySubnetPrefix": {
+            "defaultValue": "10.0.255.224/27",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address/subnet definition for Gateway"
+            }
+        },
         "OperatingSystemImage": {
             "type": "string",
             "defaultValue": "CentOS 7 (latest, LVM)",
@@ -233,8 +275,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "10.0.0.64/27",
-                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "sourceAddressPrefix": "[parameters('DMZSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('WebSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 100,
                             "direction": "Inbound"
@@ -248,7 +290,7 @@
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
                             "sourceAddressPrefix": "AzureLoadBalancer",
-                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "destinationAddressPrefix": "[parameters('WebSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 105,
                             "direction": "Inbound"
@@ -262,8 +304,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "22",
-                            "sourceAddressPrefix": "10.0.253.224/27",
-                            "destinationAddressPrefix": "10.0.1.0/24",
+                            "sourceAddressPrefix": "[parameters('BastionSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('WebSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 110,
                             "direction": "Inbound"
@@ -301,8 +343,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "10.0.252.224/27",
-                            "destinationAddressPrefix": "10.0.0.64/27",
+                            "sourceAddressPrefix": "[parameters('AppGatewaySubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('DMZSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 100,
                             "direction": "Inbound"
@@ -316,8 +358,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "22",
-                            "sourceAddressPrefix": "10.0.253.224/27",
-                            "destinationAddressPrefix": "10.0.0.64/27",
+                            "sourceAddressPrefix": "[parameters('BastionSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('DMZSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 110,
                             "direction": "Inbound"
@@ -611,7 +653,11 @@
                         "value": "[variables('osProfile')[variables('ostag')]['image']]"
                     },
                     "post_install_actions": {
-                        "value": "[variables('postInstallActions')['nva']]"
+                        "value": {
+                            "commandToExecute": "[concat(variables('postInstallActions')['nva'].commandToExecute,' ',string(reference('ParameterizedLoadBalancer').outputs.privateIp.value))]",
+                            "fileUris": "[variables('postInstallActions')['nva'].fileUris]"
+                        }
+
                     },
                     "publicip_id_or_empty": {
                         "value": ""
@@ -696,20 +742,20 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.0.0.0/16"
+                        "[parameters('VNETPrefix')]"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "GatewaySubnet",
                         "properties": {
-                            "addressPrefix": "10.0.255.224/27"
+                            "addressPrefix": "[parameters('GatewaySubnetPrefix')]"
                         }
                     },
                     {
                         "name": "ApplicationGatewaySubnet",
                         "properties": {
-                            "addressPrefix": "10.0.252.224/27",
+                            "addressPrefix": "[parameters('AppGatewaySubnetPrefix')]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
                             }
@@ -718,7 +764,7 @@
                     {
                         "name": "AzureBastionSubnet",
                         "properties": {
-                            "addressPrefix": "10.0.253.224/27",
+                            "addressPrefix": "[parameters('BastionSubnetPrefix')]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
                             }
@@ -727,7 +773,7 @@
                     {
                         "name": "snet-dmz",
                         "properties": {
-                            "addressPrefix": "10.0.0.64/27",
+                            "addressPrefix": "[parameters('DMZSubnetPrefix')]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
                             }
@@ -736,7 +782,7 @@
                     {
                         "name": "snet-web",
                         "properties": {
-                            "addressPrefix": "10.0.1.0/24",
+                            "addressPrefix": "[parameters('WebSubnetPrefix')]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('WebNetworkSecurityGroupName'))]"
                             }
