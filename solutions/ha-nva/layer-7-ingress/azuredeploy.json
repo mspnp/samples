@@ -6,66 +6,66 @@
             "type": "string",
             "defaultValue": "[resourceGroup().location]",
             "metadata": {
-                "description": "The Azure Region to Use"
+                "description": "The Azure Region to use"
             }
         },
-        "AvailabilityZoneCount": {
+        "availabilityZoneCount": {
             "type": "int",
             "defaultValue": 2,
             "metadata": {
-                "description": "The number of Availability Zones to Use"
+                "description": "The number of Availability Zones to use"
             }
         },
-        "VirtualNetworkName": {
+        "virtualNetworkName": {
             "defaultValue": "vnet-hanva",
             "type": "String",
             "metadata": {
-                "description": "Name of the VNET for all Resources"
+                "description": "Name of the VNET for all resources"
             }
         },
-        "DMZSubnetPrefix": {
-            "defaultValue": "10.0.0.64/27",
-            "type": "String",
-            "metadata": {
-                "description": "CIDR address/subnet definition for DMZ"
-            }
-        },
-        "VNETPrefix": {
+        "vnetPrefix": {
             "defaultValue": "10.0.0.0/16",
             "type": "String",
             "metadata": {
                 "description": "CIDR address space definition for VNet"
             }
         },
-        "WebSubnetPrefix": {
+        "dmzSubnetPrefix": {
+            "defaultValue": "10.0.0.64/27",
+            "type": "String",
+            "metadata": {
+                "description": "CIDR address prefix definition for DMZ subnet"
+            }
+        },
+        "webSubnetPrefix": {
             "defaultValue": "10.0.1.0/24",
             "type": "String",
             "metadata": {
-                "description": "CIDR address/subnet definition for Web"
+                "description": "CIDR address prefix definition for web subnet"
             }
         },
-        "AppGatewaySubnetPrefix": {
+        "appGatewaySubnetPrefix": {
             "defaultValue": "10.0.252.224/27",
             "type": "String",
             "metadata": {
-                "description": "CIDR address/subnet definition for AppGateway"
+                "description": "CIDR address prefix definition for AppGateway subnet"
             }
         },
-        "BastionSubnetPrefix": {
+        "bastionSubnetPrefix": {
             "defaultValue": "10.0.253.224/27",
             "type": "String",
             "metadata": {
-                "description": "CIDR address/subnet definition for Bastion"
+                "description": "CIDR address prefix definition for Bastion subnet"
             }
         },
-        "GatewaySubnetPrefix": {
+        "gatewaySubnetPrefix": {
             "defaultValue": "10.0.255.224/27",
             "type": "String",
             "metadata": {
-                "description": "CIDR address/subnet definition for Gateway"
+                "description": "CIDR address prefix definition for Gateway subnet"
             }
         },
-        "OperatingSystemImage": {
+        "operatingSystemImage": {
             "type": "string",
             "defaultValue": "CentOS 7 (latest, LVM)",
             "allowedValues": [
@@ -73,38 +73,38 @@
                 "Red Hat Enterprise Linux 7 (latest, LVM)"
             ],
             "metadata": {
-                "description": "OS Image to use for All VMs"
+                "description": "OS Image to use for all VMs"
             }
         },
-        "AdminUserForVMAccess": {
+        "adminUserForVMAccess": {
             "type": "String",
             "metadata": {
                 "description": "Admin User for all VMs"
             }
         },
-        "PassphraseForSshKey": {
+        "passphraseForSshKey": {
             "type": "securestring",
             "minLength": 6,
             "maxLength": 64,
             "metadata": {
-                "description": "Passphrase to access SSH Key (New key will be stored in Key Vault)"
+                "description": "Passphrase to access SSH key (new key will be stored in Key Vault)"
             }
         },
-        "NvaNetworkSecurityGroupName": {
+        "nvaNetworkSecurityGroupName": {
             "defaultValue": "nsg-NVA",
             "type": "String",
             "metadata": {
-                "description": "Name of the Network Security Group for the NVA Resources"
+                "description": "Name of the Network Security Group for the NVA resources"
             }
         },
-        "NvaVMNameBase": {
+        "nvaVMNameBase": {
             "defaultValue": "vm-nva",
             "type": "String",
             "metadata": {
                 "description": "Prefix for naming NVA VMs"
             }
         },
-        "NvaVMCount": {
+        "nvaVMCount": {
             "defaultValue": 2,
             "type": "Int",
             "allowedValues": [
@@ -118,7 +118,7 @@
                 "description": "How many NVA VMs to provision"
             }
         },
-        "NvaVMSize": {
+        "nvaVMSize": {
             "defaultValue": "Standard_D2s_v3",
             "type": "String",
             "allowedValues": [
@@ -126,33 +126,33 @@
                 "Standard_D4s_v3"
             ],
             "metadata": {
-                "description": "VM Size for NVA VMs"
+                "description": "VM size for NVA VMs"
             }
         },
-        "WebNetworkSecurityGroupName": {
+        "webNetworkSecurityGroupName": {
             "defaultValue": "nsg-Web",
             "type": "String",
             "metadata": {
-                "description": "Name of the Network Security Group for the Web Resources"
+                "description": "Name of the Network Security Group for the web resources"
             }
         },
-        "WebVMNameBase": {
+        "webVMNameBase": {
             "defaultValue": "vm-web",
             "type": "String",
             "metadata": {
-                "description": "Prefix for naming Web VMs"
+                "description": "Prefix for naming web VMs"
             }
         },
-        "WebVMCount": {
+        "webVMCount": {
             "defaultValue": 2,
             "type": "Int",
             "minValue": 0,
             "maxValue": 20,
             "metadata": {
-                "description": "How many Web VMs to provision"
+                "description": "How many web VMs to provision"
             }
         },
-        "WebVMSize": {
+        "webVMSize": {
             "defaultValue": "Standard_D2s_v3",
             "type": "String",
             "allowedValues": [
@@ -160,54 +160,42 @@
                 "Standard_D4s_v3"
             ],
             "metadata": {
-                "description": "VM Size for NVA VMs"
+                "description": "VM size for NVA VMs"
             }
         },
-        "DmzNetworkSecurityGroupName": {
+        "dmzNetworkSecurityGroupName": {
             "defaultValue": "nsg-DMZ",
             "type": "String",
             "metadata": {
-                "description": "Name of the Network Security Group for the Dmz Resources"
+                "description": "Name of the Network Security Group for the DMZ Resources"
             }
         },
-        "AllowDmzConnectionFromIPOrCIDRBlock": {
+        "allowDmzConnectionFromIPOrCIDRBlock": {
             "defaultValue": "0.0.0.0/0",
             "type": "string",
             "metadata": {
                 "description": "Default value of 0.0.0.0/0 allows management and connections from the entire Internet"
             }
         },
-        "DeployAzureBastionDmz": {
-            "defaultValue": "Yes",
-            "type": "String",
-            "allowedValues": [
-                "No",
-                "Yes"
-            ],
+        "deployAzureBastionDmz": {
+            "defaultValue": true,
+            "type": "bool",
             "metadata": {
                 "description": "Selection to deploy Azure Bastion"
             }
         },
-        "DeployAppGatewayDmz": {
-            "defaultValue": "Yes",
-            "type": "String",
-            "allowedValues": [
-                "No",
-                "Yes"
-            ],
+        "deployAppGatewayDmz": {
+            "defaultValue": true,
+            "type": "bool",
             "metadata": {
-                "description": "Selection to deploy Azure Application Gateway for the Dmz"
+                "description": "Selection to deploy Azure Application Gateway for the NVA VMs"
             }
         },
-        "DeployLoadBalancerWeb": {
-            "defaultValue": "Yes",
-            "type": "String",
-            "allowedValues": [
-                "No",
-                "Yes"
-            ],
+        "deployLoadBalancerWeb": {
+            "defaultValue": true,
+            "type": "bool",
             "metadata": {
-                "description": "Selection to deploy Azure Application Gateway for the Web"
+                "description": "Selection to deploy Azure Application Gateway for the web VMs"
             }
         },
         "_artifactsLocation": {
@@ -226,7 +214,7 @@
         }
     },
     "variables": {
-        "ostag": "[if(equals(parameters('OperatingSystemImage'),'Red Hat Enterprise Linux 7 (latest, LVM)'),'RH7x','Cent7x')]",
+        "ostag": "[if(equals(parameters('operatingSystemImage'),'Red Hat Enterprise Linux 7 (latest, LVM)'),'RH7x','Cent7x')]",
         "osProfile": {
             "RH7x": {
                 "image": {
@@ -264,7 +252,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-12-01",
-            "name": "[parameters('WebNetworkSecurityGroupName')]",
+            "name": "[parameters('webNetworkSecurityGroupName')]",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -275,8 +263,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "[parameters('DMZSubnetPrefix')]",
-                            "destinationAddressPrefix": "[parameters('WebSubnetPrefix')]",
+                            "sourceAddressPrefix": "[parameters('dmzSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('webSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 100,
                             "direction": "Inbound"
@@ -290,7 +278,7 @@
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
                             "sourceAddressPrefix": "AzureLoadBalancer",
-                            "destinationAddressPrefix": "[parameters('WebSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('webSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 105,
                             "direction": "Inbound"
@@ -304,8 +292,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "22",
-                            "sourceAddressPrefix": "[parameters('BastionSubnetPrefix')]",
-                            "destinationAddressPrefix": "[parameters('WebSubnetPrefix')]",
+                            "sourceAddressPrefix": "[parameters('bastionSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('webSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 110,
                             "direction": "Inbound"
@@ -332,7 +320,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-12-01",
-            "name": "[parameters('NvaNetworkSecurityGroupName')]",
+            "name": "[parameters('nvaNetworkSecurityGroupName')]",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -343,8 +331,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "[parameters('AppGatewaySubnetPrefix')]",
-                            "destinationAddressPrefix": "[parameters('DMZSubnetPrefix')]",
+                            "sourceAddressPrefix": "[parameters('appGatewaySubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('dmzSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 100,
                             "direction": "Inbound"
@@ -358,8 +346,8 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "22",
-                            "sourceAddressPrefix": "[parameters('BastionSubnetPrefix')]",
-                            "destinationAddressPrefix": "[parameters('DMZSubnetPrefix')]",
+                            "sourceAddressPrefix": "[parameters('bastionSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('dmzSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 110,
                             "direction": "Inbound"
@@ -367,8 +355,6 @@
                     },
                     {
                         "name": "DenyAll",
-                        "id": "/subscriptions/5ed3b632-2a1b-416a-b719-16b1a7dd8b94/resourceGroups/test3/providers/Microsoft.Network/networkSecurityGroups/NvaNSG/securityRules/DenyAll",
-                        "etag": "W/\"3b9b2885-5ed3-4349-a1b4-7c4ac5a1a94e\"",
                         "type": "Microsoft.Network/networkSecurityGroups/securityRules",
                         "properties": {
                             "provisioningState": "Succeeded",
@@ -388,7 +374,7 @@
         {
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-12-01",
-            "name": "[parameters('DmzNetworkSecurityGroupName')]",
+            "name": "[parameters('dmzNetworkSecurityGroupName')]",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -494,13 +480,13 @@
             }
         },
         {
-            "condition": "[equals(parameters('DeployAppGatewayDmz'), 'Yes')]",
+            "condition": "[parameters('deployAppGatewayDmz')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "ParameterizedAppGateway",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/publicIPAddresses', 'pip-appgateway-hanva')]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -518,7 +504,7 @@
                         "value": "[resourceId('Microsoft.Network/publicIPAddresses', 'pip-appgateway-hanva')]"
                     },
                     "vnet_name": {
-                        "value": "[parameters('VirtualNetworkName')]"
+                        "value": "[parameters('virtualNetworkName')]"
                     },
                     "vnet_subnet_name": {
                         "value": "ApplicationGatewaySubnet"
@@ -527,12 +513,12 @@
             }
         },
         {
-            "condition": "[equals(parameters('DeployLoadBalancerWeb'), 'Yes')]",
+            "condition": "[parameters('deployLoadBalancerWeb')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "ParameterizedLoadBalancer",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -547,7 +533,7 @@
                         "value": "lb-web"
                     },
                     "vnet_name": {
-                        "value": "[parameters('VirtualNetworkName')]"
+                        "value": "[parameters('virtualNetworkName')]"
                     },
                     "vnet_subnet_name": {
                         "value": "snet-web"
@@ -557,8 +543,8 @@
         },
         {
             "type": "Microsoft.KeyVault/vaults",
-            "name": "[concat('kv-hanva-',uniqueString(resourceGroup().id))]",
             "apiVersion": "2019-09-01",
+            "name": "[concat('kv-hanva-',uniqueString(resourceGroup().id))]",
             "location": "[parameters('location')]",
             "properties": {
                 "sku": {
@@ -583,10 +569,10 @@
                 },
                 "parameters": {
                     "location": {
-                        "value": "[resourceGroup().location]"
+                        "value": "[parameters('location')]"
                     },
                     "passPhrase": {
-                        "value": "[parameters('PassphraseForSshKey')]"
+                        "value": "[parameters('passphraseForSshKey')]"
                     },
                     "vaultName": {
                         "value": "[concat('kv-hanva-',uniqueString(resourceGroup().id))]"
@@ -615,11 +601,12 @@
             "name": "[concat('ParameterizedNvaVM-', copyIndex())]",
             "copy": {
                 "name": "ParameterizedNvaVM-Copy",
-                "count": "[parameters('NvaVMCount')]"
+                "count": "[parameters('nvaVMCount')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
                 "[resourceId('Microsoft.Resources/deployments', 'ParameterizedAppGateway')]",
+                "[resourceId('Microsoft.Resources/deployments', 'ParameterizedLoadBalancer')]",
                 "[resourceId('Microsoft.Resources/deployments', 'StoreSshKeyinVault')]"
             ],
             "properties": {
@@ -632,19 +619,19 @@
                         "value": "[parameters('location')]"
                     },
                     "vm_name": {
-                        "value": "[concat(parameters('NvaVMNameBase'),'-', copyIndex())]"
+                        "value": "[concat(parameters('nvaVMNameBase'),'-', copyIndex())]"
                     },
                     "vm_size": {
-                        "value": "[parameters('NvaVMSize')]"
+                        "value": "[parameters('nvaVMSize')]"
                     },
                     "admin_user": {
-                        "value": "[parameters('AdminUserForVMAccess')]"
+                        "value": "[parameters('adminUserForVMAccess')]"
                     },
                     "ssh_pub_key": {
                         "value": "[reference('StoreSshKeyinVault').outputs.outputs.value]"
                     },
                     "vnet_name": {
-                        "value": "[parameters('VirtualNetworkName')]"
+                        "value": "[parameters('virtualNetworkName')]"
                     },
                     "vnet_subnet_name": {
                         "value": "snet-dmz"
@@ -663,10 +650,10 @@
                         "value": ""
                     },
                     "loadbalancerbackend_id_or_empty": {
-                        "value": "[if(equals(parameters('DeployAppGatewayDmz'),'Yes'),resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'ag-dmz', 'default-backend'),'')]"
+                        "value": "[if(parameters('deployAppGatewayDmz'),resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'ag-dmz', 'default-backend'),'')]"
                     },
                     "availabilityzone": {
-                        "value": "[add(1,mod(copyIndex(),parameters('AvailabilityZoneCount')))]"
+                        "value": "[add(1,mod(copyIndex(),parameters('availabilityZoneCount')))]"
                     }
                 }
             }
@@ -677,10 +664,10 @@
             "name": "[concat('ParameterizedWebVM-', copyIndex())]",
             "copy": {
                 "name": "ParameterizedWebVM-Copy",
-                "count": "[parameters('WebVMCount')]"
+                "count": "[parameters('webVMCount')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
                 "[resourceId('Microsoft.Resources/deployments', 'ParameterizedLoadBalancer')]",
                 "[resourceId('Microsoft.Resources/deployments', 'StoreSshKeyinVault')]"
             ],
@@ -694,19 +681,19 @@
                         "value": "[parameters('location')]"
                     },
                     "vm_name": {
-                        "value": "[concat(parameters('WebVMNameBase'),'-', copyIndex())]"
+                        "value": "[concat(parameters('webVMNameBase'),'-', copyIndex())]"
                     },
                     "vm_size": {
-                        "value": "[parameters('WebVMSize')]"
+                        "value": "[parameters('webVMSize')]"
                     },
                     "admin_user": {
-                        "value": "[parameters('AdminUserForVMAccess')]"
+                        "value": "[parameters('adminUserForVMAccess')]"
                     },
                     "ssh_pub_key": {
                         "value": "[reference('StoreSshKeyinVault').outputs.outputs.value]"
                     },
                     "vnet_name": {
-                        "value": "[parameters('VirtualNetworkName')]"
+                        "value": "[parameters('virtualNetworkName')]"
                     },
                     "vnet_subnet_name": {
                         "value": "snet-web"
@@ -721,10 +708,10 @@
                         "value": ""
                     },
                     "loadbalancerbackend_id_or_empty": {
-                        "value": "[if(equals(parameters('DeployLoadBalancerWeb'),'Yes'),resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'lb-web', 'default-backend'),'')]"
+                        "value": "[if(parameters('deployLoadBalancerWeb'),resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'lb-web', 'default-backend'),'')]"
                     },
                     "availabilityzone": {
-                        "value": "[add(1,mod(copyIndex(),parameters('AvailabilityZoneCount')))]"
+                        "value": "[add(1,mod(copyIndex(),parameters('availabilityZoneCount')))]"
                     }
                 }
             }
@@ -732,59 +719,59 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-12-01",
-            "name": "[parameters('VirtualNetworkName')]",
+            "name": "[parameters('virtualNetworkName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('WebNetworkSecurityGroupName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('NvaNetworkSecurityGroupName'))]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('webNetworkSecurityGroupName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('dmzNetworkSecurityGroupName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nvaNetworkSecurityGroupName'))]"
             ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[parameters('VNETPrefix')]"
+                        "[parameters('vnetPrefix')]"
                     ]
                 },
                 "subnets": [
                     {
                         "name": "GatewaySubnet",
                         "properties": {
-                            "addressPrefix": "[parameters('GatewaySubnetPrefix')]"
+                            "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
                         }
                     },
                     {
                         "name": "ApplicationGatewaySubnet",
                         "properties": {
-                            "addressPrefix": "[parameters('AppGatewaySubnetPrefix')]",
+                            "addressPrefix": "[parameters('appGatewaySubnetPrefix')]",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('dmzNetworkSecurityGroupName'))]"
                             }
                         }
                     },
                     {
                         "name": "AzureBastionSubnet",
                         "properties": {
-                            "addressPrefix": "[parameters('BastionSubnetPrefix')]",
+                            "addressPrefix": "[parameters('bastionSubnetPrefix')]",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('dmzNetworkSecurityGroupName'))]"
                             }
                         }
                     },
                     {
                         "name": "snet-dmz",
                         "properties": {
-                            "addressPrefix": "[parameters('DMZSubnetPrefix')]",
+                            "addressPrefix": "[parameters('dmzSubnetPrefix')]",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('DmzNetworkSecurityGroupName'))]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('dmzNetworkSecurityGroupName'))]"
                             }
                         }
                     },
                     {
                         "name": "snet-web",
                         "properties": {
-                            "addressPrefix": "[parameters('WebSubnetPrefix')]",
+                            "addressPrefix": "[parameters('webSubnetPrefix')]",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('WebNetworkSecurityGroupName'))]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('webNetworkSecurityGroupName'))]"
                             }
                         }
                     }
@@ -792,7 +779,7 @@
             }
         },
         {
-            "condition": "[equals(parameters('DeployAzureBastionDmz'), 'Yes')]",
+            "condition": "[parameters('deployAzureBastionDmz')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-12-01",
             "name": "pip-bastion-hanva",
@@ -805,7 +792,7 @@
             }
         },
         {
-            "condition": "[equals(parameters('DeployAppGatewayDmz'), 'Yes')]",
+            "condition": "[parameters('deployAppGatewayDmz')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-12-01",
             "name": "pip-appgateway-hanva",
@@ -818,13 +805,13 @@
             }
         },
         {
-            "condition": "[equals(parameters('DeployAzureBastionDmz'), 'Yes')]",
+            "condition": "[parameters('deployAzureBastionDmz')]",
             "type": "Microsoft.Network/bastionHosts",
             "apiVersion": "2019-12-01",
             "name": "bastion-hanva",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VirtualNetworkName'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -836,7 +823,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'pip-bastion-hanva')]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('VirtualNetworkName'), 'AzureBastionSubnet')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'AzureBastionSubnet')]"
                             }
                         }
                     }

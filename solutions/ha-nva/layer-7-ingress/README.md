@@ -10,27 +10,26 @@ This sample architecture leverages concepts from the [Example Parameterized Depl
 
 ## Deploy this template to Azure
 
-*Note: If you fork this repository, you will need to modify the link in [README.md](README.md) to point to your repo.  If you create a separate branch for testing, you will have to include a change to this link to point to your branch as well. You must include a URL-encoded link to the raw [azuredeploy.json](azuredeploy.json) file after `/uri/` in the link defined for the deployment button. You should also change the default value of `_artifactsLocation`.*
+*Note: If you fork this repository, you will need to modify the link in [README.md](README.md) to point to your repo.  If you create a separate branch for testing, you will have to include a change to this link to point to your branch as well. You must include a URL-encoded link to the raw [azuredeploy.json](azuredeploy.json) file after `/uri/` in the link defined for the deployment button. You should also change the default value of `_artifactsLocation` in [azuredeploy.json](azuredeploy.json) to point to your repo and/or branch.*
 
 #### Azure portal
 
-Use the following buttons to deploy the architecture using the Azure portal or to visualize with [armviz.io](https://armviz.io).
+Use the following buttons to deploy the architecture using the Azure portal.
 
 [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2Fsolutions%2Fha-nva%2Flayer-7-ingress%2Fazuredeploy.json)
 [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2Fsolutions%2Fha-nva%2Flayer-7-ingress%2Fazuredeploy.json)
-[![Visualize](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2Fsolutions%2Fha-nva%2Flayer-7-ingress%2Fazuredeploy.json)
 
 #### Azure CLI
 
 Use the following command to create a resource group for the deployment.
 
-```bash
+```azurecli-interactive
 az group create --name ha-nva-l7i --location eastus
 ```
 
 Run the following command to deploy the Layer 7 Ingress example architecture.
 
-```bash
+```azurecli-interactive
 az deployment group create --resource-group ha-nva-l7i \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/azuredeploy.json
 ```
@@ -39,13 +38,13 @@ az deployment group create --resource-group ha-nva-l7i \
 
 Use the following command to create a resource group for the deployment.
 
-```powershell
+```azurepowershell-interactive
 New-AzResourceGroup -Name ha-nva-l7i -Location eastus
 ```
 
 Run the following command to deploy the Layer 7 Ingress example architecture.
 
-```powershell
+```azurepowershell-interactive
 New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
     -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/azuredeploy.json
 ```
@@ -60,25 +59,31 @@ If you are redeploying the template using the same Resource Group name, you will
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
-|location|string|The Azure Region to Use|[resourceGroup().location]|
-|AvailabilityZoneCount|int|The number of Availability Zones to Use|2|
-|VirtualNetworkName|String|Name of the VNET for all Resources|vnet-hanva|
-|OperatingSystemImage|string|OS Image to use for All VMs|CentOS 7 (latest, LVM)|
-|AdminUserForVMAccess|String|Admin User for all VMs|null|
-|PassphraseForSshKey|securestring|Passphrase to access SSH Key (New key will be stored in Key Vault)|null|
-|NvaNetworkSecurityGroupName|String|Name of the Network Security Group for the NVA Resources|nsg-NVA|
-|NvaVMNameBase|String|Prefix for naming NVA VMs|vm-nva|
-|NvaVMCount|Int|How many NVA VMs to provision|2|
-|NvaVMSize|String|VM Size for NVA VMs|Standard_D2s_v3|
-|WebNetworkSecurityGroupName|String|Name of the Network Security Group for the Web Resources|nsg-Web|
-|WebVMNameBase|String|Prefix for naming Web VMs|vm-web|
-|WebVMCount|Int|How many Web VMs to provision|2|
-|WebVMSize|String|VM Size for NVA VMs|Standard_D2s_v3|
-|DmzNetworkSecurityGroupName|String|Name of the Network Security Group for the Dmz Resources|nsg-DMZ|
-|AllowDmzConnectionFromIPOrCIDRBlock|string|Default value of 0.0.0.0/0 allows management and connections from the entire Internet|0.0.0.0/0|
-|DeployAzureBastionDmz|String|Selection to deploy Azure Bastion|Yes|
-|DeployAppGatewayDmz|String|Selection to deploy Azure Application Gateway for the Dmz|Yes|
-|DeployLoadBalancerWeb|String|Selection to deploy Azure Application Gateway for the Web|Yes|
+|location|string|The Azure Region to use|[resourceGroup().location]|
+|availabilityZoneCount|int|The number of Availability Zones to use|2|
+|virtualNetworkName|String|Name of the VNET for all resources|vnet-hanva|
+|vnetPrefix|String|CIDR address space definition for VNet|10.0.0.0/16|
+|dmzSubnetPrefix|String|CIDR address prefix definition for DMZ subnet|10.0.0.64/27|
+|webSubnetPrefix|String|CIDR address prefix definition for web subnet|10.0.1.0/24|
+|appGatewaySubnetPrefix|String|CIDR address prefix definition for AppGateway subnet|10.0.252.224/27|
+|bastionSubnetPrefix|String|CIDR address prefix definition for Bastion subnet|10.0.253.224/27|
+|gatewaySubnetPrefix|String|CIDR address prefix definition for Gateway subnet|10.0.255.224/27|
+|operatingSystemImage|string|OS Image to use for all VMs|CentOS 7 (latest, LVM)|
+|adminUserForVMAccess|String|Admin User for all VMs|null|
+|passphraseForSshKey|securestring|Passphrase to access SSH key (new key will be stored in Key Vault)|null|
+|nvaNetworkSecurityGroupName|String|Name of the Network Security Group for the NVA resources|nsg-NVA|
+|nvaVMNameBase|String|Prefix for naming NVA VMs|vm-nva|
+|nvaVMCount|Int|How many NVA VMs to provision|2|
+|nvaVMSize|String|VM size for NVA VMs|Standard_D2s_v3|
+|webNetworkSecurityGroupName|String|Name of the Network Security Group for the web resources|nsg-Web|
+|webVMNameBase|String|Prefix for naming web VMs|vm-web|
+|webVMCount|Int|How many web VMs to provision|2|
+|webVMSize|String|VM size for NVA VMs|Standard_D2s_v3|
+|dmzNetworkSecurityGroupName|String|Name of the Network Security Group for the DMZ Resources|nsg-DMZ|
+|allowDmzConnectionFromIPOrCIDRBlock|string|Default value of 0.0.0.0/0 allows management and connections from the entire Internet|0.0.0.0/0|
+|deployAzureBastionDmz|bool|Selection to deploy Azure Bastion|true|
+|deployAppGatewayDmz|bool|Selection to deploy Azure Application Gateway for the NVA VMs|true|
+|deployLoadBalancerWeb|bool|Selection to deploy Azure Application Gateway for the web VMs|true|
 |_artifactsLocation|string|The base URI where artifacts required by this template are located including a trailing '/'|[https://raw.githubusercontent.com/...](https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/)|
 |_artifactsLocationSasToken|securestring|The sasToken required to access _artifactsLocation||
 
@@ -105,3 +110,7 @@ An Azure Bastion service is deployed to provide access to the VMs in this archit
 In order to access the ssh key from the portal to use Azure Bastion, you will need to add an access policy on the Key Vault and grant yourself ***Secret*** **List** and **Get** permissions on `kv-hanva-{uniquestring}`.
 
 > Note: When connecting to VMs using Azure Bastion from the Azure Portal, you will need to click *Advanced* and enter the SSH Key passphrase that you entered when deploying the solution.
+
+## Code of conduct
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
