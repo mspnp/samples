@@ -198,12 +198,19 @@
                 "description": "Selection to deploy Azure Application Gateway for the web VMs"
             }
         },
+        "keyVaultEnableSoftDelete": {
+            "defaultValue": true,
+            "type": "bool",
+            "metadata": {
+                "description": "Enable delete protection (soft delete) for Key Vault (should always be enabled for production environments)"
+            }
+        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
-                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+                "description": "The base URI where artifacts required by this template are located including a trailing '/' or `deployment().properties.template.uri` to use detected deployment root location"
             },
-            "defaultValue": "https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/"
+            "defaultValue": "[deployment().properties.templateLink.uri]"
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
@@ -552,7 +559,8 @@
                     "family": "A"
                 },
                 "tenantId": "[subscription().tenantId]",
-                "accessPolicies": []
+                "accessPolicies": [],
+                "enableSoftDelete": "[parameters('keyVaultEnableSoftDelete')]"
             }
         },
         {
@@ -586,11 +594,8 @@
                     "vaultSubscriptionId": {
                         "value": "[subscription().subscriptionId]"
                     },
-                    "_artifactsLocation": {
-                        "value": "[parameters('_artifactsLocation')]"
-                    },
-                    "_artifactsLocationSasToken": {
-                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    "sshGenScript":{
+                        "value": "[uri(parameters('_artifactsLocation'), concat('scripts/new-ssh-key.sh', parameters('_artifactsLocationSasToken')))]"
                     }
                 }
             }

@@ -49,11 +49,13 @@ New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
     -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/azuredeploy.json
 ```
 
-#### Redeploying the architecture to the same Resource Group or Resource Group name
+#### Redeploying the architecture to the same Resource Group
 
-You cannot redeploy this template to the same Resource Group without first deleting the NVA and web VM resources. The deployment script that generates the SSH key will generate a new key with each deployment and Azure does not allow redeployment of VMs that change the `linuxConfiguration.ssh.publicKeys` property.
+If you redeploy this template to the same Resource Group, you must specify the same SSH key passphrase.  If you do not remember the passphrase, you should first delete the VM resources so that they can be recreated. Azure does not allow redeployment of VMs that change the `linuxConfiguration.ssh.publicKeys` property and a change to the passphrase will cause the generation of a new SSH public key.
 
-If you are redeploying the template using the same Resource Group name, you will need to purge the previously created Azure Key Vault.  Azure requires globally unique names for Key Vault resources and this template will generate a unique name based on your subscription and Resource Group. Additionally Key Vault implements a soft-delete feature which is enabled by default. If you want to deploy the template to a Resource Group of the same name, you will have to purge the previous instance of the Key Vault following the instructions at [List, recover, or purge a soft-deleted key vault](https://docs.microsoft.com/azure/key-vault/general/key-vault-recovery#list-recover-or-purge-a-soft-deleted-key-vault).
+#### Redeploying the architecture using the same Resource Group Name
+
+If you are redeploying the template using the same Resource Group name, you may need to purge the previously created Azure Key Vault.  Azure requires globally unique names for Key Vault resources and this template will generate a unique name based on your subscription and Resource Group. Key Vault implements a soft-delete feature which is enabled by default. If you want to deploy the template to a Resource Group of the same name, you will have to purge the previous instance of the Key Vault following the instructions at [List, recover, or purge a soft-deleted key vault](https://docs.microsoft.com/azure/key-vault/general/key-vault-recovery#list-recover-or-purge-a-soft-deleted-key-vault).  For testing purposes, you may pass in a `false` value for the template parameter `keyVaultEnableSoftDelete`, but this may cease to work in the future.
 
 ### Solution deployment parameters
 
@@ -84,7 +86,8 @@ If you are redeploying the template using the same Resource Group name, you will
 |deployAzureBastionDmz|bool|Selection to deploy Azure Bastion|true|
 |deployAppGatewayDmz|bool|Selection to deploy Azure Application Gateway for the NVA VMs|true|
 |deployLoadBalancerWeb|bool|Selection to deploy Azure Application Gateway for the web VMs|true|
-|_artifactsLocation|string|The base URI where artifacts required by this template are located including a trailing '/'|[https://raw.githubusercontent.com/...](https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/layer-7-ingress/)|
+|keyVaultEnableSoftDelete|bool|Enable delete protection (soft delete) for Key Vault (should always be enabled for production environments)|true|
+|_artifactsLocation|string|The base URI where artifacts required by this template are located including a trailing '/' or `deployment().properties.template.uri` to use detected deployment root location|[deployment().properties.templateLink.uri]|
 |_artifactsLocationSasToken|securestring|The sasToken required to access _artifactsLocation||
 
 ## Architecture details

@@ -5,16 +5,8 @@
     "parameters": {
         "location": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]",
             "metadata": {
                 "description": "The location for the script resource."
-            }
-        },
-        "newGuid": {
-            "type": "string",
-            "defaultValue": "[newGuid()]",
-            "metadata": {
-                "description": "forceUpdateTag property, used to force the execution of the script resource when no other properties have changed."
             }
         },
         "passPhrase": {
@@ -52,16 +44,10 @@
                 "description": "The subscriptionId for the keyVault."
             }
         },
-        "_artifactsLocation": {
+        "sshGenScript":{
             "type": "string",
             "metadata": {
-                "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
-            }
-        },
-        "_artifactsLocationSasToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+                "description": "The full URI to download the SSH key generation script."
             }
         }
     },
@@ -109,13 +95,13 @@
             },
             "kind": "AzureCLI",
             "properties": {
-                "forceUpdateTag": "[parameters('newGuid')]",
+                "forceUpdateTag": "[uniqueString(concat(resourceGroup().id,parameters('passPhrase')))]",
                 "AzCliVersion": "2.0.80",
                 "timeout": "PT30M",
                 "retentionInterval": "P1D",
                 "cleanupPreference": "OnSuccess",
                 "arguments": "[parameters('passPhrase')]",
-                "primaryScriptUri": "[uri(parameters('_artifactsLocation'), concat('scripts/new-ssh-key.sh', parameters('_artifactsLocationSasToken')))]"
+                "primaryScriptUri": "[parameters('sshGenScript')]"
             }
         },
         {
