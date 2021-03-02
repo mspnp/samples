@@ -22,19 +22,12 @@ For detailed information, see the Implement a secure hybrid network:
 
 ## Deploy sample
 
-Create a resource group for the deployment.
-
-```azurecli-interactive
-az group create --name secure-hybrid --location eastus
-```
-
-Run the following command to initiate the deployment. When prompted, enter values for an Azure SQL DB admin user name and password.
+Run the following command to initiate the deployment. When prompted, enter values for an admin user name and password. These values are used to log into the included virtual machines.
 
 ```azurecli-interactive
 az deployment sub create \
     --location eastus   \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json \
-    --parameters adminUserName=azureadmin adminPassword=Password2020!
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json
 ```
 
 ## Solution deployment parameters
