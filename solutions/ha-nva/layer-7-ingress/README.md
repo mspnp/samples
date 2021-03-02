@@ -65,7 +65,7 @@ If you are redeploying the template using the same Resource Group name, you may 
 |availabilityZoneCount|int|The number of Availability Zones to use|2|
 |virtualNetworkName|String|Name of the VNET for all resources|vnet-hanva|
 |vnetPrefix|String|CIDR address space definition for VNet|10.0.0.0/16|
-|dmzSubnetPrefix|String|CIDR address prefix definition for DMZ subnet|10.0.0.64/27|
+|nvaSubnetPrefix|String|CIDR address prefix definition for DMZ subnet|10.0.0.64/27|
 |webSubnetPrefix|String|CIDR address prefix definition for web subnet|10.0.1.0/24|
 |appGatewaySubnetPrefix|String|CIDR address prefix definition for AppGateway subnet|10.0.252.224/27|
 |bastionSubnetPrefix|String|CIDR address prefix definition for Bastion subnet|10.0.253.224/27|

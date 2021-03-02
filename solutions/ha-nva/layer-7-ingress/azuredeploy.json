@@ -30,11 +30,11 @@
                 "description": "CIDR address space definition for VNet"
             }
         },
-        "dmzSubnetPrefix": {
+        "nvaSubnetPrefix": {
             "defaultValue": "10.0.0.64/27",
             "type": "String",
             "metadata": {
-                "description": "CIDR address prefix definition for DMZ subnet"
+                "description": "CIDR address prefix definition for NVA subnet"
             }
         },
         "webSubnetPrefix": {
@@ -270,7 +270,7 @@
                             "protocol": "TCP",
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
-                            "sourceAddressPrefix": "[parameters('dmzSubnetPrefix')]",
+                            "sourceAddressPrefix": "[parameters('nvaSubnetPrefix')]",
                             "destinationAddressPrefix": "[parameters('webSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 100,
@@ -339,7 +339,7 @@
                             "sourcePortRange": "*",
                             "destinationPortRange": "80",
                             "sourceAddressPrefix": "[parameters('appGatewaySubnetPrefix')]",
-                            "destinationAddressPrefix": "[parameters('dmzSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('nvaSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 100,
                             "direction": "Inbound"
@@ -354,7 +354,7 @@
                             "sourcePortRange": "*",
                             "destinationPortRange": "22",
                             "sourceAddressPrefix": "[parameters('bastionSubnetPrefix')]",
-                            "destinationAddressPrefix": "[parameters('dmzSubnetPrefix')]",
+                            "destinationAddressPrefix": "[parameters('nvaSubnetPrefix')]",
                             "access": "Allow",
                             "priority": 110,
                             "direction": "Inbound"
@@ -639,7 +639,7 @@
                         "value": "[parameters('virtualNetworkName')]"
                     },
                     "vnet_subnet_name": {
-                        "value": "snet-dmz"
+                        "value": "snet-nva"
                     },
                     "os_image": {
                         "value": "[variables('osProfile')[variables('ostag')]['image']]"
@@ -763,11 +763,11 @@
                         }
                     },
                     {
-                        "name": "snet-dmz",
+                        "name": "snet-nva",
                         "properties": {
-                            "addressPrefix": "[parameters('dmzSubnetPrefix')]",
+                            "addressPrefix": "[parameters('nvaSubnetPrefix')]",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('dmzNetworkSecurityGroupName'))]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nvaNetworkSecurityGroupName'))]"
                             }
                         }
                     },
