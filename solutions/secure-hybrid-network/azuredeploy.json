@@ -1,9 +1,93 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
-    "functions": [],
+    "parameters": {
+        "rg-01": {
+            "type": "string",
+            "defaultValue": "secure-mock-template-001"
+        },
+        "rg-02": {
+            "type": "string",
+            "defaultValue": "secure-azure-template-002"
+        }
+    },
     "variables": {},
-    "resources": [],
-    "outputs": {}
+    "resources": [
+        {
+            "name": "[parameters('rg-01')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "eastus"
+        },
+        {
+            "name": "[parameters('rg-02')]",
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "eastus"
+        },
+        {
+            "name": "nestedDeployment1",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "resourceGroup": "[parameters('rg-01')]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "comments": "Public IP address for VPN Gateway",
+                            "type": "Microsoft.Network/publicIPAddresses",
+                            "apiVersion": "2019-11-01",
+                            "name": "azureVpnGateway",
+                            "location": "eastus",
+                            "properties": {
+                                "publicIPAllocationMethod": "Dynamic"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "nestedDeployment2",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "resourceGroup": "[parameters('rg-02')]",
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                        {
+                            "comments": "Public IP address for VPN Gateway",
+                            "type": "Microsoft.Network/publicIPAddresses",
+                            "apiVersion": "2019-11-01",
+                            "name": "mocOnPremVpnGateway",
+                            "location": "eastus",
+                            "properties": {
+                                "publicIPAllocationMethod": "Dynamic"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
 }

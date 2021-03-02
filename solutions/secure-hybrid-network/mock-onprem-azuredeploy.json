@@ -11,10 +11,18 @@
         },
         "adminPassword": {
             "type": "securestring",
-            "defaultValue": "",
+            "defaultValue": "Password2020!",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
+        },
+        "azureCloudIPAddress": {
+            "type": "string",
+            "defaultValue": "1.1.1.1"
+        },
+        "azureCloudVnetPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16"
         },
         "mocOnpremNetwork": {
             "type": "object",
@@ -41,12 +49,16 @@
                 "publicIPAddressName": "pip-bastion",
                 "subnetName": "AzureBastionSubnet",
                 "nsgName": "nsg-hub-bastion",
-                "subnetPrefix": "192.168.2.0/29"
+                "subnetPrefix": "192.168.254.0/27"
             }
         },
         "vmSize": {
             "type": "string",
             "defaultValue": "Standard_A1_v2"
+        },
+        "deployVpnGateway": {
+            "type": "bool",
+            "defaultValue": true
         },
         "location": {
             "type": "string",
@@ -95,6 +107,7 @@
         },
         {
             "comments": "Public IP address for VPN Gateway",
+            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
             "name": "[parameters('mocOnpremGateway').pipName]",
@@ -105,6 +118,7 @@
         },
         {
             "comments": "VPN Gateway",
+            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
             "name": "[parameters('mocOnpremGateway').name]",
@@ -145,12 +159,10 @@
             "properties": {
                 "localNetworkAddressSpace": {
                     "addressPrefixes": [
-                        // move to parameter
-                        "172.16.0.0/12"
+                        "[parameters('azureCloudVnetPrefix')]"
                     ]
                 },
-                // replace with vpn gateway pip from azure deployment
-                "gatewayIpAddress": "1.1.1.1"
+                "gatewayIpAddress": "[parameters('azureCloudIPAddress')]"
             }
         },
         {
