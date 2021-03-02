@@ -15,12 +15,6 @@
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
-        // "mocOnPremIPAddress": {
-        //     "type": "string"
-        // },
-        // "mocOnPremIPAddressName": {
-        //     "type": "string"
-        // },
         "mocOnPremVnetPrefix": {
             "type": "string",
             "defaultValue": "192.168.1.128/25"

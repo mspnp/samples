@@ -4,29 +4,29 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-mock-template-003"
+            "defaultValue": "secure-network-on-prem"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-azure-template-003"
+            "defaultValue": "secure-network-on-azure"
         },
         "adminUserName": {
             "type": "string",
-            "defaultValue": "azureadmin",
             "metadata": {
                 "description": "The admin user name for both the Windows and Linux virtual machines."
             }
         },
         "adminPassword": {
             "type": "securestring",
+            "defaultValue": "Password2020!",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         }
     },
     "variables": {
-        "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/mock-onprem-azuredeploy.json",
-        "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/azure-azuredeploy.json"
+        "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
+        "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'azure-network-azuredeploy.json')]"
     },
     "resources": [
         {
@@ -41,91 +41,14 @@
             "apiVersion": "2019-10-01",
             "location": "eastus"
         },
-        // {
-        //     "name": "mocOnpremDeployment",
-        //     "type": "Microsoft.Resources/deployments",
-        //     "apiVersion": "2020-06-01",
-        //     "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
-        //     ],
-        //     "properties": {
-        //         "expressionEvaluationOptions": {
-        //             "scope": "inner"
-        //         },
-        //         "mode": "Incremental",
-        //         "parameters": {
-        //         },
-        //         "template": {
-        //             "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-        //             "contentVersion": "1.0.0.0",
-        //             "parameters": {},
-        //             "variables": {},
-        //             "resources": [
-        //                 {
-        //                     "type": "Microsoft.Network/publicIPAddresses",
-        //                     "apiVersion": "2019-11-01",
-        //                     "name": "mocOnPremVpnGateway",
-        //                     "location": "eastus",
-        //                     "properties": {
-        //                         "publicIPAllocationMethod": "Static"
-        //                     }
-        //                 }
-        //             ],
-        //             "outputs": {
-        //                 "publicIpAddress": {
-        //                     "type": "string",
-        //                     "value": "[reference('mocOnPremVpnGateway').ipAddress]"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // },
-        // {
-        //     "name": "azureNetworkDeployment",
-        //     "type": "Microsoft.Resources/deployments",
-        //     "apiVersion": "2020-06-01",
-        //     "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
-        //     ],
-        //     "properties": {
-        //         "expressionEvaluationOptions": {
-        //             "scope": "inner"
-        //         },
-        //         "mode": "Incremental",
-        //         "parameters": {
-        //         },
-        //         "template": {
-        //             "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-        //             "contentVersion": "1.0.0.0",
-        //             "parameters": {},
-        //             "variables": {},
-        //             "resources": [
-        //                 {
-        //                     "type": "Microsoft.Network/publicIPAddresses",
-        //                     "apiVersion": "2019-11-01",
-        //                     "name": "azureVPNGateway",
-        //                     "location": "eastus",
-        //                     "properties": {
-        //                         "publicIPAllocationMethod": "Static"
-        //                     }
-        //                 }
-        //             ],
-        //             "outputs": {
-        //                 "publicIpAddress": {
-        //                     "type": "string",
-        //                     "value": "[reference('azureVPNGateway').ipAddress]"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // },
         {
             "name": "mocOnPremTemplateDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -147,6 +70,9 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -159,12 +85,6 @@
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
-                    },
-                    "mocOnPremIPAddress": {
-                        "value": "[reference('mocOnpremDeployment').outputs.publicIpAddress.value]"
-                    },
-                    "mocOnPremIPAddressName": {
-                        "value": "mocOnPremVpnGateway"
                     }
                 }
             }

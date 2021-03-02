@@ -31,9 +31,10 @@ az group create --name secure-hybrid --location eastus
 Run the following command to initiate the deployment. When prompted, enter values for an Azure SQL DB admin user name and password.
 
 ```azurecli-interactive
-az deployment group create \
-    --resource-group secure-hybrid   \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json
+az deployment sub create \
+    --location eastus   \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json \
+    --parameters adminUserName=azureadmin adminPassword=Password2020!
 ```
 
 ## Solution deployment parameters
@@ -42,10 +43,8 @@ az deployment group create \
 |---|---|---|--|
 | adminUserName | string | The admin user name for the Azure SQL instance. | azureadmin |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
-
-## Diagnostic configurations
-
-The following resources are configured to send diagnostic logs, and metric data to the included Log Analytics workspace.
+| mocOnPremResourceGroup | string | Name of the moc on-prem resource group. | |
+| azureNetworkResourceGroup | string | Name of the azurre network resource group. | |
 
 ## Code of conduct
 
