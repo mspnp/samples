@@ -11,6 +11,9 @@
         "azureCloudIPAddress": {
             "type": "string"
         },
+        "azureCloudIPAddressName": {
+            "type": "string"
+        },
         "azureCloudVnetPrefix": {
             "type": "string",
             "defaultValue": "10.0.0.0/16"
@@ -115,8 +118,8 @@
             "name": "[parameters('mocOnpremGateway').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('mocOnpremNetwork').name)]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').pipName)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('mocOnpremNetwork').name)]"
+                // "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').pipName)]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -127,7 +130,7 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('mocOnpremNetwork').name, parameters('mocOnpremGateway').subnetName)]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').pipName)]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureCloudIPAddressName'))]"
                             }
                         },
                         "name": "vnetGatewayConfig"
