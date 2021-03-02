@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-mock-template-002"
+            "defaultValue": "secure-mock-template-003"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-azure-template-002"
+            "defaultValue": "secure-azure-template-003"
         },
         "adminUserName": {
             "type": "string",
@@ -65,7 +65,7 @@
                         {
                             "type": "Microsoft.Network/publicIPAddresses",
                             "apiVersion": "2019-11-01",
-                            "name": "azureVpnGateway",
+                            "name": "mocOnPremVpnGateway",
                             "location": "eastus",
                             "properties": {
                                 "publicIPAllocationMethod": "Static"
@@ -105,7 +105,7 @@
                         {
                             "type": "Microsoft.Network/publicIPAddresses",
                             "apiVersion": "2019-11-01",
-                            "name": "mocOnPremVpnGateway",
+                            "name": "azureVPNGateway",
                             "location": "eastus",
                             "properties": {
                                 "publicIPAllocationMethod": "Static"
@@ -122,9 +122,10 @@
             }
         },
         {
-            "name": "mocOnPremDeployment",
+            "name": "mocOnPremTemplateDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
+            "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -139,15 +140,19 @@
                         "value": "[parameters('adminPassword')]"
                     },
                     "azureCloudIPAddress": {
-                        "value": "[reference('mocOnpremDeployment').outputs.publicIpAddress.value]"
+                        "value": "[reference('azureNetworkDeployment').outputs.publicIpAddress.value]"
+                    },
+                    "azureCloudIPAddressName": {
+                        "value": "mocOnPremVpnGateway"
                     }
                 }
             }
         },
         {
-            "name": "azureNetworkDeployment",
+            "name": "azureNetworkTemplateDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
+            "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -161,8 +166,11 @@
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
                     },
-                    "azureCloudIPAddress": {
-                        "value": "[reference('azureNetworkDeployment').outputs.publicIpAddress.value]"
+                    "mocOnPremIPAddress": {
+                        "value": "[reference('mocOnpremDeployment').outputs.publicIpAddress.value]"
+                    },
+                    "mocOnPremIPAddressName": {
+                        "value": "mocOnPremVpnGateway"
                     }
                 }
             }
