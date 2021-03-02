@@ -11,14 +11,12 @@
         },
         "adminPassword": {
             "type": "securestring",
-            "defaultValue": "Password2020!",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
         "mocOnPremIPAddress": {
-            "type": "string",
-            "defaultValue": "1.1.1.1"
+            "type": "string"
         },
         "mocOnPremVnetPrefix": {
             "type": "string",

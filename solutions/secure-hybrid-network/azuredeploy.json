@@ -2,34 +2,53 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "rg-01": {
+        "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-mock-template-001"
+            "defaultValue": "secure-mock-template-002"
         },
-        "rg-02": {
+        "azureNetworkResourceGroup": {
             "type": "string",
             "defaultValue": "secure-azure-template-002"
+        },
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "The admin user name for both the Windows and Linux virtual machines."
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The admin password for both the Windows and Linux virtual machines."
+            }
         }
     },
-    "variables": {},
+    "variables": {
+        "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/mock-onprem-azuredeploy.json",
+        "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/azure-azuredeploy.json"
+    },
     "resources": [
         {
-            "name": "[parameters('rg-01')]",
+            "name": "[parameters('mocOnPremResourceGroup')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "eastus"
         },
         {
-            "name": "[parameters('rg-02')]",
+            "name": "[parameters('azureNetworkResourceGroup')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "eastus"
         },
         {
-            "name": "nestedDeployment1",
+            "name": "mocOnpremDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
-            "resourceGroup": "[parameters('rg-01')]",
+            "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
+            ],
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -44,24 +63,32 @@
                     "variables": {},
                     "resources": [
                         {
-                            "comments": "Public IP address for VPN Gateway",
                             "type": "Microsoft.Network/publicIPAddresses",
                             "apiVersion": "2019-11-01",
                             "name": "azureVpnGateway",
                             "location": "eastus",
                             "properties": {
-                                "publicIPAllocationMethod": "Dynamic"
+                                "publicIPAllocationMethod": "Static"
                             }
                         }
-                    ]
+                    ],
+                    "outputs": {
+                        "publicIpAddress": {
+                            "type": "string",
+                            "value": "[reference('azureVpnGateway').ipAddress]"
+                        }
+                    }
                 }
             }
         },
         {
-            "name": "nestedDeployment2",
+            "name": "azureNetworkDeployment",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
-            "resourceGroup": "[parameters('rg-02')]",
+            "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
+            ],
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -76,16 +103,67 @@
                     "variables": {},
                     "resources": [
                         {
-                            "comments": "Public IP address for VPN Gateway",
                             "type": "Microsoft.Network/publicIPAddresses",
                             "apiVersion": "2019-11-01",
                             "name": "mocOnPremVpnGateway",
                             "location": "eastus",
                             "properties": {
-                                "publicIPAllocationMethod": "Dynamic"
+                                "publicIPAllocationMethod": "Static"
                             }
                         }
-                    ]
+                    ],
+                    "outputs": {
+                        "publicIpAddress": {
+                            "type": "string",
+                            "value": "[reference('mocOnPremVpnGateway').ipAddress]"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "mocOnPremDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('mocOnPremTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "azureCloudIPAddress": {
+                        "value": "[reference('mocOnpremDeployment').outputs.publicIpAddress.value]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "azureNetworkDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('azureVirtualNetworkTemplate')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "azureCloudIPAddress": {
+                        "value": "[reference('azureNetworkDeployment').outputs.publicIpAddress.value]"
+                    }
                 }
             }
         }

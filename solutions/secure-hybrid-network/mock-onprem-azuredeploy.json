@@ -3,22 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminUserName": {
-            "type": "string",
-            "defaultValue": "azureadmin",
-            "metadata": {
-                "description": "The admin user name for both the Windows and Linux virtual machines."
-            }
+            "type": "string"
         },
         "adminPassword": {
-            "type": "securestring",
-            "defaultValue": "Password2020!",
-            "metadata": {
-                "description": "The admin password for both the Windows and Linux virtual machines."
-            }
+            "type": "securestring"
         },
         "azureCloudIPAddress": {
-            "type": "string",
-            "defaultValue": "1.1.1.1"
+            "type": "string"
         },
         "azureCloudVnetPrefix": {
             "type": "string",
@@ -105,17 +96,17 @@
                 ]
             }
         },
-        {
-            "comments": "Public IP address for VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-11-01",
-            "name": "[parameters('mocOnpremGateway').pipName]",
-            "location": "[parameters('location')]",
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic"
-            }
-        },
+        // {
+        //     "comments": "Public IP address for VPN Gateway",
+        //     "condition": "[parameters('deployVpnGateway')]",
+        //     "type": "Microsoft.Network/publicIPAddresses",
+        //     "apiVersion": "2019-11-01",
+        //     "name": "[parameters('mocOnpremGateway').pipName]",
+        //     "location": "[parameters('location')]",
+        //     "properties": {
+        //         "publicIPAllocationMethod": "Dynamic"
+        //     }
+        // },
         {
             "comments": "VPN Gateway",
             "condition": "[parameters('deployVpnGateway')]",
