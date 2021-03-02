@@ -8,12 +8,6 @@
         "adminPassword": {
             "type": "securestring"
         },
-        // "azureCloudIPAddress": {
-        //     "type": "string"
-        // },
-        // "azureCloudIPAddressName": {
-        //     "type": "string"
-        // },
         "azureCloudVnetPrefix": {
             "type": "string",
             "defaultValue": "10.0.0.0/16"
@@ -156,8 +150,7 @@
                         "[parameters('azureCloudVnetPrefix')]"
                     ]
                 },
-                // Figure out how to populate
-                "gatewayIpAddress": "1.1.1.1"
+                "gatewayIpAddress": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').pipName)]"
             }
         },
         {

@@ -41,86 +41,86 @@
             "apiVersion": "2019-10-01",
             "location": "eastus"
         },
-        {
-            "name": "mocOnpremDeployment",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
-            "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
-            ],
-            "properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                },
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "variables": {},
-                    "resources": [
-                        {
-                            "type": "Microsoft.Network/publicIPAddresses",
-                            "apiVersion": "2019-11-01",
-                            "name": "mocOnPremVpnGateway",
-                            "location": "eastus",
-                            "properties": {
-                                "publicIPAllocationMethod": "Static"
-                            }
-                        }
-                    ],
-                    "outputs": {
-                        "publicIpAddress": {
-                            "type": "string",
-                            "value": "[reference('azureVpnGateway').ipAddress]"
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "name": "azureNetworkDeployment",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01",
-            "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
-            ],
-            "properties": {
-                "expressionEvaluationOptions": {
-                    "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                },
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "variables": {},
-                    "resources": [
-                        {
-                            "type": "Microsoft.Network/publicIPAddresses",
-                            "apiVersion": "2019-11-01",
-                            "name": "azureVPNGateway",
-                            "location": "eastus",
-                            "properties": {
-                                "publicIPAllocationMethod": "Static"
-                            }
-                        }
-                    ],
-                    "outputs": {
-                        "publicIpAddress": {
-                            "type": "string",
-                            "value": "[reference('mocOnPremVpnGateway').ipAddress]"
-                        }
-                    }
-                }
-            }
-        },
+        // {
+        //     "name": "mocOnpremDeployment",
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-06-01",
+        //     "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
+        //     ],
+        //     "properties": {
+        //         "expressionEvaluationOptions": {
+        //             "scope": "inner"
+        //         },
+        //         "mode": "Incremental",
+        //         "parameters": {
+        //         },
+        //         "template": {
+        //             "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        //             "contentVersion": "1.0.0.0",
+        //             "parameters": {},
+        //             "variables": {},
+        //             "resources": [
+        //                 {
+        //                     "type": "Microsoft.Network/publicIPAddresses",
+        //                     "apiVersion": "2019-11-01",
+        //                     "name": "mocOnPremVpnGateway",
+        //                     "location": "eastus",
+        //                     "properties": {
+        //                         "publicIPAllocationMethod": "Static"
+        //                     }
+        //                 }
+        //             ],
+        //             "outputs": {
+        //                 "publicIpAddress": {
+        //                     "type": "string",
+        //                     "value": "[reference('mocOnPremVpnGateway').ipAddress]"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // },
+        // {
+        //     "name": "azureNetworkDeployment",
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-06-01",
+        //     "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
+        //     ],
+        //     "properties": {
+        //         "expressionEvaluationOptions": {
+        //             "scope": "inner"
+        //         },
+        //         "mode": "Incremental",
+        //         "parameters": {
+        //         },
+        //         "template": {
+        //             "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        //             "contentVersion": "1.0.0.0",
+        //             "parameters": {},
+        //             "variables": {},
+        //             "resources": [
+        //                 {
+        //                     "type": "Microsoft.Network/publicIPAddresses",
+        //                     "apiVersion": "2019-11-01",
+        //                     "name": "azureVPNGateway",
+        //                     "location": "eastus",
+        //                     "properties": {
+        //                         "publicIPAllocationMethod": "Static"
+        //                     }
+        //                 }
+        //             ],
+        //             "outputs": {
+        //                 "publicIpAddress": {
+        //                     "type": "string",
+        //                     "value": "[reference('azureVPNGateway').ipAddress]"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // },
         {
             "name": "mocOnPremTemplateDeployment",
             "type": "Microsoft.Resources/deployments",
@@ -138,12 +138,6 @@
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
-                    },
-                    "azureCloudIPAddress": {
-                        "value": "[reference('azureNetworkDeployment').outputs.publicIpAddress.value]"
-                    },
-                    "azureCloudIPAddressName": {
-                        "value": "mocOnPremVpnGateway"
                     }
                 }
             }

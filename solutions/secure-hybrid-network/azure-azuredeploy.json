@@ -15,12 +15,12 @@
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
-        "mocOnPremIPAddress": {
-            "type": "string"
-        },
-        "mocOnPremIPAddressName": {
-            "type": "string"
-        },
+        // "mocOnPremIPAddress": {
+        //     "type": "string"
+        // },
+        // "mocOnPremIPAddressName": {
+        //     "type": "string"
+        // },
         "mocOnPremVnetPrefix": {
             "type": "string",
             "defaultValue": "192.168.1.128/25"
@@ -289,17 +289,17 @@
                 ]
             }
         },
-        // {
-        //     "comments": "Public IP address for VPN Gateway",
-        //     "condition": "[parameters('deployVpnGateway')]",
-        //     "type": "Microsoft.Network/publicIPAddresses",
-        //     "apiVersion": "2019-11-01",
-        //     "name": "[parameters('azureGateway').pipName]",
-        //     "location": "[parameters('location')]",
-        //     "properties": {
-        //         "publicIPAllocationMethod": "Dynamic"
-        //     }
-        // },
+        {
+            "comments": "Public IP address for VPN Gateway",
+            "condition": "[parameters('deployVpnGateway')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-11-01",
+            "name": "[parameters('azureGateway').pipName]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
+        },
         {
             "comments": "VPN Gateway",
             "condition": "[parameters('deployVpnGateway')]",
@@ -309,7 +309,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
-                // "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureGateway').pipName)]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureGateway').pipName)]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -320,7 +320,7 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('azureNetwork').name, parameters('azureGateway').subnetName)]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnPremIPAddressName'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('azureGateway').pipName)]"
                             }
                         },
                         "name": "vnetGatewayConfig"
@@ -346,7 +346,8 @@
                         "[parameters('mocOnPremVnetPrefix')]"
                     ]
                 },
-                "gatewayIpAddress": "[parameters('mocOnPremIPAddress')]"
+                // Figure out how to populate
+                "gatewayIpAddress": "1.1.1.1"
             }
         },
         {
