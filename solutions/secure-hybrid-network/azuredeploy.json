@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-network-on-prem"
+            "defaultValue": "secure-network-on-prem-wed-001"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-network-on-azure"
+            "defaultValue": "secure-network-on-azure-wed-001"
         },
         "adminUserName": {
             "type": "string",
@@ -27,7 +27,9 @@
         // "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
         // "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-azuredeploy.json')]"
         "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-azuredeploy.json",
-        "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-azuredeploy.json"
+        "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-azuredeploy.json",
+        "mocOnPremLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-local-gateway.json",
+        "azureVirtualNetworkLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-local-gateway.json"
 
     },
     "resources": [
@@ -44,7 +46,7 @@
             "location": "eastus"
         },
         {
-            "name": "mocOnPremTemplateDeployment",
+            "name": "mockOnPrem",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
@@ -67,29 +69,80 @@
                 }
             }
         },
+        // {
+        //     "name": "azureNetwork",
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-06-01",
+        //     "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "templateLink": {
+        //             "uri": "[variables('azureVirtualNetworkTemplate')]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "adminUsername": {
+        //                 "value": "[parameters('adminUsername')]"
+        //             },
+        //             "adminPassword": {
+        //                 "value": "[parameters('adminPassword')]"
+        //             }
+        //         }
+        //     }
+        // },
         {
-            "name": "azureNetworkTemplateDeployment",
+            "name": "mockOnPremLocalGateway",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
+                "[resourceId('Microsoft.Resources/deployments', 'mockOnPrem')]"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('azureVirtualNetworkTemplate')]",
+                    "uri": "[variables('mocOnPremLocalGatewayTemplate')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
+                    "azureCloudVnetPrefix": {
+                        "value": "[reference('mockOnPrem').outputs.mocOnpremNetworkPrefix]"
                     },
-                    "adminPassword": {
-                        "value": "[parameters('adminPassword')]"
+                    "gatewayIpAddress": {
+                        "value": "[reference('mockOnPrem').outputs.vpnIp]"
+                    },
+                    "mocOnpremGatewayName": {
+                        "value": "[reference('mockOnPrem').outputs.mocOnpremGatewayName]"
                     }
                 }
             }
         }
+        // {
+        //     "name": "azureNetworkLocalGateway",
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "2020-06-01",
+        //     "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "templateLink": {
+        //             "uri": "[variables('azureVirtualNetworkLocalGatewayTemplate')]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "adminUsername": {
+        //                 "value": "[parameters('adminUsername')]"
+        //             },
+        //             "adminPassword": {
+        //                 "value": "[parameters('adminPassword')]"
+        //             }
+        //         }
+        //     }
+        // }
     ]
 }

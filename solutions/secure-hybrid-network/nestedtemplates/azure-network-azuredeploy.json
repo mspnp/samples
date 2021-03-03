@@ -15,10 +15,10 @@
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
-        "mocOnPremVnetPrefix": {
-            "type": "string",
-            "defaultValue": "192.168.1.128/25"
-        },
+        // "mocOnPremVnetPrefix": {
+        //     "type": "string",
+        //     "defaultValue": "192.168.1.128/25"
+        // },
         "vmCount": {
             "type": "int",
             "defaultValue": 1,
@@ -29,10 +29,6 @@
         "vmSize": {
             "type": "string",
             "defaultValue": "Standard_DS3_v2"
-        },
-        "deployVpnGateway": {
-            "type": "bool",
-            "defaultValue": true
         },
         "azureNetwork": {
             "type": "object",
@@ -285,7 +281,6 @@
         },
         {
             "comments": "Public IP address for VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
             "name": "[parameters('azureGateway').pipName]",
@@ -296,7 +291,6 @@
         },
         {
             "comments": "VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
             "name": "[parameters('azureGateway').name]",
@@ -329,50 +323,50 @@
                 "enableBgp": false
             }
         },
-        {
-            "type": "Microsoft.Network/localNetworkGateways",
-            "apiVersion": "2020-05-01",
-            "name": "localnwgateway",
-            "location": "eastus",
-            "properties": {
-                "localNetworkAddressSpace": {
-                    "addressPrefixes": [
-                        "[parameters('mocOnPremVnetPrefix')]"
-                    ]
-                },
-                // Figure out how to populate
-                "gatewayIpAddress": "1.1.1.1"
-            }
-        },
-        {
-            "type": "Microsoft.Network/connections",
-            "apiVersion": "2020-05-01",
-            "name": "connection",
-            "location": "eastus",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('azureGateway').name)]",
-                "[resourceId('Microsoft.Network/localNetworkGateways', 'localnwgateway')]"
-            ],
-            "properties": {
-                "virtualNetworkGateway1": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworkGateways',parameters('azureGateway').name)]"
-                },
-                "localNetworkGateway2": {
-                    "id": "[resourceId('Microsoft.Network/localNetworkGateways', 'localnwgateway')]"
-                },
-                "connectionType": "IPsec",
-                "connectionProtocol": "IKEv2",
-                "routingWeight": 100,
-                "sharedKey": "123secret",
-                "enableBgp": false,
-                "useLocalAzureIpAddress": false,
-                "usePolicyBasedTrafficSelectors": false,
-                "ipsecPolicies": [],
-                "trafficSelectorPolicies": [],
-                "expressRouteGatewayBypass": false,
-                "dpdTimeoutSeconds": 0
-            }
-        },
+        // {
+        //     "type": "Microsoft.Network/localNetworkGateways",
+        //     "apiVersion": "2020-05-01",
+        //     "name": "localnwgateway",
+        //     "location": "eastus",
+        //     "properties": {
+        //         "localNetworkAddressSpace": {
+        //             "addressPrefixes": [
+        //                 "[parameters('mocOnPremVnetPrefix')]"
+        //             ]
+        //         },
+        //         // Figure out how to populate
+        //         "gatewayIpAddress": "1.1.1.1"
+        //     }
+        // },
+        // {
+        //     "type": "Microsoft.Network/connections",
+        //     "apiVersion": "2020-05-01",
+        //     "name": "connection",
+        //     "location": "eastus",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('azureGateway').name)]",
+        //         "[resourceId('Microsoft.Network/localNetworkGateways', 'localnwgateway')]"
+        //     ],
+        //     "properties": {
+        //         "virtualNetworkGateway1": {
+        //             "id": "[resourceId('Microsoft.Network/virtualNetworkGateways',parameters('azureGateway').name)]"
+        //         },
+        //         "localNetworkGateway2": {
+        //             "id": "[resourceId('Microsoft.Network/localNetworkGateways', 'localnwgateway')]"
+        //         },
+        //         "connectionType": "IPsec",
+        //         "connectionProtocol": "IKEv2",
+        //         "routingWeight": 100,
+        //         "sharedKey": "123secret",
+        //         "enableBgp": false,
+        //         "useLocalAzureIpAddress": false,
+        //         "usePolicyBasedTrafficSelectors": false,
+        //         "ipsecPolicies": [],
+        //         "trafficSelectorPolicies": [],
+        //         "expressRouteGatewayBypass": false,
+        //         "dpdTimeoutSeconds": 0
+        //     }
+        // },
         {
             "comments": "Public IP address for Azure Firewall",
             "apiVersion": "2019-11-01",
@@ -638,5 +632,15 @@
                 ]
             }
         }
-    ]
+    ],
+    "outputs": {
+        "vpnIp": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('azureGateway').name)).bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]]"
+        },
+        "mocOnpremNetwork": {
+            "type": "string",
+            "value": "[parameters('azureNetwork').subnetPrefix]"
+        }
+    }
 }

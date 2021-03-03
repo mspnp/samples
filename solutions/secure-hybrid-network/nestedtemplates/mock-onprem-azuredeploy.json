@@ -8,10 +8,10 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "azureCloudVnetPrefix": {
-            "type": "string",
-            "defaultValue": "10.0.0.0/16"
-        },
+        // "azureCloudVnetPrefix": {
+        //     "type": "string",
+        //     "defaultValue": "10.0.0.0/16"
+        // },
         "mocOnpremNetwork": {
             "type": "object",
             "defaultValue": {
@@ -139,50 +139,50 @@
                 "enableBgp": false
             }
         },
-        {
-            "type": "Microsoft.Network/localNetworkGateways",
-            "apiVersion": "2020-05-01",
-            "name": "onprem-vpn-lgw",
-            "location": "eastus",
-            "properties": {
-                "localNetworkAddressSpace": {
-                    "addressPrefixes": [
-                        "[parameters('azureCloudVnetPrefix')]"
-                    ]
-                },
-                // Figure out how to populate
-                "gatewayIpAddress": "1.1.1.1"
-            }
-        },
-        {
-            "type": "Microsoft.Network/connections",
-            "apiVersion": "2020-05-01",
-            "name": "test-replace",
-            "location": "eastus",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/localNetworkGateways', 'onprem-vpn-lgw')]",
-                "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('mocOnpremGateway').name)]"
-            ],
-            "properties": {
-                "virtualNetworkGateway1": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('mocOnpremGateway').name)]"
-                },
-                "localNetworkGateway2": {
-                    "id": "[resourceId('Microsoft.Network/localNetworkGateways', 'onprem-vpn-lgw')]"
-                },
-                "connectionType": "IPsec",
-                "connectionProtocol": "IKEv2",
-                "routingWeight": 100,
-                "sharedKey": "123secret",
-                "enableBgp": false,
-                "useLocalAzureIpAddress": false,
-                "usePolicyBasedTrafficSelectors": false,
-                "ipsecPolicies": [],
-                "trafficSelectorPolicies": [],
-                "expressRouteGatewayBypass": false,
-                "dpdTimeoutSeconds": 0
-            }
-        },
+        // {
+        //     "type": "Microsoft.Network/localNetworkGateways",
+        //     "apiVersion": "2020-05-01",
+        //     "name": "onprem-vpn-lgw",
+        //     "location": "eastus",
+        //     "properties": {
+        //         "localNetworkAddressSpace": {
+        //             "addressPrefixes": [
+        //                 "[parameters('azureCloudVnetPrefix')]"
+        //             ]
+        //         },
+        //         // Figure out how to populate
+        //         "gatewayIpAddress": "1.1.1.1"
+        //     }
+        // },
+        // {
+        //     "type": "Microsoft.Network/connections",
+        //     "apiVersion": "2020-05-01",
+        //     "name": "test-replace",
+        //     "location": "eastus",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.Network/localNetworkGateways', 'onprem-vpn-lgw')]",
+        //         "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('mocOnpremGateway').name)]"
+        //     ],
+        //     "properties": {
+        //         "virtualNetworkGateway1": {
+        //             "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('mocOnpremGateway').name)]"
+        //         },
+        //         "localNetworkGateway2": {
+        //             "id": "[resourceId('Microsoft.Network/localNetworkGateways', 'onprem-vpn-lgw')]"
+        //         },
+        //         "connectionType": "IPsec",
+        //         "connectionProtocol": "IKEv2",
+        //         "routingWeight": 100,
+        //         "sharedKey": "123secret",
+        //         "enableBgp": false,
+        //         "useLocalAzureIpAddress": false,
+        //         "usePolicyBasedTrafficSelectors": false,
+        //         "ipsecPolicies": [],
+        //         "trafficSelectorPolicies": [],
+        //         "expressRouteGatewayBypass": false,
+        //         "dpdTimeoutSeconds": 0
+        //     }
+        // },
         {
             "comments": "Public IP address for Bastion",
             "type": "Microsoft.Network/publicIpAddresses",
@@ -394,5 +394,19 @@
                 }
             }
         }
-    ]
+    ],
+    "outputs": {
+        "vpnIp": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('mocOnpremGateway').name)).bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]]"
+        },
+        "mocOnpremNetworkPrefix": {
+            "type": "string",
+            "value": "[parameters('mocOnpremNetwork').subnetPrefix]"
+        },
+        "mocOnpremGatewayName": {
+            "type": "string",
+            "value": "[parameters('mocOnpremGateway').name]"
+        }
+    }
 }
