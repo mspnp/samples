@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-network-on-prem-wed-004"
+            "defaultValue": "secure-network-on-prem-wed-006"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-network-on-azure-wed-004"
+            "defaultValue": "secure-network-on-azure-wed-006"
         },
         "adminUserName": {
             "type": "string",
@@ -109,11 +109,11 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "azureCloudVnetPrefix": {
-                        "value": "[reference('azureNetwork').outputs.mocOnpremNetworkPrefix]"
-                    },
                     "gatewayIpAddress": {
                         "value": "[reference('azureNetwork').outputs.vpnIp]"
+                    },
+                    "azureCloudVnetPrefix": {
+                        "value": "[reference('azureNetwork').outputs.mocOnpremNetwork]"
                     },
                     "mocOnpremGatewayName": {
                         "value": "[reference('onPremMock').outputs.mocOnpremGatewayName]"
@@ -137,14 +137,14 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "azureCloudVnetPrefix": {
-                        "value": "[reference('onPremMock').outputs.mocOnpremNetworkPrefix]"
-                    },
                     "gatewayIpAddress": {
                         "value": "[reference('onPremMock').outputs.vpnIp]"
                     },
-                    "mocOnpremGatewayName": {
-                        "value": "[reference('azureNetwork').outputs.mocOnpremGatewayName]"
+                    "azureCloudVnetPrefix": {
+                        "value": "[reference('onPremMock').outputs.mocOnpremNetworkPrefix]"
+                    },
+                    "azureNetworkGatewayName": {
+                        "value": "[reference('azureNetwork').outputs.azureGatewayName]"
                     }
                 }
             }
