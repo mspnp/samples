@@ -402,7 +402,7 @@
         },
         "mocOnpremNetworkPrefix": {
             "type": "string",
-            "value": "[parameters('mocOnpremNetwork').subnetPrefix]"
+            "value": "[parameters('mocOnpremNetwork').addressPrefix]"
         },
         "mocOnpremGatewayName": {
             "type": "string",

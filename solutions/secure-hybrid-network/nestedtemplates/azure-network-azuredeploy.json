@@ -640,7 +640,11 @@
         },
         "mocOnpremNetwork": {
             "type": "string",
-            "value": "[parameters('azureNetwork').subnetPrefix]"
+            "value": "[parameters('azureNetwork').addressPrefix]"
+        },
+        "azureGatewayName": {
+            "type": "string",
+            "value": "[parameters('azureGateway').name]"
         }
     }
 }

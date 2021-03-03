@@ -20,7 +20,7 @@
         }
     },
     "resources": [
-{
+        {
             "type": "Microsoft.Network/localNetworkGateways",
             "apiVersion": "2020-05-01",
             "name": "[parameters('localNetworkGateway')]",
