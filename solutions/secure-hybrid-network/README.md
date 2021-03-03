@@ -27,7 +27,7 @@ Run the following command to initiate the deployment. When prompted, enter value
 ```azurecli-interactive
 az deployment sub create \
     --location eastus   \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/azuredeploy.json
 ```
 
 ## Solution deployment parameters

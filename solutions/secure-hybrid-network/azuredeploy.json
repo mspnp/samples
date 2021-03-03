@@ -18,15 +18,17 @@
         },
         "adminPassword": {
             "type": "securestring",
-            "defaultValue": "Password2020!",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         }
     },
     "variables": {
-        "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
-        "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-azuredeploy.json')]"
+        // "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
+        // "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-azuredeploy.json')]"
+        "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-azuredeploy.json",
+        "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-azuredeploy.json"
+
     },
     "resources": [
         {
