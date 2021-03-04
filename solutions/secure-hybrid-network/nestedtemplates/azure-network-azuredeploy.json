@@ -189,11 +189,11 @@
                 },
                 "subnets": [
                     {
-                        "name": "[parameters('azureNetwork').webSubnetName]",
+                        "name": "[parameters('spokeNetwork').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('azureNetwork').webSubnetPrefix]",
+                            "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('azureNetwork').webSubnetNsgName)]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]"
                             }
                         }
                     }
