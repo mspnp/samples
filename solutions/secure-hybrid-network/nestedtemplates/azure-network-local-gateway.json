@@ -45,7 +45,7 @@
             ],
             "properties": {
                 "virtualNetworkGateway1": {
-                    "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('azureNetworkGatewayName'))]"
+                    "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('azureNetworkGatewayName'))]"
                 },
                 "localNetworkGateway2": {
                     "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localNetworkGateway'))]"
