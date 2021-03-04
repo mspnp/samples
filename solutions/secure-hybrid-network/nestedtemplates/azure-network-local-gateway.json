@@ -12,7 +12,8 @@
             "type": "string"
         },
         "localNetworkGateway": {
-            "type": "string"
+            "type": "string",
+            "defaultValue": "localGateway"
         },
         "location": {
             "type": "string",

@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-network-on-prem-wed-006"
+            "defaultValue": "009-secure-network-on-prem-wed"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "secure-network-on-azure-wed-006"
+            "defaultValue": "009-secure-network-on-azure-wed"
         },
         "adminUserName": {
             "type": "string",
@@ -110,13 +110,16 @@
                 },
                 "parameters": {
                     "gatewayIpAddress": {
-                        "value": "[reference('azureNetwork').outputs.vpnIp]"
+                        //"value": "[string(reference('azureNetwork').outputs.vpnIp)]"
+                        "value": "13.90.83.72"
                     },
                     "azureCloudVnetPrefix": {
-                        "value": "[reference('azureNetwork').outputs.mocOnpremNetwork]"
+                        // "value": "[reference('azureNetwork').outputs.mocOnpremNetwork]"
+                        "value": "10.0.0.0/16"
                     },
                     "mocOnpremGatewayName": {
-                        "value": "[reference('onPremMock').outputs.mocOnpremGatewayName]"
+                        // "value": "[reference('onPremMock').outputs.mocOnpremGatewayName]"
+                        "value": "onprem-vpn-lgw"
                     }
                 }
             }
@@ -138,13 +141,16 @@
                 },
                 "parameters": {
                     "gatewayIpAddress": {
-                        "value": "[reference('onPremMock').outputs.vpnIp]"
+                        // "value": "[string(reference('onPremMock').outputs.vpnIp)]"
+                        "value": "40.114.26.138"
                     },
                     "azureCloudVnetPrefix": {
-                        "value": "[reference('onPremMock').outputs.mocOnpremNetworkPrefix]"
+                        // "value": "[reference('onPremMock').outputs.mocOnpremNetworkPrefix]"
+                        "value": "192.168.0.0/16"
                     },
                     "azureNetworkGatewayName": {
-                        "value": "[reference('azureNetwork').outputs.azureGatewayName]"
+                        // "value": "[reference('azureNetwork').outputs.azureGatewayName]"
+                        "value": "onprem-vpn-lgw"
                     }
                 }
             }
