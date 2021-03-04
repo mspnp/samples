@@ -2,32 +2,11 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "VirtualNetworkName": {
-      "value": "GEN-UNIQUE-8"
+    "passphraseForSshKey": {
+        "value": "GEN-UNIQUE-8"
     },
-    "NvaVMNameBase": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "WebVMNameBase": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "DmzNetworkSecurityGroupName": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "NvaNetworkSecurityGroupName": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "WebNetworkSecurityGroupName": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "ProximityPlacementGroupName": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "AdminUserForVMAccess": {
-      "value": "GEN-UNIQUE-8"
-    },
-    "sshKeyForVMAccess": {
-      "value": "GEN-SSH-PUB-KEY"
+    "adminUserForVMAccess": {
+        "value": "GEN-UNIQUE-8"
     }
   }
 }
