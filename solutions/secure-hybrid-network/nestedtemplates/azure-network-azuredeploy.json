@@ -178,8 +178,8 @@
             "name": "[parameters('spokeNetwork').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]",
-                "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]"
+                // "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
             ],
             "properties": {
                 "addressSpace": {
