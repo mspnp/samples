@@ -15,10 +15,6 @@
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
-        // "mocOnPremVnetPrefix": {
-        //     "type": "string",
-        //     "defaultValue": "192.168.1.128/25"
-        // },
         "vmCount": {
             "type": "int",
             "defaultValue": 1,
@@ -75,11 +71,27 @@
         }
     },
     "variables": {
+        "logAnalyticsWorkspace": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "nicNameWeb": "ra-aad-web-nic",
         "vmNameWeb": "ra-aad-web-vm",
         "windowsOSVersion": "2012-R2-Datacenter"
     },
     "resources": [
+        {
+            "comments": "Log Analytics workspace",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[variables('logAnalyticsWorkspace')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                },
+                "features": {
+                    "searchVersion": 1
+                }
+            }
+        },
         {
             "comments": "Hub virtual network and diagnostic configuration",
             "type": "Microsoft.Network/virtualNetworks",
@@ -127,7 +139,27 @@
                         }
                     }
                 ]
-            }
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "VMProtectionAlerts",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "comments": "Public IP address for Bastion",
@@ -323,50 +355,6 @@
                 "enableBgp": false
             }
         },
-        // {
-        //     "type": "Microsoft.Network/localNetworkGateways",
-        //     "apiVersion": "2020-05-01",
-        //     "name": "localnwgateway",
-        //     "location": "eastus",
-        //     "properties": {
-        //         "localNetworkAddressSpace": {
-        //             "addressPrefixes": [
-        //                 "[parameters('mocOnPremVnetPrefix')]"
-        //             ]
-        //         },
-        //         // Figure out how to populate
-        //         "gatewayIpAddress": "1.1.1.1"
-        //     }
-        // },
-        // {
-        //     "type": "Microsoft.Network/connections",
-        //     "apiVersion": "2020-05-01",
-        //     "name": "connection",
-        //     "location": "eastus",
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('azureGateway').name)]",
-        //         "[resourceId('Microsoft.Network/localNetworkGateways', 'localnwgateway')]"
-        //     ],
-        //     "properties": {
-        //         "virtualNetworkGateway1": {
-        //             "id": "[resourceId('Microsoft.Network/virtualNetworkGateways',parameters('azureGateway').name)]"
-        //         },
-        //         "localNetworkGateway2": {
-        //             "id": "[resourceId('Microsoft.Network/localNetworkGateways', 'localnwgateway')]"
-        //         },
-        //         "connectionType": "IPsec",
-        //         "connectionProtocol": "IKEv2",
-        //         "routingWeight": 100,
-        //         "sharedKey": "123secret",
-        //         "enableBgp": false,
-        //         "useLocalAzureIpAddress": false,
-        //         "usePolicyBasedTrafficSelectors": false,
-        //         "ipsecPolicies": [],
-        //         "trafficSelectorPolicies": [],
-        //         "expressRouteGatewayBypass": false,
-        //         "dpdTimeoutSeconds": 0
-        //     }
-        // },
         {
             "comments": "Public IP address for Azure Firewall",
             "apiVersion": "2019-11-01",

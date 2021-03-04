@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "200-secure-network-on-prem"
+            "defaultValue": "201-secure-network-on-prem"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "200-secure-network-on-azure"
+            "defaultValue": "201-secure-network-on-azure"
         },
         "adminUserName": {
             "type": "string",
