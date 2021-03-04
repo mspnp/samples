@@ -109,7 +109,7 @@
             "name": "[parameters('azureNetwork').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                // "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('azureNetwork').addressPrefix)]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]"
             ],
             "properties": {
                 "addressSpace": {
