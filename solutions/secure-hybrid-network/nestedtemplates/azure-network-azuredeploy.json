@@ -30,10 +30,20 @@
             "type": "object",
             "defaultValue": {
                 "name": "ra-aad-ntier-vnet",
-                "addressPrefix": "10.0.0.0/16",
-                "webSubnetName": "web",
-                "webSubnetPrefix": "10.0.1.0/24",
-                "webSubnetNsgName": "ra-aad-ntier-web-nsg"
+                "addressPrefix": "10.0.0.0/16"
+                // "webSubnetName": "web",
+                // "webSubnetPrefix": "10.0.1.0/24",
+                // "webSubnetNsgName": "ra-aad-ntier-web-nsg"
+            }
+        },
+        "spokeNetwork": {
+            "type": "object",
+            "defaultValue": {
+                "name": "vnet-spoke-one",
+                "addressPrefix": "10.100.0.0/16",
+                "subnetName": "web",
+                "subnetPrefix": "10.100.0.0/16",
+                "subnetNsgName": "ra-aad-ntier-web-nsg"
             }
         },
         "azureGateway": {
@@ -120,15 +130,15 @@
                             "addressPrefix": "[parameters('azureFirewall').subnetPrefix]"
                         }
                     },
-                    {
-                        "name": "[parameters('azureNetwork').webSubnetName]",
-                        "properties": {
-                            "addressPrefix": "[parameters('azureNetwork').webSubnetPrefix]",
-                            "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('azureNetwork').webSubnetNsgName)]"
-                            }
-                        }
-                    },
+                    // {
+                    //     "name": "[parameters('azureNetwork').webSubnetName]",
+                    //     "properties": {
+                    //         "addressPrefix": "[parameters('azureNetwork').webSubnetPrefix]",
+                    //         "networkSecurityGroup": {
+                    //             "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('azureNetwork').webSubnetNsgName)]"
+                    //         }
+                    //     }
+                    // },
                     {
                         "name": "[parameters('bastionHost').subnetName]",
                         "properties": {
@@ -147,6 +157,55 @@
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "VMProtectionAlerts",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "comments": "Spoke virtual network, subnet, and diagnostic configuration",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('spokeNetwork').name]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]",
+                "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('spokeNetwork').addressPrefix]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('azureNetwork').webSubnetName]",
+                        "properties": {
+                            "addressPrefix": "[parameters('azureNetwork').webSubnetPrefix]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('azureNetwork').webSubnetNsgName)]"
+                            }
+                        }
+                    }
+                ]
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
                     ],
                     "properties": {
@@ -403,7 +462,7 @@
             "comments": "Network security group + rules for spoke network and diagnostic configuration",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2019-11-01",
-            "name": "[parameters('azureNetwork').webSubnetNsgName]",
+            "name": "[parameters('spokeNetwork').subnetNsgName]",
             "location": "[parameters('location')]",
             "properties": {
                 "securityRules": [
@@ -442,7 +501,7 @@
             "name": "[concat(variables('nicNameWeb'), copyIndex())]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
                 "[resourceId('Microsoft.Network/loadBalancers', 'testlb')]"
             ],
             "properties": {
@@ -452,7 +511,7 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('azureNetwork').name, parameters('azureNetwork').webSubnetName)]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
                             },
                             "loadBalancerBackendAddressPools": [
                                 {
@@ -560,7 +619,7 @@
             "name": "testlb",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]"
             ],
             "sku": {
                 "name": "Standard"
@@ -571,7 +630,7 @@
                         "name": "testlb",
                         "properties": {
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('azureNetwork').name, parameters('azureNetwork').webSubnetName)]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
                             },
                             "privateIPAllocationMethod": "Dynamic"
                         }
