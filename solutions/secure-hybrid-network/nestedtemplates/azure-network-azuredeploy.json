@@ -11,29 +11,31 @@
         },
         "adminPassword": {
             "type": "securestring",
+            "defaultValue": "",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
-        "vmCount": {
+        "windowsVMCount": {
             "type": "int",
-            "defaultValue": 1,
+            "defaultValue": 0,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_DS3_v2"
+            "defaultValue": "Standard_A1_v2"
         },
-        "azureNetwork": {
+        "deployVpnGateway": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "hubNetwork": {
             "type": "object",
             "defaultValue": {
-                "name": "ra-aad-ntier-vnet",
-                "addressPrefix": "10.0.0.0/16"
-                // "webSubnetName": "web",
-                // "webSubnetPrefix": "10.0.1.0/24",
-                // "webSubnetNsgName": "ra-aad-ntier-web-nsg"
+                "name": "vnet-hub",
+                "addressPrefix": "10.0.0.0/20"
             }
         },
         "spokeNetwork": {
@@ -41,28 +43,18 @@
             "defaultValue": {
                 "name": "vnet-spoke-one",
                 "addressPrefix": "10.100.0.0/16",
-                "subnetName": "web",
+                "subnetName": "snet-spoke-resources",
                 "subnetPrefix": "10.100.0.0/16",
-                "subnetNsgName": "ra-aad-ntier-web-nsg"
+                "subnetNsgName": "nsg-spoke-one-resources"
             }
         },
-        "azureGateway": {
+        "vpnGateway": {
             "type": "object",
             "defaultValue": {
-                "name": "onprem-vpn-lgw",
+                "name": "vgw-gateway",
                 "subnetName": "GatewaySubnet",
-                "subnetPrefix": "10.0.255.224/27",
-                "pipName": "onprem-vpn-gateway-pip"
-            }
-        },
-        "azureFirewall": {
-            "type": "object",
-            "defaultValue": {
-                "name": "AzureFirewall",
-                "subnetName": "AzureFirewallSubnet",
-                "subnetPrefix": "10.0.4.0/24",
-                "routeName": "r-nexthop-to-fw",
-                "publicIPAddressName": "pip-firewall"
+                "subnetPrefix": "10.0.2.0/27",
+                "pipName": "pip-vgw-gateway"
             }
         },
         "bastionHost": {
@@ -72,7 +64,17 @@
                 "publicIPAddressName": "pip-bastion",
                 "subnetName": "AzureBastionSubnet",
                 "nsgName": "nsg-hub-bastion",
-                "subnetPrefix": "10.0.254.0/27"
+                "subnetPrefix": "10.0.1.0/29"
+            }
+        },
+        "azureFirewall": {
+            "type": "object",
+            "defaultValue": {
+                "name": "AzureFirewall",
+                "publicIPAddressName": "pip-firewall",
+                "subnetName": "AzureFirewallSubnet",
+                "subnetPrefix": "10.0.3.0/26",
+                "routeName": "r-nexthop-to-fw"
             }
         },
         "location": {
@@ -106,7 +108,7 @@
             "comments": "Hub virtual network and diagnostic configuration",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
-            "name": "[parameters('azureNetwork').name]",
+            "name": "[parameters('hubNetwork').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]"
@@ -114,14 +116,14 @@
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "[parameters('azureNetwork').addressPrefix]"
+                        "[parameters('hubNetwork').addressPrefix]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "[parameters('azureGateway').subnetName]",
+                        "name": "[parameters('vpnGateway').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('azureGateway').subnetPrefix]"
+                            "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
                         }
                     },
                     {
@@ -156,7 +158,7 @@
                     "apiVersion": "2017-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
                     ],
                     "properties": {
@@ -351,7 +353,7 @@
             "name": "[parameters('bastionHost').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
                 "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionHost').publicIPAddressName)]"
             ],
             "properties": {
@@ -360,7 +362,7 @@
                         "name": "IpConf",
                         "properties": {
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('azureNetwork').name, parameters('bastionHost').subnetName)]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('bastionHost').subnetName)]"
                             },
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('bastionHost').publicIPAddressName)]"
@@ -374,7 +376,7 @@
             "comments": "Public IP address for VPN Gateway",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
-            "name": "[parameters('azureGateway').pipName]",
+            "name": "[parameters('vpnGateway').pipName]",
             "location": "[parameters('location')]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
@@ -384,11 +386,11 @@
             "comments": "VPN Gateway",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
-            "name": "[parameters('azureGateway').name]",
+            "name": "[parameters('vpnGateway').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureGateway').pipName)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpnGateway').pipName)]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -396,10 +398,10 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('azureNetwork').name, parameters('azureGateway').subnetName)]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('vpnGateway').subnetName)]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('azureGateway').pipName)]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('vpnGateway').pipName)]"
                             }
                         },
                         "name": "vnetGatewayConfig"
@@ -434,7 +436,7 @@
             "name": "[parameters('azureFirewall').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('azureNetwork').name)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
             ],
             "properties": {
                 "sku": {
@@ -451,7 +453,7 @@
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('azureFirewall').publicIPAddressName)]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('azureNetwork').name, parameters('azureFirewall').subnetName)]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('azureFirewall').subnetName)]"
                             }
                         }
                     }
@@ -524,7 +526,7 @@
             },
             "copy": {
                 "name": "niccopy",
-                "count": "[parameters('vmCount')]"
+                "count": "[parameters('windowsVMCount')]"
             }
         },
         {
@@ -587,7 +589,7 @@
             ],
             "copy": {
                 "name": "vmcopy",
-                "count": "[parameters('vmCount')]"
+                "count": "[parameters('windowsVMCount')]"
             }
         },
         // {
@@ -683,15 +685,15 @@
     "outputs": {
         "vpnIp": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('azureGateway').name)).bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]]"
+            "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGateway').name)).bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]]"
         },
         "mocOnpremNetwork": {
             "type": "string",
-            "value": "[parameters('azureNetwork').addressPrefix]"
+            "value": "[parameters('hubNetwork').addressPrefix]"
         },
         "azureGatewayName": {
             "type": "string",
-            "value": "[parameters('azureGateway').name]"
+            "value": "[parameters('vpnGateway').name]"
         }
     }
 }
