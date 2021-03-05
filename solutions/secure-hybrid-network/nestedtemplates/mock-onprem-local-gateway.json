@@ -29,7 +29,8 @@
             "properties": {
                 "localNetworkAddressSpace": {
                     "addressPrefixes": [
-                        "[parameters('azureCloudVnetPrefix')]"
+                        "[parameters('azureCloudVnetPrefix')]",
+                        "10.100.0.0/16"
                     ]
                 },
                 "gatewayIpAddress": "[parameters('gatewayIpAddress')]"

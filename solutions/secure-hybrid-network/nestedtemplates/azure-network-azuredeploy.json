@@ -41,7 +41,7 @@
         "spokeNetwork": {
             "type": "object",
             "defaultValue": {
-                "name": "vnet-spoke-one",
+                "name": "vnet-spoke",
                 "addressPrefix": "10.100.0.0/16",
                 "subnetName": "snet-spoke-resources",
                 "subnetPrefix": "10.100.0.0/16",
@@ -84,6 +84,8 @@
     },
     "variables": {
         "logAnalyticsWorkspace": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
+        "peering-name-hub-to-spoke": "hub-to-spoke",
+        "peering-name-spoke-to-hub": "spoke-to-hub",
         "nicNameWeb": "ra-aad-web-nic",
         "vmNameWeb": "ra-aad-web-vm",
         "windowsOSVersion": "2012-R2-Datacenter"
@@ -221,6 +223,46 @@
                     }
                 }
             ]
+        },
+        {
+            "comments": "Virtual network peering hub to spoke one",
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('hubNetwork').name, '/', variables('peering-name-hub-to-spoke'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]"
+            ],
+            "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]"
+                }
+            }
+        },
+        {
+            "comments": "Virtual network peering spoke one to hub",
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2020-05-01",
+            "name": "[concat(parameters('spokeNetwork').name, '/', variables('peering-name-spoke-to-hub'))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]"
+            ],
+            "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": true,
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+                }
+            }
         },
         {
             "comments": "Public IP address for Bastion",
