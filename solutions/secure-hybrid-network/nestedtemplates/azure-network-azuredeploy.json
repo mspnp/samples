@@ -252,7 +252,8 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
+                "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGateway').name)]"
             ],
             "properties": {
                 "allowVirtualNetworkAccess": true,
