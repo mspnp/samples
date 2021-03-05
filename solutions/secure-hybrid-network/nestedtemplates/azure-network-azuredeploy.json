@@ -18,7 +18,7 @@
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 0,
+            "defaultValue": 1,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
