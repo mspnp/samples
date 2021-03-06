@@ -557,7 +557,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
-                "[resourceId('Microsoft.Network/loadBalancers', 'testlb')]"
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name)]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -570,7 +570,7 @@
                             },
                             "loadBalancerBackendAddressPools": [
                                 {
-                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'testlb', 'web-lb-bep1')]"
+                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').backendName)]"
                                 }
                             ]
                         }
