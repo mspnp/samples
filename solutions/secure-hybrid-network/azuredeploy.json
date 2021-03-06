@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "601-secure-network-on-prem"
+            "defaultValue": "602-secure-network-on-prem"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "601-secure-network-on-azure"
+            "defaultValue": "602-secure-network-on-azure"
         },
         "adminUserName": {
             "type": "string",
@@ -26,10 +26,14 @@
         }
     },
     "variables": {
-        "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-azuredeploy.json",
-        "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-azuredeploy.json",
-        "mocOnPremLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-local-gateway.json",
-        "azureVirtualNetworkLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-local-gateway.json"
+        // "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-azuredeploy.json",
+        // "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-azuredeploy.json",
+        // "mocOnPremLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-local-gateway.json",
+        // "azureVirtualNetworkLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-local-gateway.json"
+        "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
+        "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-azuredeploy.json')]",
+        "mocOnPremLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-local-gateway.json')]",
+        "azureVirtualNetworkLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-local-gateway.json')]"
 
     },
     "resources": [
