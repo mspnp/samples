@@ -2,6 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "connectionName": {
+            "type": "string",
+            "defaultValue": "hub-to-mock-prem"
+        },
         "gatewayIpAddress": {
             "type": "string"
         },
@@ -13,7 +17,7 @@
         },
         "localNetworkGateway": {
             "type": "string",
-            "defaultValue": "localGateway"
+            "defaultValue": "hub-local"
         },
         "location": {
             "type": "string",
@@ -38,7 +42,7 @@
         {
             "type": "Microsoft.Network/connections",
             "apiVersion": "2020-05-01",
-            "name": "connection",
+            "name": "[parameters('connectionName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localNetworkGateway'))]"

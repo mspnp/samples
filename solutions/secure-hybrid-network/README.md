@@ -27,8 +27,7 @@ Run the following command to initiate the deployment. When prompted, enter value
 ```azurecli-interactive
 az deployment sub create \
     --template-uri https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/azuredeploy.json \
-    --location eastus   \
-    --parameters mocOnPremResourceGroup=cli-test-003-mock azureNetworkResourceGroup=cli-test-003-azure
+    --location eastus --parameters mocOnPremResourceGroup=site-to-site-mock-onprem azureNetworkResourceGroup=site-to-site-azure-network
 ```
 
 ## Solution deployment parameters
