@@ -113,6 +113,9 @@
                     "azureCloudVnetPrefix": {
                         "value": "[reference('azureNetwork').outputs.mocOnpremNetwork.value]"
                     },
+                    "spokeNetworkAddressPrefix": {
+                        "value": "[reference('azureNetwork').outputs.spokeNetworkAddressPrefix.value]"
+                    },
                     "mocOnpremGatewayName": {
                         "value": "[reference('onPremMock').outputs.mocOnpremGatewayName.value]"
                     }
@@ -137,9 +140,6 @@
                 "parameters": {
                     "azureCloudVnetPrefix": {
                         "value": "[reference('onPremMock').outputs.mocOnpremNetworkPrefix.value]"
-                    },
-                    "spokeNetworkAddressPrefix": {
-                        "value": "[reference('azureNetwork').outputs.spokeNetworkAddressPrefix.value]"
                     },
                     "gatewayIpAddress": {
                         "value": "[reference('onPremMock').outputs.vpnIp.value]"
