@@ -4,17 +4,11 @@
     "parameters": {
         "adminUserName": {
             "type": "string",
-            "defaultValue": "azureadmin",
-            "metadata": {
-                "description": "The admin user name for both the Windows and Linux virtual machines."
-            }
+            "defaultValue": "azureadmin"
         },
         "adminPassword": {
             "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "The admin password for both the Windows and Linux virtual machines."
-            }
+            "defaultValue": ""
         },
         "windowsVMCount": {
             "type": "int",
@@ -143,15 +137,6 @@
                             "addressPrefix": "[parameters('azureFirewall').subnetPrefix]"
                         }
                     },
-                    // {
-                    //     "name": "[parameters('azureNetwork').webSubnetName]",
-                    //     "properties": {
-                    //         "addressPrefix": "[parameters('azureNetwork').webSubnetPrefix]",
-                    //         "networkSecurityGroup": {
-                    //             "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('azureNetwork').webSubnetNsgName)]"
-                    //         }
-                    //     }
-                    // },
                     {
                         "name": "[parameters('bastionHost').subnetName]",
                         "properties": {
@@ -743,6 +728,10 @@
         "mocOnpremNetwork": {
             "type": "string",
             "value": "[parameters('hubNetwork').addressPrefix]"
+        },
+        "spokeNetworkAddressPrefix": {
+            "type": "string",
+            "value": "[parameters('spokeNetwork').addressPrefix]"
         },
         "azureGatewayName": {
             "type": "string",

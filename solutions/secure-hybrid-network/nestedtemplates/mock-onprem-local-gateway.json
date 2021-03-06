@@ -5,6 +5,9 @@
         "azureCloudVnetPrefix": {
             "type": "string"
         },
+        "spokeNetworkAddressPrefix": {
+            "type": "string"
+        },
         "gatewayIpAddress": {
             "type": "string"
         },
@@ -29,9 +32,9 @@
             "properties": {
                 "localNetworkAddressSpace": {
                     "addressPrefixes": [
+                        // what happens if I remove this, is trafic forwarded on to spoke?
                         "[parameters('azureCloudVnetPrefix')]",
-                        // Fix this
-                        "10.100.0.0/16"
+                        "[parameters('spokeNetworkAddressPrefix')]"
                     ]
                 },
                 "gatewayIpAddress": "[parameters('gatewayIpAddress')]"

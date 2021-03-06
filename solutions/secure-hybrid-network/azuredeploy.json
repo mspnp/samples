@@ -14,25 +14,19 @@
             "type": "string",
             "metadata": {
                 "description": "The admin user name for both the Windows and Linux virtual machines."
-            },
-            "defaultValue": "azureadmin"
+            }
         },
         "adminPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
-            },
-            "defaultValue": "Password2020!"
+            }
         }
     },
     "variables": {
-        // "mocOnPremTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-azuredeploy.json",
-        // "azureVirtualNetworkTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-azuredeploy.json",
-        // "mocOnPremLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/mock-onprem-local-gateway.json",
-        // "azureVirtualNetworkLocalGatewayTemplate": "https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/nestedtemplates/azure-network-local-gateway.json"
         "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
         "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-azuredeploy.json')]",
-        "mocOnPremLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-local-gateway.json')]",
+        "mocOnPremLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'mock-onprem-local-gateway.json')]",
         "azureVirtualNetworkLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-local-gateway.json')]"
 
     },
@@ -141,11 +135,14 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "gatewayIpAddress": {
-                        "value": "[reference('onPremMock').outputs.vpnIp.value]"
-                    },
                     "azureCloudVnetPrefix": {
                         "value": "[reference('onPremMock').outputs.mocOnpremNetworkPrefix.value]"
+                    },
+                    "spokeNetworkAddressPrefix": {
+                        "value": "[reference('azureNetwork').outputs.spokeNetworkAddressPrefix.value]"
+                    },
+                    "gatewayIpAddress": {
+                        "value": "[reference('onPremMock').outputs.vpnIp.value]"
                     },
                     "azureNetworkGatewayName": {
                         "value": "[reference('azureNetwork').outputs.azureGatewayName.value]"
