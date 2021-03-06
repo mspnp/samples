@@ -4,11 +4,11 @@
     "parameters": {
         "mocOnPremResourceGroup": {
             "type": "string",
-            "defaultValue": "602-secure-network-on-prem"
+            "defaultValue": "site-to-site-mock-prem"
         },
         "azureNetworkResourceGroup": {
             "type": "string",
-            "defaultValue": "602-secure-network-on-azure"
+            "defaultValue": "site-to-site-azure-network"
         },
         "adminUserName": {
             "type": "string",
