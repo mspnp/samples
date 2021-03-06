@@ -30,6 +30,7 @@
                 "localNetworkAddressSpace": {
                     "addressPrefixes": [
                         "[parameters('azureCloudVnetPrefix')]",
+                        // Fix this
                         "10.100.0.0/16"
                     ]
                 },

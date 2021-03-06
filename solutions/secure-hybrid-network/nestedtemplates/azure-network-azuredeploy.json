@@ -45,16 +45,16 @@
                 "addressPrefix": "10.100.0.0/16",
                 "subnetName": "snet-spoke-resources",
                 "subnetPrefix": "10.100.0.0/16",
-                "subnetNsgName": "nsg-spoke-one-resources"
+                "subnetNsgName": "nsg-spoke-resources"
             }
         },
         "vpnGateway": {
             "type": "object",
             "defaultValue": {
-                "name": "vgw-gateway",
+                "name": "vgn-gateway",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
-                "pipName": "pip-vgw-gateway"
+                "pipName": "pip-vgn-gateway"
             }
         },
         "bastionHost": {
@@ -77,17 +77,26 @@
                 "routeName": "r-nexthop-to-fw"
             }
         },
+        "internalLoadBalancer": {
+            "type": "object",
+            "defaultValue": {
+                "name": "lb-internal",
+                "backendName": "",
+                "fontendName": "",
+                "probeName": ""
+            }
+        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
         }
     },
     "variables": {
-        "logAnalyticsWorkspace": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
+        "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
-        "nicNameWeb": "ra-aad-web-nic",
-        "vmNameWeb": "ra-aad-web-vm",
+        "nicNameWeb": "nic-web-server",
+        "vmNameWeb": "vm-web-server",
         "windowsOSVersion": "2012-R2-Datacenter"
     },
     "resources": [
@@ -662,7 +671,7 @@
         {
             "type": "Microsoft.Network/loadBalancers",
             "apiVersion": "2020-05-01",
-            "name": "testlb",
+            "name": "[parameters('internalLoadBalancer').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]"
@@ -673,7 +682,7 @@
             "properties": {
                 "frontendIPConfigurations": [
                     {
-                        "name": "testlb",
+                        "name": "[parameters('internalLoadBalancer').fontendName]",
                         "properties": {
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
@@ -684,15 +693,15 @@
                 ],
                 "backendAddressPools": [
                     {
-                        "name": "web-lb-bep1"
+                        "name": "[parameters('internalLoadBalancer').backendName]"
                     }
                 ],
                 "loadBalancingRules": [
                     {
-                        "name": "web-lbr1",
+                        "name": "[parameters('internalLoadBalancer').probeName]",
                         "properties": {
                             "frontendIPConfiguration": {
-                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', 'testlb', 'testlb')]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').fontendName)]"
                             },
                             "frontendPort": 80,
                             "backendPort": 80,
@@ -703,17 +712,17 @@
                             "loadDistribution": "Default",
                             "disableOutboundSnat": false,
                             "backendAddressPool": {
-                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', 'testlb', 'web-lb-bep1')]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').backendName)]"
                             },
                             "probe": {
-                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', 'testlb'), '/probes/web-lbp1')]"
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name), '/probes/', parameters('internalLoadBalancer').probeName)]"
                             }
                         }
                     }
                 ],
                 "probes": [
                     {
-                        "name": "web-lbp1",
+                        "name": "[parameters('internalLoadBalancer').probeName]",
                         "properties": {
                             "protocol": "Http",
                             "port": 80,
