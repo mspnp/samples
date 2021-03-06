@@ -81,9 +81,9 @@
             "type": "object",
             "defaultValue": {
                 "name": "lb-internal",
-                "backendName": "",
-                "fontendName": "",
-                "probeName": ""
+                "backendName": "lb-backend",
+                "fontendName": "lb-frontend",
+                "probeName": "lb-probe"
             }
         },
         "location": {
