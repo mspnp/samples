@@ -45,7 +45,7 @@
         "vpnGateway": {
             "type": "object",
             "defaultValue": {
-                "name": "vgn-gateway",
+                "name": "vpn-azure-network",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
                 "pipName": "pip-vgn-gateway"

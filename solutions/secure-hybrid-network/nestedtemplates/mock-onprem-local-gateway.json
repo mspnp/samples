@@ -20,7 +20,7 @@
         },
         "localNetworkGateway": {
             "type": "string",
-            "defaultValue": "mock-prem-local"
+            "defaultValue": "local-gateway-moc-prem"
         },
         "location": {
             "type": "string",

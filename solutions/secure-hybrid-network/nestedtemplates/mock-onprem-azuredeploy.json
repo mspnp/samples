@@ -20,7 +20,7 @@
         "mocOnpremGateway": {
             "type": "object",
             "defaultValue": {
-                "name": "onprem-vpn-lgw",
+                "name": "vpn-mock-prem",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "192.168.255.224/27",
                 "pipName": "onprem-vpn-gateway-pip"
