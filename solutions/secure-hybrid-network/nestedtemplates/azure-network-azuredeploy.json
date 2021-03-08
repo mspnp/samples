@@ -439,7 +439,7 @@
                     "apiVersion": "2017-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]",
+                        "[resourceId('Microsoft.Network/bastionHosts', parameters('bastionHost').name)]",
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
                     ],
                     "properties": {
