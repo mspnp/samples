@@ -446,11 +446,7 @@
                         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
                         "logs": [
                             {
-                                "category": "NetworkSecurityGroupEvent",
-                                "enabled": true
-                            },
-                            {
-                                "category": "NetworkSecurityGroupRuleCounter",
+                                "category": "BastionAuditLogs",
                                 "enabled": true
                             }
                         ]
