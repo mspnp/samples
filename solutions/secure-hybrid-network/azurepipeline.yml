@@ -76,7 +76,7 @@ stages:
         inlineScript: |
          uriTemplate=$(artifactsLocationTemplate)
          echo "-----------------"
-         echo $uriTemplate
+         echo $(artifactsLocationTemplate)
          echo "-----------------"
         #  deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
         #  artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
