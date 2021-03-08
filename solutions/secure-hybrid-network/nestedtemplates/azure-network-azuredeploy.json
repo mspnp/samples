@@ -382,7 +382,31 @@
                         }
                     }
                 ]
-            }
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "NetworkSecurityGroupEvent",
+                                "enabled": true
+                            },
+                            {
+                                "category": "NetworkSecurityGroupRuleCounter",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "comments": "Azure Bastion and diagnostic configuration",
@@ -408,10 +432,35 @@
                         }
                     }
                 ]
-            }
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "NetworkSecurityGroupEvent",
+                                "enabled": true
+                            },
+                            {
+                                "category": "NetworkSecurityGroupRuleCounter",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "comments": "Public IP address for VPN Gateway",
+            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
             "name": "[parameters('vpnGateway').pipName]",
@@ -422,6 +471,7 @@
         },
         {
             "comments": "VPN Gateway",
+            "condition": "[parameters('deployVpnGateway')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
             "name": "[parameters('vpnGateway').name]",
@@ -452,7 +502,43 @@
                 "gatewayType": "Vpn",
                 "vpnType": "RouteBased",
                 "enableBgp": false
-            }
+            },
+            "resources": [
+                {
+                    "condition": "[parameters('deployVpnGateway')]",
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGateway').name)]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "GatewayDiagnosticLog",
+                                "enabled": true
+                            },
+                            {
+                                "category": "TunnelDiagnosticLog",
+                                "enabled": true
+                            },
+                            {
+                                "category": "RouteDiagnosticLog",
+                                "enabled": true
+                            },
+                            {
+                                "category": "IKEDiagnosticLog",
+                                "enabled": true
+                            },
+                            {
+                                "category": "P2SDiagnosticLog",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "comments": "Public IP address for Azure Firewall",
@@ -533,7 +619,31 @@
                         }
                     }
                 ]
-            }
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "NetworkSecurityGroupEvent",
+                                "enabled": true
+                            },
+                            {
+                                "category": "NetworkSecurityGroupRuleCounter",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "type": "Microsoft.Network/networkInterfaces",

@@ -11,7 +11,7 @@
         "mocOnpremNetwork": {
             "type": "object",
             "defaultValue": {
-                "name": "onprem-vnet",
+                "name": "vnet-onprem",
                 "addressPrefix": "192.168.0.0/16",
                 "subnetName": "mgmt",
                 "subnetPrefix": "192.168.1.128/25"
@@ -23,7 +23,7 @@
                 "name": "vpn-mock-prem",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "192.168.255.224/27",
-                "pipName": "onprem-vpn-gateway-pip"
+                "pipName": "pip-onprem-vpn-gateway"
             }
         },
         "bastionHost": {
