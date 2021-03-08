@@ -74,9 +74,10 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
+         echo "1111111111111"
+         echo $(Build.SourceVersion)
          uriTemplate=$(artifactsLocationTemplate)
-         echo "---------"
-         echo "$uriTemplate"
+         # https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/azuredeploy.json
          deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
          echo "--------"
          echo $deployUri
