@@ -64,9 +64,7 @@ stages:
     continueOnError: false
 
     steps:    
-    
-    - task: AzureCLI@2
-               
+                   
     - task: AzureCLI@2
       displayName: Validate template (validation api)
       inputs:
@@ -75,6 +73,8 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: |
          uriTemplate=$(artifactsLocationTemplate)
+         echo "---------"
+         echo $uriTemplate
         #  deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
         #  artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
         #  echo deployUri=$deployUri artifactUri=$artifactUri
