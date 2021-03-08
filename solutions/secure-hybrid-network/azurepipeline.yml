@@ -1,0 +1,114 @@
+variables:
+- name: serviceConnection
+  value: azure-service-connection-mg
+# - name: resource-group
+#   value: hub-spoke-$(Build.BuildId)
+- name: location
+  value: eastus
+- name: template-location
+  value: '/solutions/basic-web-app/*'
+- name: template-name
+  value: 'azuredeploy.json'  
+- name: ttk-skip-test
+  value: ''
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - '/solutions/secure-hybrid-network/*'
+      
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - '/solutions/secure-hybrid-network/*'
+      
+stages:
+
+# Run ARM TTK and publish test results (Windows only)
+- stage: armTemplateToolkit
+
+  jobs:
+  - job: armttk
+    pool:
+      vmImage: 'windows-latest'
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+    
+    - task: RunARMTTKTests@1
+      inputs:
+        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
+        resultLocation: '$(System.DefaultWorkingDirectory)'
+        skipTests: $(ttk-skip-test)
+        
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+      condition: always()
+
+# Deploy template
+- stage: validateAndDeploy
+  dependsOn: []
+
+  jobs:
+  - job: arm
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+
+    steps:    
+    
+    - task: AzureCLI@2
+               
+    - task: AzureCLI@2
+      displayName: Validate template (validation api)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         uriTemplate=$(artifactsLocationTemplate)
+         echo "-----------------"
+         echo $uriTemplate
+         echo "-----------------"
+        #  deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+        #  artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+        #  echo deployUri=$deployUri artifactUri=$artifactUri
+        #  az deployment sub validate --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
+
+    # - task: AzureCLI@2
+    #   displayName: Deploy template
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #      az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
+        
+# # Clean up deployment
+# - stage: cleanupResourceGroupBasic
+#   dependsOn: validateAndDeploy
+#   condition: always()
+
+#   jobs:
+#   - job: deleteResourceGroup
+#     pool: Hosted Ubuntu 1604
+#     continueOnError: false
+#     timeoutInMinutes: 20
+
+#     steps:
+
+#     - task: AzureCLI@2
+#       displayName: Delete resource group
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
