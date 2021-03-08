@@ -11,6 +11,8 @@ variables:
   value: 'azuredeploy.json'  
 - name: ttk-skip-test
   value: 'IDs-Should-Be-Derived-From-ResourceIDs'
+- name: artifactsLocationTemplate
+  value: 'https://raw.githubusercontent.com/neilpeterson/samples/tree/site-to-site-demo/solutions/secure-hybrid-network/'
 
 trigger:
   branches:
@@ -64,9 +66,7 @@ stages:
     continueOnError: false
 
     steps:    
-    
-    - task: AzureCLI@2
-               
+                   
     - task: AzureCLI@2
       displayName: Validate template (validation api)
       inputs:
@@ -75,7 +75,9 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: |
          uriTemplate=$(artifactsLocationTemplate)
-        #  deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+         echo "--------"
+         echo $deployUri
         #  artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
         #  echo deployUri=$deployUri artifactUri=$artifactUri
         #  az deployment sub validate --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
