@@ -164,6 +164,12 @@
                                 "category": "VMProtectionAlerts",
                                 "enabled": true
                             }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true
+                            }
                         ]
                     }
                 }
@@ -211,6 +217,12 @@
                         "logs": [
                             {
                                 "category": "VMProtectionAlerts",
+                                "enabled": true
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
                                 "enabled": true
                             }
                         ]
@@ -578,7 +590,35 @@
                         }
                     }
                 ]
-            }
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "logs": [
+                            {
+                                "category": "AzureFirewallApplicationRule",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AzureFirewallNetworkRule",
+                                "enabled": true
+                            },
+                            {
+                                "category": "AzureFirewallDnsProxy",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         {
             "comments": "Network security group + rules for spoke network and diagnostic configuration",
@@ -823,7 +863,27 @@
                         }
                     }
                 ]
-            }
+            },
+            "resources": [
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name)]",
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspace'))]",
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
         }
     ],
     "outputs": {
