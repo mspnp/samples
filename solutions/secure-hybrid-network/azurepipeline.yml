@@ -95,7 +95,7 @@ stages:
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
          echo "------------"
          echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment sub create p $(resource-group) --template-uri $deployUri --location eastus --parameters adminPassword=$(adminPassword)
+         az deployment sub create --template-uri $deployUri --location eastus --parameters adminPassword=$(adminPassword)
 
 # # Clean up deployment
 # - stage: cleanupResourceGroupBasic
