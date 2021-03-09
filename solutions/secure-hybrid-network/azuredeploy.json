@@ -22,6 +22,10 @@
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "eastus"
         }
     },
     "variables": {
@@ -36,13 +40,13 @@
             "name": "[parameters('mocOnPremResourceGroup')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "eastus"
+            "location": "[parameters('location')]"
         },
         {
             "name": "[parameters('azureNetworkResourceGroup')]",
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "eastus"
+            "location": "[parameters('location')]"
         },
         {
             "name": "onPremMock",
@@ -64,6 +68,9 @@
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -88,6 +95,9 @@
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -119,6 +129,9 @@
                     },
                     "mocOnpremGatewayName": {
                         "value": "[reference('onPremMock').outputs.mocOnpremGatewayName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }
@@ -147,6 +160,9 @@
                     },
                     "azureNetworkGatewayName": {
                         "value": "[reference('azureNetwork').outputs.azureGatewayName.value]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
                     }
                 }
             }

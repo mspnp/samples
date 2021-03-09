@@ -20,8 +20,7 @@
             "defaultValue": "local-gateway-azure-network"
         },
         "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]"
+            "type": "string"
         }
     },
     "resources": [
@@ -61,8 +60,6 @@
                 "enableBgp": false,
                 "useLocalAzureIpAddress": false,
                 "usePolicyBasedTrafficSelectors": false,
-                "ipsecPolicies": [],
-                "trafficSelectorPolicies": [],
                 "expressRouteGatewayBypass": false,
                 "dpdTimeoutSeconds": 0
             }

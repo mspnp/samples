@@ -10,7 +10,7 @@ variables:
 - name: adminPassword
   value: 'Password2020!'
 - name: ttk-skip-test
-  value: 'IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
 - name: artifactsLocationTemplate
   value: 'https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/'
 - name: mock-on-prem-resource-group-name
