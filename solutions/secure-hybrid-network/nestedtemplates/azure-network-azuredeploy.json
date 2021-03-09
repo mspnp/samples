@@ -8,7 +8,7 @@
         },
         "adminPassword": {
             "type": "securestring",
-            "defaultValue": ""
+            "defaultValue": "Password2020!"
         },
         "windowsVMCount": {
             "type": "int",
@@ -803,7 +803,7 @@
             }
         },
         {
-            "name": "[concat(parameters('azureFirewall').routeName, 'test-route')]",
+            "name": "[concat(parameters('azureFirewall').routeName, '/test-route')]",
             "type": "Microsoft.Network/routeTables/routes",
             "apiVersion": "2020-07-01",
             "dependsOn": [
