@@ -14,7 +14,8 @@
             "type": "string",
             "metadata": {
                 "description": "The admin user name for both the Windows and Linux virtual machines."
-            }
+            },
+            "defaultValue": "azureadmin"
         },
         "adminPassword": {
             "type": "securestring",

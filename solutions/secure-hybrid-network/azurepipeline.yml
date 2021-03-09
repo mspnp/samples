@@ -79,7 +79,7 @@ stages:
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
          echo "------------"
          echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment sub validate --template-uri $deployUri --location eastus
+         az deployment sub validate --template-uri $deployUri --location eastus --parameters adminPassword=Password2020!
          ## az deployment sub validate --template-uri $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
 
     # - task: AzureCLI@2
