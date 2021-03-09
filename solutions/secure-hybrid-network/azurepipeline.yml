@@ -1,20 +1,22 @@
 variables:
 - name: serviceConnection
   value: azure-service-connection-mg
-# - name: resource-group
-#   value: hub-spoke-$(Build.BuildId)
 - name: location
   value: eastus
 - name: template-location
-  value: '/solutions/basic-web-app/*'
+  value: '/solutions/secure-hybrid-network/*'
 - name: template-name
   value: 'azuredeploy.json'
 - name: adminPassword
-  value: 'password2020!'
+  value: 'Password2020!'
 - name: ttk-skip-test
   value: 'IDs-Should-Be-Derived-From-ResourceIDs'
 - name: artifactsLocationTemplate
   value: 'https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/'
+- name: mock-on-prem-resource-group-name
+  value: secure-vnet-azure-$(Build.BuildId)
+- name: azure-network-resource-group-name
+  value: secure-mock-on-prem-$(Build.BuildId)
 
 trigger:
   branches:
@@ -79,9 +81,7 @@ stages:
          uriTemplate=$(artifactsLocationTemplate)
          deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         echo "------------"
-         echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment sub validate --template-uri $deployUri --location eastus --parameters adminPassword=$(adminPassword)
+         az deployment sub validate --template-uri $deployUri --location eastus --parameters mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -93,27 +93,39 @@ stages:
          uriTemplate=$(artifactsLocationTemplate)
          deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         echo "------------"
-         echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment sub create --template-uri $deployUri --location eastus --parameters adminPassword=$(adminPassword)
+         az deployment sub create --template-uri $deployUri --location eastus --parameters mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword)
 
-# # Clean up deployment
-# - stage: cleanupResourceGroupBasic
-#   dependsOn: validateAndDeploy
-#   condition: always()
+    - task: AzureCLI@2
+      displayName: Deploy template again
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         uriTemplate=$(artifactsLocationTemplate)
+         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+         az deployment sub create --template-uri $deployUri --location eastus --parameters mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword)
 
-#   jobs:
-#   - job: deleteResourceGroup
-#     pool: Hosted Ubuntu 1604
-#     continueOnError: false
-#     timeoutInMinutes: 20
+# Clean up deployment
+- stage: cleanupResourceGroupBasic
+  dependsOn: validateAndDeploy
+  condition: always()
 
-#     steps:
+  jobs:
+  - job: deleteResourceGroup
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+    timeoutInMinutes: 20
 
-#     - task: AzureCLI@2
-#       displayName: Delete resource group
-#       inputs:
-#         azureSubscription: $(serviceConnection)
-#         scriptType: 'bash'
-#         scriptLocation: 'inlineScript'
-#         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+    steps:
+
+    - task: AzureCLI@2
+      displayName: Delete resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
+         az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait
