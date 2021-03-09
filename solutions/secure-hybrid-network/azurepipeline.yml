@@ -8,7 +8,9 @@ variables:
 - name: template-location
   value: '/solutions/basic-web-app/*'
 - name: template-name
-  value: 'azuredeploy.json'  
+  value: 'azuredeploy.json'
+- name: adminPassword
+  value: 'password2020!'
 - name: ttk-skip-test
   value: 'IDs-Should-Be-Derived-From-ResourceIDs'
 - name: artifactsLocationTemplate
@@ -79,8 +81,7 @@ stages:
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
          echo "------------"
          echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment sub validate --template-uri $deployUri --location eastus --parameters adminPassword="Password2020!"
-         ## az deployment sub validate --template-uri $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
+         az deployment sub validate --template-uri $deployUri --location eastus --parameters adminPassword=$(adminPassword)
 
     # - task: AzureCLI@2
     #   displayName: Deploy template
