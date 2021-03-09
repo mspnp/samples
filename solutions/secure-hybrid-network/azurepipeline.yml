@@ -95,37 +95,37 @@ stages:
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
          az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
 
-    - task: AzureCLI@2
-      displayName: Deploy template again
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+    # - task: AzureCLI@2
+    #   displayName: Deploy template again
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #      uriTemplate=$(artifactsLocationTemplate)
+    #      deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+    #      artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+    #      az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
 
-# Clean up deployment
-- stage: cleanupResourceGroupBasic
-  dependsOn: validateAndDeploy
-  condition: always()
+# # Clean up deployment
+# - stage: cleanupResourceGroupBasic
+#   dependsOn: validateAndDeploy
+#   condition: always()
 
-  jobs:
-  - job: deleteResourceGroup
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 20
+#   jobs:
+#   - job: deleteResourceGroup
+#     pool: Hosted Ubuntu 1604
+#     continueOnError: false
+#     timeoutInMinutes: 20
 
-    steps:
+#     steps:
 
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
-         az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait
+#     - task: AzureCLI@2
+#       displayName: Delete resource group
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#          az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
+#          az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait
