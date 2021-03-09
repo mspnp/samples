@@ -68,7 +68,8 @@
                 "publicIPAddressName": "pip-firewall",
                 "subnetName": "AzureFirewallSubnet",
                 "subnetPrefix": "10.0.3.0/26",
-                "routeName": "r-nexthop-to-fw"
+                // drop this to a routes parameter?
+                "routeName": "hub-gateway-routes"
             }
         },
         "internalLoadBalancer": {
@@ -115,7 +116,8 @@
             "name": "[parameters('hubNetwork').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]",
+                "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
             ],
             "properties": {
                 "addressSpace": {
@@ -127,7 +129,11 @@
                     {
                         "name": "[parameters('vpnGateway').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
+                            "addressPrefix": "[parameters('vpnGateway').subnetPrefix]",
+                            // Added route table, remove once validated
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
+                            }
                         }
                     },
                     {
@@ -774,29 +780,29 @@
                 "count": "[parameters('windowsVMCount')]"
             }
         },
-        // {
-        //     "comments": "Route / force tunnel from spokes to Azure firewall",
-        //     "type": "Microsoft.Network/routeTables",
-        //     "apiVersion": "2020-05-01",
-        //     "name": "[parameters('azureFirewall').routeName]",
-        //     "location": "[parameters('location')]",
-        //     "dependsOn": [
-        //         "[resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name)]"
-        //     ],
-        //     "properties": {
-        //         "disableBgpRoutePropagation": false,
-        //         "routes": [
-        //             {
-        //                 "name": "[parameters('azureFirewall').routeName]",
-        //                 "properties": {
-        //                     "addressPrefix": "0.0.0.0/0",
-        //                     "nextHopType": "VirtualAppliance",
-        //                     "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
-        //                 }
-        //             }
-        //         ]
-        //     }
-        // },
+        {
+            "comments": "Route / force tunnel from spokes to Azure firewall",
+            "type": "Microsoft.Network/routeTables",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('azureFirewall').routeName]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name)]"
+            ],
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "[parameters('azureFirewall').routeName]",
+                        "properties": {
+                            "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
+                        }
+                    }
+                ]
+            }
+        },
         {
             "type": "Microsoft.Network/loadBalancers",
             "apiVersion": "2020-05-01",
