@@ -79,18 +79,17 @@ stages:
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
          echo "------------"
          echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment sub validate --template-uri $deployUri --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
+         az deployment sub validate --template-uri $deployUri --location eastus
          ## az deployment sub validate --template-uri $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
 
-    - task: AzureCLI@2
-      displayName: Deploy template
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment sub create p $(resource-group) --template-uri $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
-         
+    # - task: AzureCLI@2
+    #   displayName: Deploy template
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #      az deployment sub create p $(resource-group) --template-uri $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) --location eastus
 # # Clean up deployment
 # - stage: cleanupResourceGroupBasic
 #   dependsOn: validateAndDeploy
