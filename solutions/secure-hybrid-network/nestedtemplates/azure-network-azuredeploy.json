@@ -7,8 +7,7 @@
             "defaultValue": "azureadmin"
         },
         "adminPassword": {
-            "type": "securestring",
-            "defaultValue": "Password2020!"
+            "type": "securestring"
         },
         "windowsVMCount": {
             "type": "int",
@@ -248,7 +247,7 @@
             ],
             "properties": {
                 "allowVirtualNetworkAccess": true,
-                "allowForwardedTraffic": false,
+                "allowForwardedTraffic": true,
                 "allowGatewayTransit": true,
                 "useRemoteGateways": false,
                 "remoteVirtualNetwork": {
@@ -269,7 +268,7 @@
             ],
             "properties": {
                 "allowVirtualNetworkAccess": true,
-                "allowForwardedTraffic": false,
+                "allowForwardedTraffic": true,
                 "allowGatewayTransit": false,
                 "useRemoteGateways": true,
                 "remoteVirtualNetwork": {
@@ -590,7 +589,39 @@
                             },
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('azureFirewall').subnetName)]"
-                            }
+                            },
+                            "applicationRuleCollections": [
+                                {
+                                    "name": "spoke-outbound",
+                                    "properties": {
+                                        "priority": 100,
+                                        "action": {
+                                            "type": "Allow"
+                                        },
+                                        "rules": [
+                                            {
+                                                "name": "all-internet",
+                                                "protocols": [
+                                                    {
+                                                        "protocolType": "Http",
+                                                        "port": 80
+                                                    },
+                                                    {
+                                                        "protocolType": "Https",
+                                                        "port": 443
+                                                    }
+                                                ],
+                                                "targetFqdns": [
+                                                    "*"
+                                                ],
+                                                "sourceAddresses": [
+                                                    "*"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            ],
                         }
                     }
                 ]
@@ -786,8 +817,6 @@
             "apiVersion": "2020-05-01",
             "name": "[parameters('azureFirewall').routeName]",
             "location": "[parameters('location')]",
-            "dependsOn": [
-            ],
             "properties": {
                 "disableBgpRoutePropagation": false
                 // "routes": [
@@ -803,7 +832,7 @@
             }
         },
         {
-            "name": "[concat(parameters('azureFirewall').routeName, '/test-route')]",
+            "name": "[concat(parameters('azureFirewall').routeName, '/spoke-to-internet')]",
             "type": "Microsoft.Network/routeTables/routes",
             "apiVersion": "2020-07-01",
             "dependsOn": [
@@ -811,7 +840,7 @@
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
+                "addressPrefix": "0.0.0.0/0",
                 "nextHopType": "VirtualAppliance",
                 "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
             }
