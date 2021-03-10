@@ -589,37 +589,37 @@
                             },
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('azureFirewall').subnetName)]"
+                            }
+                        }
+                    }
+                ],
+                "applicationRuleCollections": [
+                    {
+                        "name": "spoke-outbound",
+                        "properties": {
+                            "priority": 100,
+                            "action": {
+                                "type": "Allow"
                             },
-                            "applicationRuleCollections": [
+                            "rules": [
                                 {
-                                    "name": "spoke-outbound",
-                                    "properties": {
-                                        "priority": 100,
-                                        "action": {
-                                            "type": "Allow"
+                                    "name": "all-internet",
+                                    "protocols": [
+                                        {
+                                            "protocolType": "Http",
+                                            "port": 80
                                         },
-                                        "rules": [
-                                            {
-                                                "name": "all-internet",
-                                                "protocols": [
-                                                    {
-                                                        "protocolType": "Http",
-                                                        "port": 80
-                                                    },
-                                                    {
-                                                        "protocolType": "Https",
-                                                        "port": 443
-                                                    }
-                                                ],
-                                                "targetFqdns": [
-                                                    "*"
-                                                ],
-                                                "sourceAddresses": [
-                                                    "*"
-                                                ]
-                                            }
-                                        ]
-                                    }
+                                        {
+                                            "protocolType": "Https",
+                                            "port": 443
+                                        }
+                                    ],
+                                    "targetFqdns": [
+                                        "*"
+                                    ],
+                                    "sourceAddresses": [
+                                        "*"
+                                    ]
                                 }
                             ]
                         }
