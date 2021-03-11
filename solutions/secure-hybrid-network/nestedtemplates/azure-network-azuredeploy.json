@@ -850,18 +850,38 @@
             }
         },
         {
+            "comments": "Route / force tunnel from spokes to Azure firewall",
+            "type": "Microsoft.Network/routeTables",
+            "apiVersion": "2020-05-01",
+            "name": "test",
+            "location": "[parameters('location')]",
+            "properties": {
+                "disableBgpRoutePropagation": false
+                // "routes": [
+                //     {
+                //         "name": "[parameters('azureFirewall').routeName]",
+                //         "properties": {
+                //             "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
+                //             "nextHopType": "VirtualAppliance",
+                //             "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
+                //         }
+                //     }
+                // ]
+            }
+        },
+        {
             // Route associated with gateway subnet, to any address is the spoke / resource subnet, through firewall
-            "name": "[concat(parameters('azureFirewall').routeName, '/firewall-to-spoke')]",
+            "name": "[concat('test', '/firewall-to-spoke')]",
             "type": "Microsoft.Network/routeTables/routes",
             "apiVersion": "2020-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables',parameters('azureFirewall').routeName)]"
+                "[resourceId('Microsoft.Network/routeTables', 'test')]"
                 // "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
             ],
             "properties": {
-                "addressPrefix": "0.0.0.0/0",
+                "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
                 "nextHopType": "VirtualAppliance",
-                "nextHopIpAddress": "[parameters('spokeNetwork').subnetPrefix]"
+                "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
             }
         },
         {
