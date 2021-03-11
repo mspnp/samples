@@ -128,7 +128,7 @@
                     {
                         "name": "[parameters('vpnGateway').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('vpnGateway').subnetPrefix]",
+                            "addressPrefix": "[parameters('vpnGateway').subnetPrefix]"
                             // Added route table, remove once validated
                             // "routeTable": {
                             //     "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
