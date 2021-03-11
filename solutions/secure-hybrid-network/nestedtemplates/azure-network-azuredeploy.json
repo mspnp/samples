@@ -130,9 +130,9 @@
                         "properties": {
                             "addressPrefix": "[parameters('vpnGateway').subnetPrefix]",
                             // Added route table, remove once validated
-                            "routeTable": {
-                                "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
-                            }
+                            // "routeTable": {
+                            //     "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
+                            // }
                         }
                     },
                     {
@@ -202,6 +202,9 @@
                             "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]"
+                            },
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
                             }
                         }
                     }
