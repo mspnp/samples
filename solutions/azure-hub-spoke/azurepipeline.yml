@@ -80,7 +80,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -89,7 +89,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
 
     - task: AzureCLI@2
       displayName: Deploy template (second pass)
@@ -98,7 +98,8 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(vmPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+         sleep 30
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
