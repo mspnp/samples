@@ -90,6 +90,15 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: |
          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
+             - task: AzureCLI@2
+
+      displayName: Deploy template again
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
