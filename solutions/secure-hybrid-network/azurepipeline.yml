@@ -1,0 +1,131 @@
+variables:
+- name: serviceConnection
+  value: azure-service-connection-mg
+- name: location
+  value: eastus
+- name: template-location
+  value: '/solutions/secure-hybrid-network/*'
+- name: template-name
+  value: 'azuredeploy.json'
+- name: adminPassword
+  value: 'Password2020!'
+- name: ttk-skip-test
+  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
+- name: artifactsLocationTemplate
+  value: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/'
+- name: mock-on-prem-resource-group-name
+  value: secure-moc-onprem-$(Build.BuildId)
+- name: azure-network-resource-group-name
+  value: secure-vnet-azure-$(Build.BuildId)
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - '/solutions/secure-hybrid-network/*'
+      
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - '/solutions/secure-hybrid-network/*'
+      
+stages:
+
+# Run ARM TTK and publish test results (Windows only)
+- stage: armTemplateToolkit
+
+  jobs:
+  - job: armttk
+    pool:
+      vmImage: 'windows-latest'
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+    
+    - task: RunARMTTKTests@1
+      inputs:
+        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
+        resultLocation: '$(System.DefaultWorkingDirectory)'
+        skipTests: $(ttk-skip-test)
+        
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+      condition: always()
+
+# Deploy template
+- stage: validateAndDeploy
+  dependsOn: []
+
+  jobs:
+  - job: arm
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+
+    steps:    
+                   
+    - task: AzureCLI@2
+      displayName: Validate template (validation api)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         uriTemplate=$(artifactsLocationTemplate)
+         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+         az deployment sub validate --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword) --name validate-$(Build.BuildId)
+
+    - task: AzureCLI@2
+      displayName: Deploy template
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         uriTemplate=$(artifactsLocationTemplate)
+         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+
+    - task: AzureCLI@2
+      displayName: Deploy template again
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         uriTemplate=$(artifactsLocationTemplate)
+         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+
+# # Clean up deployment
+# - stage: cleanupResourceGroupBasic
+#   dependsOn: validateAndDeploy
+#   condition: always()
+
+#   jobs:
+#   - job: deleteResourceGroup
+#     pool: Hosted Ubuntu 1604
+#     continueOnError: false
+#     timeoutInMinutes: 20
+
+#     steps:
+
+#     - task: AzureCLI@2
+#       displayName: Delete resource group
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#          az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
+#          az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait
