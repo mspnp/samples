@@ -36,21 +36,21 @@
     },
     "resources": [
         {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
             "name": "[parameters('mocOnPremResourceGroup')]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
             "location": "[parameters('resourceGrouplocation')]"
         },
         {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
             "name": "[parameters('azureNetworkResourceGroup')]",
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
             "location": "[parameters('resourceGrouplocation')]"
         },
         {
-            "name": "onPremMock",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
+            "name": "onPremMock",
             "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
@@ -75,9 +75,9 @@
             }
         },
         {
-            "name": "azureNetwork",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
+            "name": "azureNetwork",
             "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/resourceGroups', parameters('azureNetworkResourceGroup'))]"
@@ -102,9 +102,9 @@
             }
         },
         {
-            "name": "mockOnPremLocalGateway",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
+            "name": "mockOnPremLocalGateway",
             "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
             "dependsOn": [
                 "azureNetwork",
@@ -136,9 +136,9 @@
             }
         },
         {
-            "name": "azureNetworkLocalGateway",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
+            "name": "azureNetworkLocalGateway",
             "resourceGroup": "[parameters('azureNetworkResourceGroup')]",
             "dependsOn": [
                 "azureNetwork",
