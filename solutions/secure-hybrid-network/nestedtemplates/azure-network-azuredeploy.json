@@ -66,9 +66,9 @@
                 "name": "AzureFirewall",
                 "publicIPAddressName": "pip-firewall",
                 "subnetName": "AzureFirewallSubnet",
-                "subnetPrefix": "10.0.3.0/26",
-                // drop this to a routes parameter?
-                "routeName": "hub-gateway-routes"
+                "subnetPrefix": "10.0.3.0/26"
+                // // drop this to a routes parameter?
+                // "routeName": "hub-gateway-routes"
             }
         },
         "internalLoadBalancer": {
@@ -116,7 +116,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]",
-                "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
+                "[resourceId('Microsoft.Network/routeTables', 'spoke-routes')]"
             ],
             "properties": {
                 "addressSpace": {
@@ -129,12 +129,8 @@
                         "name": "[parameters('vpnGateway').subnetName]",
                         "properties": {
                             "addressPrefix": "[parameters('vpnGateway').subnetPrefix]",
-                            // Added route table, remove once validated
-                            // "routeTable": {
-                            //     "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
-                            // }
                             "routeTable": {
-                                "id": "[resourceId('Microsoft.Network/routeTables', 'test')]"
+                                "id": "[resourceId('Microsoft.Network/routeTables', 'gateway-routes')]"
                             }
                         }
                     },
@@ -190,7 +186,6 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]"
-                // "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
             ],
             "properties": {
                 "addressSpace": {
@@ -207,7 +202,7 @@
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]"
                             },
                             "routeTable": {
-                                "id": "[resourceId('Microsoft.Network/routeTables', parameters('azureFirewall').routeName)]"
+                                "id": "[resourceId('Microsoft.Network/routeTables', 'spoke-routes')]"
                             }
                         }
                     }
@@ -821,30 +816,20 @@
             "comments": "Route / force tunnel from spokes to Azure firewall",
             "type": "Microsoft.Network/routeTables",
             "apiVersion": "2020-05-01",
-            "name": "[parameters('azureFirewall').routeName]",
+            // "name": "[parameters('azureFirewall').routeName]",
+            "name": "spoke-routes",
             "location": "[parameters('location')]",
             "properties": {
                 "disableBgpRoutePropagation": false
-                // "routes": [
-                //     {
-                //         "name": "[parameters('azureFirewall').routeName]",
-                //         "properties": {
-                //             "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
-                //             "nextHopType": "VirtualAppliance",
-                //             "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
-                //         }
-                //     }
-                // ]
             }
         },
         {
-            // Route associated with spoke / resources subnet, any address, through Azure firewall
-            "name": "[concat(parameters('azureFirewall').routeName, '/spoke-to-internet')]",
+            "comments": "Route associated with spoke / resources subnet, any address, through Azure firewall",
+            "name": "spoke-routes/spoke-to-internet",
             "type": "Microsoft.Network/routeTables/routes",
             "apiVersion": "2020-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables',parameters('azureFirewall').routeName)]"
-                // "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+                "[resourceId('Microsoft.Network/routeTables', 'spoke-routes')]"
             ],
             "properties": {
                 "addressPrefix": "0.0.0.0/0",
@@ -856,30 +841,19 @@
             "comments": "Route / force tunnel from spokes to Azure firewall",
             "type": "Microsoft.Network/routeTables",
             "apiVersion": "2020-05-01",
-            "name": "test",
+            // "name": "test",
+            "name": "gateway-routes",
             "location": "[parameters('location')]",
             "properties": {
                 "disableBgpRoutePropagation": false
-                // "routes": [
-                //     {
-                //         "name": "[parameters('azureFirewall').routeName]",
-                //         "properties": {
-                //             "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",
-                //             "nextHopType": "VirtualAppliance",
-                //             "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name), '2020-05-01').ipConfigurations[0].properties.privateIpAddress]"
-                //         }
-                //     }
-                // ]
             }
         },
         {
-            // Route associated with gateway subnet, to any address is the spoke / resource subnet, through firewall
-            "name": "[concat('test', '/firewall-to-spoke')]",
+            "name": "gateway-routes/firewall-to-spoke",
             "type": "Microsoft.Network/routeTables/routes",
             "apiVersion": "2020-07-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/routeTables', 'test')]"
-                // "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]"
+                "[resourceId('Microsoft.Network/routeTables', 'gateway-routes')]"
             ],
             "properties": {
                 "addressPrefix": "[parameters('spokeNetwork').addressPrefix]",

@@ -35,7 +35,6 @@
             "properties": {
                 "localNetworkAddressSpace": {
                     "addressPrefixes": [
-                        // what happens if I remove this, is trafic forwarded on to spoke?
                         "[parameters('azureCloudVnetPrefix')]",
                         "[parameters('spokeNetworkAddressPrefix')]"
                     ]
