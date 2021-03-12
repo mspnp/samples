@@ -4,18 +4,18 @@ languages:
 - azurepowershell
 - azurecli
 products:
-  - azure-app-service
-  - azure-log-analytics
-  - azure-key-vault
-  - azure-sql-database
-description: This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
+  - azure-vpn-gateway
+  - azure-virtual-network
+  - azure-firewall
+  - azure-vpn-gateway
+description: This sample deploys a hub and spoke network, a mock on-premises network, and connects both with a site-to-site VPN connection. 
 ---
 
 # Basic web app deployment
 
 [![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/basic-web-app?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=131&branchName=master)
 
-This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
+This sample deploys a hub and spoke network, a mock on-premises network, and connects both with a site-to-site VPN connection. 
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
@@ -24,7 +24,7 @@ Where applicable, each resource is configured to send diagnostics to an Azure Lo
 For detailed information, see the Implement a secure hybrid network:
 
 > [!div class="nextstepaction"]
-> [Implement a secure hybrid network](https://review.docs.microsoft.com/azure/architecture/reference-architectures/dmz/secure-vnet-dmz?branch=pr-en-us-2518&tabs=cli)
+> [Implement a secure hybrid network](https://docs.microsoft.com/azure/architecture/reference-architectures/dmz/secure-vnet-dmz)
 
 ## Deploy sample
 
@@ -32,18 +32,19 @@ Run the following command to initiate the deployment. When prompted, enter value
 
 ```azurecli-interactive
 az deployment sub create \
-    --template-uri https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/azuredeploy.json \
-    --location eastus --parameters mocOnPremResourceGroup=site-to-site-mock-prem-mon-004 azureNetworkResourceGroup=site-to-site-azure-network-mon-004
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json
 ```
 
 ## Solution deployment parameters
 
+**azuredeploy.json**
+
 | Parameter | Type | Description | Default |
 |---|---|---|--|
+| mocOnPremResourceGroup | string | Name of the moc on-prem resource group. | site-to-site-mock-prem |
+| azureNetworkResourceGroup | string | Name of the Azure network resource group. | site-to-site-azure-network |
 | adminUserName | string | The admin user name for the Azure SQL instance. | azureadmin |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
-| mocOnPremResourceGroup | string | Name of the moc on-prem resource group. | |
-| azureNetworkResourceGroup | string | Name of the azurre network resource group. | |
 
 ## Code of conduct
 
