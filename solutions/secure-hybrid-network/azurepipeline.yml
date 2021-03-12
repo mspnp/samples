@@ -12,7 +12,7 @@ variables:
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
 - name: artifactsLocationTemplate
-  value: 'https://raw.githubusercontent.com/neilpeterson/samples/site-to-site-demo/solutions/secure-hybrid-network/'
+  value: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/'
 - name: mock-on-prem-resource-group-name
   value: secure-moc-onprem-$(Build.BuildId)
 - name: azure-network-resource-group-name
