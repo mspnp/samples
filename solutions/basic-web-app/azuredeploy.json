@@ -11,7 +11,7 @@
         "adminPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "The admin password for the Azure SQL instance."
+                "description": "The admin password for the Azure SQL instance testß."
             }
         },
         "logAnalytics": {
