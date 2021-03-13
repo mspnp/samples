@@ -12,7 +12,8 @@
             "type": "securestring",
             "metadata": {
                 "description": "The admin password for the Azure SQL instance."
-            }
+            },
+            "defaultValue": "Password2020!"
         },
         "logAnalytics": {
             "type": "object",
