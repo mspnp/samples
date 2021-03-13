@@ -1,4 +1,3 @@
-// test commentß
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
@@ -9,7 +8,7 @@
                 "description": "The admin user name for the Azure SQL instance."
             }
         },
-        "adminPassword": {ßß
+        "adminPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "The admin password for the Azure SQL instance."
@@ -17,12 +16,12 @@
         },
         "logAnalytics": {
             "type": "object",
-            "defaultValue": {
-                "name": "[concat('la', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+            "defaultValue": {ß
+                "name": "[concat('la', '-', uniqueStrißng(subscription().subscriptionId, resourceGroup().id))]",
                 "skuName": "free"
             },
-            "metadata": {
-                "description": "Deployment settings for the Log Analytics workspace."
+            "metadata": {ß
+                "description": "Deployment settings for the Log Analytics workspace test testß."
             }
         },
         "azureSqlDatabase": {
