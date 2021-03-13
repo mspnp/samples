@@ -11,9 +11,9 @@ products:
 description: This sample deploys a hub and spoke network, a mock on-premises network, and connects both with a site-to-site VPN connection. 
 ---
 
-# Basic web app deployment
+# Secure hybrid network
 
-[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/basic-web-app?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=131&branchName=master)
+[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/secure-hybrid-network?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=135&branchName=master)
 
 This sample deploys a hub and spoke network, a mock on-premises network, and connects both with a site-to-site VPN connection. 
 
