@@ -21,7 +21,8 @@
             "type": "securestring",
             "metadata": {
                 "description": "The admin password for both the Windows and Linux virtual machines."
-            }
+            },
+            "defaultValue": "Password2020!"
         },
         "resourceGrouplocation": {
             "type": "string"
