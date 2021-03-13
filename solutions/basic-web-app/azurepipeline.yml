@@ -27,6 +27,14 @@ pr:
   paths:
     include:
       - '/solutions/basic-web-app/*'
+
+schedules:
+- cron: "0 12 * * 0"
+  displayName: Weekly Sunday build
+  branches:
+    include:
+    - master
+  always: true
       
 stages:
 
