@@ -19,7 +19,7 @@ This sample deploys a hub and spoke network, a mock on-premises network, and con
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
-![Hub and spoke architectural diagram.](images/dmz-private-expanded.png)
+![Hub and spoke architectural diagram.](images/dmz-private.png)
 
 For detailed information, see the Implement a secure hybrid network:
 
@@ -32,7 +32,7 @@ Run the following command to initiate the deployment. When prompted, enter value
 
 ```azurecli-interactive
 az deployment sub create \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/azuredeploy.json --location eastus
 ```
 
 ## Solution deployment parameters
@@ -43,8 +43,62 @@ az deployment sub create \
 |---|---|---|--|
 | mocOnPremResourceGroup | string | Name of the moc on-prem resource group. | site-to-site-mock-prem |
 | azureNetworkResourceGroup | string | Name of the Azure network resource group. | site-to-site-azure-network |
-| adminUserName | string | The admin user name for the Azure SQL instance. | azureadmin |
+| adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
+
+**nestedtemplates/azure-network-azuredeploy.json**
+
+| Parameter | Type | Description | Default |
+|---|---|---|--|
+| adminUserName | string | The admin user name for the Azure SQL instance. | null |
+| adminPassword | securestring | The admin password for the Azure SQL instance. | null |
+| windowsVMCount | int |  | 2 |
+| vmSize | string |  | Standard_A1_v2 |
+| deployVpnGateway | bool |  | true |
+| hubNetwork | object |  | name, addressPrefix |
+| spokeNetwork | object |  | name, addressPrefix, subnetName, subnetPrefix, subnetNsgName |
+| vpnGateway | object |  | name, subnetName, subnetPrefix, publicIPAddressName |
+| bastionHost | object |  | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
+| azureFirewall | object |  | name, subnetName, subnetPrefix, publicIPAddressName |
+| spokeRoutes | object |  | tableName, routeNameFirewall |
+| gatewayRoutes | object |  | tableName, routeNameFirewall |
+| internalLoadBalancer | object |  | name, backendName, fontendName, probeName |
+| location | string |  | null |
+
+**nestedtemplates/azure-network-local-gateway.json**
+
+| Parameter | Type | Description | Default |
+|---|---|---|--|
+| connectionName | string |  | hub-to-mock-prem |
+| gatewayIpAddress | string |  | null |
+| azureCloudVnetPrefix | string |  | null |
+| azureNetworkGatewayName | string |  | null |
+| localNetworkGatewayName | string |  | local-gateway-azure-network |
+
+**nestedtemplates/mock-onprem-azuredeploy.json**
+
+| Parameter | Type | Description | Default |
+|---|---|---|--|
+| adminUserName | string | The admin user name for the Azure SQL instance. | null |
+| adminPassword | securestring | The admin password for the Azure SQL instance. | null |
+| mocOnpremNetwork | object | | name, addressPrefix, mgmt, subnetPrefix |
+| mocOnpremGateway | object | | name, subnetName, subnetPrefix, publicIPAddressName |
+| bastionHost | object | | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
+| vmSize | string | | Standard_A1_v2 |
+| deployVpnGateway | bool | | true |
+| location | string |  | null |
+
+**nestedtemplates/mock-onprem-local-gateway.json**
+
+| Parameter | Type | Description | Default |
+|---|---|---|--|
+| connectionName | string |  | hub-to-mock-prem |
+| azureCloudVnetPrefix | string |  | hub-to-mock-prem |
+| spokeNetworkAddressPrefix | string |  | hub-to-mock-prem |
+| gatewayIpAddress | string |  | null |
+| mocOnpremGatewayName | string |  | null |
+| localNetworkGateway | string |  | local-gateway-moc-prem |
+| location | string |  | null |
 
 ## Code of conduct
 
