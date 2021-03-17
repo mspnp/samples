@@ -23,24 +23,24 @@
                 "name": "vpn-mock-prem",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "192.168.255.224/27",
-                "pipName": "pip-onprem-vpn-gateway"
+                "publicIPAddressName": "pip-onprem-vpn-gateway"
             }
         },
         "bastionHost": {
             "type": "object",
             "defaultValue": {
                 "name": "AzureBastionHost",
-                "publicIPAddressName": "pip-bastion",
                 "subnetName": "AzureBastionSubnet",
-                "nsgName": "nsg-hub-bastion",
-                "subnetPrefix": "192.168.254.0/27"
+                "subnetPrefix": "192.168.254.0/27",
+                "publicIPAddressName": "pip-bastion",
+                "nsgName": "nsg-hub-bastion"
             }
         },
         "vmSize": {
             "type": "string",
             "defaultValue": "Standard_A1_v2"
         },
-        "deployVpnGateway": {
+        "configureSitetosite": {
             "type": "bool",
             "defaultValue": true
         },
@@ -90,10 +90,10 @@
         },
         {
             "comments": "Public IP address for VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
+            "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
-            "name": "[parameters('mocOnpremGateway').pipName]",
+            "name": "[parameters('mocOnpremGateway').publicIPAddressName]",
             "location": "[parameters('location')]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
@@ -101,14 +101,14 @@
         },
         {
             "comments": "VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
+            "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
             "name": "[parameters('mocOnpremGateway').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('mocOnpremNetwork').name)]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').pipName)]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').publicIPAddressName)]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -119,7 +119,7 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('mocOnpremNetwork').name, parameters('mocOnpremGateway').subnetName)]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').pipName)]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('mocOnpremGateway').publicIPAddressName)]"
                             }
                         },
                         "name": "vnetGatewayConfig"

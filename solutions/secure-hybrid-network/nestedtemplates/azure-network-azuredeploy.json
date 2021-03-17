@@ -11,7 +11,7 @@
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 1,
+            "defaultValue": 2,
             "metadata": {
                 "description": "The count of Windows virtual machines to create."
             }
@@ -20,7 +20,7 @@
             "type": "string",
             "defaultValue": "Standard_A1_v2"
         },
-        "deployVpnGateway": {
+        "configureSitetosite": {
             "type": "bool",
             "defaultValue": true
         },
@@ -47,26 +47,26 @@
                 "name": "vpn-azure-network",
                 "subnetName": "GatewaySubnet",
                 "subnetPrefix": "10.0.2.0/27",
-                "pipName": "pip-vgn-gateway"
+                "publicIPAddressName": "pip-vgn-gateway"
             }
         },
         "bastionHost": {
             "type": "object",
             "defaultValue": {
                 "name": "AzureBastionHost",
-                "publicIPAddressName": "pip-bastion",
                 "subnetName": "AzureBastionSubnet",
-                "nsgName": "nsg-hub-bastion",
-                "subnetPrefix": "10.0.1.0/29"
+                "subnetPrefix": "10.0.1.0/29",
+                "publicIPAddressName": "pip-bastion",
+                "nsgName": "nsg-hub-bastion"
             }
         },
         "azureFirewall": {
             "type": "object",
             "defaultValue": {
                 "name": "AzureFirewall",
-                "publicIPAddressName": "pip-firewall",
                 "subnetName": "AzureFirewallSubnet",
-                "subnetPrefix": "10.0.3.0/26"
+                "subnetPrefix": "10.0.3.0/26",
+                "publicIPAddressName": "pip-firewall"
             }
         },
         "spokeRoutes": {
@@ -486,10 +486,10 @@
         },
         {
             "comments": "Public IP address for VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
+            "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
-            "name": "[parameters('vpnGateway').pipName]",
+            "name": "[parameters('vpnGateway').publicIPAddressName]",
             "location": "[parameters('location')]",
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
@@ -497,14 +497,14 @@
         },
         {
             "comments": "VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
+            "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
             "name": "[parameters('vpnGateway').name]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpnGateway').pipName)]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpnGateway').publicIPAddressName)]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -515,7 +515,7 @@
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubNetwork').name, parameters('vpnGateway').subnetName)]"
                             },
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('vpnGateway').pipName)]"
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('vpnGateway').publicIPAddressName)]"
                             }
                         },
                         "name": "vnetGatewayConfig"
@@ -531,7 +531,7 @@
             },
             "resources": [
                 {
-                    "condition": "[parameters('deployVpnGateway')]",
+                    "condition": "[parameters('configureSitetosite')]",
                     "type": "providers/diagnosticSettings",
                     "apiVersion": "2017-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
