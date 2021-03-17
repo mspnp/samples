@@ -40,7 +40,7 @@
             "type": "string",
             "defaultValue": "Standard_A1_v2"
         },
-        "deployVpnGateway": {
+        "configureSitetosite": {
             "type": "bool",
             "defaultValue": true
         },
@@ -90,7 +90,7 @@
         },
         {
             "comments": "Public IP address for VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
+            "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
             "name": "[parameters('mocOnpremGateway').publicIPAddressName]",
@@ -101,7 +101,7 @@
         },
         {
             "comments": "VPN Gateway",
-            "condition": "[parameters('deployVpnGateway')]",
+            "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/virtualNetworkGateways",
             "apiVersion": "2019-11-01",
             "name": "[parameters('mocOnpremGateway').name]",

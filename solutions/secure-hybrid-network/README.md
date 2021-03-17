@@ -3,6 +3,7 @@ page_type: sample
 languages:
 - azurepowershell
 - azurecli
+name: Secure hybrid network
 products:
   - azure-vpn-gateway
   - azure-virtual-network
@@ -39,7 +40,7 @@ az deployment sub create \
 
 **azuredeploy.json**
 
-| Parameter | Type | Description | Default |
+| Parameter | Type | Description | Default and properties |
 |---|---|---|--|
 | mocOnPremResourceGroup | string | Name of the moc on-prem resource group. | site-to-site-mock-prem |
 | azureNetworkResourceGroup | string | Name of the Azure network resource group. | site-to-site-azure-network |
@@ -48,32 +49,32 @@ az deployment sub create \
 
 **nestedtemplates/azure-network-azuredeploy.json**
 
-| Parameter | Type | Description | Default |
+| Parameter | Type | Description | Default and properties |
 |---|---|---|--|
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
-| windowsVMCount | int |  | 2 |
-| vmSize | string |  | Standard_A1_v2 |
-| deployVpnGateway | bool |  | true |
-| hubNetwork | object |  | name, addressPrefix |
-| spokeNetwork | object |  | name, addressPrefix, subnetName, subnetPrefix, subnetNsgName |
-| vpnGateway | object |  | name, subnetName, subnetPrefix, publicIPAddressName |
-| bastionHost | object |  | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
-| azureFirewall | object |  | name, subnetName, subnetPrefix, publicIPAddressName |
-| spokeRoutes | object |  | tableName, routeNameFirewall |
-| gatewayRoutes | object |  | tableName, routeNameFirewall |
-| internalLoadBalancer | object |  | name, backendName, fontendName, probeName |
-| location | string |  | null |
+| windowsVMCount | int | The number of load-balanced virtual machines running IIS. | 2 |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_A1_v2 |
+| configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
+| hubNetwork | object | Object representing the configuration of the hub network. | name, addressPrefix |
+| spokeNetwork | object | Object representing the configuration of the spoke network. | name, addressPrefix, subnetName, subnetPrefix, subnetNsgName |
+| vpnGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
+| bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
+| azureFirewall | object | Object representing the configuration of the Azure Firewall. | name, subnetName, subnetPrefix, publicIPAddressName |
+| spokeRoutes | object | Object representing user-defined routes for the spoke subnet. | tableName, routeNameFirewall |
+| gatewayRoutes | object | Object representing user-defined routes for the gateway network. | tableName, routeNameFirewall |
+| internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, fontendName, probeName |
+| location | string | Location to be used for all resources. | null |
 
 **nestedtemplates/azure-network-local-gateway.json**
 
-| Parameter | Type | Description | Default |
+| Parameter | Type | Description | Default and properties |
 |---|---|---|--|
-| connectionName | string |  | hub-to-mock-prem |
-| gatewayIpAddress | string |  | null |
-| azureCloudVnetPrefix | string |  | null |
-| azureNetworkGatewayName | string |  | null |
-| localNetworkGatewayName | string |  | local-gateway-azure-network |
+| connectionName | string | Name of the Azure connection resource. | hub-to-mock-prem |
+| gatewayIpAddress | string | Public IP address of the mock on-prem virtual network gateway. | null |
+| azureCloudVnetPrefix | string | Subnet prefix of the management subnet found in the hub network. | null |
+| azureNetworkGatewayName | string | Name of the Azure virtual network gateway. | null |
+| localNetworkGatewayName | string |  Name of the Azure local network gateway. | local-gateway-azure-network |
 
 **nestedtemplates/mock-onprem-azuredeploy.json**
 
@@ -81,24 +82,24 @@ az deployment sub create \
 |---|---|---|--|
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
-| mocOnpremNetwork | object | | name, addressPrefix, mgmt, subnetPrefix |
-| mocOnpremGateway | object | | name, subnetName, subnetPrefix, publicIPAddressName |
-| bastionHost | object | | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
-| vmSize | string | | Standard_A1_v2 |
-| deployVpnGateway | bool | | true |
-| location | string |  | null |
+| mocOnpremNetwork | object | Object representing the configuration of the mock on-prem network. | name, addressPrefix, mgmt, subnetPrefix |
+| mocOnpremGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
+| bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_A1_v2 |
+| configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
+| location | string | Location to be used for all resources. | null |
 
 **nestedtemplates/mock-onprem-local-gateway.json**
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
-| connectionName | string |  | hub-to-mock-prem |
-| azureCloudVnetPrefix | string |  | hub-to-mock-prem |
-| spokeNetworkAddressPrefix | string |  | hub-to-mock-prem |
-| gatewayIpAddress | string |  | null |
-| mocOnpremGatewayName | string |  | null |
-| localNetworkGateway | string |  | local-gateway-moc-prem |
-| location | string |  | null |
+| connectionName | string | Name of the mock on-prem connection resource. | hub-to-mock-prem |
+| azureCloudVnetPrefix | string | Subnet prefix of the management subnet found in the hub network. | hub-to-mock-prem |
+| spokeNetworkAddressPrefix | string | Subnet prefix of the resource subnet found in the spoke network. | hub-to-mock-prem |
+| gatewayIpAddress | string | Public IP address of the Azure virtual network gateway. | null |
+| mocOnpremGatewayName | string | Name of the mock on-prem local network gateway.  | null |
+| localNetworkGateway | string | Name of the mock on-prem local network gateway. | local-gateway-moc-prem |
+| location | string | Location to be used for all resources. | null |
 
 ## Code of conduct
 
