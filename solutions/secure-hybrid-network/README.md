@@ -3,13 +3,11 @@ page_type: sample
 languages:
 - azurepowershell
 - azurecli
-name: Secure hybrid network
 products:
-  - azure-vpn-gateway
-  - azure-virtual-network
-  - azure-firewall
-  - azure-vpn-gateway
-description: This sample deploys a hub and spoke network, a mock on-premises network, and connects both with a site-to-site VPN connection. 
+- azure-vpn-gateway
+- azure-virtual-network
+- azure-firewall
+- azure-vpn-gateway
 ---
 
 # Secure hybrid network
