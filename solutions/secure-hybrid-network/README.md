@@ -18,7 +18,7 @@ This sample deploys a hub and spoke network, a mock on-premises network, and con
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
-![Hub and spoke architectural diagram](images/dmz-private.png)
+![Hub and spoke architectural diagram.](images/dmz-private.png)
 
 For detailed information, see the Implement a secure hybrid network:
 
