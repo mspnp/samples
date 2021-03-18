@@ -19,6 +19,8 @@ trigger:
   paths:
     include:
       - /solutions/azure-hub-spoke/*
+    exclude:
+      - '/solutions/azure-hub-spoke/README.md'
       
 pr:
   branches:
@@ -27,6 +29,8 @@ pr:
   paths:
     include:
       - /solutions/azure-hub-spoke/*
+    exclude:
+      - '/solutions/azure-hub-spoke/README.md'
 
 schedules:
 - cron: "0 12 * * 0"
