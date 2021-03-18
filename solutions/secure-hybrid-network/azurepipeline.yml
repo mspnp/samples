@@ -26,7 +26,7 @@ trigger:
     include:
       - '/solutions/secure-hybrid-network/*'
     exclude:
-      - '/solutions/secure-hybrid-network/*.md'
+      - '/solutions/secure-hybrid-network/README.md'
       
 pr:
   branches:
@@ -36,7 +36,7 @@ pr:
     include:
       - '/solutions/secure-hybrid-network/*'
     exclude:
-      - '/solutions/secure-hybrid-network/*.md'
+      - '/solutions/secure-hybrid-network/README.md'
 
 schedules:
 - cron: "0 12 * * 0"
