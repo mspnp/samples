@@ -25,6 +25,8 @@ trigger:
   paths:
     include:
       - '/solutions/secure-hybrid-network/*'
+    exclude:
+      - '/solutions/secure-hybrid-network/*.md'
       
 pr:
   branches:
@@ -33,6 +35,8 @@ pr:
   paths:
     include:
       - '/solutions/secure-hybrid-network/*'
+    exclude:
+      - '/solutions/secure-hybrid-network/*.md'
 
 schedules:
 - cron: "0 12 * * 0"
