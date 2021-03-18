@@ -19,6 +19,8 @@ trigger:
   paths:
     include:
       - '/solutions/basic-web-app/*'
+    exclude:
+      - '/solutions/basic-web-app/README.md'
       
 pr:
   branches:
@@ -27,6 +29,8 @@ pr:
   paths:
     include:
       - '/solutions/basic-web-app/*'
+    exclude:
+      - '/solutions/basic-web-app/README.md'
 
 schedules:
 - cron: "0 12 * * 0"
