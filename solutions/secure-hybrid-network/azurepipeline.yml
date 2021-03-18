@@ -9,8 +9,6 @@ variables:
   value: 'azuredeploy.json'
 - name: adminUserName
   value: 'azureadmin'
-- name: adminPassword
-  value: 'Password2020!'
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
 - name: artifactsLocationTemplate
@@ -27,6 +25,8 @@ trigger:
   paths:
     include:
       - '/solutions/secure-hybrid-network/*'
+    exclude:
+      - '/solutions/secure-hybrid-network/*.md'
       
 pr:
   branches:
@@ -35,6 +35,8 @@ pr:
   paths:
     include:
       - '/solutions/secure-hybrid-network/*'
+    exclude:
+      - '/solutions/secure-hybrid-network/*.md'
 
 schedules:
 - cron: "0 12 * * 0"
