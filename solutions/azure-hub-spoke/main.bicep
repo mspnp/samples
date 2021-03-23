@@ -400,6 +400,32 @@ resource peerSpokeHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@
   }
 }
 
+resource peerHubSpokeTwo 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-06-01' = {
+  name: '${hubNetwork.name}/hub-to-spoke-two'
+  properties: {
+    allowVirtualNetworkAccess: true
+    allowForwardedTraffic: true
+    allowGatewayTransit: false
+    useRemoteGateways: false
+    remoteVirtualNetwork: {
+      id: vnetSpokeTwo.id
+    }
+  }
+}
+
+resource peerSpokeTwoHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-06-01' = {
+  name: '${vnetSpokeTwo.name}/spoke-two-to-hub'
+  properties: {
+    allowVirtualNetworkAccess: true
+    allowForwardedTraffic: true
+    allowGatewayTransit: false
+    useRemoteGateways: false
+    remoteVirtualNetwork: {
+      id: vnetHub.id
+    }
+  }
+}
+
 resource bastionpip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: 'bastionpip'
   location: 'eastus'
