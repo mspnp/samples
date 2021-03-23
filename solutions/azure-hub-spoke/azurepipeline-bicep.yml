@@ -1,0 +1,143 @@
+variables:
+- name: serviceConnection
+  value: azure-service-connection-mg
+- name: resource-group
+  value: hub-spoke-bicep-$(Build.BuildId)
+- name: location
+  value: southeastasia
+- name: template-location
+  value: '/solutions/azure-hub-spoke/*'
+- name: template-name
+  value: 'main.bicep'  
+- name: ttk-skip-test
+  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - /solutions/azure-hub-spoke/*
+    exclude:
+      - '/solutions/azure-hub-spoke/README.md'
+      
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+      - /solutions/azure-hub-spoke/*
+    exclude:
+      - '/solutions/azure-hub-spoke/README.md'
+
+schedules:
+- cron: "0 12 * * 0"
+  displayName: Weekly Sunday build
+  branches:
+    include:
+    - master
+  always: true
+      
+stages:
+
+# Run ARM TTK and publish test results (Windows only)
+- stage: armTemplateToolkit
+
+  jobs:
+  - job: armttk
+    pool:
+      vmImage: 'windows-latest'
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+  
+    - task: AzureCLI@2
+      displayName: Build Bicep
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'bicep build main.bicep'
+    
+    - task: RunARMTTKTests@1
+      inputs:
+        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
+        resultLocation: '$(System.DefaultWorkingDirectory)'
+        skipTests: $(ttk-skip-test)
+        
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+      condition: always()
+
+# Deploy template
+- stage: validateAndDeploy
+  dependsOn: []
+
+  jobs:
+  - job: arm
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+
+    steps:    
+    
+    - task: AzureCLI@2
+      displayName: Create resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group create --name $(resource-group) --location $(location)'
+               
+    - task: AzureCLI@2
+      displayName: Validate template (validation api)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+
+    - task: AzureCLI@2
+      displayName: Deploy template
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+
+    - task: AzureCLI@2
+      displayName: Deploy template (second pass)
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+         sleep 30
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+        
+# Clean up deployment
+- stage: cleanupResourceGroupBasic
+  dependsOn: validateAndDeploy
+  condition: always()
+
+  jobs:
+  - job: deleteResourceGroup
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+
+    - task: AzureCLI@2
+      displayName: Delete resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
