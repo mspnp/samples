@@ -58,6 +58,7 @@ stages:
       inputs:
         azureSubscription: 'azure-service-connection'
         ScriptType: 'InlineScript'
+        azurePowerShellVersion: 'LatestVersion'
         Inline: |
           $installPath = "$env:USERPROFILE\.bicep"
           $installDir = New-Item -ItemType Directory -Path $installPath -Force
