@@ -6,9 +6,7 @@ variables:
 - name: location
   value: southeastasia
 - name: template-location
-  value: '/solutions/azure-hub-spoke/'
-- name: bicep-template-name
-  value: 'main.bicep'  
+  value: '/solutions/azure-hub-spoke/bicep'
 - name: template-name
   value: 'main.bicep'  
 - name: ttk-skip-test
@@ -20,7 +18,7 @@ trigger:
     - master
   paths:
     include:
-      - /solutions/azure-hub-spoke/*
+      - /solutions/azure-hub-spoke/bicep/*
     exclude:
       - '/solutions/azure-hub-spoke/README.md'
       
@@ -30,9 +28,9 @@ pr:
     - master
   paths:
     include:
-      - /solutions/azure-hub-spoke/*
+      - /solutions/azure-hub-spoke/bicep/*
     exclude:
-      - '/solutions/azure-hub-spoke/README.md'
+      - '/solutions/azure-hub-spoke/bicep/README.md'
 
 schedules:
 - cron: "0 12 * * 0"
@@ -67,7 +65,7 @@ stages:
     - task: CmdLine@2
       displayName: bicep build
       inputs:
-        script: 'bicep.exe build $(System.DefaultWorkingDirectory)$(template-location)$(bicep-template-name)'
+        script: 'bicep.exe build $(System.DefaultWorkingDirectory)$(template-location)$(template-name)'
   
     - task: RunARMTTKTests@1
       inputs:
