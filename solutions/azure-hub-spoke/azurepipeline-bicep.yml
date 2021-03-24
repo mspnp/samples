@@ -65,7 +65,7 @@ stages:
         
     - task: CmdLine@2
       inputs:
-        script: 'bicep.exe --version'
+        script: 'bicep.exe build $(System.DefaultWorkingDirectory)$(template-location)$(template-name)'
   
     # - task: AzureCLI@2
     #   displayName: Build Bicep
