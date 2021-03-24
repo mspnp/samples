@@ -63,13 +63,15 @@ stages:
           Invoke-WebRequest -Uri https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe -OutFile c:\bicep.exe
           #(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "c:\")
         
-    # - task: AzureCLI@2
-    #   displayName: Build Bicep
-    #   inputs:
-    #     azureSubscription: $(serviceConnection)
-    #     scriptType: 'bash'
-    #     scriptLocation: 'inlineScript'
-    #     inlineScript: 'ls c:\'
+    - task: AzureCLI@2
+      displayName: Build Bicep
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          'ls c:\'
+          'c:\bicep.exe --version'
   
     # - task: AzureCLI@2
     #   displayName: Build Bicep
