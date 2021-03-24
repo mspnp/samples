@@ -68,13 +68,13 @@ stages:
           if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
           if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
   
-#     - task: AzureCLI@2
-#       displayName: Build Bicep
-#       inputs:
-#         azureSubscription: $(serviceConnection)
-#         scriptType: 'bash'
-#         scriptLocation: 'inlineScript'
-#         inlineScript: 'bicep build main.bicep'
+    - task: AzureCLI@2
+      displayName: Build Bicep
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'bicep build main.bicep'
     
 #     - task: RunARMTTKTests@1
 #       inputs:
