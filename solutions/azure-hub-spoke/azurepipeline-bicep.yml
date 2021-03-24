@@ -7,6 +7,8 @@ variables:
   value: southeastasia
 - name: template-location
   value: '/solutions/azure-hub-spoke/'
+- name: bicep-template-name
+  value: 'main.bicep'  
 - name: template-name
   value: 'main.bicep'  
 - name: ttk-skip-test
@@ -65,7 +67,7 @@ stages:
     - task: CmdLine@2
       displayName: bicep build
       inputs:
-        script: 'bicep.exe build $(System.DefaultWorkingDirectory)$(template-location)$(template-name)'
+        script: 'bicep.exe build $(System.DefaultWorkingDirectory)$(template-location)$(bicep-template-name)'
   
     - task: RunARMTTKTests@1
       inputs:
@@ -105,7 +107,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)main.bicep --parameters adminPassword=$(adminPassword)
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -114,7 +116,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)main.bicep --parameters adminPassword=$(adminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template (second pass)
@@ -123,8 +125,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         sleep 30
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)main.bicep --parameters adminPassword=$(adminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
