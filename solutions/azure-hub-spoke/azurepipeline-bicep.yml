@@ -60,21 +60,18 @@ stages:
         ScriptType: 'InlineScript'
         azurePowerShellVersion: 'LatestVersion'
         Inline: |
-          $installPath = "c:\"
-          $installDir = New-Item -ItemType Directory -Path $installPath -Force
-          $installDir.Attributes += 'Hidden'
-          (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "$installPath\bicep.exe")
-          # $currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
-          # if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
-          # if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
+          (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", .)
+          # # $currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
+          # # if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
+          # # if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
         
-    - task: AzureCLI@2
-      displayName: Build Bicep
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'ls c:\'
+    # - task: AzureCLI@2
+    #   displayName: Build Bicep
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: 'ls c:\'
   
     # - task: AzureCLI@2
     #   displayName: Build Bicep
