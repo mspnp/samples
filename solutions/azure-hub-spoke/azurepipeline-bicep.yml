@@ -60,7 +60,7 @@ stages:
         ScriptType: 'InlineScript'
         azurePowerShellVersion: 'LatestVersion'
         Inline: |
-          $installPath = "\"
+          $installPath = "c:\"
           $installDir = New-Item -ItemType Directory -Path $installPath -Force
           $installDir.Attributes += 'Hidden'
           (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "$installPath\bicep.exe")
@@ -74,7 +74,7 @@ stages:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: 'ls /'
+        inlineScript: 'ls c:\'
   
     # - task: AzureCLI@2
     #   displayName: Build Bicep
