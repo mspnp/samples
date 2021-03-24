@@ -54,13 +54,11 @@ stages:
 
     steps:
 
-    - task: AzureCLI@2
-      displayName: Build Bicep
+    - task: AzurePowerShell@5
       inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
+        azureSubscription: 'azure-service-connection'
+        ScriptType: 'InlineScript'
+        Inline: |
           $installPath = "$env:USERPROFILE\.bicep"
           $installDir = New-Item -ItemType Directory -Path $installPath -Force
           $installDir.Attributes += 'Hidden'
@@ -69,90 +67,90 @@ stages:
           if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
           if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
   
-    - task: AzureCLI@2
-      displayName: Build Bicep
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'bicep build main.bicep'
+#     - task: AzureCLI@2
+#       displayName: Build Bicep
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: 'bicep build main.bicep'
     
-    - task: RunARMTTKTests@1
-      inputs:
-        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
-        resultLocation: '$(System.DefaultWorkingDirectory)'
-        skipTests: $(ttk-skip-test)
+#     - task: RunARMTTKTests@1
+#       inputs:
+#         templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
+#         resultLocation: '$(System.DefaultWorkingDirectory)'
+#         skipTests: $(ttk-skip-test)
         
-    - task: PublishTestResults@2
-      inputs:
-        testResultsFormat: 'NUnit'
-        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
-      condition: always()
+#     - task: PublishTestResults@2
+#       inputs:
+#         testResultsFormat: 'NUnit'
+#         testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+#       condition: always()
 
-# Deploy template
-- stage: validateAndDeploy
-  dependsOn: []
+# # Deploy template
+# - stage: validateAndDeploy
+#   dependsOn: []
 
-  jobs:
-  - job: arm
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
+#   jobs:
+#   - job: arm
+#     pool: Hosted Ubuntu 1604
+#     continueOnError: false
 
-    steps:    
+#     steps:    
     
-    - task: AzureCLI@2
-      displayName: Create resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group create --name $(resource-group) --location $(location)'
+#     - task: AzureCLI@2
+#       displayName: Create resource group
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: 'az group create --name $(resource-group) --location $(location)'
                
-    - task: AzureCLI@2
-      displayName: Validate template (validation api)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+#     - task: AzureCLI@2
+#       displayName: Validate template (validation api)
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#          az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
 
-    - task: AzureCLI@2
-      displayName: Deploy template
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+#     - task: AzureCLI@2
+#       displayName: Deploy template
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
 
-    - task: AzureCLI@2
-      displayName: Deploy template (second pass)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         sleep 30
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+#     - task: AzureCLI@2
+#       displayName: Deploy template (second pass)
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#          sleep 30
+#          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
         
-# Clean up deployment
-- stage: cleanupResourceGroupBasic
-  dependsOn: validateAndDeploy
-  condition: always()
+# # Clean up deployment
+# - stage: cleanupResourceGroupBasic
+#   dependsOn: validateAndDeploy
+#   condition: always()
 
-  jobs:
-  - job: deleteResourceGroup
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 20
+#   jobs:
+#   - job: deleteResourceGroup
+#     pool: Hosted Ubuntu 1604
+#     continueOnError: false
+#     timeoutInMinutes: 20
 
-    steps:
+#     steps:
 
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+#     - task: AzureCLI@2
+#       displayName: Delete resource group
+#       inputs:
+#         azureSubscription: $(serviceConnection)
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
