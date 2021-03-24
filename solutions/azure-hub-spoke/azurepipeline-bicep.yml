@@ -65,7 +65,7 @@ stages:
         
     - task: CmdLine@2
       inputs:
-        script: './bicep.exe --help'
+        script: 'ls ./'
   
     # - task: AzureCLI@2
     #   displayName: Build Bicep
