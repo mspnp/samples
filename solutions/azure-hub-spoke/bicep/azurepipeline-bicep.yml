@@ -6,7 +6,7 @@ variables:
 - name: location
   value: southeastasia
 - name: template-location
-  value: '/solutions/azure-hub-spoke/bicep'
+  value: '/solutions/azure-hub-spoke/bicep/'
 - name: template-name
   value: 'main.bicep'  
 - name: ttk-skip-test
