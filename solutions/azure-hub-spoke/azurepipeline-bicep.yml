@@ -61,7 +61,6 @@ stages:
         azurePowerShellVersion: 'LatestVersion'
         Inline: |
           Invoke-WebRequest -Uri https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe -OutFile ./bicep.exe
-          #(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "c:\")
         
     - task: CmdLine@2
       inputs:
@@ -75,17 +74,17 @@ stages:
     #     scriptLocation: 'inlineScript'
     #     inlineScript: 'bicep build main.bicep'
     
-#     - task: RunARMTTKTests@1
-#       inputs:
-#         templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
-#         resultLocation: '$(System.DefaultWorkingDirectory)'
-#         skipTests: $(ttk-skip-test)
+    - task: RunARMTTKTests@1
+      inputs:
+        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)main.json'
+        resultLocation: '$(System.DefaultWorkingDirectory)'
+        skipTests: $(ttk-skip-test)
         
-#     - task: PublishTestResults@2
-#       inputs:
-#         testResultsFormat: 'NUnit'
-#         testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
-#       condition: always()
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+      condition: always()
 
 # # Deploy template
 # - stage: validateAndDeploy
