@@ -2,15 +2,15 @@ variables:
 - name: serviceConnection
   value: azure-service-connection-mg
 - name: resource-group
-  value: hub-spoke-$(Build.BuildId)
+  value: hub-spoke-bicep-$(Build.BuildId)
 - name: location
   value: southeastasia
 - name: template-location
-  value: '/solutions/azure-hub-spoke/*'
+  value: '/solutions/azure-hub-spoke/bicep/'
 - name: template-name
-  value: 'azuredeploy.json'  
+  value: 'main.bicep'  
 - name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
+  value: 'IDs-Should-Be-Derived-From-ResourceIDs'
 
 trigger:
   branches:
@@ -18,10 +18,9 @@ trigger:
     - master
   paths:
     include:
-      - /solutions/azure-hub-spoke/*
+      - /solutions/azure-hub-spoke/bicep/*
     exclude:
       - '/solutions/azure-hub-spoke/README.md'
-      - '/solutions/azure-hub-spoke/bicep/*'
       
 pr:
   branches:
@@ -29,9 +28,9 @@ pr:
     - master
   paths:
     include:
-      - /solutions/azure-hub-spoke/*
+      - /solutions/azure-hub-spoke/bicep/*
     exclude:
-      - '/solutions/azure-hub-spoke/README.md'
+      - '/solutions/azure-hub-spoke/bicep/README.md'
 
 schedules:
 - cron: "0 12 * * 0"
@@ -54,10 +53,23 @@ stages:
     timeoutInMinutes: 20
 
     steps:
-    
+
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'azure-service-connection'
+        ScriptType: 'InlineScript'
+        azurePowerShellVersion: 'LatestVersion'
+        Inline: |
+          Invoke-WebRequest -Uri https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe -OutFile ./bicep.exe
+        
+    - task: CmdLine@2
+      displayName: bicep build
+      inputs:
+        script: 'bicep.exe build $(System.DefaultWorkingDirectory)$(template-location)$(template-name)'
+  
     - task: RunARMTTKTests@1
       inputs:
-        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
+        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)main.json'
         resultLocation: '$(System.DefaultWorkingDirectory)'
         skipTests: $(ttk-skip-test)
         
@@ -93,7 +105,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -102,7 +114,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template (second pass)
@@ -111,8 +123,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         sleep 30
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
