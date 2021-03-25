@@ -21,6 +21,7 @@ trigger:
       - /solutions/azure-hub-spoke/*
     exclude:
       - '/solutions/azure-hub-spoke/README.md'
+      - '/solutions/azure-hub-spoke/bicep/*'
       
 pr:
   branches:
