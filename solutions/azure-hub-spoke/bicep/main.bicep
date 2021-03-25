@@ -1,6 +1,6 @@
 param windowsVMCount int = 1
 param linuxVMCount int = 1
-param adminUserName string = 'azureadmin'
+param adminUserName string
 param adminPassword string
 param vmSize string = 'Standard_A1_v2'
 
@@ -48,12 +48,12 @@ param vpnGateway object = {
   pipName: 'pip-vgw-gateway'
 }
 
-var nicNameWindows_var = 'nic-windows-'
-var vmNameWindows_var = 'vm-windows-'
+var nicNameWindows = 'nic-windows-'
+var vmNameWindows = 'vm-windows-'
 var windowsOSVersion = '2016-Datacenter'
-var nicNameLinux_var = 'nic-linux-'
+var nicNameLinux = 'nic-linux-'
 var osVersion = '16.04.0-LTS'
-var vmNameLinux_var = 'vm-linux-'
+var vmNameLinux = 'vm-linux-'
 var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
@@ -98,8 +98,8 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   }
 }
 
-resource diagLogAnalyticsWrokspace 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diag'
+resource diahVnetHub 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+  name: 'diahVnetHub'
   scope: vnetHub
   properties: {
     workspaceId: logAnalyticsWrokspace.id
@@ -267,8 +267,8 @@ resource vnetSpoke 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource diagSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagNetworkSpoke'
+resource diagVnetSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+  name: 'diagVnetSpoke'
   scope: vnetSpoke
   properties: {
     workspaceId: logAnalyticsWrokspace.id
@@ -360,8 +360,8 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource diagSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagNetworkSpokeTwo'
+resource diagVnetSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+  name: 'diagVnetSpokeTwo'
   scope: vnetSpokeTwo
   properties: {
     workspaceId: logAnalyticsWrokspace.id
@@ -426,7 +426,7 @@ resource peerSpokeTwoHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerin
   }
 }
 
-resource bastionpip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
+resource bastionPip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: 'bastionpip'
   location: 'eastus'
   sku: {
@@ -437,7 +437,7 @@ resource bastionpip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   }
 }
 
-resource nsgbastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
+resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: 'nsgbastion'
   location: 'eastus'
   properties: {
@@ -546,7 +546,7 @@ resource nsgbastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   }
 }
 
-resource bastionhost 'Microsoft.Network/bastionHosts@2020-06-01' = {
+resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
   name: 'bastionhost'
   location: 'eastus'
   properties: {
@@ -558,7 +558,7 @@ resource bastionhost 'Microsoft.Network/bastionHosts@2020-06-01' = {
             id: '${vnetHub.id}/subnets/${bastionHost.subnetName}'
           }
           publicIPAddress: {
-            id: bastionpip.id
+            id: bastionPip.id
           }
         }
       }
@@ -566,8 +566,8 @@ resource bastionhost 'Microsoft.Network/bastionHosts@2020-06-01' = {
   }
 }
 
-resource nicNameWindows 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, windowsVMCount): {
-  name: '${nicNameWindows_var}${i + 1}'
+resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, windowsVMCount): {
+  name: '${nicNameWindows}${i + 1}'
   location: 'eastus'
   properties: {
     ipConfigurations: [
@@ -584,18 +584,18 @@ resource nicNameWindows 'Microsoft.Network/networkInterfaces@2020-05-01' = [for 
   }
 }]
 
-resource vmNameWindows 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWindows_var}${i + 1}'
+resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, windowsVMCount): {
+  name: '${vmNameWindows}${i + 1}'
   location: 'eastus'
   dependsOn:[
-    nicNameWindows
+    nicNameWindowsResource
   ]
   properties: {
     hardwareProfile: {
       vmSize: vmSize
     }
     osProfile: {
-      computerName: vmNameWindows_var
+      computerName: vmNameWindows
       adminUsername: adminUserName
       adminPassword: adminPassword
     }
@@ -613,15 +613,15 @@ resource vmNameWindows 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i i
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${nicNameWindows_var}${i + 1}')
+          id: resourceId('Microsoft.Network/networkInterfaces', '${nicNameWindows}${i + 1}')
         }
       ]
     }
   }
 }]
 
-resource nicNameLinux 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, linuxVMCount): {
-  name: '${nicNameLinux_var}${i + 1}'
+resource nicNameLinuxResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, linuxVMCount): {
+  name: '${nicNameLinux}${i + 1}'
   location: 'eastus'
   properties: {
     ipConfigurations: [
@@ -638,18 +638,18 @@ resource nicNameLinux 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i 
   }
 }]
 
-resource vmNameLinux 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, linuxVMCount): {
-  name: '${vmNameLinux_var}${i + 1}'
+resource vmNameLinuxResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, linuxVMCount): {
+  name: '${vmNameLinux}${i + 1}'
   location: 'eastus'
   dependsOn:[
-    nicNameLinux
+    nicNameLinuxResource
   ]
   properties: {
     hardwareProfile: {
       vmSize: vmSize
     }
     osProfile: {
-      computerName: vmNameLinux_var
+      computerName: vmNameLinux
       adminUsername: adminUserName
       adminPassword: adminPassword
     }
@@ -667,7 +667,7 @@ resource vmNameLinux 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in 
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${nicNameLinux_var}${i + 1}')
+          id: resourceId('Microsoft.Network/networkInterfaces', '${nicNameLinux}${i + 1}')
         }
       ]
     }
