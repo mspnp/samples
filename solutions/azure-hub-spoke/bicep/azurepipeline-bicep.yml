@@ -105,7 +105,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -114,7 +114,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword)
 
     - task: AzureCLI@2
       displayName: Deploy template (second pass)
@@ -123,7 +123,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminPassword=$(adminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
