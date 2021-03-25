@@ -1,0 +1,9 @@
+{
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "type": "QuickStart",
+  "itemDisplayName": "Highly Available egress with layer 7 NVAs",
+  "description": "This sample template will deploy example NVAs for Egress in a HA configuration.",
+  "summary": "This sample template will deploy an Front-end Load Balancer in front of two simulated NVA VMs. The NVA VMs will forward requests to a web-tier Load Balancer in front of two back-end web server VMs.",
+  "githubUsername": "hallihan",
+  "dateUpdated": "2021-02-18"
+}

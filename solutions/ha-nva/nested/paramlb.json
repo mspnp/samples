@@ -1,0 +1,142 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure region for Load Balancer"
+            }
+        },
+        "loadbalancerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the Load Balancer"
+            }
+        },
+        "loadbalancerPort": {
+            "type": "int",
+            "metadata": {
+                "description": "Port to forward"
+            }
+        },
+        "vnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Virtual Network for Load Balancer"
+            }
+        },
+        "vnetSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Subnet for Load Balancer"
+            }
+        },
+        "logAnalyticsWorkspaceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics Workspace to use for diagnostic settings"
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('loadbalancerName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "LoadBalancerWebFrontEnd",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'),  parameters('vnetSubnetName'))]"
+                            },
+                            "loadBalancingRules": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/loadBalancers/loadBalancingRules', parameters('loadbalancerName'),  'tcp')]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "default-backend"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "tcp",
+                        "type": "Microsoft.Network/loadBalancers/loadBalancingRules",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', parameters('loadbalancerName'), 'LoadBalancerWebFrontEnd')]"
+                            },
+                            "frontendPort": "[parameters('loadbalancerPort')]",
+                            "backendPort": "[parameters('loadbalancerPort')]",
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "Tcp",
+                            "enableDestinationServiceEndpoint": false,
+                            "enableTcpReset": false,
+                            "loadDistribution": "SourceIP",
+                            "disableOutboundSnat": false,
+                            "backendAddressPool": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('loadbalancerName'), 'default-backend')]"
+                            },
+                            "probe": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('loadbalancerName'), 'tcp')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "type": "Microsoft.Network/loadBalancers/probes",
+                        "name": "tcp",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": "[parameters('loadbalancerPort')]",
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ]
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Network/loadBalancers/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('loadbalancerName'),'/Microsoft.Insights/default')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/loadBalancers', parameters('loadbalancerName'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "privateIp": {
+            "value": "[reference(resourceId('Microsoft.Network/loadBalancers', parameters('loadbalancerName'))).frontendIPConfigurations[0].properties.privateIPAddress]",
+            "type": "string"
+        }
+    }
+}
