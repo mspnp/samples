@@ -88,7 +88,7 @@ Run one of the following commands to deploy the example architecture.
 #### For ingress-only
 
 ```azurepowershell-interactive
-New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
+New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7 `
     -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/azuredeploy.json `
     -deployIngressAppGatewayWebLoadBalancer $true -deployEgressLoadBalancerNva $false
 ```
@@ -96,15 +96,15 @@ New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
 #### For egress-only
 
 ```azurepowershell-interactive
-New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
-    -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/azuredeploy.json
+New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7 `
+    -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/azuredeploy.json `
     -deployIngressAppGatewayWebLoadBalancer $false -deployEgressLoadBalancerNva $true
 ```
 
 #### For ingress-egress
 
 ```azurepowershell-interactive
-New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7i `
+New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7 `
     -TemplateUri https://raw.githubusercontent.com/mspnp/samples/master/solutions/ha-nva/azuredeploy.json
 ```
 
