@@ -1,0 +1,158 @@
+{
+    // This template is adapted from: https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "The location for the script resource."
+            }
+        },
+        "vaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the keyVault to store the keys in."
+            }
+        },
+        "secretName": {
+            "type": "string",
+            "defaultValue": "privateKey",
+            "metadata": {
+                "description": "The name of the secret in keyVault to store the keys in."
+            }
+        },
+        "vaultResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "The resourceGroup for the keyVault."
+            }
+        },
+        "vaultSubscriptionId": {
+            "type": "string",
+            "defaultValue": "[subscription().subscriptionId]",
+            "metadata": {
+                "description": "The subscriptionId for the keyVault."
+            }
+        },
+        "sshGenScript":{
+            "type": "string",
+            "metadata": {
+                "description": "The full URI to download the SSH key generation script."
+            }
+        }
+    },
+    "variables": {
+        "scriptName": "script-hanva-createkeys",
+        "identityName": "id-hanva-createKeys",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "roleDefinitionName": "[guid(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName')), variables('roleDefinitionId'), resourceGroup().id)]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('identityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[parameters('location')]"
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('roleDefinitionName')]",
+            "dependsOn": [
+                "[variables('identityName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[variables('roleDefinitionId')]",
+                "principalId": "[reference(variables('identityName')).principalId]",
+                "scope": "[resourceGroup().id]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2020-10-01",
+            "name": "[variables('scriptName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[variables('roleDefinitionName')]"
+            ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]": { /*ttk bug*/
+                    }
+                }
+            },
+            "kind": "AzureCLI",
+            "properties": {
+                "forceUpdateTag": "[uniqueString(concat(resourceGroup().id))]",
+                "azCliVersion": "2.0.80",
+                "timeout": "PT30M",
+                "retentionInterval": "P1D",
+                "cleanupPreference": "OnSuccess",
+                "primaryScriptUri": "[parameters('sshGenScript')]"
+            }
+        },
+        {
+            "apiVersion": "2020-10-01",
+            "name": "storeSshKeys",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('vaultResourceGroup')]",
+            "subscriptionId": "[parameters('vaultSubscriptionId')]",
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "parameters": {
+                    "keys": {
+                        "value": "[reference(variables('scriptName')).outputs.keyinfo]"
+                    },
+                    "vaultName": {
+                        "value": "[parameters('vaultName')]"
+                    },
+                    "secretName": {
+                        "value": "[parameters('secretName')]"
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "keys": {
+                            "type": "secureObject"
+                        },
+                        "vaultName": {
+                            "type": "string"
+                        },
+                        "secretName": {
+                            "type": "string"
+                        }
+                    },
+                    "resources": [
+                        {
+                            "name": "[concat(parameters('vaultName'), '/', parameters('secretName'))]",
+                            "type": "Microsoft.KeyVault/vaults/secrets",
+                            "apiVersion": "2019-09-01",
+                            "properties": {
+                                "value": "[parameters('keys').privateKey]"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "outputs": {
+            "type": "string",
+            "value": "[reference(variables('scriptName')).outputs.keyinfo.publicKey]"
+        },
+        "status": {
+            "type": "object",
+            "value": "[reference(variables('scriptName')).status]"
+        }
+    }
+}
