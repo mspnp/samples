@@ -110,7 +110,7 @@ New-AzResourceGroupDeployment -ResourceGroupName ha-nva-l7 `
 
 ### Redeploying the architecture to the same Resource Group
 
-If you redeploy this template to the same Resource Group, you must specify the same admin user name.  If you do not remember the admin user name, you should first delete the VM resources so that they can be recreated. Azure does not allow redeployment of VMs that change the `linuxConfiguration.ssh.publicKeys` property and a change to the user name will cause a conflict.
+If you redeploy this template to the same Resource Group, you must specify the same admin user name.  If you do not remember the admin user name, you should first delete the VM resources so that they can be recreated. Azure does not allow redeployment of VMs that change the `linuxConfiguration.adminUsername` property and a change to the user name will cause a conflict.
 
 ### Redeploying the architecture using the same Resource Group Name
 
