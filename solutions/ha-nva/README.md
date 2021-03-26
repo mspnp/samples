@@ -14,6 +14,8 @@ description: This sample deploys simulated Network Virtual Appliances (NVAs) in 
 
 # Highly Available Ingress/Egress with layer 7 NVAs
 
+[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/ha-nva?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=139&branchName=master)
+
 ## Overview
 
 This sample template can be used to deploy several configurations of simulated Layer 7 NVAs to demonstrate a highly available configuration. For more information on this deployment and other highly available NVA options, see [Deploy highly available NVAs](https://docs.microsoft.com/azure/architecture/reference-architectures/dmz/nva-ha).
