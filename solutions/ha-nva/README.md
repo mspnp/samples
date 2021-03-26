@@ -1,3 +1,17 @@
+---
+page_type: sample
+languages:
+- azurepowershell
+- azurecli
+products:
+  - azure
+  - azure-load-balancer
+  - azure-virtual-network
+  - azure-bastion
+  - azure-application-gateway
+description: This sample deploys simulated Network Virtual Appliances (NVAs) in a zone-aware highly-available configuration. Azure Application Gateway is used to route ingress traffic, and Azure Load Balancers are used for internal and egress traffic routing.
+---
+
 # Highly Available Ingress/Egress with layer 7 NVAs
 
 ## Overview
