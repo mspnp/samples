@@ -4,15 +4,15 @@
 
 This sample template can be used to deploy several configurations of simulated Layer 7 NVAs to demonstrate a highly available configuration. For more information on this deployment and other highly available NVA options, see [Deploy highly available NVAs](https://docs.microsoft.com/azure/architecture/reference-architectures/dmz/nva-ha).
 
-**Ingress-only** - Deploy an Azure Application Gateway in front of two simulated network virtual appliance (NVA) VMs.  The NVA VMs will forward requests on port 80 to a web-tier Azure Load Balancer, which will distribute traffic across two back-end VMs running a simple web server.
+**Ingress-only** - Deploy an Azure Application Gateway in front of two simulated network virtual appliance (NVA) VMs.  The NVA VMs will forward requests on port 80 to a web-tier Azure Load Balancer, which will distribute traffic across two back-end VMs running a simple web server. *This deployment takes approximately 21 minutes.*
 
 ![Highly Available Egress with layer 7 NVAs architectural diagram.](l7-ingress.png)
 
-**Egress-only** - Deploy an internal Azure Load Balancer in front of two simulated network virtual appliance (NVA) VMs.  The NVA VMs will proxy requests on port 8080 from web-tier VMs to the Internet.
+**Egress-only** - Deploy an internal Azure Load Balancer in front of two simulated network virtual appliance (NVA) VMs.  The NVA VMs will proxy requests on port 8080 from web-tier VMs to the Internet. *This deployment takes approximately 11 minutes.*
 
 ![Highly Available Egress with layer 7 NVAs architectural diagram.](l7-egress.png)
 
-**Ingress-Egress** - Combines the above two options to provide highly available Layer 7 NVA-controlled traffic for both the Ingress path to the web-tier, and the Egress path from the web-tier.
+**Ingress-Egress** - Combines the above two options to provide highly available Layer 7 NVA-controlled traffic for both the Ingress path to the web-tier, and the Egress path from the web-tier. *This deployment takes approximately 22 minutes.*
 
 ![Highly Available Egress with layer 7 NVAs architectural diagram.](l7-ingress-egress.png)
 
