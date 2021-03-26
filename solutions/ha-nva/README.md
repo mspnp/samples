@@ -16,10 +16,6 @@ This sample template can be used to deploy several configurations of simulated L
 
 ![Highly Available Egress with layer 7 NVAs architectural diagram.](l7-ingress-egress.png)
 
-### Acknowledgements
-
-These sample architectures leverage concepts from the [Example Parameterized Deployment With Linked Templates](https://azure.microsoft.com/resources/templates/301-parameterized-linked-templates/) and [Create ssh-keys and store in Key Vault](https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/) samples.
-
 ## Deploy this template to Azure
 
 > Note: If you fork this repository, you will need to modify the deployment links in [README.md](README.md) to point to your repo.  If you create a separate branch for testing, you will have to include a change to this link to point to your branch as well. You must include a URL-encoded link to the raw [azuredeploy.json](azuredeploy.json) file after `/uri/` in the link defined for the deployment button, or you can point to your repo with the `--template-uri`/`-TemplateUri` parameter of the CLI or Powershell commands.
@@ -224,6 +220,10 @@ Inbound traffic is restricted to expected traffic for all resources using three 
 The SSH key needed to log into all VMs is stored in Azure Key Vault. In order to use Azure Bastion to connect to the VMs, you must grant the user access to LIST and GET secrets in the Key Vault.  This example uses an empty passphrase on the SSH key, relying on Key Vault RBAC to control access to the secret.
 
 Access to the VMs in the NVA and Web subnets is only achieved through Azure Bastion.
+
+## Acknowledgements
+
+These sample architectures leverage concepts from the [Example Parameterized Deployment With Linked Templates](https://azure.microsoft.com/resources/templates/301-parameterized-linked-templates/) and [Create ssh-keys and store in Key Vault](https://azure.microsoft.com/resources/templates/201-deployment-script-ssh-key-gen/) samples.
 
 ## Code of conduct
 
