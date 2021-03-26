@@ -21,6 +21,8 @@ trigger:
   paths:
     include:
       - /solutions/ha-nva/*
+    exclude:
+      - '/solutions/ha-nva/README.md'
 
 pr:
   branches:
@@ -29,6 +31,16 @@ pr:
   paths:
     include:
       - /solutions/ha-nva/*
+    exclude:
+      - '/solutions/ha-nva/README.md'
+
+schedules:
+- cron: "0 12 * * 0"
+  displayName: Weekly Sunday build
+  branches:
+    include:
+    - master
+  always: true
 
 stages:
 
@@ -64,6 +76,7 @@ stages:
   - job: arm
     pool: Hosted Ubuntu 1604
     continueOnError: false
+    timeoutInMinutes: 60
 
     steps:
 
