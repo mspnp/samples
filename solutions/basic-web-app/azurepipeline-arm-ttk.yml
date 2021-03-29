@@ -69,7 +69,7 @@ stages:
     - task: PowerShell@2
       inputs:
         targetType: 'inline'
-        script: Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
+        script: $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
 
     - task: PublishTestResults@2
       inputs:
