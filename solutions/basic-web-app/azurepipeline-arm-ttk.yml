@@ -53,10 +53,18 @@ stages:
     timeoutInMinutes: 20
 
     steps:
-           
-    - task: PublishTestResults@2
+
+    - task: PowerShell@2
       inputs:
-        testResultsFormat: 'NUnit'
-        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
-      condition: always()
+        targetType: 'inline'
+        script: |
+          git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
+          import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
+          Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
+
+    # - task: PublishTestResults@2
+    #   inputs:
+    #     testResultsFormat: 'NUnit'
+    #     testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+    #   condition: always()
 
