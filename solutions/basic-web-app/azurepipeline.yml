@@ -1,6 +1,6 @@
 variables:
 - name: serviceConnection
-  value: azure-service-connection-mg
+  value: nepeters-cd-demo
 - name: resource-group
   value: hub-spoke-$(Build.BuildId)
 - name: location
