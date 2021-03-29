@@ -5,6 +5,8 @@ variables:
   value: hub-spoke-$(Build.BuildId)
 - name: location
   value: eastus
+- name: pester-script-location
+  value: '/solutions/basic-web-app/Test.ARMTemplate.ps1'
 - name: template-location
   value: '/solutions/basic-web-app/*'
 - name: template-name
@@ -62,7 +64,7 @@ stages:
           import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
-          $results = Invoke-Pester -Script  @{ Path =  '.\Test.ARMTemplate.ps1'; Parameters = @{TemplatePath = ($(System.DefaultWorkingDirectory)$(template-location))}} -OutputFormat NUnitXml -OutputFile $env:BUILD_ARTIFACTSTAGINGDIRECTORY\TEST-ARMTemplate.xml -PassThru
+          $results = Invoke-Pester -Script  @{Path = $(System.DefaultWorkingDirectory)$(pester-script-location); Parameters = @{TemplatePath = $(System.DefaultWorkingDirectory)$(template-location)} -OutputFormat NUnitXml -OutputFile $env:BUILD_ARTIFACTSTAGINGDIRECTORY\TEST-ARMTemplate.xml -PassThru
 
     # - task: PublishTestResults@2
     #   inputs:
