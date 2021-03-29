@@ -64,7 +64,7 @@ stages:
           import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
-          $results = Invoke-Pester -Script  @{Path = $(System.DefaultWorkingDirectory)$(pester-script-location); Parameters = @{TemplatePath = $(System.DefaultWorkingDirectory)$(template-location)} -OutputFormat NUnitXml -OutputFile $env:BUILD_ARTIFACTSTAGINGDIRECTORY\TEST-ARMTemplate.xml -PassThru
+          $results = Invoke-Pester -Script  @{Path = $(System.DefaultWorkingDirectory)$(pester-script-location); Parameters = @{TemplatePath = $(System.DefaultWorkingDirectory)$(template-location)}
 
     # - task: PublishTestResults@2
     #   inputs:
