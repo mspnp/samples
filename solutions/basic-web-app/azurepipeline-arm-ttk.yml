@@ -6,7 +6,7 @@ variables:
 - name: location
   value: eastus
 - name: pester-script-location
-  value: 'Test.ARMTemplate.ps1'
+  value: '/solutions/Test.ARMTemplate.ps1'
 - name: template-location
   value: '/solutions/basic-web-app/'
 - name: template-name
