@@ -8,7 +8,7 @@ variables:
 - name: pester-script-location
   value: '/solutions/basic-web-app/Test.ARMTemplate.ps1'
 - name: template-location
-  value: '/solutions/basic-web-app/*'
+  value: '/solutions/basic-web-app/'
 - name: template-name
   value: 'azuredeploy.json'  
 - name: ttk-skip-test
