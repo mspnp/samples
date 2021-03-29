@@ -67,7 +67,7 @@ stages:
           write-output "=================="
           write-output $(System.DefaultWorkingDirectory)$(template-location)$(template-name)
           write-output "=================="
-          $results = Invoke-Petster -Script @{Path = $(System.DefaultWorkingDirectory)$(pester-script-location)} -OutputFormat NUnitXml -OutputFile $env:BUILD_ARTIFACTSTAGINGDIRECTORY\TEST-ARMTemplate.xml -PassThru
+          $results = Invoke-Pester -Script @{Path = $(System.DefaultWorkingDirectory)$(pester-script-location)} -OutputFormat NUnitXml -OutputFile $env:BUILD_ARTIFACTSTAGINGDIRECTORY\TEST-ARMTemplate.xml -PassThru
 
     # - task: PublishTestResults@2
     #   inputs:
