@@ -6,7 +6,7 @@ variables:
 - name: location
   value: eastus
 - name: pester-script-location
-  value: '/solutions/basic-web-app/Test.ARMTemplate.ps1'
+  value: 'Test.ARMTemplate.ps1'
 - name: template-location
   value: '/solutions/basic-web-app/'
 - name: template-name
@@ -57,7 +57,7 @@ stages:
     steps:
 
     - task: PowerShell@2
-      displayName: Prepare ARM-TTK and Pester 
+      displayName: ARM-TTK and Pester
       inputs:
         targetType: 'inline'
         script: |
@@ -66,11 +66,6 @@ stages:
           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
           $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
-
-    # - task: PowerShell@2
-    #   inputs:
-    #     targetType: 'inline'
-    #     script: $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
 
     - task: PublishTestResults@2
       inputs:
