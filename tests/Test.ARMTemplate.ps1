@@ -3,7 +3,7 @@
 param (
     [Parameter()]
     [String]$TemplatePath,
-    [string[]]$skipTests = "DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs"
+    [string]$skipTests = "DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs"
 )
 
 # $tests = @('DependsOn-Best-Practices';'IDs-Should-Be-Derived-From-ResourceIDs')
