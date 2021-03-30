@@ -12,7 +12,7 @@ variables:
 - name: template-name
   value: 'azuredeploy.json'  
 - name: ttk-skip-test
-  value: 'IDs-Should-Be-Derived-From-ResourceIDs'
+  value: ''
 
 trigger:
   branches:
