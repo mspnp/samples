@@ -8,7 +8,9 @@ variables:
 - name: template-location
   value: '/solutions/azure-hub-spoke/bicep/'
 - name: template-name
-  value: 'main.bicep'  
+  value: 'main.bicep'
+- name: pester-script-location
+  value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
   value: 'IDs-Should-Be-Derived-From-ResourceIDs'
 

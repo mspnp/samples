@@ -9,6 +9,8 @@ variables:
   value: 'azuredeploy.json'
 - name: adminUserName
   value: 'azureadmin'
+- name: pester-script-location
+  value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
 - name: artifactsLocationTemplate
