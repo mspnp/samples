@@ -55,7 +55,11 @@ stages:
     timeoutInMinutes: 20
 
     steps:
-
+    
+    - task: CmdLine@2
+      inputs:
+        script: 'dir $(System.DefaultWorkingDirectory)'
+    
     - task: PowerShell@2
       displayName: ARM-TTK and Pester
       inputs:
