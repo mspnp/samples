@@ -3,9 +3,9 @@
 param (
     [Parameter()]
     [String]$TemplatePath,
-    [array]$skipTests = "DependsOn-Best-Practices;IDs-Should-Be-Derived-From-ResourceIDs"
+    [array]$skipTests = "DependsOn-Best-Practices","IDs-Should-Be-Derived-From-ResourceIDs"
 )
 
 $tests = @('DependsOn-Best-Practices';'IDs-Should-Be-Derived-From-ResourceIDs')
 
-Test-AzTemplate -TemplatePath $TemplatePath -Skip $tests -Pester 
+Test-AzTemplate -TemplatePath $TemplatePath -Skip $skipTests -Pester 
