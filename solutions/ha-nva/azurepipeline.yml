@@ -1,22 +1,18 @@
 variables:
 - name: serviceConnection
-  value: nepeters-cd-demo
+  value: azure-service-connection-rickhall
+- name: resource-group
+  value: validation-mspnp-samples-solutions-hanva-$(Build.BuildId)
 - name: location
-  value: eastus
+  value: southeastasia
 - name: template-location
-  value: '/solutions/secure-hybrid-network/*'
+  value: '/solutions/ha-nva/*'
 - name: template-name
   value: 'azuredeploy.json'
-- name: adminUserName
-  value: 'azureadmin'
 - name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent'
 - name: artifactsLocationTemplate
-  value: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/'
-- name: mock-on-prem-resource-group-name
-  value: secure-moc-onprem-$(Build.BuildId)
-- name: azure-network-resource-group-name
-  value: secure-vnet-azure-$(Build.BuildId)
+  value: 'https://raw.githubusercontent.com/mspnp/samples/REPLACEREF/solutions/ha-nva/'
 
 trigger:
   branches:
@@ -24,19 +20,19 @@ trigger:
     - master
   paths:
     include:
-      - '/solutions/secure-hybrid-network/*'
+      - /solutions/ha-nva/*
     exclude:
-      - '/solutions/secure-hybrid-network/README.md'
-      
+      - '/solutions/ha-nva/README.md'
+
 pr:
   branches:
     include:
     - master
   paths:
     include:
-      - '/solutions/secure-hybrid-network/*'
+      - /solutions/ha-nva/*
     exclude:
-      - '/solutions/secure-hybrid-network/README.md'
+      - '/solutions/ha-nva/README.md'
 
 schedules:
 - cron: "0 12 * * 0"
@@ -45,7 +41,7 @@ schedules:
     include:
     - master
   always: true
-      
+
 stages:
 
 # Run ARM TTK and publish test results (Windows only)
@@ -59,13 +55,13 @@ stages:
     timeoutInMinutes: 20
 
     steps:
-    
+
     - task: RunARMTTKTests@1
       inputs:
         templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
         resultLocation: '$(System.DefaultWorkingDirectory)'
         skipTests: $(ttk-skip-test)
-        
+
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: 'NUnit'
@@ -80,9 +76,18 @@ stages:
   - job: arm
     pool: Hosted Ubuntu 1604
     continueOnError: false
+    timeoutInMinutes: 60
 
-    steps:    
-                   
+    steps:
+
+    - task: AzureCLI@2
+      displayName: Create resource group
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: 'az group create --name $(resource-group) --location $(location)'
+
     - task: AzureCLI@2
       displayName: Validate template (validation api)
       inputs:
@@ -93,7 +98,8 @@ stages:
          uriTemplate=$(artifactsLocationTemplate)
          deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub validate --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name validate-$(Build.BuildId)
+         echo deployUri=$deployUri artifactUri=$artifactUri
+         az deployment group validate --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -105,10 +111,11 @@ stages:
          uriTemplate=$(artifactsLocationTemplate)
          deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+         echo deployUri=$deployUri artifactUri=$artifactUri
+         az deployment group create --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
 
     - task: AzureCLI@2
-      displayName: Deploy template again
+      displayName: Deploy template (second pass)
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
@@ -117,7 +124,8 @@ stages:
          uriTemplate=$(artifactsLocationTemplate)
          deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
          artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+         echo deployUri=$deployUri artifactUri=$artifactUri
+         az deployment group create --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
 
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
@@ -138,6 +146,4 @@ stages:
         azureSubscription: $(serviceConnection)
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        inlineScript: |
-         az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
-         az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait
+        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
