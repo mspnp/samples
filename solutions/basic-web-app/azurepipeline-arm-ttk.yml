@@ -6,7 +6,7 @@ variables:
 - name: location
   value: eastus
 - name: pester-script-location
-  value: 'Test.ARMTemplate.ps1'
+  value: '/Test.ARMTemplate.ps1'
 - name: template-location
   value: '/solutions/basic-web-app/'
 - name: template-name
@@ -56,12 +56,6 @@ stages:
 
     steps:
     
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: ls $(System.DefaultWorkingDirectory)
-
-
     - task: PowerShell@2
       displayName: ARM-TTK and Pester
       inputs:
