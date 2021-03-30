@@ -3,5 +3,6 @@
 param (
     [Parameter()]
     [String]$TemplatePath
+    [String[]]$Skip
 )
-Test-AzTemplate -TemplatePath $TemplatePath -Pester
+Test-AzTemplate -TemplatePath $TemplatePath -Skip $Skip -Pester 
