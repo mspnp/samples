@@ -6,13 +6,13 @@ variables:
 - name: location
   value: eastus
 - name: pester-script-location
-  value: '/Test.ARMTemplate.ps1'
+  value: '/tests/Test.ARMTemplate.ps1'
 - name: template-location
   value: '/solutions/basic-web-app/'
 - name: template-name
   value: 'azuredeploy.json'  
 - name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'IDs-Should-Be-Derived-From-ResourceIDs'
 
 trigger:
   branches:
