@@ -3,6 +3,6 @@
 param (
     [Parameter()]
     [String]$TemplatePath,
-    [String]$Skip = 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
+    [String]$Skip = 'IDs-Should-Be-Derived-From-ResourceIDs'
 )
 Test-AzTemplate -TemplatePath $TemplatePath -Skip $Skip -Pester 
