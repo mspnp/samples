@@ -6,6 +6,8 @@ param (
     [string[]]$skipTests = "DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs"
 )
 
-$tests = @('DependsOn-Best-Practices';'IDs-Should-Be-Derived-From-ResourceIDs')
+# $tests = @('DependsOn-Best-Practices';'IDs-Should-Be-Derived-From-ResourceIDs')
 
-Test-AzTemplate -TemplatePath $TemplatePath -Skip $skipTests -Pester 
+$ab = $skipTests.split(',')
+
+Test-AzTemplate -TemplatePath $TemplatePath -Skip $ab -Pester 
