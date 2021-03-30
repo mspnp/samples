@@ -5,4 +5,4 @@ param (
     [String]$TemplatePath,
     [String]$Skip = 'IDs-Should-Be-Derived-From-ResourceIDs'
 )
-Test-AzTemplate -TemplatePath $TemplatePath -Skip $Skip -Pester 
+Test-AzTemplate -TemplatePath $TemplatePath -Skip IDs-Should-Be-Derived-From-ResourceIDs -Pester 
