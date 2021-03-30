@@ -55,6 +55,12 @@ stages:
     timeoutInMinutes: 20
 
     steps:
+    
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: ls $(System.DefaultWorkingDirectory)
+
 
     - task: PowerShell@2
       displayName: ARM-TTK and Pester
