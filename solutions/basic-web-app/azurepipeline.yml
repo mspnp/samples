@@ -8,7 +8,9 @@ variables:
 - name: template-location
   value: '/solutions/basic-web-app/*'
 - name: template-name
-  value: 'azuredeploy.json'  
+  value: 'azuredeploy.json'
+- name: pester-script-location
+  value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
   value: 'IDs-Should-Be-Derived-From-ResourceIDs'
 
@@ -54,16 +56,22 @@ stages:
 
     steps:
     
-    - task: RunARMTTKTests@1
+    - task: PowerShell@2
+      displayName: ARM-TTK and Pester
       inputs:
-        templatelocation: '$(System.DefaultWorkingDirectory)$(template-location)'
-        resultLocation: '$(System.DefaultWorkingDirectory)'
-        skipTests: $(ttk-skip-test)
+        targetType: 'inline'
+        script: |
+          git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
+          import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
+          Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
+          Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
+          $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
+          if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
         
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: 'NUnit'
-        testResultsFiles: '$(System.DefaultWorkingDirectory)\*-armttk.xml'
+        testResultsFiles: TEST-ARMTemplate.xml
       condition: always()
 
 # Deploy template
@@ -132,3 +140,6 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+
+
+
