@@ -3,11 +3,8 @@
 param (
     [Parameter()]
     [String]$TemplatePath,
-    [string]$skipTests = "DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs"
+    [string]$skipTests
 )
 
-# $tests = @('DependsOn-Best-Practices';'IDs-Should-Be-Derived-From-ResourceIDs')
-
-$ab = $skipTests.split(',')
-
-Test-AzTemplate -TemplatePath $TemplatePath -Skip $ab -Pester 
+$skip = $skipTests.split(',')
+Test-AzTemplate -TemplatePath $TemplatePath -Skip $skip -Pester 
