@@ -3,6 +3,7 @@ param linuxVMCount int = 1
 param adminUserName string
 param adminPassword string
 param vmSize string = 'Standard_A1_v2'
+param location string
 
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -58,7 +59,7 @@ var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, reso
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
-  location: 'eastus'
+  location: location
   properties: {
     sku: {
       name: 'Free'
@@ -68,7 +69,7 @@ resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name
-  location: 'eastus'
+  location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -114,7 +115,7 @@ resource diahVnetHub 'microsoft.insights/diagnosticSettings@2017-05-01-preview' 
 
 resource pipFirewall 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
   name: azureFirewall.publicIPAddressName
-  location: 'eastus'
+  location: location
   sku: {
     name: 'Standard'
   }
@@ -125,7 +126,7 @@ resource pipFirewall 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
 
 resource firewall 'Microsoft.Network/azureFirewalls@2020-05-01' = {
   name: azureFirewall.name
-  location: 'eastus'
+  location: location
   properties: {
     sku: {
       name: 'AZFW_VNet'
@@ -172,7 +173,7 @@ resource diagFirewall 'microsoft.insights/diagnosticSettings@2017-05-01-preview'
 
 resource azureFirewallRoutes 'Microsoft.Network/routeTables@2020-05-01' = {
   name: azureFirewall.routeName
-  location: 'eastus'
+  location: location
   properties: {
     disableBgpRoutePropagation: false
     routes: [
@@ -190,7 +191,7 @@ resource azureFirewallRoutes 'Microsoft.Network/routeTables@2020-05-01' = {
 
 resource nsgSpoke 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: spokeNetwork.name
-  location: 'eastus'
+  location: location
   properties: {
     securityRules: [
       {
@@ -246,7 +247,7 @@ resource diagNsgSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview'
 
 resource vnetSpoke 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: spokeNetwork.name
-  location: 'eastus'
+  location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -283,7 +284,7 @@ resource diagVnetSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview
 
 resource nsgSpokeTwo 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: spokeNetworkTwo.name
-  location: 'eastus'
+  location: location
   properties: {
     securityRules: [
       {
@@ -339,7 +340,7 @@ resource diagNsgSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-previ
 
 resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: spokeNetworkTwo.name
-  location: 'eastus'
+  location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -428,7 +429,7 @@ resource peerSpokeTwoHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerin
 
 resource bastionPip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: 'bastionpip'
-  location: 'eastus'
+  location: location
   sku: {
     name: 'Standard'
   }
@@ -439,7 +440,7 @@ resource bastionPip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
 
 resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: 'nsgbastion'
-  location: 'eastus'
+  location: location
   properties: {
     securityRules: [
       {
@@ -548,7 +549,7 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
 
 resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
   name: 'bastionhost'
-  location: 'eastus'
+  location: location
   properties: {
     ipConfigurations: [
       {
@@ -568,7 +569,7 @@ resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
 
 resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, windowsVMCount): {
   name: '${nicNameWindows}${i + 1}'
-  location: 'eastus'
+  location: location
   properties: {
     ipConfigurations: [
       {
@@ -586,7 +587,7 @@ resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01'
 
 resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, windowsVMCount): {
   name: '${vmNameWindows}${i + 1}'
-  location: 'eastus'
+  location: location
   dependsOn:[
     nicNameWindowsResource
   ]
@@ -622,7 +623,7 @@ resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = 
 
 resource nicNameLinuxResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, linuxVMCount): {
   name: '${nicNameLinux}${i + 1}'
-  location: 'eastus'
+  location: location
   properties: {
     ipConfigurations: [
       {
@@ -640,7 +641,7 @@ resource nicNameLinuxResource 'Microsoft.Network/networkInterfaces@2020-05-01' =
 
 resource vmNameLinuxResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, linuxVMCount): {
   name: '${vmNameLinux}${i + 1}'
-  location: 'eastus'
+  location: location
   dependsOn:[
     nicNameLinuxResource
   ]
