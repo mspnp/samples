@@ -1,3 +1,5 @@
+# Comment to kick build
+
 variables:
 - name: serviceConnection
   value: nepeters-cd-demo
@@ -12,7 +14,7 @@ variables:
 - name: pester-script-location
   value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
-  value: 'IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'IDs-Should-Be-Derived-From-ResourceIDs,Location-Should-Not-Be-Hardcoded'
 
 trigger:
   branches:
@@ -58,7 +60,7 @@ stages:
 
     - task: AzurePowerShell@5
       inputs:
-        azureSubscription: 'azure-service-connection'
+        azureSubscription: $(serviceConnection)
         ScriptType: 'InlineScript'
         azurePowerShellVersion: 'LatestVersion'
         Inline: |
@@ -113,7 +115,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword)
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) location=eastus
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -122,7 +124,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) location=eastus
 
     - task: AzureCLI@2
       displayName: Deploy template (second pass)
@@ -131,7 +133,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) location=eastus
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
