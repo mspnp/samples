@@ -56,12 +56,11 @@ stages:
 
     steps:
 
-    - task: AzurePowerShell@5
+    - task: PowerShell@2
+      displayName: ARM-TTK and Pester
       inputs:
-        azureSubscription: 'azure-service-connection'
-        ScriptType: 'InlineScript'
-        azurePowerShellVersion: 'LatestVersion'
-        Inline: |
+        targetType: 'inline'
+        script: |
           Invoke-WebRequest -Uri https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe -OutFile ./bicep.exe
         
     - task: CmdLine@2
