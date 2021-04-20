@@ -34,6 +34,7 @@ pr:
       - /solutions/azure-hub-spoke/*
     exclude:
       - '/solutions/azure-hub-spoke/README.md'
+      - '/solutions/azure-hub-spoke/bicep/*'
 
 schedules:
 - cron: "0 12 * * 0"
