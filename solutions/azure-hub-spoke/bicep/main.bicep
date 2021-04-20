@@ -1,8 +1,10 @@
 param windowsVMCount int = 1
 param linuxVMCount int = 1
 param adminUserName string
-param adminPassword string
 param vmSize string = 'Standard_A1_v2'
+
+@secure()
+param adminPassword string
 
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -49,8 +51,6 @@ param vpnGateway object = {
 }
 
 param location string = resourceGroup().location
-
-
 
 var nicNameWindows = 'nic-windows-'
 var vmNameWindows = 'vm-windows-'
