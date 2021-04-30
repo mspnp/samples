@@ -1,8 +1,6 @@
-# Comment to kick build
-
 variables:
-- name: serviceConnection
-  value: nepeters-cd-demo
+# - name: serviceConnection
+#   value: nepeters-cd-demo
 - name: resource-group
   value: hub-spoke-bicep-$(Build.BuildId)
 - name: location
