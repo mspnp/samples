@@ -16,8 +16,8 @@ description: This sample deploys Azure virtual networks in a hub and spoke confi
 
 | Deployment | Status |
 |---|---|
-| ARM Template | [![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/hub-spoke-bastion?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=129&branchName=master) |
-| Bicep Template | [![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/hub-spoke-bastion?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=129&branchName=master) |
+| ARM Template | [![Build Status](https://ceapex.visualstudio.com/pnp/_apis/build/status/deployment-validation/hub-and-spoke?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3727&branchName=master) |
+| Bicep Template | [![Build Status](https://ceapex.visualstudio.com/pnp/_apis/build/status/deployment-validation/hub-spoke-bastion-bicep?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3729&branchName=master) |
 
 
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
