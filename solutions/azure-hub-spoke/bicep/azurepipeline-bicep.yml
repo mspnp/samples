@@ -1,6 +1,6 @@
 variables:
-- name: serviceConnection
-  value: nepeters-cd-demo
+# - name: serviceConnection
+#   value: nepeters-cd-demo
 - name: resource-group
   value: hub-spoke-bicep-$(Build.BuildId)
 - name: location
@@ -113,6 +113,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
+         az upgrade --yes
          az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) location=eastus
 
     - task: AzureCLI@2

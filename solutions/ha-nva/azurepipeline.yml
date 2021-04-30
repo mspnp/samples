@@ -1,6 +1,4 @@
 variables:
-- name: serviceConnection
-  value: azure-service-connection-rickhall
 - name: resource-group
   value: validation-mspnp-samples-solutions-hanva-$(Build.BuildId)
 - name: location
