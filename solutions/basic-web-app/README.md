@@ -13,7 +13,7 @@ description: This sample deploys an empty web app, two web app slots, web app me
 
 # Basic web app deployment
 
-[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/basic-web-app?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=131&branchName=master)
+[![Build Status](https://ceapex.visualstudio.com/pnp/_apis/build/status/deployment-validation/basic-web-app?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3728&branchName=master)
 
 This sample deploys an empty web app, two web app slots, web app metric alerts, and autoscale rules. A SQL database is also deployed, the connection string stored in Azure Key Vault, and configured on the web application.
 

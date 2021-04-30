@@ -13,7 +13,7 @@ description: This sample deploys a hub and spoke network, a mock on-premises net
 
 # Secure hybrid network
 
-[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/secure-hybrid-network?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=135&branchName=master)
+[![Build Status](https://ceapex.visualstudio.com/pnp/_apis/build/status/deployment-validation/basic-web-app?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3728&branchName=master)
 
 This sample deploys a hub and spoke network, a mock on-premises network, and connects both with a site-to-site VPN connection. 
 
