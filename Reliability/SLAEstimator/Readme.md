@@ -1,4 +1,4 @@
-# Service Level Agreement Estimator sample app
+# Service Level Agreement Estimator sample
 
 This is an example of how you can calculate the composite SLA of your architecture. This is React web application that can run locally and totally disconnected from the Internet; the data source is a local json file. By changing the `SLA_data.json` file you can add and remove services or modify the SLA values of the individual services using your own SLA numbers.
 
