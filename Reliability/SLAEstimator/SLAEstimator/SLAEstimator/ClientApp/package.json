@@ -5,7 +5,7 @@
   "dependencies": {
     "bootstrap": "^4.6.0",
     "jquery": "^3.5.1",
-    "merge": "^1.2.1",
+    "merge": "^2.1.1",
     "oidc-client": "^1.11.3",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
