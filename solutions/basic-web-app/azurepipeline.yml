@@ -140,6 +140,3 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
-
-
-
