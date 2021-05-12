@@ -21,7 +21,7 @@
         "logAnalytics": {
             "type": "object",
             "defaultValue": {
-                "name": "[concat('la', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "name": "testniner667",
                 "skuName": "free"
             },
             "metadata": {
