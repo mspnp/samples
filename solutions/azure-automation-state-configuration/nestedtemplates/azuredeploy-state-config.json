@@ -17,6 +17,20 @@
                 "description": "A configuration for installing Nginx.",
                 "script": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/scripts/linux-config.ps1"
             }
+        },
+        "logAnalytics": {
+            "type": "object",
+            "defaultValue": {
+                "name": "[concat('la', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+                "skuName": "free"
+            },
+            "metadata": {
+                "description": "Deployment settings for the Log Analytics workspace."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
         }
     },
     "variables": {
@@ -24,6 +38,21 @@
         "moduleUri": "https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg"
     },
     "resources": [
+        {
+            "comments": "Log Analytics workspace",
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('logAnalytics').name]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "[parameters('logAnalytics').skuName]"
+                },
+                "features": {
+                    "searchVersion": 1
+                }
+            }
+        },
         {
             "name": "[variables('automationAccountName')]",
             "type": "Microsoft.Automation/automationAccounts",
@@ -116,6 +145,23 @@
                         "configuration": {
                             "name": "[parameters('windowsConfiguration').name]"
                         }
+                    }
+                },
+                {
+                    "type": "providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat('Microsoft.Insights/default', parameters('logAnalytics'))]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
+                        "logs": [
+                            {
+                                "category": "DSCNodeStatus",
+                                "enabled": true
+                            }
+                        ]
                     }
                 }
             ]

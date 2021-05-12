@@ -3,8 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminUserName": {
-            "type": "string",
-            "defaultValue": "azureadmin"
+            "type": "string"
         },
         "adminPassword": {
             "type": "securestring"
