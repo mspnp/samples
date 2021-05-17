@@ -3,16 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminUserName": {
-            "value": "azureadmin"
+            "value": ""
         },
         "adminPassword": {
             "value": ""
         },
-        "windowsVMCount": {
-            "value": 1
-        },
-        "linuxVMCount": {
-            "value": 1
+        "emailAddress": {
+            "value": ""
         }
     }
 }
