@@ -109,15 +109,16 @@ stages:
         inlineScript: |
          az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 emailAddress=nepeters@microsoft.com
 
-    - task: AzureCLI@2
-      displayName: Deploy template (second pass)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         sleep 30
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 emailAddress=nepeters@microsoft.com
+    # Issue with second deployment, seems product related
+    # - task: AzureCLI@2
+    #   displayName: Deploy template (second pass)
+    #   inputs:
+    #     azureSubscription: $(serviceConnection)
+    #     scriptType: 'bash'
+    #     scriptLocation: 'inlineScript'
+    #     inlineScript: |
+    #      sleep 30
+    #      az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 emailAddress=nepeters@microsoft.com
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
