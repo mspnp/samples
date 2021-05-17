@@ -1,6 +1,4 @@
 variables:
-# - name: serviceConnection
-#   value: nepeters-cd-demo
 - name: location
   value: eastus
 - name: template-location
