@@ -28,7 +28,7 @@
             "defaultValue": {
                 "name": "windowsfeatures",
                 "description": "A configuration for installing IIS.",
-                "script": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/scripts/windows-config.ps1"
+                "script": "https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-automation-state-configuration/scripts/windows-config.ps1"
             }
         },
         "linuxConfiguration": {
@@ -36,7 +36,7 @@
             "defaultValue": {
                 "name": "linuxpackage",
                 "description": "A configuration for installing Nginx.",
-                "script": "https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-automation-state-configuration/scripts/linux-config.ps1"
+                "script": "https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-automation-state-configuration/scripts/linux-config.ps1"
             }
         },
         "virtualNetworkName": {
