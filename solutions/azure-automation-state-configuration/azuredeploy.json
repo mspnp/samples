@@ -67,7 +67,7 @@
         "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
         "dscExtensionModulesUrl": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-azure-automation-pullserver/UpdateLCMforAAPull.zip",
         "dscExtensionConfigurationFunction": "UpdateLCMforAAPull.ps1\\ConfigureLCMforAAPull",
-        "alertQuery": "AzureDiagnostics\n| where Category == \"DscNodeStatus\"\n| where ResultType != \"Compliant\"",
+        "alertQuery": "AzureDiagnostics\n| where Category == \"DscNodeStatus\"\n| where ResultType != \"Failed\"",
         "windowsNicName": "windows-nic-",
         "windowsPIPName": "windows-pip-",
         "windowsVMName": "windows-vm-",
