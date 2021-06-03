@@ -10,7 +10,7 @@ variables:
 - name: pester-script-location
   value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs,Secure-Params-In-Nested-Deployments'
 - name: artifactsLocationTemplate
   value: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/'
 - name: mock-on-prem-resource-group-name
