@@ -111,6 +111,9 @@
             "apiVersion": "2018-04-16",
             "name": "non-compliant-dsc",
             "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
+            ],
             "properties": {
                 "enabled": true,
                 "source": {
