@@ -11,6 +11,8 @@ variables:
   value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
   value: 'IDs-Should-Be-Derived-From-ResourceIDs'
+- name: emailAddress
+  value: 'nepeters@microsoft.com'
 
 trigger:
   branches:
@@ -98,7 +100,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -107,7 +109,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
 
     - task: AzureCLI@2
       displayName: Deploy template again
@@ -116,7 +118,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword)
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
         
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
