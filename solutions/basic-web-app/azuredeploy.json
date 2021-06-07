@@ -14,6 +14,9 @@
                 "description": "The admin password for the Azure SQL instance."
             }
         },
+        "emailAddress": {
+            "type": "string"
+        },
         "logAnalytics": {
             "type": "object",
             "defaultValue": {
@@ -67,13 +70,14 @@
                 "description": "Deployment settings for Azure App Service instance."
             }
         },
+        "deploySlots": {
+            "type": "bool",
+            "defaultValue": true
+        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
         }
-    },
-    "variables": {
-        "emailAlertRole": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
     },
     "resources": [
         {
@@ -318,8 +322,10 @@
                 "name": "[parameters('azureAppService').skuName]",
                 "capacity": "[parameters('azureAppService').skuCapacity]"
             },
+            "kind": "linux",
             "properties": {
-                "name": "[parameters('azureAppService').name]"
+                "name": "[parameters('azureAppService').name]",
+                "reserved": true
             },
             "resources": [
                 {
@@ -356,7 +362,10 @@
             },
             "properties": {
                 "name": "[parameters('azureAppService').webSiteName]",
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]",
+                "siteConfig": {
+                    "linuxFxVersion": "PYTHON|3.7"
+                }
             },
             "resources": [
                 {
@@ -426,6 +435,7 @@
                     }
                 },
                 {
+                    "condition": "[parameters('deploySlots')]",
                     "type": "slots",
                     "apiVersion": "2020-06-01",
                     "name": "Staging",
@@ -436,6 +446,7 @@
                     "properties": {},
                     "resources": [
                         {
+                            "condition": "[parameters('deploySlots')]",
                             "type": "config",
                             "apiVersion": "2020-06-01",
                             "name": "connectionstrings",
@@ -450,6 +461,7 @@
                             }
                         },
                         {
+                            "condition": "[parameters('deploySlots')]",
                             "type": "providers/diagnosticSettings",
                             "apiVersion": "2017-05-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
@@ -504,6 +516,7 @@
                     ]
                 },
                 {
+                    "condition": "[parameters('deploySlots')]",
                     "type": "slots",
                     "apiVersion": "2020-06-01",
                     "name": "LastKnownGood",
@@ -514,6 +527,7 @@
                     "properties": {},
                     "resources": [
                         {
+                            "condition": "[parameters('deploySlots')]",
                             "type": "config",
                             "apiVersion": "2020-06-01",
                             "name": "connectionstrings",
@@ -528,6 +542,7 @@
                             }
                         },
                         {
+                            "condition": "[parameters('deploySlots')]",
                             "type": "providers/diagnosticSettings",
                             "apiVersion": "2017-05-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
@@ -655,11 +670,11 @@
             "properties": {
                 "groupShortName": "email-alert",
                 "enabled": true,
-                "armRoleReceivers": [
+                "emailReceivers": [
                     {
-                        "name": "email-alert",
-                        "roleId": "[variables('emailAlertRole')]",
-                        "useCommonAlertSchema": true
+                        "name": "emailAction",
+                        "emailAddress": "[parameters('emailAddress')]",
+                        "useCommonAlertSchema": false
                     }
                 ]
             }
@@ -682,7 +697,7 @@
                     "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
                 ],
                 "evaluationFrequency": "PT1M",
-                "windowSize": "PT5M",
+                "windowSize": "PT1M",
                 "criteria": {
                     "allOf": [
                         {
@@ -724,7 +739,7 @@
                     "[resourceId('Microsoft.Web/sites', parameters('azureAppService').webSiteName)]"
                 ],
                 "evaluationFrequency": "PT1M",
-                "windowSize": "PT5M",
+                "windowSize": "PT1M",
                 "criteria": {
                     "allOf": [
                         {
@@ -766,7 +781,7 @@
                     "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
                 ],
                 "evaluationFrequency": "PT1M",
-                "windowSize": "PT5M",
+                "windowSize": "PT1M",
                 "criteria": {
                     "allOf": [
                         {
@@ -808,7 +823,7 @@
                     "[resourceId('Microsoft.Web/serverfarms', parameters('azureAppService').name)]"
                 ],
                 "evaluationFrequency": "PT1M",
-                "windowSize": "PT5M",
+                "windowSize": "PT1M",
                 "criteria": {
                     "allOf": [
                         {
