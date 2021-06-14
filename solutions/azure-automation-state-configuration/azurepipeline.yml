@@ -98,7 +98,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 emailAddress=nepeters@microsoft.com
+         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 emailAddress=nepeters@microsoft.com
 
     - task: AzureCLI@2
       displayName: Deploy template
@@ -107,7 +107,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 emailAddress=nepeters@microsoft.com
+         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 emailAddress=nepeters@microsoft.com
 
     # Issue with second deployment, seems product related
     # - task: AzureCLI@2

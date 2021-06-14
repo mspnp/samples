@@ -10,7 +10,7 @@ variables:
 - name: pester-script-location
   value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent,Secure-Params-In-Nested-Deployments'
+  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent,Secure-Params-In-Nested-Deployments,URIs-Should-Be-Properly-Constructed'
 - name: artifactsLocationTemplate
   value: 'https://raw.githubusercontent.com/mspnp/samples/REPLACEREF/solutions/ha-nva/'
 

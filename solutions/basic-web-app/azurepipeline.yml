@@ -10,7 +10,7 @@ variables:
 - name: pester-script-location
   value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
-  value: 'IDs-Should-Be-Derived-From-ResourceIDs'
+  value: 'IDs-Should-Be-Derived-From-ResourceIDs,URIs-Should-Be-Properly-Constructed'
 - name: emailAddress
   value: 'nepeters@microsoft.com'
 
