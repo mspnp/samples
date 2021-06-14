@@ -10,7 +10,7 @@ variables:
 - name: pester-script-location
   value: '/tests/Test.ARMTemplate.ps1' 
 - name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,ResourceIds-should-not-contain,DeploymentTemplate-Must-Not-Contain-Hardcoded-Uri,apiVersions-Should-Be-Recent-In-Reference-Functions'
+  value: 'DependsOn-Best-Practices,ResourceIds-should-not-contain,DeploymentTemplate-Must-Not-Contain-Hardcoded-Uri,apiVersions-Should-Be-Recent-In-Reference-Functions,URIs-Should-Be-Properly-Constructed'
 
 trigger:
   branches:
