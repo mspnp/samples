@@ -14,7 +14,7 @@ description: This sample deploys simulated Network Virtual Appliances (NVAs) in 
 
 # Highly Available Ingress/Egress with layer 7 NVAs
 
-[![Build Status](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_apis/build/status/ha-nva?branchName=master)](https://nepeters-devops.visualstudio.com/arm-template-validation-pipelines/_build/latest?definitionId=139&branchName=master)
+[![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/mspnp.samples-solutions-hanva?branchName=master)](https://dev.azure.com/ceapex/pnp/_build/latest?definitionId=3667&branchName=master)
 
 ## Overview
 
