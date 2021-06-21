@@ -193,7 +193,7 @@
                 {
                     "condition": "[parameters('deployPublicIp')]",
                     "type": "Microsoft.Network/publicIPAddresses/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('pip-',parameters('vmName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', concat('pip-',parameters('vmName')))]"
@@ -252,7 +252,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/networkInterfaces/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('nic-',parameters('vmName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', concat('nic-',parameters('vmName')))]"

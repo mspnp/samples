@@ -327,7 +327,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat(parameters('webNetworkSecurityGroupName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
@@ -546,7 +546,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat(parameters('nvaNetworkSecurityGroupName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
@@ -707,7 +707,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat(parameters('gatewayNetworkSecurityGroupName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
@@ -853,7 +853,7 @@
             "resources": [
                 {
                     "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('kv-hanva-',uniqueString(resourceGroup().id),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
@@ -1117,7 +1117,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/virtualNetworks/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat(parameters('virtualNetworkName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
@@ -1157,7 +1157,7 @@
                 {
                     "condition": "[parameters('deployAzureBastion')]",
                     "type": "Microsoft.Network/publicIPAddresses/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('pip-bastion-hanva','/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
@@ -1205,7 +1205,7 @@
                 {
                     "condition": "[parameters('deployIngressAppGatewayWebLoadBalancer')]",
                     "type": "Microsoft.Network/publicIPAddresses/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('pip-appgateway-hanva','/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
@@ -1265,7 +1265,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/bastionHosts/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('bastion-hanva','/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",

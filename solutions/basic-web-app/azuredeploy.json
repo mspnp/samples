@@ -119,7 +119,7 @@
                     "resources": [
                         {
                             "type": "providers/diagnosticSettings",
-                            "apiVersion": "2017-05-01-preview",
+                            "apiVersion": "2020-01-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('logAnalytics').name)]",
                             "dependsOn": [
                                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
@@ -162,7 +162,7 @@
                     "resources": [
                         {
                             "type": "providers/diagnosticSettings",
-                            "apiVersion": "2017-05-01-preview",
+                            "apiVersion": "2020-01-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('logAnalytics').name)]",
                             "dependsOn": [
                                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
@@ -275,7 +275,7 @@
 
                     "comments": "Key Vault metrics and log configuration > Log Analytics",
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
@@ -330,7 +330,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
@@ -384,7 +384,7 @@
                 },
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
@@ -463,7 +463,7 @@
                         {
                             "condition": "[parameters('deploySlots')]",
                             "type": "providers/diagnosticSettings",
-                            "apiVersion": "2017-05-01-preview",
+                            "apiVersion": "2020-01-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                             "dependsOn": [
                                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",
@@ -544,7 +544,7 @@
                         {
                             "condition": "[parameters('deploySlots')]",
                             "type": "providers/diagnosticSettings",
-                            "apiVersion": "2017-05-01-preview",
+                            "apiVersion": "2020-01-01-preview",
                             "name": "[concat('Microsoft.Insights/default', parameters('azureAppService').name)]",
                             "dependsOn": [
                                 "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalytics').name)]",

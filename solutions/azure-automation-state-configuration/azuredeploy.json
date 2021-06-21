@@ -108,7 +108,7 @@
         },
         {
             "type": "microsoft.insights/scheduledqueryrules",
-            "apiVersion": "2018-04-16",
+            "apiVersion": "2020-05-01-preview",
             "name": "non-compliant-dsc",
             "location": "[parameters('location')]",
             "properties": {
@@ -254,7 +254,7 @@
                 },
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsName'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
@@ -311,7 +311,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsName'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",

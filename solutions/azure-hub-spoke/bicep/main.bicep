@@ -102,7 +102,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   }
 }
 
-resource diahVnetHub 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource diahVnetHub 'microsoft.insights/diagnosticSettings@2020-01-01-preview' = {
   name: 'diahVnetHub'
   scope: vnetHub
   properties: {
@@ -152,7 +152,7 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-05-01' = {
   }
 }
 
-resource diagFirewall 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagFirewall 'microsoft.insights/diagnosticSettings@2020-01-01-preview' = {
   name: 'diagFirewall'
   scope: firewall
   properties: {
@@ -230,7 +230,7 @@ resource nsgSpoke 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   }
 }
 
-resource diagNsgSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagNsgSpoke 'microsoft.insights/diagnosticSettings@2020-01-01-preview' = {
   name: 'diagNsgSpoke'
   scope: nsgSpoke
   properties: {
@@ -271,7 +271,7 @@ resource vnetSpoke 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource diagVnetSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagVnetSpoke 'microsoft.insights/diagnosticSettings@2020-01-01-preview' = {
   name: 'diagVnetSpoke'
   scope: vnetSpoke
   properties: {
@@ -323,7 +323,7 @@ resource nsgSpokeTwo 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   }
 }
 
-resource diagNsgSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagNsgSpokeTwo 'microsoft.insights/diagnosticSettings@2020-01-01-preview' = {
   name: 'diagNsgSpokeTwo'
   scope: nsgSpokeTwo
   properties: {
@@ -364,7 +364,7 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource diagVnetSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource diagVnetSpokeTwo 'microsoft.insights/diagnosticSettings@2020-01-01-preview' = {
   name: 'diagVnetSpokeTwo'
   scope: vnetSpokeTwo
   properties: {

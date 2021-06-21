@@ -166,7 +166,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetwork').name)]",
@@ -224,7 +224,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
@@ -416,7 +416,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]",
@@ -466,7 +466,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/bastionHosts', parameters('bastionHost').name)]",
@@ -533,7 +533,7 @@
                 {
                     "condition": "[parameters('configureSitetosite')]",
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGateway').name)]"
@@ -643,7 +643,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewall').name)]",
@@ -708,7 +708,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('spokeNetwork').subnetNsgName)]",
@@ -940,7 +940,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsWorkspace'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name)]",

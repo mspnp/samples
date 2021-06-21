@@ -115,7 +115,7 @@
             "resources": [
                 {
                     "type": "Microsoft.Network/loadBalancers/providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2020-01-01-preview",
                     "name": "[concat(parameters('loadbalancerName'),'/Microsoft.Insights/default')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Network/loadBalancers', parameters('loadbalancerName'))]"
