@@ -86,6 +86,7 @@ stages:
   - job: arm
     pool: Hosted Ubuntu 1604
     continueOnError: false
+    timeoutInMinutes: 240
 
     steps:    
                    
