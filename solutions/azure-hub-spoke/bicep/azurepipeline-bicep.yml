@@ -10,7 +10,7 @@ variables:
 - name: pester-script-location
   value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
-  value: 'IDs-Should-Be-Derived-From-ResourceIDs,Location-Should-Not-Be-Hardcoded'
+  value: 'IDs-Should-Be-Derived-From-ResourceIDs,Location-Should-Not-Be-Hardcoded,apiVersions-Should-Be-Recent'
 
 trigger:
   branches:
