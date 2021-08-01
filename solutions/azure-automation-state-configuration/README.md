@@ -4,11 +4,12 @@ languages:
 - azurecli
 products:
 - azure
+description: These Azure Resource Manager (ARM) template samples deploy an Azure Automation account and imports / compiles two PowerShell Desired State Configuration scripts. The template then deploys 1 to many virtual machines (Windows and Linux), onboards them into Azure Automation State Configuration, which then uses the compiled configurations to install a webserver on each of the virtual machines.
 ---
 
 # Azure Automation State Configuration
 
-[![Build Status](https://ceapex.visualstudio.com/pnp/_apis/build/status/deployment-validation/azure-automation-state-config?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3819&branchName=master)
+[![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/azure-automation-state-config?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3819&branchName=master)
 
 These Azure Resource Manager (ARM) template samples deploy an Azure Automation account and imports / compiles two PowerShell Desired State Configuration scripts. The template then deploys 1 to many virtual machines (Windows and Linux), onboards them into Azure Automation State Configuration, which then uses the compiled configurations to install a webserver on each of the virtual machines.
 
