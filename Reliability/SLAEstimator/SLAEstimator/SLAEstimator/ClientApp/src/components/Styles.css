@@ -259,7 +259,7 @@ div {
     width: 17px;
     height: 17px;
     border: 0;
-    background: url('/images/downarrow.png') no-repeat;
+    background: url('images/downarrow.png') no-repeat;
     cursor: pointer;
 }
 
@@ -267,7 +267,7 @@ div {
     width: 17px;
     height: 17px;
     border: 0;
-    background: url('/images/uparrow.png') no-repeat;
+    background: url('images/uparrow.png') no-repeat;
     cursor: pointer;
 }
 
@@ -276,7 +276,7 @@ div {
     display: table-cell;
     width: 40px;
     height: 40px;
-    background: url('/images/collapseall.png') no-repeat;
+    background: url('images/collapseall.png') no-repeat;
     cursor: pointer;
 }
 
@@ -285,7 +285,7 @@ div {
     display: table-cell;
     width: 40px;
     height: 40px;
-    background: url('/images/expandall.png') no-repeat;
+    background: url('images/expandall.png') no-repeat;
     cursor: pointer;
 }
 
@@ -294,22 +294,22 @@ div {
     display: table-cell;
     width: 40px;
     height: 40px;
-    background: url('/images/delallsla.png') no-repeat;
+    background: url('images/delallsla.png') no-repeat;
     cursor: pointer;
 }
 
 .estimation-collapse-all:hover {
-    background: url('/images/collapseall-over.png') no-repeat;
+    background: url('images/collapseall-over.png') no-repeat;
     cursor: pointer;
 }
 
 .estimation-expand-all:hover {
-    background: url('/images/expandall-over.png') no-repeat;
+    background: url('images/expandall-over.png') no-repeat;
     cursor: pointer;
 }
 
 .estimation-delete-all:hover {
-    background: url('/images/deleteallsla-over.png') no-repeat;
+    background: url('images/deleteallsla-over.png') no-repeat;
     cursor: pointer;
 }
 
@@ -500,7 +500,7 @@ div {
     width: 15px;
     height: 15px;
     float: right;
-    background: url('/images/delete.png') no-repeat;
+    background: url('images/delete.png') no-repeat;
     margin-top: 4px;
     margin-right: 4px;
     background-color: transparent;
@@ -550,7 +550,7 @@ div {
     height: 25px;
     margin-top: 4px;
     border: 0;
-    background: url('/images/downarrow.png') no-repeat;
+    background: url('images/downarrow.png') no-repeat;
     cursor: pointer;
     float: right;
 }
