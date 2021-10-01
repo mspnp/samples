@@ -21,7 +21,7 @@
             "type": "object",
             "defaultValue": {
                 "name": "[concat('la', '-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
-                "skuName": "free"
+                "skuName": "PerGB2018"
             },
             "metadata": {
                 "description": "Deployment settings for the Log Analytics workspace."
