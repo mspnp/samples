@@ -4,7 +4,7 @@ echo "simpleproxy.sh was run at $(date) with arguments $@"
 WEB_LB=$1
 WEB_SUBNET=$2
 
-yum upgrade -y
+yum upgrade -y --exclude=WALinuxAgent
 yum install firewalld -y
 systemctl enable firewalld
 systemctl start firewalld

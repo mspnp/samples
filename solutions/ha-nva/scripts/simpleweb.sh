@@ -3,7 +3,7 @@ echo "simpleweb.sh was run at $(date) with arguments $@"
 
 NVA_LB=$1
 
-yum upgrade -y
+yum upgrade -y --exclude=WALinuxAgent
 yum install firewalld -y
 systemctl enable firewalld
 systemctl start firewalld
