@@ -31,7 +31,7 @@ az deployment group create --resource-group acceleratedNetwork-rg --template-fil
 ```
 
 ### Verify that the setting does not have EnableAcceleratedNetworking
-To verify that accelerated networking is enabled in you VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is Off.
+To verify that accelerated networking is disabled in your VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is Off.
 
 Alternatively you can run this command to verify the setting
 
@@ -65,7 +65,7 @@ az vm start --resource-group acceleratedNetwork-rg --name accNetwork-Vm2
 
 ### Verify that the setting has been applied in both VMs
 
-To verify that accelerated networking is enabled in you VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is ON.
+To verify that accelerated networking is enabled in your VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is ON.
 
 Alternatively you can run this command to verify the setting
 
