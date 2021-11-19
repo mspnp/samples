@@ -9,7 +9,7 @@
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "accNetwork-Nsg1",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -36,7 +36,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "accNetwork-Nsg2",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -63,7 +63,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "accNetwork-ip1",
             "location": "[resourceGroup().location]",
             "sku": {
@@ -78,7 +78,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "accNetwork-ip2",
             "location": "[resourceGroup().location]",
             "sku": {
@@ -93,7 +93,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "[variables('accNetworkVnetName')]",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -120,7 +120,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2021-06-01",
             "name": "[variables('accNtwkStgAccount')]",
             "location": "[resourceGroup().location]",
             "sku": {
@@ -153,7 +153,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "[concat('accNetwork-Nsg1', '/SSH')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg1')]"
@@ -175,7 +175,7 @@
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "[concat('accNetwork-Nsg2', '/SSH')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkSecurityGroups', 'accNetwork-Nsg2')]"
@@ -197,7 +197,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "[concat(variables('accNetworkVnetName'), '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('accNetworkVnetName'))]"
@@ -211,7 +211,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2021-06-01",
             "name": "[concat(variables('accNtwkStgAccount'), '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('accNtwkStgAccount'))]"
@@ -231,7 +231,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2021-06-01",
             "name": "[concat(variables('accNtwkStgAccount'), '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('accNtwkStgAccount'))]"
@@ -248,7 +248,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2021-06-01",
             "name": "[concat(variables('accNtwkStgAccount'), '/default/bootdiagnostics-accnetwor-6d80ccc7-627b-4793-9ff9-bf238094a966')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('accNtwkStgAccount'), 'default')]",
@@ -260,7 +260,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2021-06-01",
             "name": "[concat(variables('accNtwkStgAccount'), '/default/bootdiagnostics-accnetwor-99199ea2-d8c1-499c-9b83-fecf7ab469f3')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('accNtwkStgAccount'), 'default')]",
@@ -272,7 +272,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2021-07-01",
             "name": "accNetwork-Vm1",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -334,7 +334,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2021-07-01",
             "name": "accNetwork-Vm2",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -396,7 +396,7 @@
         },
         {
             "type": "Microsoft.Compute/availabilitySets",
-            "apiVersion": "2019-07-01",
+            "apiVersion": "2021-07-01",
             "name": "accNetwork-as",
             "location": "[resourceGroup().location]",
             "sku": {
@@ -417,7 +417,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "accNetwork-nint1",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -455,7 +455,7 @@
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2021-03-01",
             "name": "accNetwork-nint2",
             "location": "[resourceGroup().location]",
             "dependsOn": [
