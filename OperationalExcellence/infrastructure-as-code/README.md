@@ -1,9 +1,9 @@
 ---
 page_type: sample
 languages:
-- azurecli
+  - azurecli
 products:
-- azure
+  - azure
 ---
 
 # Azure Well Architected Framework Sample (ARM Template)
@@ -18,13 +18,13 @@ To deploy this ARM template, you will need an Azure Service Principal. For infor
 
 **Azure portal**
 
-To deploy this template using the Azure portal, click this button.  
+To deploy this template using the Azure portal, click this button.
 
 <br />
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmspnp%2Fsamples%2Fmaster%2FOperationalExcellence%2Finfrastructure-as-code%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>  
+</a>
 
 **Azure CLI**
 
@@ -52,6 +52,12 @@ az deployment group create \
 Once done, the following resource will have been deployed to your Azure Subscription.
 
 ![Image of the tailwindtraders.com Azure resources, as seen in the Azure portal.](./images/arm-resources.png)
+
+## Clean resoures
+
+```azurecli
+az group delete --name waf-tempalte-sample -y
+```
 
 ## Microsoft Open Source Code of Conduct
 
