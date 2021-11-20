@@ -30,6 +30,15 @@ az group create --name acceleratedNetwork-rg --location centralus
 az deployment group create --resource-group acceleratedNetwork-rg --template-file Deployment/accNetwork.json
 ```
 
+### Verify that the setting does not have EnableAcceleratedNetworking
+To verify that accelerated networking is disabled in your VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is Off.
+
+Alternatively you can run this command to verify the setting
+
+```sh
+az network nic list -o table --resource-group "acceleratedNetwork-rg" --query "[].{ ResourceGroup:resourceGroup, Name:name, EnableAcceleratedNetworking: enableAcceleratedNetworking }"
+```
+
 ### Since there are two VMs in an availability set we need to deallocate both VM1 and VM2
 
 ```sh
@@ -56,10 +65,13 @@ az vm start --resource-group acceleratedNetwork-rg --name accNetwork-Vm2
 
 ### Verify that the setting has been applied in both VMs
 
-To verify that accelerated networking is enabled in you VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is ON.
+To verify that accelerated networking is enabled in your VMs, go to the portal, find your NICs, go to properties and verify that the setting "Accelerated networking" is ON.
 
 Alternatively you can run this command to verify the setting
 
 ```sh
 az network nic list -o table --resource-group "acceleratedNetwork-rg" --query "[].{ ResourceGroup:resourceGroup, Name:name, EnableAcceleratedNetworking: enableAcceleratedNetworking }"
 ```
+
+### Delete the created resources
+az group delete  --name acceleratedNetwork-rg -y
