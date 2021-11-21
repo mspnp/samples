@@ -17,13 +17,13 @@ In this sample, an AKS cluster is deployed, a policy applied to the cluster that
 
 Create a resource group for the deployment.
 
-```azurecli
-$ az group create --name azurePolicyDemo --location eastus
+```bash
+az group create --name azurePolicyDemo --location eastus
 ```
 
 Run the following command to initiate the deployment.
 
-```azurecli
+```bash
 $ az deployment group create \
     --resource-group azurePolicyDemo \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/master/OperationalExcellence/azure-aks-policy/azuredeploy.json
@@ -33,30 +33,44 @@ $ az deployment group create \
 
 Connect with the AKS cluster.
 
-```azurecli
-$ az aks get-credentials --name azurePolicyDemo --resource-group azurePolicyDemo
+```bash
+az aks get-credentials --name azurePolicyDemo --resource-group azurePolicyDemo
 ```
 
 Verify that policies have propagated to the cluster. This process could take up to 20 minutes.
 
-```azurecli
-$ kubectl get constrainttemplate
+```bash
+kubectl get constrainttemplate
+
+```
+After the policies have propagated you should see an output similar to this:
 
 NAME                             AGE
 k8sazurecontainerallowedimages   34s
 k8sazurepodenforcelabels         33s
-```
+
 
 If you would like to run the command on a loop to visually indicate when policies have propagated down to the cluster, run the following command. You will see the message 'No resources found in default namespace' until the policies have propagated to your cluster.
 
-```azurecli
-$ while $true; do kubectl get constrainttemplate; sleep 5; done
+```bash
+while $true; do kubectl get constrainttemplate; sleep 5; done
 
+```
+
+You should see an repeating output similar to this:
+
+```bash
 No resources found in default namespace.
+```
+
+And after the policies have propagated you should see an output similar to this:
+
+```bash
 NAME                             AGE
 k8sazurecontainerallowedimages   6s
 k8sazurepodenforcelabels         5s
 ```
+
 
 ## Policies details
 
@@ -71,16 +85,21 @@ Two policies have been applied to the AKS cluster with this deployment. The firs
 
 Create a pod using the `Ubuntu` image. Take note that the policy has denied pod creation.
 
-```azurecli
-$ kubectl run ubuntu --generator=run-pod/v1 --image ubuntu
+```bash
+kubectl run myfirstpod --image=ubuntu:latest  
 
-Error from server ([denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.): admission webhook "validation.gatekeeper.sh" denied the request: [denied by azurepolicy-container-allowed-images-1f8eb52bcdec7549c616] Container image ubuntu for container ubuntu has not been allowed.
+```
+
+You should see an error output similar to this:
+
+```bash
+Error from server ([azurepolicy-container-allowed-images-6b4428171a8c727b1c20] Container image ubuntu:latest for container myfirstpod has not been allowed.): admission webhook "validation.gatekeeper.sh" denied the request: [azurepolicy-container-allowed-images-6b4428171a8c727b1c20] Container image ubuntu:latest for container myfirstpod has not been allowed.
 ```
 
 Create a pod using the `nginx` image. Because _nginx_ has been designated as an acceptable image, the pod is successfully created.
 
-```azurecli
-$ kubectl run nginx --generator=run-pod/v1 --image nginx
+```bash
+kubectl run myfirstpod --image=nginx:alpine
 ```
 
 To see a policy compliance report, open the Azure portal and navigate to **Policy** > **Compliance**. Here you will see that the _pod-labels_ policy is non-compliant because the _nginx_ pod was not labeled as per the policy. Note, it can take up to 20 minutes for compliance results to reflect in the portal.
@@ -91,15 +110,17 @@ To see a policy compliance report, open the Azure portal and navigate to **Polic
 
 To remove the AKS cluster, run the following command.
 
-```azurecli
-$ az group delete --name azurePolicyDemo --yes --no-wait
+```bash
+az group delete --name azurePolicyDemo --yes --no-wait
+
 ```
 
 You also need to remove the policy assignments; this can be done in the Azure portal or with these Azure CLI commands.
 
-```azurecli
-$ az policy assignment delete --name pod-labels --resource-group azurePolicyDemo
-$ az policy assignment delete --name allowed-images --resource-group azurePolicyDemo
+```bash
+az policy assignment delete --name pod-labels --resource-group azurePolicyDemo
+az policy assignment delete --name allowed-images --resource-group azurePolicyDemo
+
 ```
 
 ## Note on Public Container Usage
