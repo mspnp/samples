@@ -45,10 +45,11 @@ kubectl get constrainttemplate
 ```
 After the policies have propagated you should see an output similar to this:
 
+```bash
 NAME                             AGE
 k8sazurecontainerallowedimages   34s
 k8sazurepodenforcelabels         33s
-
+```
 
 If you would like to run the command on a loop to visually indicate when policies have propagated down to the cluster, run the following command. You will see the message 'No resources found in default namespace' until the policies have propagated to your cluster.
 
