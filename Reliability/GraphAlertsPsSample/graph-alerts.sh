@@ -3,7 +3,7 @@ echo Manage your alerts programmatically
 
 ### Sample Queries
 
-echo 'This query searchs for alerts in a specific subscription'
+echo 'This query searches for alerts in a specific subscription'
 
 az graph query -q "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ '$subcriptionId' "
 
