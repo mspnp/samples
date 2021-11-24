@@ -1,6 +1,6 @@
 $subscriptionId = $args[0]
 
-Write-Output 'This query searchs for alerts in a specific subscription'
+Write-Output 'This query searches for alerts in a specific subscription'
 
 Search-AzGraph -Query "AlertsManagementResources | where type =~ 'Microsoft.AlertsManagement/alerts' and subscriptionId =~ '$subscriptionId' "
 
