@@ -8,9 +8,6 @@
         "servicePrincipalSecret": {
             "value": ""
         },
-        "aksVersion": {
-            "value": "1.18.6"
-        },
         "components_app_insights_name": {
             "value": "tt-app-insights"
         }
