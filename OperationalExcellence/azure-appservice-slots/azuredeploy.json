@@ -16,13 +16,6 @@
             "metadata": {
                 "description": "The Runtime stack of current web app"
             }
-        },
-        "forkedRepo": {
-            "type": "string",
-            "defaultValue": "https://github.com/Azure-Samples/python-docs-hello-world.git",
-            "metadata": {
-                "description": "The Runtime stack of current web app"
-            }
         }
     },
     "variables": {
@@ -30,7 +23,7 @@
         "webAppName": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]",
         "appServicePlanName": "[concat('AppServicePlan-', variables('webAppName'))]",
         "sku": "S1",
-        "repoUrl": "[parameters('forkedRepo')]",
+        "repoUrl": "https://github.com/neilpeterson/python-docs-hello-world.git",
         "prod-slot": "broken-production",
         "known-good-slot": "master",
         "location": "[resourceGroup().location]"
