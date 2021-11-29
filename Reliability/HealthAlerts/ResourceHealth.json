@@ -4,6 +4,7 @@
     "parameters": {
         "activityLogAlertName": {
             "type": "string",
+            "defaultValue": "activityLog-alert-1",
             "metadata": {
                 "description": "Unique name (within the Resource Group) for the Activity log alert."
             }

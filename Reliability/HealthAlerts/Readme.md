@@ -37,30 +37,57 @@ like so:
 
 #### Create an action group
 
-You need to create or reuse an Action Group configured to notify you. 
+Using the portal, manually create an Action Group named heatlh-alerts-ag configured to notify you:
 
 See [How to create and manage action groups in the Azure portal](https://docs.microsoft.com/azure/azure-monitor/platform/action-groups) for instructions.
 
 
 #### Deploy the template
 
-
-To start a new deployment using the template provided in this sample, use this powershell command (provide you resource group name):
-
-```powershell
-New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName <resourceGroup> -TemplateFile resourcehealth.json
-```
-
-You will be prompted for the ActivityLogAlertName, enter any AlertName you want.
-
-You will also be prompted for the ActionGroupResourceId, which is composed this way:
-
- /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/microsoft.insights/actionGroups/<actionGroup>
-
-If you want, you can get hte ActionGroupResourceId with this powershell command:
+Log in to Azure
 
 ```powershell
-(Get-AzActionGroup -ResourceGroupName mgrande-dev -Name TestActionGroup).Id
+Connect-AzAccount
 ```
+
+Create a new resource group to deploy the sample
+
+```powershell
+New-AzResourceGroup -Name HealthAlerts-RG -Location "Central US"
+```powershell
+
+To start a new deployment using the template provided in this sample, use the powershell command below, you will also be prompted for the ActionGroupResourceId, which is composed this way (replace your the place holder with your subscriptionId):
+
+ /subscriptions/<subscriptionId>/resourceGroups/HealthAlerts-RG/providers/microsoft.insights/actionGroups/heatlh-alerts-ag
+
+If you want, you can get the ActionGroupResourceId with this powershell command:
+
+```powershell
+(Get-AzActionGroup -ResourceGroupName healthalerts-rg -Name health-alerts-ag).Id
+```
+
+```powershell
+New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName HealthAlerts-RG -TemplateFile resourcehealth.json
+```
+
 
 You'll get a confirmation in PowerShell if everything worked ok
+
+```powershell
+DeploymentName          : ExampleDeployment
+ResourceGroupName       : HealthAlerts-RG
+ProvisioningState       : Succeeded
+Timestamp               : 11/28/2021 10:00:04 PM
+Mode                    : Incremental
+TemplateLink            :
+Parameters              :
+                          Name                     Type                       Value
+                          =======================  =========================  ==========
+                          activityLogAlertName     String                     activityLog-alert-1
+                          actionGroupResourceId    String                     /subscriptions/a012a8b0-522a-4f59-81b6-aa
+                          0361eb9387/resourceGroups/HealthAlerts-RG/providers/microsoft.insights/actionGroups/health-al
+                          erts-ag
+
+Outputs                 :
+DeploymentDebugLogLevel :
+```
