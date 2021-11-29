@@ -84,9 +84,7 @@ Parameters              :
                           Name                     Type                       Value
                           =======================  =========================  ==========
                           activityLogAlertName     String                     activityLog-alert-1
-                          actionGroupResourceId    String                     /subscriptions/a012a8b0-522a-4f59-81b6-aa
-                          0361eb9387/resourceGroups/HealthAlerts-RG/providers/microsoft.insights/actionGroups/health-al
-                          erts-ag
+                          actionGroupResourceId    String                     /subscriptions/subscriptionId/resourceGroups/HealthAlerts-RG/providers/microsoft.insights/actionGroups/health-alerts-ag
 
 Outputs                 :
 DeploymentDebugLogLevel :
