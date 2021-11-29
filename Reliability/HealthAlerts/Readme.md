@@ -56,20 +56,21 @@ Create a new resource group to deploy the sample
 New-AzResourceGroup -Name HealthAlerts-RG -Location "Central US"
 ```powershell
 
-To start a new deployment using the template provided in this sample, use the powershell command below, you will also be prompted for the ActionGroupResourceId, which is composed this way (replace your the place holder with your subscriptionId):
+To start a new deployment using the template provided in this sample, use the powershell command below; you will also be prompted for the ActionGroupResourceId, which is composed this way (replace theplace holder with your subscriptionId):
 
  /subscriptions/<subscriptionId>/resourceGroups/HealthAlerts-RG/providers/microsoft.insights/actionGroups/heatlh-alerts-ag
 
-If you want, you can get the ActionGroupResourceId with this powershell command:
+If you desire, you can get the ActionGroupResourceId with this powershell command (asuming the name of the action group created is "health-alerts-ag")
 
 ```powershell
 (Get-AzActionGroup -ResourceGroupName healthalerts-rg -Name health-alerts-ag).Id
 ```
 
+Run the deployment command
+
 ```powershell
 New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName HealthAlerts-RG -TemplateFile resourcehealth.json
 ```
-
 
 You'll get a confirmation in PowerShell if everything worked ok
 
