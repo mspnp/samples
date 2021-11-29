@@ -6,7 +6,6 @@ notifies you about the current and historical health status of your Azure resour
 This template will work as written, and will sign you up to receive alerts for all newly activated resource health events across all resources 
 in the resource group specified in the Action Group.
 
-
 If you want to limit alerts to only come from a certain subset of resource types, you can define that in the condition section of the template 
 like so:
 
@@ -33,16 +32,16 @@ like so:
 },
 ```
 
-### Instructions
+### Prerequisites
 
 #### Create an action group
 
-Using the portal, manually create an Action Group named heatlh-alerts-ag configured to notify you:
+To follow the instructions on this sample, you'll need to create or reuse an Action Group configured to notify you; using the portal, manually create an Action Group named heatlh-alerts-ag.
 
 See [How to create and manage action groups in the Azure portal](https://docs.microsoft.com/azure/azure-monitor/platform/action-groups) for instructions.
 
 
-#### Deploy the template
+### Deploy the template
 
 Log in to Azure
 
