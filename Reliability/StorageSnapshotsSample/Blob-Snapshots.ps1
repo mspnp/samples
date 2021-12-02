@@ -5,7 +5,7 @@ param ($ResourceGroupName)
 $AccountName = "storageacctres1"
 $AccountKey = (Get-AzStorageAccountKey -Name $AccountName -ResourceGroupName $ResourceGroupName)[0].Value
 $azcontext = New-AzureStorageContext -StorageAccountName $AccountName -StorageAccountKey $AccountKey
-$localFile=".\ContentFiles\sampleBlobImage.png"
+$localFile=".\ContentFiles\SampleBlobImage.png"
 $blobName="sampleBlob"
 $containerName = "container1"
 

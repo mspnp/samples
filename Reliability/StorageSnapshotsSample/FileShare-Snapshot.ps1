@@ -6,7 +6,7 @@ $AccountName = "storageacctres1"
 $AccountKey = (Get-AzStorageAccountKey -Name $AccountName -ResourceGroupName $ResourceGroupName)[0].Value
 $azcontext = New-AzureStorageContext -StorageAccountName $AccountName -StorageAccountKey $AccountKey
 $fileShareName = "fileshare1"
-$fileName=".\ContentFiles\sampleFile.txt"
+$fileName=".\ContentFiles\SampleFile.txt"
 $folderPath="/"
 
 # Upload a local file
@@ -19,5 +19,5 @@ $fileShare=Get-AzureStorageShare -Context $azcontext -Name $fileShareName
 
 # Take Snapshot
 
-$snapshot = $fileShare.Snapshot()
+$fileShare.CloudFileShare.Snapshot()
 
