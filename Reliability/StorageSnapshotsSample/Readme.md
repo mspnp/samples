@@ -1,7 +1,7 @@
 ---
 title: AAF resiliency pillar - Data management - storage resiliency code samples
 description: Sample scripts for creating storage snapshots for resiliency
-ms.date: 12/02/2021
+ms.date: 12/03/2021
 author: hallihan
 ms.topic: guide
 ms.service: architecture-framework
@@ -27,20 +27,20 @@ cd samples\Reliability\StorageSnapshotsSample
 ### Deploy the resources
 
 ```
-$ResourceGroupName=rg-storage-samples
+$ResourceGroupName="rg-storage-samples"
 New-AzResourceGroup -ResourceGroupName $ResourceGroupName -Location EASTUS
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroupName -TemplateFile StorageAccountTemplate.json
 ```
 
 ### Sample Scripts
 
-Sample 1 included in PowerShell script Blob-Snapshots.ps1, shows how to create a snapshot of a blob. A file is first uploaded, and then a snapshot of the blob is created.
+Sample 1 included in PowerShell script Blob-Snapshot.ps1, shows how to create a snapshot of a blob. A file is first uploaded, and then a snapshot of the blob is created.
 
 ```powershell
-.\Blob-Snapshots.ps1 -ResourceGroupName $ResourceGroupName
+.\Blob-Snapshot.ps1 -ResourceGroupName $ResourceGroupName
 ```
 
-Sample 2 included in PS script AzCopy-Blob-Container.ps1, shows how to copy all the blobs included in a blob container from one storage account to another. In this example a read-only SAS key is generated for the source, and a write-only SAS key is generated for the destination. Normally the retrieval of SAS keys would be a separate operation and is included in the script here for convenience.
+Sample 2 included in PowerShell script AzCopy-Blob-Container.ps1, shows how to copy all the blobs included in a blob container from one storage account to another. In this example a read-only SAS key is generated for the source, and a write-only SAS key is generated for the destination. Normally the retrieval of SAS keys would be a separate operation and is included in the script here for convenience.
 
 ```powershell
 ./AzCopy-Blob-Container.ps1 -ResourceGroupName $ResourceGroupName
@@ -50,6 +50,14 @@ Sample 3 included in PowerShell script FileShare-Snapshot.ps1, shows how request
 
 ```powershell
 .\FileShare-Snapshot.ps1 -ResourceGroupName $ResourceGroupName
+```
+
+### Clean up resources
+
+After you are done with the sample, clean up the resources with the following command.
+
+```powershell
+Remove-AzResourceGroup -Name $ResourceGroupName
 ```
 
 ### For more information

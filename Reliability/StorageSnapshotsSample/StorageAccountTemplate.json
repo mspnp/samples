@@ -2,8 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "variables": {
-        "storageAccountName": "storageacctres1",
-        "targetStorageAccountName": "storageacctres1target"
+        "storageAccountName": "streliability001",
+        "targetStorageAccountName": "streliability002",
+        "containerName": "container1",
+        "fileShareName": "fileshare1"
     },
     "resources": [
         {
@@ -134,7 +136,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccountName'), '/default/container1')]",
+            "name": "[concat(variables('storageAccountName'), '/default/',variables('containerName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
@@ -146,7 +148,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('targetStorageAccountName'), '/default/container1')]",
+            "name": "[concat(variables('targetStorageAccountName'), '/default/',variables('containerName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('targetStorageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('targetStorageAccountName'))]"
@@ -158,7 +160,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccountName'), '/default/fileshare1')]",
+            "name": "[concat(variables('storageAccountName'), '/default/',variables('fileShareName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('storageAccountName'), 'default')]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
