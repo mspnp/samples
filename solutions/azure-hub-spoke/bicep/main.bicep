@@ -43,6 +43,8 @@ param bastionHost object = {
   subnetPrefix: '10.0.1.0/29'
 }
 
+param deployVpnGateway bool = false
+
 param vpnGateway object = {
   name: 'vgw-gateway'
   subnetName: 'GatewaySubnet'
@@ -60,7 +62,7 @@ var osVersion = '16.04.0-LTS'
 var vmNameLinux = 'vm-linux-'
 var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
 
-resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
   location: location
   properties: {
@@ -106,7 +108,7 @@ resource diahVnetHub 'microsoft.insights/diagnosticSettings@2017-05-01-preview' 
   name: 'diahVnetHub'
   scope: vnetHub
   properties: {
-    workspaceId: logAnalyticsWrokspace.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'VMProtectionAlerts'
@@ -156,7 +158,7 @@ resource diagFirewall 'microsoft.insights/diagnosticSettings@2017-05-01-preview'
   name: 'diagFirewall'
   scope: firewall
   properties: {
-    workspaceId: logAnalyticsWrokspace.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'AzureFirewallApplicationRule'
@@ -202,7 +204,7 @@ resource nsgSpoke 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         properties: {
           protocol: 'Tcp'
           sourcePortRange: '*'
-          sourceAddressPrefix:  bastionHost.subnetPrefix
+          sourceAddressPrefix: bastionHost.subnetPrefix
           destinationPortRanges: [
             '22'
             '3389'
@@ -234,7 +236,7 @@ resource diagNsgSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview'
   name: 'diagNsgSpoke'
   scope: nsgSpoke
   properties: {
-    workspaceId: logAnalyticsWrokspace.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'NetworkSecurityGroupEvent'
@@ -275,7 +277,7 @@ resource diagVnetSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview
   name: 'diagVnetSpoke'
   scope: vnetSpoke
   properties: {
-    workspaceId: logAnalyticsWrokspace.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'VMProtectionAlerts'
@@ -295,7 +297,7 @@ resource nsgSpokeTwo 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         properties: {
           protocol: 'Tcp'
           sourcePortRange: '*'
-          sourceAddressPrefix:  bastionHost.subnetPrefix
+          sourceAddressPrefix: bastionHost.subnetPrefix
           destinationPortRanges: [
             '22'
             '3389'
@@ -327,7 +329,7 @@ resource diagNsgSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-previ
   name: 'diagNsgSpokeTwo'
   scope: nsgSpokeTwo
   properties: {
-    workspaceId: logAnalyticsWrokspace.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'NetworkSecurityGroupEvent'
@@ -368,7 +370,7 @@ resource diagVnetSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-prev
   name: 'diagVnetSpokeTwo'
   scope: vnetSpokeTwo
   properties: {
-    workspaceId: logAnalyticsWrokspace.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'VMProtectionAlerts'
@@ -591,7 +593,7 @@ resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01'
 resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, windowsVMCount): {
   name: '${vmNameWindows}${i + 1}'
   location: location
-  dependsOn:[
+  dependsOn: [
     nicNameWindowsResource
   ]
   properties: {
@@ -645,7 +647,7 @@ resource nicNameLinuxResource 'Microsoft.Network/networkInterfaces@2020-05-01' =
 resource vmNameLinuxResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, linuxVMCount): {
   name: '${vmNameLinux}${i + 1}'
   location: location
-  dependsOn:[
+  dependsOn: [
     nicNameLinuxResource
   ]
   properties: {
@@ -677,3 +679,72 @@ resource vmNameLinuxResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [f
     }
   }
 }]
+
+resource pipVpnGatewayResource 'Microsoft.Network/publicIPAddresses@2019-11-01' = if (deployVpnGateway) {
+  name: vpnGateway.pipName
+  location: location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+  }
+}
+
+resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2019-11-01' = if (deployVpnGateway) {
+  name: vpnGateway.name
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', hubNetwork.name, vpnGateway.subnetName)
+          }
+          publicIPAddress: {
+            id: pipVpnGatewayResource.id
+          }
+        }
+        name: 'vnetGatewayConfig'
+      }
+    ]
+    sku: {
+      name: 'Basic'
+      tier: 'Basic'
+    }
+    gatewayType: 'Vpn'
+    vpnType: 'RouteBased'
+    enableBgp: false
+  }
+  dependsOn: [
+    vnetHub
+  ]
+}
+
+resource vpnGatewayAnalytics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if (deployVpnGateway) {
+  scope: vpnGatewayResource
+  name: '${vpnGateway.name}default${logAnalyticsWorkspace.name}'
+  properties: {
+    workspaceId: logAnalyticsWorkspace.id
+    logs: [
+      {
+        category: 'GatewayDiagnosticLog'
+        enabled: true
+      }
+      {
+        category: 'TunnelDiagnosticLog'
+        enabled: true
+      }
+      {
+        category: 'RouteDiagnosticLog'
+        enabled: true
+      }
+      {
+        category: 'IKEDiagnosticLog'
+        enabled: true
+      }
+      {
+        category: 'P2SDiagnosticLog'
+        enabled: true
+      }
+    ]
+  }
+}
