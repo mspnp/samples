@@ -2,7 +2,7 @@ variables:
   - name: resource-group
     value: hub-spoke-$(Build.BuildId)
   - name: location
-    value: eastus
+    value: southcentralus
   - name: template-location
     value: "/solutions/basic-web-app/*"
   - name: template-name

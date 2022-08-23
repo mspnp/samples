@@ -1,6 +1,6 @@
 variables:
   - name: location
-    value: eastus
+    value: southcentralus
   - name: template-location
     value: "/solutions/secure-hybrid-network/*"
   - name: template-name

@@ -2,7 +2,7 @@ variables:
   - name: resource-group
     value: hub-spoke-$(Build.BuildId)
   - name: location
-    value: southeastasia
+    value: southcentralus
   - name: template-location
     value: "/solutions/azure-hub-spoke/*"
   - name: template-name

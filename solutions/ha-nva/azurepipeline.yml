@@ -2,7 +2,7 @@ variables:
   - name: resource-group
     value: validation-mspnp-samples-solutions-hanva-$(Build.BuildId)
   - name: location
-    value: southeastasia
+    value: southcentralus
   - name: template-location
     value: "/solutions/ha-nva/*"
   - name: template-name
