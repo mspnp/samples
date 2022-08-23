@@ -1,155 +1,153 @@
 variables:
-- name: resource-group
-  value: validation-mspnp-samples-solutions-hanva-$(Build.BuildId)
-- name: location
-  value: southeastasia
-- name: template-location
-  value: '/solutions/ha-nva/*'
-- name: template-name
-  value: 'azuredeploy.json'
-- name: pester-script-location
-  value: '/tests/Test.ARMTemplate.ps1'
-- name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent,Secure-Params-In-Nested-Deployments,URIs-Should-Be-Properly-Constructed'
-- name: artifactsLocationTemplate
-  value: 'https://raw.githubusercontent.com/mspnp/samples/REPLACEREF/solutions/ha-nva/'
+  - name: resource-group
+    value: validation-mspnp-samples-solutions-hanva-$(Build.BuildId)
+  - name: location
+    value: southcentralus
+  - name: template-location
+    value: "/solutions/ha-nva/*"
+  - name: template-name
+    value: "azuredeploy.json"
+  - name: pester-script-location
+    value: "/tests/Test.ARMTemplate.ps1"
+  - name: ttk-skip-test
+    value: "DependsOn-Best-Practices,Template-Should-Not-Contain-Blanks,apiVersions-Should-Be-Recent,Secure-Params-In-Nested-Deployments,URIs-Should-Be-Properly-Constructed"
+  - name: artifactsLocationTemplate
+    value: "https://raw.githubusercontent.com/mspnp/samples/REPLACEREF/solutions/ha-nva/"
 
 trigger:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
       - /solutions/ha-nva/*
     exclude:
-      - '/solutions/ha-nva/README.md'
+      - "/solutions/ha-nva/README.md"
 
 pr:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
       - /solutions/ha-nva/*
     exclude:
-      - '/solutions/ha-nva/README.md'
+      - "/solutions/ha-nva/README.md"
 
 schedules:
-- cron: "0 12 * * 0"
-  displayName: Weekly Sunday build
-  branches:
-    include:
-    - master
-  always: true
+  - cron: "0 12 * * 0"
+    displayName: Weekly Sunday build
+    branches:
+      include:
+        - master
+    always: true
 
 stages:
+  # Run ARM TTK and publish test results (Windows only)
+  - stage: armTemplateToolkit
 
-# Run ARM TTK and publish test results (Windows only)
-- stage: armTemplateToolkit
+    jobs:
+      - job: armttk
+        pool:
+          vmImage: "windows-latest"
+        continueOnError: false
+        timeoutInMinutes: 20
 
-  jobs:
-  - job: armttk
-    pool:
-      vmImage: 'windows-latest'
-    continueOnError: false
-    timeoutInMinutes: 20
+        steps:
+          - task: PowerShell@2
+            displayName: ARM-TTK and Pester
+            inputs:
+              targetType: "inline"
+              script: |
+                git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
+                import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
+                Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
+                Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
+                $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
+                if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
 
-    steps:
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "NUnit"
+              testResultsFiles: TEST-ARMTemplate.xml
+            condition: always()
 
-    - task: PowerShell@2
-      displayName: ARM-TTK and Pester
-      inputs:
-        targetType: 'inline'
-        script: |
-          git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
-          import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
-          Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
-          Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
-          $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
-          if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
-        
-    - task: PublishTestResults@2
-      inputs:
-        testResultsFormat: 'NUnit'
-        testResultsFiles: TEST-ARMTemplate.xml
-      condition: always()
+  # Deploy template
+  - stage: validateAndDeploy
+    dependsOn: []
 
-# Deploy template
-- stage: validateAndDeploy
-  dependsOn: []
+    jobs:
+      - job: arm
+        pool:
+          vmImage: ubuntu-latest
+        continueOnError: false
+        timeoutInMinutes: 60
 
-  jobs:
-  - job: arm
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 60
+        steps:
+          - task: AzureCLI@2
+            displayName: Create resource group
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: "az group create --name $(resource-group) --location $(location)"
 
-    steps:
+          - task: AzureCLI@2
+            displayName: Validate template (validation api)
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                uriTemplate=$(artifactsLocationTemplate)
+                deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+                artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+                echo deployUri=$deployUri artifactUri=$artifactUri
+                az deployment group validate --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
 
-    - task: AzureCLI@2
-      displayName: Create resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group create --name $(resource-group) --location $(location)'
+          - task: AzureCLI@2
+            displayName: Deploy template
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                uriTemplate=$(artifactsLocationTemplate)
+                deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+                artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+                echo deployUri=$deployUri artifactUri=$artifactUri
+                az deployment group create --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
 
-    - task: AzureCLI@2
-      displayName: Validate template (validation api)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment group validate --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
+          - task: AzureCLI@2
+            displayName: Deploy template (second pass)
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                uriTemplate=$(artifactsLocationTemplate)
+                deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+                artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+                echo deployUri=$deployUri artifactUri=$artifactUri
+                az deployment group create --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
 
-    - task: AzureCLI@2
-      displayName: Deploy template
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment group create --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
+  # Clean up deployment
+  - stage: cleanupResourceGroupBasic
+    dependsOn: validateAndDeploy
+    condition: always()
 
-    - task: AzureCLI@2
-      displayName: Deploy template (second pass)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         echo deployUri=$deployUri artifactUri=$artifactUri
-         az deployment group create --resource-group $(resource-group) --template-uri $deployUri --parameters adminUserForVMAccess=$(vmUser) keyVaultEnableSoftDelete=false
+    jobs:
+      - job: deleteResourceGroup
+        pool:
+          vmImage: ubuntu-latest
+        continueOnError: false
+        timeoutInMinutes: 20
 
-# Clean up deployment
-- stage: cleanupResourceGroupBasic
-  dependsOn: validateAndDeploy
-  condition: always()
-
-  jobs:
-  - job: deleteResourceGroup
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 20
-
-    steps:
-
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+        steps:
+          - task: AzureCLI@2
+            displayName: Delete resource group
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: "az group delete --resource-group $(resource-group) --yes --no-wait"

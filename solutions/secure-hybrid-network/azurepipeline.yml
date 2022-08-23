@@ -1,150 +1,149 @@
 variables:
-- name: location
-  value: eastus
-- name: template-location
-  value: '/solutions/secure-hybrid-network/*'
-- name: template-name
-  value: 'azuredeploy.json'
-- name: adminUserName
-  value: 'azureadmin'
-- name: pester-script-location
-  value: '/tests/Test.ARMTemplate.ps1'
-- name: ttk-skip-test
-  value: 'DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs,Secure-Params-In-Nested-Deployments'
-- name: artifactsLocationTemplate
-  value: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/'
-- name: mock-on-prem-resource-group-name
-  value: secure-moc-onprem-$(Build.BuildId)
-- name: azure-network-resource-group-name
-  value: secure-vnet-azure-$(Build.BuildId)
+  - name: location
+    value: southcentralus
+  - name: template-location
+    value: "/solutions/secure-hybrid-network/*"
+  - name: template-name
+    value: "azuredeploy.json"
+  - name: adminUserName
+    value: "azureadmin"
+  - name: pester-script-location
+    value: "/tests/Test.ARMTemplate.ps1"
+  - name: ttk-skip-test
+    value: "DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs,Secure-Params-In-Nested-Deployments"
+  - name: artifactsLocationTemplate
+    value: "https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/"
+  - name: mock-on-prem-resource-group-name
+    value: secure-moc-onprem-$(Build.BuildId)
+  - name: azure-network-resource-group-name
+    value: secure-vnet-azure-$(Build.BuildId)
 
 trigger:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
-      - '/solutions/secure-hybrid-network/*'
+      - "/solutions/secure-hybrid-network/*"
     exclude:
-      - '/solutions/secure-hybrid-network/README.md'
-      
+      - "/solutions/secure-hybrid-network/README.md"
+
 pr:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
-      - '/solutions/secure-hybrid-network/*'
+      - "/solutions/secure-hybrid-network/*"
     exclude:
-      - '/solutions/secure-hybrid-network/README.md'
+      - "/solutions/secure-hybrid-network/README.md"
 
 schedules:
-- cron: "0 12 * * 0"
-  displayName: Weekly Sunday build
-  branches:
-    include:
-    - master
-  always: true
-      
+  - cron: "0 12 * * 0"
+    displayName: Weekly Sunday build
+    branches:
+      include:
+        - master
+    always: true
+
 stages:
+  # Run ARM TTK and publish test results (Windows only)
+  # - stage: armTemplateToolkit
 
-# Run ARM TTK and publish test results (Windows only)
-# - stage: armTemplateToolkit
+  #   jobs:
+  #   - job: armttk
+  #     pool:
+  #       vmImage: 'windows-latest'
+  #     continueOnError: false
+  #     timeoutInMinutes: 20
 
-#   jobs:
-#   - job: armttk
-#     pool:
-#       vmImage: 'windows-latest'
-#     continueOnError: false
-#     timeoutInMinutes: 20
+  #     steps:
 
-#     steps:
-    
-#     - task: PowerShell@2
-#       displayName: ARM-TTK and Pester
-#       inputs:
-#         targetType: 'inline'
-#         script: |
-#           git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
-#           import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
-#           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
-#           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
-#           $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
-#           if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
-        
-#     - task: PublishTestResults@2
-#       inputs:
-#         testResultsFormat: 'NUnit'
-#         testResultsFiles: TEST-ARMTemplate.xml
-#       condition: always()
+  #     - task: PowerShell@2
+  #       displayName: ARM-TTK and Pester
+  #       inputs:
+  #         targetType: 'inline'
+  #         script: |
+  #           git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
+  #           import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
+  #           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
+  #           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
+  #           $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
+  #           if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
 
-# Deploy template
-- stage: validateAndDeploy
-  dependsOn: []
+  #     - task: PublishTestResults@2
+  #       inputs:
+  #         testResultsFormat: 'NUnit'
+  #         testResultsFiles: TEST-ARMTemplate.xml
+  #       condition: always()
 
-  jobs:
-  - job: arm
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 240
+  # Deploy template
+  - stage: validateAndDeploy
+    dependsOn: []
 
-    steps:    
-                   
-    - task: AzureCLI@2
-      displayName: Validate template (validation api)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub validate --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name validate-$(Build.BuildId)
+    jobs:
+      - job: arm
+        pool:
+          vmImage: ubuntu-latest
+        continueOnError: false
+        timeoutInMinutes: 240
 
-    - task: AzureCLI@2
-      displayName: Deploy template
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+        steps:
+          - task: AzureCLI@2
+            displayName: Validate template (validation api)
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                uriTemplate=$(artifactsLocationTemplate)
+                deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+                artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+                az deployment sub validate --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name validate-$(Build.BuildId)
 
-    - task: AzureCLI@2
-      displayName: Deploy template again
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         uriTemplate=$(artifactsLocationTemplate)
-         deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
-         artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-         az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+          - task: AzureCLI@2
+            displayName: Deploy template
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                uriTemplate=$(artifactsLocationTemplate)
+                deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+                artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+                az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
 
-# Clean up deployment
-- stage: cleanupResourceGroupBasic
-  dependsOn: validateAndDeploy
-  condition: always()
+          - task: AzureCLI@2
+            displayName: Deploy template again
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                uriTemplate=$(artifactsLocationTemplate)
+                deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
+                artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
+                az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
 
-  jobs:
-  - job: deleteResourceGroup
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 20
+  # Clean up deployment
+  - stage: cleanupResourceGroupBasic
+    dependsOn: validateAndDeploy
+    condition: always()
 
-    steps:
+    jobs:
+      - job: deleteResourceGroup
+        pool:
+          vmImage: ubuntu-latest
+        continueOnError: false
+        timeoutInMinutes: 20
 
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
-         az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait
+        steps:
+          - task: AzureCLI@2
+            displayName: Delete resource group
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az group delete --resource-group $(mock-on-prem-resource-group-name) --yes --no-wait
+                az group delete --resource-group $(azure-network-resource-group-name) --yes --no-wait

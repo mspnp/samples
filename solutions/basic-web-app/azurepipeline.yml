@@ -1,142 +1,141 @@
 variables:
-- name: resource-group
-  value: hub-spoke-$(Build.BuildId)
-- name: location
-  value: eastus
-- name: template-location
-  value: '/solutions/basic-web-app/*'
-- name: template-name
-  value: 'azuredeploy.json'
-- name: pester-script-location
-  value: '/tests/Test.ARMTemplate.ps1'
-- name: ttk-skip-test
-  value: 'IDs-Should-Be-Derived-From-ResourceIDs,URIs-Should-Be-Properly-Constructed'
-- name: emailAddress
-  value: 'nepeters@microsoft.com'
+  - name: resource-group
+    value: hub-spoke-$(Build.BuildId)
+  - name: location
+    value: southcentralus
+  - name: template-location
+    value: "/solutions/basic-web-app/*"
+  - name: template-name
+    value: "azuredeploy.json"
+  - name: pester-script-location
+    value: "/tests/Test.ARMTemplate.ps1"
+  - name: ttk-skip-test
+    value: "IDs-Should-Be-Derived-From-ResourceIDs,URIs-Should-Be-Properly-Constructed"
+  - name: emailAddress
+    value: "nepeters@microsoft.com"
 
 trigger:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
-      - '/solutions/basic-web-app/*'
+      - "/solutions/basic-web-app/*"
     exclude:
-      - '/solutions/basic-web-app/README.md'
-      
+      - "/solutions/basic-web-app/README.md"
+
 pr:
   branches:
     include:
-    - master
+      - master
   paths:
     include:
-      - '/solutions/basic-web-app/*'
+      - "/solutions/basic-web-app/*"
     exclude:
-      - '/solutions/basic-web-app/README.md'
+      - "/solutions/basic-web-app/README.md"
 
 schedules:
-- cron: "0 12 * * 0"
-  displayName: Weekly Sunday build
-  branches:
-    include:
-    - master
-  always: true
-      
+  - cron: "0 12 * * 0"
+    displayName: Weekly Sunday build
+    branches:
+      include:
+        - master
+    always: true
+
 stages:
+  # Run ARM TTK and publish test results (Windows only)
+  # - stage: armTemplateToolkit
 
-# Run ARM TTK and publish test results (Windows only)
-# - stage: armTemplateToolkit
+  #   jobs:
+  #   - job: armttk
+  #     pool:
+  #       vmImage: 'windows-latest'
+  #     continueOnError: false
+  #     timeoutInMinutes: 20
 
-#   jobs:
-#   - job: armttk
-#     pool:
-#       vmImage: 'windows-latest'
-#     continueOnError: false
-#     timeoutInMinutes: 20
+  #     steps:
 
-#     steps:
-    
-#     - task: PowerShell@2
-#       displayName: ARM-TTK and Pester
-#       inputs:
-#         targetType: 'inline'
-#         script: |
-#           git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
-#           import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
-#           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
-#           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
-#           $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
-#           if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
-        
-#     - task: PublishTestResults@2
-#       inputs:
-#         testResultsFormat: 'NUnit'
-#         testResultsFiles: TEST-ARMTemplate.xml
-#       condition: always()
+  #     - task: PowerShell@2
+  #       displayName: ARM-TTK and Pester
+  #       inputs:
+  #         targetType: 'inline'
+  #         script: |
+  #           git clone https://github.com/Azure/arm-ttk.git --quiet $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk
+  #           import-module $env:BUILD_ARTIFACTSTAGINGDIRECTORY\arm-ttk\arm-ttk
+  #           Install-Module Pester -AllowClobber -RequiredVersion 4.10.1 -Force -SkipPublisherCheck -AcceptLicense
+  #           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
+  #           $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
+  #           if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
 
-# Deploy template
-- stage: validateAndDeploy
-  dependsOn: []
+  #     - task: PublishTestResults@2
+  #       inputs:
+  #         testResultsFormat: 'NUnit'
+  #         testResultsFiles: TEST-ARMTemplate.xml
+  #       condition: always()
 
-  jobs:
-  - job: arm
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
+  # Deploy template
+  - stage: validateAndDeploy
+    dependsOn: []
 
-    steps:    
-    
-    - task: AzureCLI@2
-      displayName: Create resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group create --name $(resource-group) --location $(location)'
-               
-    - task: AzureCLI@2
-      displayName: Validate template (validation api)
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
+    jobs:
+      - job: arm
+        pool:
+          vmImage: ubuntu-latest
+        continueOnError: false
 
-    - task: AzureCLI@2
-      displayName: Deploy template
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
+        steps:
+          - task: AzureCLI@2
+            displayName: Create resource group
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: "az group create --name $(resource-group) --location $(location)"
 
-    - task: AzureCLI@2
-      displayName: Deploy template again
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-         az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
-        
-# Clean up deployment
-- stage: cleanupResourceGroupBasic
-  dependsOn: validateAndDeploy
-  condition: always()
+          - task: AzureCLI@2
+            displayName: Validate template (validation api)
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az deployment group validate --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
 
-  jobs:
-  - job: deleteResourceGroup
-    pool: Hosted Ubuntu 1604
-    continueOnError: false
-    timeoutInMinutes: 20
+          - task: AzureCLI@2
+            displayName: Deploy template
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
 
-    steps:
+          - task: AzureCLI@2
+            displayName: Deploy template again
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(sqlAdminPassword) emailAddress=$(emailAddress)
 
-    - task: AzureCLI@2
-      displayName: Delete resource group
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: 'az group delete --resource-group $(resource-group) --yes --no-wait'
+  # Clean up deployment
+  - stage: cleanupResourceGroupBasic
+    dependsOn: validateAndDeploy
+    condition: always()
+
+    jobs:
+      - job: deleteResourceGroup
+        pool:
+          vmImage: ubuntu-latest
+        continueOnError: false
+        timeoutInMinutes: 20
+
+        steps:
+          - task: AzureCLI@2
+            displayName: Delete resource group
+            inputs:
+              azureSubscription: $(serviceConnection)
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: "az group delete --resource-group $(resource-group) --yes --no-wait"
