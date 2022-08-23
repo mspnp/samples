@@ -78,7 +78,8 @@ stages:
 
   jobs:
   - job: arm
-    pool: Hosted Ubuntu 1604
+    pool:
+      vmImage: ubuntu-latest
     continueOnError: false
 
     steps:
