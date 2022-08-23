@@ -8,7 +8,7 @@ variables:
 - name: template-name
   value: 'azuredeploy.json'
 - name: pester-script-location
-  value: '/tests/Test.ARMTemplate.ps1' 
+  value: '/tests/Test.ARMTemplate.ps1'
 - name: ttk-skip-test
   value: 'DependsOn-Best-Practices,ResourceIds-should-not-contain,DeploymentTemplate-Must-Not-Contain-Hardcoded-Uri,apiVersions-Should-Be-Recent-In-Reference-Functions,URIs-Should-Be-Properly-Constructed'
 
@@ -21,7 +21,7 @@ trigger:
       - /solutions/azure-automation-state-configuration/*
     exclude:
       - '/solutions/azure-automation-state-configuration/README.md'
-      
+
 pr:
   branches:
     include:
@@ -39,7 +39,7 @@ schedules:
     include:
     - master
   always: true
-      
+
 stages:
 
 # Run ARM TTK and publish test results (Windows only)
@@ -53,7 +53,7 @@ stages:
 #     timeoutInMinutes: 20
 
 #     steps:
-    
+
 #     - task: PowerShell@2
 #       displayName: ARM-TTK and Pester
 #       inputs:
@@ -65,7 +65,7 @@ stages:
 #           Import-Module Pester -RequiredVersion 4.10.1 -ErrorAction Stop
 #           $results = Invoke-Pester -Script @{Path = "$(System.DefaultWorkingDirectory)$(pester-script-location)"; Parameters = @{TemplatePath = "$(System.DefaultWorkingDirectory)$(template-location)$(template-name)"; Skip = "$(ttk-skip-test)"}} -OutputFormat NUnitXml -OutputFile TEST-ARMTemplate.xml -PassThru
 #           if ($results.TestResult.Result -contains "Failed") {Write-Error -Message "Test Failed"}
-        
+
 #     - task: PublishTestResults@2
 #       inputs:
 #         testResultsFormat: 'NUnit'
@@ -81,8 +81,8 @@ stages:
     pool: Hosted Ubuntu 1604
     continueOnError: false
 
-    steps:    
-    
+    steps:
+
     - task: AzureCLI@2
       displayName: Create resource group
       inputs:
@@ -90,7 +90,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: 'az group create --name $(resource-group) --location $(location)'
-               
+
     - task: AzureCLI@2
       displayName: Validate template (validation api)
       inputs:
@@ -119,7 +119,6 @@ stages:
     #     inlineScript: |
     #      sleep 30
     #      az deployment group create --resource-group $(resource-group) --template-file $(System.DefaultWorkingDirectory)$(template-location)$(template-name) --parameters adminUserName=azureadmin adminPassword=$(adminPassword) linuxVMCount=1 windowsVMCount=1 emailAddress=nepeters@microsoft.com
-        
 # Clean up deployment
 - stage: cleanupResourceGroupBasic
   dependsOn: validateAndDeploy
