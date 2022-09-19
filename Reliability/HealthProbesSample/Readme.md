@@ -30,7 +30,7 @@ New-AzResourceGroupDeployment -Name ExampleDeployment -ResourceGroupName [Resour
 
 After deployment is done you will have two virtual machines configured in the backend pool of the load balancer.
 
-Connect to the virtual machine by using [Azure Bastion](https://docs.microsoft.com/azure/bastion/bastion-connect-vm-rdp). Credentials are included in the deployment template.
+Connect to the virtual machine by using [Azure Bastion](https://learn.microsoft.com/azure/bastion/bastion-connect-vm-rdp). Credentials are included in the deployment template.
 
 Install IIS feature
 
@@ -46,14 +46,12 @@ Use the Load Balancer's public IP address to test the load balancer.
 
 ## Health Probes code sample
 
-### instructions
+### Instructions
 
 Open the .net core solution under "ResiliencyHealthProbesSample" using VS 2019
 
 Edit the connection string in appsettings.json, so it points to an existing SQL Azure database server.
 
-The Sample checks for a valid SQl connection to consider the service as healthy
+The Sample checks for a valid SQL connection to consider the service as healthy
 
-If you want to publish this sample to an Azure App Service by using Visuall Studio, follow [these instructions](https://docs.microsoft.com/en-us/visualstudio/deployment/quickstart-deploy-to-azure?view=vs-2019)
-
-
+If you want to publish this sample to an Azure App Service by using Visual Studio, follow [these instructions](https://learn.microsoft.com/visualstudio/deployment/quickstart-deploy-to-azure)

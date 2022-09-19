@@ -1,6 +1,6 @@
 ## Azure Sentinel and WAF connector Sample
 
-In this sample you create an Azure Log Analytics workspace, which is required if you want to start collecting, analyzing, and taking action on data, and an Azure Sentinel on top of it. [Azure Sentinel](https://docs.microsoft.com/azure/sentinel/overview) is a cloud-native SIEM (security instant and event management) service that runs in Azure.
+In this sample you create an Azure Log Analytics workspace, which is required if you want to start collecting, analyzing, and taking action on data, and an Azure Sentinel on top of it. [Azure Sentinel](https://learn.microsoft.com/azure/sentinel/overview) is a cloud-native SIEM (security instant and event management) service that runs in Azure.
 
 The script also installs an Azure Application Gateway as sample (ARM template is provided in the sample and used by the PS script), after you run it, you can manually configure a diagnostics setting to connect the App Gateway to the Log Analytics Workspace installed before. Behind the scenes, you are connecting Azure Sentinel to the Azure Application Gateway’s web application firewall (WAF). This WAF protects your applications from common web vulnerabilities such as SQL injection and cross-site scripting, and lets you customize rules to reduce false positives.​
 
@@ -48,10 +48,10 @@ AzureDiagnostics
 | render timechart
 ```
 
-If you want to use additional sample queries, they are available [here](https://docs.microsoft.com/azure/azure-monitor/log-query/saved-queries).
+If you want to use additional sample queries, they are available [here](https://learn.microsoft.com/azure/azure-monitor/log-query/saved-queries).
 
 
-Alternatively, you can use your own queries by modifying the "serializedData" element. [Click here](https://docs.microsoft.com/azure/azure-monitor/log-query/get-started-queries) to get started with log analytics queries.
+Alternatively, you can use your own queries by modifying the "serializedData" element. [Click here](https://learn.microsoft.com/azure/azure-monitor/log-query/get-started-queries) to get started with log analytics queries.
 
 
 ### Creating the workbook programmatically
@@ -67,6 +67,6 @@ New-AzResourceGroupDeployment -ResourceGroupName [your resource group] -Template
 
 After you created the workbook, you can see it in the portal by opening the "workbooks" section under the Azure Sentinel created in the steps above. 
 
-[Click here](https://docs.microsoft.com/azure/sentinel/tutorial-monitor-your-data) to learn more about Azure Sentinel and Workbooks.
+[Click here](https://learn.microsoft.com/azure/sentinel/tutorial-monitor-your-data) to learn more about Azure Sentinel and Workbooks.
 
 

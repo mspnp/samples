@@ -233,4 +233,4 @@ Use the Get-AzAutoscaleHistory cmdlet to get the history of events related to an
 ```
 
 
-To learn more about autoscaling, check the [Autoscale best practices](https://docs.microsoft.com/azure/azure-monitor/platform/autoscale-best-practices)
+To learn more about autoscaling, check the [Autoscale best practices](https://learn.microsoft.com/azure/azure-monitor/platform/autoscale-best-practices)

@@ -18,7 +18,7 @@ description: This sample deploys simulated Network Virtual Appliances (NVAs) in 
 
 ## Overview
 
-This sample template can be used to deploy several configurations of simulated Layer 7 NVAs to demonstrate a highly available configuration. For more information on this deployment and other highly available NVA options, see [Deploy highly available NVAs](https://docs.microsoft.com/azure/architecture/reference-architectures/dmz/nva-ha).
+This sample template can be used to deploy several configurations of simulated Layer 7 NVAs to demonstrate a highly available configuration. For more information on this deployment and other highly available NVA options, see [Deploy highly available NVAs](https://learn.microsoft.com/azure/architecture/reference-architectures/dmz/nva-ha).
 
 **Ingress-only** - Deploy an Azure Application Gateway in front of two simulated network virtual appliance (NVA) VMs.  The NVA VMs will forward requests on port 80 to a web-tier Azure Load Balancer, which will distribute traffic across two back-end VMs running a simple web server. *This deployment takes approximately 21 minutes.*
 
@@ -130,7 +130,7 @@ If you redeploy this template to the same Resource Group, you must specify the s
 
 ### Redeploying the architecture using the same Resource Group Name
 
-If you are redeploying the template using the same Resource Group name after deleting the Resource Group or deployed resources, you may need to purge the previously created Azure Key Vault.  Azure requires globally unique names for Key Vault resources and this template will generate a unique name based on your subscription and Resource Group. Key Vault implements a soft-delete feature which is enabled by default. If you want to deploy the template to a Resource Group of the same name, you will have to purge the previous instance of the Key Vault following the instructions at [List, recover, or purge a soft-deleted key vault](https://docs.microsoft.com/azure/key-vault/general/key-vault-recovery#list-recover-or-purge-a-soft-deleted-key-vault).  For testing purposes, you may pass in a `false` value for the template parameter `keyVaultEnableSoftDelete`, but this may cease to work in the future.
+If you are redeploying the template using the same Resource Group name after deleting the Resource Group or deployed resources, you may need to purge the previously created Azure Key Vault.  Azure requires globally unique names for Key Vault resources and this template will generate a unique name based on your subscription and Resource Group. Key Vault implements a soft-delete feature which is enabled by default. If you want to deploy the template to a Resource Group of the same name, you will have to purge the previous instance of the Key Vault following the instructions at [List, recover, or purge a soft-deleted key vault](https://learn.microsoft.com/azure/key-vault/general/key-vault-recovery#list-recover-or-purge-a-soft-deleted-key-vault).  For testing purposes, you may pass in a `false` value for the template parameter `keyVaultEnableSoftDelete`, but this may cease to work in the future.
 
 ### Solution deployment parameters
 

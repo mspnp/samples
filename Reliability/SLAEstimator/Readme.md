@@ -2,7 +2,7 @@
 
 This is an example of how you can calculate the composite SLA of your architecture. This is React web application that can run locally and totally disconnected from the Internet; the data source is a local json file. By changing the `SLA_data.json` file you can add and remove services or modify the SLA values of the individual services using your own SLA numbers.
 
-For more information about business metrics and how the composite SLA is calculated, refer to the [reliability pillar on the Azure Well-Architected Framework](https://docs.microsoft.com/azure/architecture/framework/resiliency/business-metrics#understand-service-level-agreements).
+For more information about business metrics and how the composite SLA is calculated, refer to the [reliability pillar on the Azure Well-Architected Framework](https://learn.microsoft.com/azure/architecture/framework/resiliency/business-metrics#understand-service-level-agreements).
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 

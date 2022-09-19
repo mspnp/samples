@@ -38,7 +38,7 @@ like so:
 
 To follow the instructions on this sample, you'll need to create or reuse an Action Group configured to notify you; using the portal, manually create an Action Group named heatlh-alerts-ag.
 
-See [How to create and manage action groups in the Azure portal](https://docs.microsoft.com/azure/azure-monitor/platform/action-groups) for instructions.
+See [How to create and manage action groups in the Azure portal](https://learn.microsoft.com/azure/azure-monitor/platform/action-groups) for instructions.
 
 
 ### Deploy the template

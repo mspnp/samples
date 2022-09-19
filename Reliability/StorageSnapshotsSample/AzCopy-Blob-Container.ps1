@@ -1,7 +1,7 @@
 param ($ResourceGroupName)
 
 # This command line uses azcopy to copy files between Storage Accounts.
-# See https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview for more info on SAS tokens
+# See https://learn.microsoft.com/azure/storage/common/storage-sas-overview for more info on SAS tokens
 
 $ContainerName = "container1"
 

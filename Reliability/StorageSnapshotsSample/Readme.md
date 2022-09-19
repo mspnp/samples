@@ -15,7 +15,7 @@ In this set of files we provide sample Powershell scripts for creating a snapsho
 
 ### Prerequisites
 
-These samples require you to have installed [Azure PowerShell](https://docs.microsoft.com/powershell/azure/install-az-ps), [AzCopy](https://docs.microsoft.com/azure/storage/common/storage-use-azcopy#download-azcopy) and [Git](https://docs.microsoft.com/devops/develop/git/install-and-set-up-git) or you may utilize the [Azure Cloud Shell](https://shell.azure.com) in PowerShell mode.
+These samples require you to have installed [Azure PowerShell](https://learn.microsoft.com/powershell/azure/install-az-ps), [AzCopy](https://learn.microsoft.com/azure/storage/common/storage-use-azcopy#download-azcopy) and [Git](https://learn.microsoft.com/devops/develop/git/install-and-set-up-git) or you may utilize the [Azure Cloud Shell](https://shell.azure.com) in PowerShell mode.
 
 ### Clone the Samples Repo and navigate to Storage samples
 
@@ -64,4 +64,4 @@ Remove-AzResourceGroup -Name $ResourceGroupName
 
 These samples are related to this section:
 
-https://docs.microsoft.com/azure/architecture/framework/resiliency/data-management#storage-resiliency
+https://learn.microsoft.com/azure/architecture/framework/resiliency/data-management#storage-resiliency
