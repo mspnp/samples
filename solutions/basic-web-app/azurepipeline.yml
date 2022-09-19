@@ -17,7 +17,7 @@ variables:
 trigger:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - "/solutions/basic-web-app/*"
@@ -27,7 +27,7 @@ trigger:
 pr:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - "/solutions/basic-web-app/*"
@@ -39,7 +39,7 @@ schedules:
     displayName: Weekly Sunday build
     branches:
       include:
-        - master
+        - main
     always: true
 
 stages:
