@@ -22,7 +22,7 @@ Where applicable, each resource is configured to send diagnostics and metrics to
 For detailed information, see the Basic web application reference architecture:
 
 > [!div class="nextstepaction"]
-> [Basic web application reference architecture](https://docs.microsoft.com/azure/architecture/reference-architectures/app-service-web-app/basic-web-app)
+> [Basic web application reference architecture](https://learn.microsoft.com/azure/architecture/reference-architectures/app-service-web-app/basic-web-app)
 
 ## Deploy sample
 

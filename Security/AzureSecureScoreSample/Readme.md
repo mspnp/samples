@@ -72,6 +72,6 @@ The output of this script is a json file named AzureSecureScoreControls.ps1
 
 As you can see it includes a list of security controls with a corresponding score. To get all the possible points for a security control and maximize the score, all your resources must comply with all of the security recommendations included in the security control. For example, Security Center has multiple recommendations regarding how to secure your management ports. In the past, you could remediate some of those related and interdependent recommendations while leaving others unsolved. Now, you must remediate them all to make a difference to your secure score.
 
-To learn more about Azure Secure Score, Score controls and recommendations, see [this article](https://docs.microsoft.com/azure/security-center/secure-score-security-controls).
+To learn more about Azure Secure Score, Score controls and recommendations, see [this article](https://learn.microsoft.com/azure/security-center/secure-score-security-controls).
 
 Also, see [this GitHub repo](https://github.com/Azure/Azure-Security-Center/tree/master/Remediation%20scripts) which contains several samples to help you programmatic remediate your Security Center recommendations, and thus improving your Secure score.

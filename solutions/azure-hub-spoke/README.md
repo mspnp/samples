@@ -28,7 +28,7 @@ Where applicable, each resource is configured to send diagnostics to an Azure Lo
 For detailed information, see the Azure Hub and Spoke reference architecture:
 
 > [!div class="nextstepaction"]
-> [Hub and spoke reference architecture](https://docs.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
+> [Hub and spoke reference architecture](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
 
 ## Deploy sample
 
@@ -97,7 +97,7 @@ The following resources are configured to send diagnostic logs to the included L
 - Azure Firewall
 - Azure Bastion
 
-Note, this deployment includes optional virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://docs.microsoft.com/azure/virtual-machines/extensions/oms-linux).
+Note, this deployment includes optional virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-linux).
 
 ## Microsoft Open Source Code of Conduct
 
