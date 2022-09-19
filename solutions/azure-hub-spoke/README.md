@@ -16,8 +16,8 @@ description: This sample deploys Azure virtual networks in a hub and spoke confi
 
 | Deployment | Status |
 |---|---|
-| ARM Template | [![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/hub-and-spoke?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3727&branchName=master) |
-| Bicep Template | [![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/hub-spoke-bastion-bicep?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3729&branchName=master) |
+| ARM Template | [![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/hub-and-spoke?branchName=main)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3727&branchName=main) |
+| Bicep Template | [![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/hub-spoke-bastion-bicep?branchName=main)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3729&branchName=main) |
 
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
@@ -45,7 +45,7 @@ Run the following command to initiate the deployment. If you would like to also 
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json
 ```
 
 **Deploy with virtual machines**
@@ -55,8 +55,8 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
+    --parameters adminPassword=Password2023! linuxVMCount=1 windowsVMCount=1
 ```
 
 **Deploy with VPN gateway**
@@ -66,8 +66,8 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2020! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
+    --parameters adminPassword=Password2023! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
 ```
 
 ## Solution deployment parameters

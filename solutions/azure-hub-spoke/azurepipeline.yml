@@ -15,7 +15,7 @@ variables:
 trigger:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - /solutions/azure-hub-spoke/*
@@ -26,7 +26,7 @@ trigger:
 pr:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - /solutions/azure-hub-spoke/*
@@ -39,7 +39,7 @@ schedules:
     displayName: Weekly Sunday build
     branches:
       include:
-        - master
+        - main
     always: true
 
 stages:

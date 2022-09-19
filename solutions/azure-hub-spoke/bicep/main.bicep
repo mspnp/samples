@@ -1,460 +1,131 @@
+targetScope = 'resourceGroup'
+
+/*** PARAMETERS ***/
+/*
+@description('TBD')
+@minValue(0)
+@maxValue(3)
 param windowsVMCount int = 1
+
+@description('TBD')
+@minValue(0)
+@maxValue(3)
 param linuxVMCount int = 1
-param adminUserName string
+
+@description('TBD')
+@minLength(10)
 param vmSize string = 'Standard_A1_v2'
 
+@description('TBD')
+@minLength(4)
+@maxLength(45)
+param adminUserName string
+
+@description('TBD')
+@minLength(6)
 @secure()
 param adminPassword string
+*/
 
-param hubNetwork object = {
-  name: 'vnet-hub'
-  addressPrefix: '10.0.0.0/20'
-}
+@description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones.')
+@minLength(4)
+@allowed([
+  'brazilsouth'
+  'canadacentral'
+  'centralus'
+  'eastus'
+  'eastus2'
+  'southcentralus'
+  'westus2'
+  'westus3'
+  'francecentral'
+  'germanywestcentral'
+  'northeurope'
+  'norwayeast'
+  'uksouth'
+  'westeurope'
+  'sweedencentral'
+  'switzerlandnorth'
+  'uaenorth'
+  'southafricanorth'
+  'australiaeast'
+  'centralindia'
+  'japaneast'
+  'koreacentral'
+  'southeastasia'
+  'eastasia'
+])
+param location string
 
-param spokeNetwork object = {
-  name: 'vnet-spoke-one'
-  addressPrefix: '10.100.0.0/16'
-  subnetName: 'snet-spoke-resources'
-  subnetPrefix: '10.100.0.0/16'
-  subnetNsgName: 'nsg-spoke-one-resources'
-}
+/*** VARIABLES ***/
 
-param spokeNetworkTwo object = {
-  name: 'vnet-spoke-two'
-  addressPrefix: '10.200.0.0/16'
-  subnetName: 'snet-spoke-resources'
-  subnetPrefix: '10.200.0.0/16'
-  subnetNsgName: 'nsg-spoke-two-resources'
-}
-
-param azureFirewall object = {
-  name: 'AzureFirewall'
-  publicIPAddressName: 'pip-firewall'
-  subnetName: 'AzureFirewallSubnet'
-  subnetPrefix: '10.0.3.0/26'
-  routeName: 'r-nexthop-to-fw'
-}
-
-param bastionHost object = {
-  name: 'AzureBastionHost'
-  publicIPAddressName: 'pip-bastion'
-  subnetName: 'AzureBastionSubnet'
-  nsgName: 'nsg-hub-bastion'
-  subnetPrefix: '10.0.1.0/29'
-}
-
-param deployVpnGateway bool = false
-
-param vpnGateway object = {
-  name: 'vgw-gateway'
-  subnetName: 'GatewaySubnet'
-  subnetPrefix: '10.0.2.0/27'
-  pipName: 'pip-vgw-gateway'
-}
-
-param location string = resourceGroup().location
-
+/*
 var nicNameWindows = 'nic-windows-'
 var vmNameWindows = 'vm-windows-'
 var windowsOSVersion = '2016-Datacenter'
 var nicNameLinux = 'nic-linux-'
 var osVersion = '16.04.0-LTS'
-var vmNameLinux = 'vm-linux-'
-var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
+var vmNameLinux = 'vm-linux-' */
+var suffix = uniqueString(subscription().subscriptionId, resourceGroup().id)
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
-  name: logAnalyticsWorkspaceName
+/*** RESOURCES (HUB) ***/
+
+@description('This Log Analyics Workspace stores logs from the regional hub network, its spokes, and other related resources. Workspaces are regional resource, as such there would be one workspace per hub (region)')
+resource laHub 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
+  name: 'la-hub-${location}-${suffix}'
   location: location
   properties: {
     sku: {
-      name: 'Free'
+      name: 'PerGB2018'
+    }
+    retentionInDays: 90
+    forceCmkForQuery: false
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+    features: {
+      disableLocalAuth: false
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
+    workspaceCapping: {
+      dailyQuotaGb: -1
     }
   }
 }
 
-resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-  name: hubNetwork.name
-  location: location
+resource laHub_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: laHub
   properties: {
-    addressSpace: {
-      addressPrefixes: [
-        hubNetwork.addressPrefix
-      ]
-    }
-    subnets: [
-      {
-        name: azureFirewall.subnetName
-        properties: {
-          addressPrefix: azureFirewall.subnetPrefix
-        }
-      }
-      {
-        name: bastionHost.subnetName
-        properties: {
-          addressPrefix: bastionHost.subnetPrefix
-        }
-      }
-      {
-        name: vpnGateway.subnetName
-        properties: {
-          addressPrefix: vpnGateway.subnetPrefix
-        }
-      }
-    ]
-  }
-}
-
-resource diahVnetHub 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diahVnetHub'
-  scope: vnetHub
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
+    workspaceId: laHub.id
     logs: [
       {
-        category: 'VMProtectionAlerts'
+        categoryGroup: 'audit'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
         enabled: true
       }
     ]
   }
 }
 
-resource pipFirewall 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
-  name: azureFirewall.publicIPAddressName
-  location: location
-  sku: {
-    name: 'Standard'
-  }
-  properties: {
-    publicIPAllocationMethod: 'Static'
-  }
-}
-
-resource firewall 'Microsoft.Network/azureFirewalls@2020-05-01' = {
-  name: azureFirewall.name
-  location: location
-  properties: {
-    sku: {
-      name: 'AZFW_VNet'
-      tier: 'Standard'
-    }
-    threatIntelMode: 'Alert'
-    ipConfigurations: [
-      {
-        name: azureFirewall.name
-        properties: {
-          publicIPAddress: {
-            id: pipFirewall.id
-          }
-          subnet: {
-            id: '${vnetHub.id}/subnets/${azureFirewall.subnetName}'
-          }
-        }
-      }
-    ]
-  }
-}
-
-resource diagFirewall 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagFirewall'
-  scope: firewall
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'AzureFirewallApplicationRule'
-        enabled: true
-      }
-      {
-        category: 'AzureFirewallNetworkRule'
-        enabled: true
-      }
-      {
-        category: 'AzureFirewallDnsProxy'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource azureFirewallRoutes 'Microsoft.Network/routeTables@2020-05-01' = {
-  name: azureFirewall.routeName
-  location: location
-  properties: {
-    disableBgpRoutePropagation: false
-    routes: [
-      {
-        name: azureFirewall.routeName
-        properties: {
-          addressPrefix: '0.0.0.0/0'
-          nextHopType: 'VirtualAppliance'
-          nextHopIpAddress: reference(firewall.id, '2020-05-01').ipConfigurations[0].properties.privateIpAddress
-        }
-      }
-    ]
-  }
-}
-
-resource nsgSpoke 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name: spokeNetwork.name
+@description('The NSG around the Azure Bastion subnet. Source: https://learn.microsoft.com/azure/bastion/bastion-nsg')
+resource nsgBastionSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: 'nsg-${location}-bastion'
   location: location
   properties: {
     securityRules: [
       {
-        name: 'bastion-in-vnet'
+        name: 'AllowWebExperienceInbound'
         properties: {
+          description: 'Allow our users in. Update this to be as restrictive as possible.'
           protocol: 'Tcp'
           sourcePortRange: '*'
-          sourceAddressPrefix: bastionHost.subnetPrefix
-          destinationPortRanges: [
-            '22'
-            '3389'
-          ]
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'DenyAllInBound'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
           destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-    ]
-  }
-}
-
-resource diagNsgSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagNsgSpoke'
-  scope: nsgSpoke
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'NetworkSecurityGroupEvent'
-        enabled: true
-      }
-      {
-        category: 'NetworkSecurityGroupRuleCounter'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource vnetSpoke 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-  name: spokeNetwork.name
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        spokeNetwork.addressPrefix
-      ]
-    }
-    subnets: [
-      {
-        name: spokeNetwork.subnetName
-        properties: {
-          addressPrefix: spokeNetwork.subnetPrefix
-          networkSecurityGroup: {
-            id: nsgSpoke.id
-          }
-        }
-      }
-    ]
-  }
-}
-
-resource diagVnetSpoke 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagVnetSpoke'
-  scope: vnetSpoke
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'VMProtectionAlerts'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource nsgSpokeTwo 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name: spokeNetworkTwo.name
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'bastion-in-vnet'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: bastionHost.subnetPrefix
-          destinationPortRanges: [
-            '22'
-            '3389'
-          ]
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'DenyAllInBound'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-    ]
-  }
-}
-
-resource diagNsgSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagNsgSpokeTwo'
-  scope: nsgSpokeTwo
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'NetworkSecurityGroupEvent'
-        enabled: true
-      }
-      {
-        category: 'NetworkSecurityGroupRuleCounter'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-  name: spokeNetworkTwo.name
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        spokeNetworkTwo.addressPrefix
-      ]
-    }
-    subnets: [
-      {
-        name: spokeNetworkTwo.subnetName
-        properties: {
-          addressPrefix: spokeNetworkTwo.subnetPrefix
-          networkSecurityGroup: {
-            id: nsgSpoke.id
-          }
-        }
-      }
-    ]
-  }
-}
-
-resource diagVnetSpokeTwo 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
-  name: 'diagVnetSpokeTwo'
-  scope: vnetSpokeTwo
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'VMProtectionAlerts'
-        enabled: true
-      }
-    ]
-  }
-}
-
-resource peerHubSpoke 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-06-01' = {
-  name: '${hubNetwork.name}/hub-to-spoke'
-  properties: {
-    allowVirtualNetworkAccess: true
-    allowForwardedTraffic: true
-    allowGatewayTransit: false
-    useRemoteGateways: false
-    remoteVirtualNetwork: {
-      id: vnetSpoke.id
-    }
-  }
-}
-
-resource peerSpokeHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-06-01' = {
-  name: '${vnetSpoke.name}/spoke-to-hub'
-  properties: {
-    allowVirtualNetworkAccess: true
-    allowForwardedTraffic: true
-    allowGatewayTransit: false
-    useRemoteGateways: false
-    remoteVirtualNetwork: {
-      id: vnetHub.id
-    }
-  }
-}
-
-resource peerHubSpokeTwo 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-06-01' = {
-  name: '${hubNetwork.name}/hub-to-spoke-two'
-  properties: {
-    allowVirtualNetworkAccess: true
-    allowForwardedTraffic: true
-    allowGatewayTransit: false
-    useRemoteGateways: false
-    remoteVirtualNetwork: {
-      id: vnetSpokeTwo.id
-    }
-  }
-}
-
-resource peerSpokeTwoHub 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-06-01' = {
-  name: '${vnetSpokeTwo.name}/spoke-two-to-hub'
-  properties: {
-    allowVirtualNetworkAccess: true
-    allowForwardedTraffic: true
-    allowGatewayTransit: false
-    useRemoteGateways: false
-    remoteVirtualNetwork: {
-      id: vnetHub.id
-    }
-  }
-}
-
-resource bastionPip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
-  name: 'bastionpip'
-  location: location
-  sku: {
-    name: 'Standard'
-  }
-  properties: {
-    publicIPAllocationMethod: 'Static'
-  }
-}
-
-resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name: 'nsgbastion'
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'bastion-in-allow'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
           sourceAddressPrefix: 'Internet'
-          destinationPortRange: '443'
           destinationAddressPrefix: '*'
           access: 'Allow'
           priority: 100
@@ -462,12 +133,27 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         }
       }
       {
-        name: 'bastion-control-in-allow'
+        name: 'AllowControlPlaneInbound'
         properties: {
+          description: 'Service Requirement. Allow control plane access. Regional Tag not yet supported.'
           protocol: 'Tcp'
           sourcePortRange: '*'
-          sourceAddressPrefix: 'GatewayManager'
           destinationPortRange: '443'
+          sourceAddressPrefix: 'GatewayManager'
+          destinationAddressPrefix: '*'
+          access: 'Allow'
+          priority: 110
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowHealthProbesInbound'
+        properties: {
+          description: 'Service Requirement. Allow Health Probes.'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: 'AzureLoadBalancer'
           destinationAddressPrefix: '*'
           access: 'Allow'
           priority: 120
@@ -475,8 +161,9 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         }
       }
       {
-        name: 'bastion-in-host'
+        name: 'AllowBastionHostToHostInbound'
         properties: {
+          description: 'Service Requirement. Allow Required Host to Host Communication.'
           protocol: '*'
           sourcePortRange: '*'
           destinationPortRanges: [
@@ -491,15 +178,27 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         }
       }
       {
-        name: 'bastion-vnet-out-allow'
+        name: 'DenyAllInbound'
         properties: {
+          description: 'No further inbound traffic allowed.'
+          protocol: '*'
+          sourcePortRange: '*'
+          destinationPortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowSshToVnetOutbound'
+        properties: {
+          description: 'Allow SSH out to the virtual network'
           protocol: 'Tcp'
           sourcePortRange: '*'
           sourceAddressPrefix: '*'
-          destinationPortRanges: [
-            '22'
-            '3389'
-          ]
+          destinationPortRange: '22'
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
           priority: 100
@@ -507,8 +206,23 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         }
       }
       {
-        name: 'bastion-azure-out-allow'
+        name: 'AllowRdpToVnetOutbound'
         properties: {
+          description: 'Allow RDP out to the virtual network'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '3389'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 110
+          direction: 'Outbound'
+        }
+      }
+      {
+        name: 'AllowControlPlaneOutbound'
+        properties: {
+          description: 'Required for control plane outbound. Regional prefix not yet supported'
           protocol: 'Tcp'
           sourcePortRange: '*'
           sourceAddressPrefix: '*'
@@ -520,15 +234,16 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         }
       }
       {
-        name: 'bastion-out-host'
+        name: 'AllowBastionHostToHostOutbound'
         properties: {
+          description: 'Service Requirement. Allow Required Host to Host Communication.'
           protocol: '*'
           sourcePortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
           destinationPortRanges: [
             '8080'
             '5701'
           ]
-          sourceAddressPrefix: 'VirtualNetwork'
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
           priority: 130
@@ -536,8 +251,23 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
         }
       }
       {
-        name: 'bastion-out-deny'
+        name: 'AllowBastionCertificateValidationOutbound'
         properties: {
+          description: 'Service Requirement. Allow Required Session and Certificate Validation.'
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '80'
+          destinationAddressPrefix: 'Internet'
+          access: 'Allow'
+          priority: 140
+          direction: 'Outbound'
+        }
+      }
+      {
+        name: 'DenyAllOutbound'
+        properties: {
+          description: 'No further outbound traffic allowed.'
           protocol: '*'
           sourcePortRange: '*'
           destinationPortRange: '*'
@@ -552,25 +282,644 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   }
 }
 
-resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
-  name: 'bastionhost'
+resource nsgBastionSubnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nsgBastionSubnet
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('The regional hub network.')
+resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+  name: 'vnet-${location}-hub'
   location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/22' 
+      ]
+    }
+    subnets: [
+      {
+        name: 'AzureBastionSubnet'
+        properties: {
+          addressPrefix: '10.0.1.0/26'
+          networkSecurityGroup: {
+            id: nsgBastionSubnet.id
+          }
+        }
+      }
+      {
+        name: 'GatewaySubnet'
+        properties: {
+          addressPrefix: '10.0.2.0/27'
+        }
+      }
+      {
+        name: 'AzureFirewallSubnet'
+        properties: {
+          addressPrefix: '10.0.3.0/26'
+        }
+      }
+    ]
+  }
+
+  resource azureFirewallSubnet 'subnets' existing = {
+    name: 'AzureFirewallSubnet'
+  }
+
+  resource azureBastionSubnet 'subnets' existing = {
+    name: 'AzureBastionSubnet'
+  }
+
+  // Connect regional hub back to spoke one (created later below). This could also
+  // be handled via Azure Policy or Portal. How virtual networks are peered  might
+  // vary from organization to organization. This example simply does it in the most
+  // direct way to simplify ease of deployment.
+  resource peerToSpokeOne 'virtualNetworkPeerings@2022-01-01' = {
+    name: 'to_${vnetSpokeOne.name}'
+    dependsOn: [
+      vnetSpokeOne::peerToHub // This artificially waits until the spoke peers with the hub first to control order of operations.
+    ]
+    properties: {
+      allowForwardedTraffic: false
+      allowGatewayTransit: false
+      allowVirtualNetworkAccess: true
+      useRemoteGateways: false
+      remoteVirtualNetwork: {
+        id: vnetSpokeOne.id
+      }
+    }
+  }
+
+    // Connect regional hub back to spoke one (created later below).
+  resource peerToSpokeTwo 'virtualNetworkPeerings@2022-01-01' = {
+    name: 'to_${vnetSpokeTwo.name}'
+    dependsOn: [
+      vnetSpokeTwo::peerToHub // This artificially waits until the spoke peers with the hub first to control order of operations.
+    ]
+    properties: {
+      allowForwardedTraffic: false
+      allowGatewayTransit: false
+      allowVirtualNetworkAccess: true
+      useRemoteGateways: false
+      remoteVirtualNetwork: {
+        id: vnetSpokeTwo.id
+      }
+    }
+  }
+}
+
+resource vnetHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: vnetHub
+  properties: {
+    workspaceId: laHub.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+// Allocate three IP addresses to the firewall
+var numFirewallIpAddressesToAssign = 3
+resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2022-01-01' = [for i in range(0, numFirewallIpAddressesToAssign): {
+  name: 'pip-fw-${location}-${padLeft(i, 2, '0')}'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+    publicIPAddressVersion: 'IPv4'
+  }
+}]
+
+resource pipsAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for i in range(0, numFirewallIpAddressesToAssign): {
+  name: 'to-hub-la'
+  scope: pipsAzureFirewall[i]
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'audit'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}]
+
+@description('Azure Firewall Policy')
+resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
+  name: 'fw-policies-${location}'
+  location: location
+  properties: {
+    sku: {
+      tier: 'Standard'
+    }
+    threatIntelMode: 'Deny'
+    insights: {
+      isEnabled: true
+      retentionDays: 30
+      logAnalyticsResources: {
+        defaultWorkspaceId: {
+          id: laHub.id
+        }
+      }
+    }
+    threatIntelWhitelist: {
+      fqdns: []
+      ipAddresses: []
+    }
+    intrusionDetection: null // Only valid on Premium tier sku
+    dnsSettings: {
+      servers: []
+      enableProxy: true
+    }
+  }
+
+  // This network hub starts out with only supporting external DNS queries. This is only being done for
+  // simplicity in this deployment and is not guidance, please ensure all firewall rules are aligned with
+  // your security standards.
+  resource defaultNetworkRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = {
+    name: 'DefaultNetworkRuleCollectionGroup'
+    properties: {
+      priority: 200
+      ruleCollections: [
+        {
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          name: 'org-wide-allowed'
+          priority: 100
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              ruleType: 'NetworkRule'
+              name: 'DNS'
+              description: 'Allow DNS outbound (for simplicity, adjust as needed)'
+              ipProtocols: [
+                'UDP'
+              ]
+              sourceAddresses: [
+                '*'
+              ]
+              sourceIpGroups: []
+              destinationAddresses: [
+                '*'
+              ]
+              destinationIpGroups: []
+              destinationFqdns: []
+              destinationPorts: [
+                '53'
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+  // Network hub starts out with no allowances for appliction rules
+  resource defaultApplicationRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = {
+    name: 'DefaultApplicationRuleCollectionGroup'
+    dependsOn: [
+      defaultNetworkRuleCollectionGroup
+    ]
+    properties: {
+      priority: 300
+      ruleCollections: []
+    }
+  }
+}
+
+@description('This is the regional Azure Firewall that all regional spoke networks can egress through.')
+resource fwHub 'Microsoft.Network/azureFirewalls@2022-01-01' = {
+  name: 'fw-${location}'
+  location: location
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
+  dependsOn: [
+    // This helps prevent multiple PUT updates happening to the firewall causing a CONFLICT race condition
+    // Ref: https://learn.microsoft.com/azure/firewall-manager/quick-firewall-policy
+    fwPolicy::defaultApplicationRuleCollectionGroup
+    fwPolicy::defaultNetworkRuleCollectionGroup
+  ]
+  properties: {
+    sku: {
+      name: 'AZFW_VNet'
+      tier: 'Standard'
+    }
+    firewallPolicy: {
+      id: fwPolicy.id
+    }
+    ipConfigurations: [for i in range(0, numFirewallIpAddressesToAssign): {
+      name: pipsAzureFirewall[i].name
+      properties: {
+        subnet: (0 == i) ? {
+          id: vnetHub::azureFirewallSubnet.id
+        } : null
+        publicIPAddress: {
+          id: pipsAzureFirewall[i].id
+        }
+      }
+    }]
+  }
+}
+
+resource fwHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: fwHub
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('The public IP for the regional hub\'s Azure Bastion service.')
+resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+  name: 'pip-ab-${location}'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  zones: [
+    '1'
+    '2'
+    '3'    
+  ]
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+    publicIPAddressVersion: 'IPv4'
+  }
+}
+
+@description('This regional hub\'s Azure Bastion service. NSGs are configured to allow Bastion to reach any resource subnet in peered spokes.')
+resource azureBastion 'Microsoft.Network/bastionHosts@2022-01-01' = {
+  name: 'ab-${location}-${suffix}'
+  location: location
+  sku: {
+    name: 'Basic'
+  }
   properties: {
     ipConfigurations: [
       {
-        name: 'ipconf'
+        name: 'hub-subnet'
         properties: {
+          privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: '${vnetHub.id}/subnets/${bastionHost.subnetName}'
+            id: vnetHub::azureBastionSubnet.id
           }
           publicIPAddress: {
-            id: bastionPip.id
+            id: pipAzureBastion.id
           }
         }
       }
     ]
   }
 }
+
+resource azureBastion_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: azureBastion
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        category: 'BastionAuditLogs'
+        enabled: true
+      }
+    ]
+  }
+}
+
+/*** RESOURCES (ALL SPOKES) ***/
+
+@description('Next hop to the regional hub\'s Azure Firewall')
+resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2022-01-01' = {
+  name: 'route-to-${location}-hub-fw'
+  location: location
+  properties: {
+    routes: [
+      {
+        name: 'r-nexthop-to-fw'
+        properties: {
+          nextHopType: 'VirtualAppliance'
+          addressPrefix: '0.0.0.0/0'
+          nextHopIpAddress: fwHub.properties.ipConfigurations[0].properties.privateIPAddress
+        }
+      }
+    ]
+  }
+}
+
+@description('NSG on the resource subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke).')
+resource nsgResourcesSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: 'nsg-spoke-resources'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowBastionRdpFromHub'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: vnetHub::azureBastionSubnet.properties.addressPrefix
+          destinationPortRanges: [
+            '3389'
+          ]
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 100
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowBastionSshFromHub'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: vnetHub::azureBastionSubnet.properties.addressPrefix
+          destinationPortRanges: [
+            '22'
+          ]
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 110
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllInBound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      // No outbound restrictions.
+    ]
+  }
+}
+
+resource nsgResourcesSubnet_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nsgResourcesSubnet
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('NSG on the Private Link subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke).')
+resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: 'nsg-spoke-privatelinkendpoints'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowAll443InFromVnet'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '443'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 100
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllInbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllOutbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Outbound'
+        }
+      }
+    ]
+  }
+}
+
+resource nsgPrivateLinkEndpointsSubnet_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nsgPrivateLinkEndpointsSubnet
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+  }
+}
+
+/*** RESOURCES (SPOKE ONE) ***/
+
+resource vnetSpokeOne 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+  name: 'vnet-${location}-spoke-one'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.100.0.0/22'
+      ]
+    }
+    subnets: [
+      {
+        name: 'snet-resources'
+        properties: {
+          addressPrefix: '10.100.0.0/24'
+          networkSecurityGroup: {
+            id: nsgResourcesSubnet.id
+          }
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
+        }
+      }
+      {
+        name: 'snet-privatelinkendpoints'
+        properties: {
+          addressPrefix: '10.100.1.0/26'
+          networkSecurityGroup: {
+            id: nsgPrivateLinkEndpointsSubnet.id
+          }
+          privateEndpointNetworkPolicies: 'Enabled'
+          privateLinkServiceNetworkPolicies: 'Enabled'
+        }
+      }
+    ]
+  }
+
+  // Peer to regional hub (hub to spoke peering is in the hub resource)
+  resource peerToHub 'virtualNetworkPeerings@2022-01-01' = {
+    name: 'to_${vnetHub.name}'
+    properties: {
+      allowForwardedTraffic: false
+      allowGatewayTransit: false
+      allowVirtualNetworkAccess: true
+      useRemoteGateways: false
+      remoteVirtualNetwork: {
+        id: vnetHub.id
+      }
+    }
+  }
+}
+
+resource vnetSpokeOne_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: vnetSpokeOne
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+/*** RESOURCES (SPOKE TWO) ***/
+
+resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+  name: 'vnet-${location}-spoke-two'
+  location: location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        '10.200.0.0/22'
+      ]
+    }
+    subnets: [
+      {
+        name: 'snet-resources'
+        properties: {
+          addressPrefix: '10.200.0.0/24'
+          networkSecurityGroup: {
+            id: nsgResourcesSubnet.id
+          }
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
+        }
+      }
+      {
+        name: 'snet-privatelinkendpoints'
+        properties: {
+          addressPrefix: '10.200.1.0/26'
+          networkSecurityGroup: {
+            id: nsgPrivateLinkEndpointsSubnet.id
+          }
+          privateEndpointNetworkPolicies: 'Enabled'
+          privateLinkServiceNetworkPolicies: 'Enabled'
+        }
+      }
+    ]
+  }
+
+  // Peer to regional hub (hub to spoke peering is in the hub resource)
+  resource peerToHub 'virtualNetworkPeerings@2022-01-01' = {
+    name: 'to_${vnetHub.name}'
+    properties: {
+      allowForwardedTraffic: false
+      allowGatewayTransit: false
+      allowVirtualNetworkAccess: true
+      useRemoteGateways: false
+      remoteVirtualNetwork: {
+        id: vnetHub.id
+      }
+    }
+  }
+}
+
+resource vnetSpokeTwo_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: vnetSpokeTwo
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+
+
+
+
+/*
+
+
 
 resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, windowsVMCount): {
   name: '${nicNameWindows}${i + 1}'
@@ -721,9 +1070,9 @@ resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2019-11-01
 
 resource vpnGatewayAnalytics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if (deployVpnGateway) {
   scope: vpnGatewayResource
-  name: '${vpnGateway.name}default${logAnalyticsWorkspace.name}'
+  name: '${vpnGateway.name}default${laHub.name}'
   properties: {
-    workspaceId: logAnalyticsWorkspace.id
+    workspaceId: laHub.id
     logs: [
       {
         category: 'GatewayDiagnosticLog'
@@ -748,3 +1097,4 @@ resource vpnGatewayAnalytics 'Microsoft.Insights/diagnosticSettings@2017-05-01-p
     ]
   }
 }
+*/
