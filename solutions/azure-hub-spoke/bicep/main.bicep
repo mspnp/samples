@@ -1,31 +1,6 @@
 targetScope = 'resourceGroup'
 
 /*** PARAMETERS ***/
-/*
-@description('TBD')
-@minValue(0)
-@maxValue(3)
-param windowsVMCount int = 1
-
-@description('TBD')
-@minValue(0)
-@maxValue(3)
-param linuxVMCount int = 1
-
-@description('TBD')
-@minLength(10)
-param vmSize string = 'Standard_A1_v2'
-
-@description('TBD')
-@minLength(4)
-@maxLength(45)
-param adminUserName string
-
-@description('TBD')
-@minLength(6)
-@secure()
-param adminPassword string
-*/
 
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones.')
 @minLength(4)
@@ -57,15 +32,24 @@ param adminPassword string
 ])
 param location string
 
+
+
+
+@description('Set to true to include a basic VPN Gateway deployment into the hub. Set to false to leave network space for a VPN Gateway, but do not deploy one. Default is false.')
+param deployVpnGateway bool = false
+
+param deployVirtualMachines bool = false
+
+@minLength(4)
+@maxLength(30)
+param adminUsername string = 'azureadmin'
+
+@secure()
+@minLength(8)
+param adminPassword string
+
 /*** VARIABLES ***/
 
-/*
-var nicNameWindows = 'nic-windows-'
-var vmNameWindows = 'vm-windows-'
-var windowsOSVersion = '2016-Datacenter'
-var nicNameLinux = 'nic-linux-'
-var osVersion = '16.04.0-LTS'
-var vmNameLinux = 'vm-linux-' */
 var suffix = uniqueString(subscription().subscriptionId, resourceGroup().id)
 
 /*** RESOURCES (HUB) ***/
@@ -99,7 +83,7 @@ resource laHub_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-0
     workspaceId: laHub.id
     logs: [
       {
-        categoryGroup: 'audit'
+        categoryGroup: 'allLogs'
         enabled: true
       }
     ]
@@ -303,7 +287,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '10.0.0.0/22' 
+        '10.0.0.0/22'
       ]
     }
     subnets: [
@@ -331,12 +315,16 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
     ]
   }
 
-  resource azureFirewallSubnet 'subnets' existing = {
-    name: 'AzureFirewallSubnet'
-  }
-
   resource azureBastionSubnet 'subnets' existing = {
     name: 'AzureBastionSubnet'
+  }
+
+  resource gatewaySubnet 'subnets' existing = if (deployVpnGateway) {
+    name: 'GatewaySubnet'
+  }
+
+  resource azureFirewallSubnet 'subnets' existing = {
+    name: 'AzureFirewallSubnet'
   }
 
   // Connect regional hub back to spoke one (created later below). This could also
@@ -359,7 +347,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
     }
   }
 
-    // Connect regional hub back to spoke one (created later below).
+  // Connect regional hub back to spoke one (created later below).
   resource peerToSpokeTwo 'virtualNetworkPeerings@2022-01-01' = {
     name: 'to_${vnetSpokeTwo.name}'
     dependsOn: [
@@ -418,7 +406,7 @@ resource pipsAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSetti
     workspaceId: laHub.id
     logs: [
       {
-        categoryGroup: 'audit'
+        categoryGroup: 'allLogs'
         enabled: true
       }
     ]
@@ -582,12 +570,32 @@ resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   zones: [
     '1'
     '2'
-    '3'    
+    '3'
   ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
     publicIPAddressVersion: 'IPv4'
+  }
+}
+
+resource pipAzureBastion_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: pipAzureBastion
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 
@@ -623,7 +631,107 @@ resource azureBastion_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
     workspaceId: laHub.id
     logs: [
       {
-        category: 'BastionAuditLogs'
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('The public IPs for the regional VPN gateway. Only deployed if requested.')
+resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2022-01-01' = if (deployVpnGateway) {
+  name: 'pip-vgw-${location}'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
+  properties: {
+    publicIPAllocationMethod: 'Static'
+    idleTimeoutInMinutes: 4
+    publicIPAddressVersion: 'IPv4'
+  }
+}
+
+resource pipVpnGateway_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployVpnGateway) {
+  name: 'to-hub-la'
+  scope: pipVpnGateway
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('The is the regional VPN gateway, configured with basic settings. Only deployed if requested.')
+resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' = if (deployVpnGateway) {
+  name: 'vgw-${location}-hub'
+  location: location
+  properties: {
+    sku: {
+      name: 'VpnGw2AZ'
+      tier: 'VpnGw2AZ'
+    }
+    gatewayType: 'Vpn'
+    vpnGatewayGeneration: 'Generation2'
+    vpnType: 'RouteBased'
+    activeActive: false
+    disableIPSecReplayProtection: false
+    enableBgp: false
+    enableBgpRouteTranslationForNat: false
+    enableDnsForwarding: false
+    enablePrivateIpAddress: false
+    ipConfigurations: [
+      {
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          publicIPAddress: {
+            id: pipVpnGateway.id
+          }
+          subnet: {
+            id: vnetHub::gatewaySubnet.id
+          }
+        }
+      }
+    ]
+    natRules: []
+  }
+}
+
+resource vgwHub_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployVpnGateway) {
+  name: 'to-hub-la'
+  scope: vgwHub
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
         enabled: true
       }
     ]
@@ -818,6 +926,10 @@ resource vnetSpokeOne 'Microsoft.Network/virtualNetworks@2022-01-01' = {
     ]
   }
 
+  resource snetResources 'subnets@2022-01-01' existing = {
+    name: 'snet-resources'
+  }
+
   // Peer to regional hub (hub to spoke peering is in the hub resource)
   resource peerToHub 'virtualNetworkPeerings@2022-01-01' = {
     name: 'to_${vnetHub.name}'
@@ -844,6 +956,96 @@ resource vnetSpokeOne_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
         enabled: true
       }
     ]
+  }
+}
+
+@description("The private Network Interface Card for the linux VM)
+resource nicVmSpokeOneLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = if(deployVirtualMachines) {
+  name: 'nic-vm-spoke-one-linux'
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'default'
+        properties: {
+          subnet: {
+            id: vnetSpokeOne::snetResources.id
+          }
+          privateIPAllocationMethod: 'Dynamic'
+        }
+      }
+    ]
+    enableAcceleratedNetworking: true
+  }
+}
+
+resource vmSpokeOneLinux 'Microsoft.Compute/virtualMachines@2022-03-01' = if(deployVirtualMachines) {
+  name: 'vm-spoke-one-linux'
+  location: location
+  zones: [
+    '1'
+  ]
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_D2ds_v4'
+    }
+    storageProfile: {
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: 'Standard_LRS'
+        }
+        caching: 'ReadOnly'
+        diffDiskSettings: {
+          option: 'Local'
+          placement: 'CacheDisk'
+        }
+        deleteOption: 'Delete'
+      }
+      imageReference: {
+        publisher: 'Canonical'
+        offer: '0001-com-ubuntu-server-focal'
+        sku: '20_04-lts-gen2'
+        version: 'latest'
+      }
+      dataDisks: []
+    }
+    additionalCapabilities: {
+      hibernationEnabled: false
+      ultraSSDEnabled: false
+    }
+    applicationProfile: {
+      galleryApplications: []
+    }
+    availabilitySet: {}
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: true
+        storageUri: null
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nicVmSpokeOneLinux.id
+          properties: {
+            deleteOption: 'Delete'
+            primary: true
+          }
+        }
+      ]
+    }
+    osProfile: {
+      adminUsername: adminUsername
+      adminPassword: adminPassword
+      linuxConfiguration: {
+        disablePasswordAuthentication: false
+        patchSettings: {
+          patchMode: 'ImageDefault'
+        }
+      }
+    }
+    priority: 'Regular'
   }
 }
 
@@ -884,6 +1086,10 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2022-01-01' = {
     ]
   }
 
+  resource snetResources 'subnets@2022-01-01' existing = {
+    name: 'snet-resources'
+  }
+
   // Peer to regional hub (hub to spoke peering is in the hub resource)
   resource peerToHub 'virtualNetworkPeerings@2022-01-01' = {
     name: 'to_${vnetHub.name}'
@@ -912,189 +1118,3 @@ resource vnetSpokeTwo_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
     ]
   }
 }
-
-
-
-
-
-/*
-
-
-
-resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, windowsVMCount): {
-  name: '${nicNameWindows}${i + 1}'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: '${vnetSpoke.id}/subnets/${spokeNetwork.subnetName}'
-          }
-        }
-      }
-    ]
-  }
-}]
-
-resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWindows}${i + 1}'
-  location: location
-  dependsOn: [
-    nicNameWindowsResource
-  ]
-  properties: {
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: vmNameWindows
-      adminUsername: adminUserName
-      adminPassword: adminPassword
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: windowsOSVersion
-        version: 'latest'
-      }
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${nicNameWindows}${i + 1}')
-        }
-      ]
-    }
-  }
-}]
-
-resource nicNameLinuxResource 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, linuxVMCount): {
-  name: '${nicNameLinux}${i + 1}'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: '${vnetSpoke.id}/subnets/${spokeNetwork.subnetName}'
-          }
-        }
-      }
-    ]
-  }
-}]
-
-resource vmNameLinuxResource 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, linuxVMCount): {
-  name: '${vmNameLinux}${i + 1}'
-  location: location
-  dependsOn: [
-    nicNameLinuxResource
-  ]
-  properties: {
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: vmNameLinux
-      adminUsername: adminUserName
-      adminPassword: adminPassword
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: 'Canonical'
-        offer: 'UbuntuServer'
-        sku: osVersion
-        version: 'latest'
-      }
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${nicNameLinux}${i + 1}')
-        }
-      ]
-    }
-  }
-}]
-
-resource pipVpnGatewayResource 'Microsoft.Network/publicIPAddresses@2019-11-01' = if (deployVpnGateway) {
-  name: vpnGateway.pipName
-  location: location
-  properties: {
-    publicIPAllocationMethod: 'Dynamic'
-  }
-}
-
-resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2019-11-01' = if (deployVpnGateway) {
-  name: vpnGateway.name
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', hubNetwork.name, vpnGateway.subnetName)
-          }
-          publicIPAddress: {
-            id: pipVpnGatewayResource.id
-          }
-        }
-        name: 'vnetGatewayConfig'
-      }
-    ]
-    sku: {
-      name: 'Basic'
-      tier: 'Basic'
-    }
-    gatewayType: 'Vpn'
-    vpnType: 'RouteBased'
-    enableBgp: false
-  }
-  dependsOn: [
-    vnetHub
-  ]
-}
-
-resource vpnGatewayAnalytics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = if (deployVpnGateway) {
-  scope: vpnGatewayResource
-  name: '${vpnGateway.name}default${laHub.name}'
-  properties: {
-    workspaceId: laHub.id
-    logs: [
-      {
-        category: 'GatewayDiagnosticLog'
-        enabled: true
-      }
-      {
-        category: 'TunnelDiagnosticLog'
-        enabled: true
-      }
-      {
-        category: 'RouteDiagnosticLog'
-        enabled: true
-      }
-      {
-        category: 'IKEDiagnosticLog'
-        enabled: true
-      }
-      {
-        category: 'P2SDiagnosticLog'
-        enabled: true
-      }
-    ]
-  }
-}
-*/
