@@ -3,7 +3,8 @@ targetScope = 'resourceGroup'
 /*** PARAMETERS ***/
 
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones.')
-@minLength(4)
+@minLength(6)
+/* Ideally we'd include this limitation, but since we want to default to the resource group's location, we cannot.
 @allowed([
   'brazilsouth'
   'canadacentral'
@@ -29,10 +30,10 @@ targetScope = 'resourceGroup'
   'koreacentral'
   'southeastasia'
   'eastasia'
-])
-param location string
+])*/
+param location string = resourceGroup().location
 
-@description('Set to true to include a basic VPN Gateway deployment into the hub. Set to false to leave network space for a VPN Gateway, but do not deploy one. Default is false.')
+@description('Set to true to include a basic VPN Gateway deployment into the hub. Set to false to leave network space for a VPN Gateway, but do not deploy one. Default is false. Note deploying VPN gateways can take significant time.')
 param deployVpnGateway bool = false
 
 @description('Set to true to include one Windows and one Linux virtual machine for you to experience peering, gateway transit, and bastion access. Default is false.')
@@ -40,13 +41,13 @@ param deployVirtualMachines bool = false
 
 @minLength(4)
 @maxLength(20)
-@description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number.')
+@description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number. Only needed when providing deployVirtualMachines=true.')
 param adminUsername string = 'azureadmin'
 
 @secure()
-@minLength(12)
+// @minLength(12) -- Ideally we'd have this here, but to support the multiple varients we will remove it.
 @maxLength(70)
-@description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character.')
+@description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character. Must be at least 12 characters. Only needed when providing deployVirtualMachines=true.')
 param adminPassword string
 
 /*** VARIABLES ***/
@@ -724,9 +725,10 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' = if (depl
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
-    enableBgp: false
+    vpnGatewayGeneration: 'Generation2'
     ipConfigurations: [
       {
+        name: 'default'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
@@ -738,7 +740,6 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' = if (depl
         }
       }
     ]
-    natRules: []
   }
 }
 

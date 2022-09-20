@@ -38,6 +38,8 @@ Create a resource group for the deployment.
 az group create --name hub-spoke --location eastus
 ```
 
+> The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means  if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
+
 **Basic deployment**
 
 Run the following command to initiate the deployment. If you would like to also deploy this sample with virtual machines and / or an Azure VPN gateway, see the `az deployment group create` examples found later in this document.
@@ -50,42 +52,46 @@ az deployment group create \
 
 **Deploy with virtual machines**
 
-Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network.
+Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a Windows VM deployed to the second spoke network.
 
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2023! linuxVMCount=1 windowsVMCount=1
+    --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023!
 ```
 
 **Deploy with VPN gateway**
 
-Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a virtual network gateway deployed into the hub virtual network.
+Run the following command to initiate the deployment with a virtual network gateway deployed into the hub virtual network. Note, VPN gateways take a significant time to deploy.
 
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
-    --parameters adminPassword=Password2023! linuxVMCount=1 windowsVMCount=1 deployVpnGateway=true
+    --parameters deployVpnGateway=true
+```
+
+**Deploy with virtual machines and a VPN gateway**
+
+Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a Windows VM deployed to the second spoke network.
+
+```azurecli-interactive
+az deployment group create \
+    --resource-group hub-spoke \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
+    --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023! deployVpnGateway=true
 ```
 
 ## Solution deployment parameters
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
-| windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 0 |
-| linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 0 |
-| adminUserName | string | If deploying virtual machines, the admin user name. | null |
-| adminPassword | securestring | If deploying virtual machines, the admin password. | null |
-| deployVpnGateway | bool | If true, a virtual network gateway is deployed into the hub network (30 min deployment). | false |
-| hubNetwork | object | Network configuration for the hub virtual network. | [see template] |
-| spokeOneNetwork | object | Network configuration for the first spoke virtual network. | [see template] |
-| spokeTwoNetwork | object | Network configuration for the second spoke virtual network. | [see template] |
-| vpnGateway | object | Network configuration for the vpn gateway. | [see template] |
-| bastionHost | object | Configuration for the Bastion host. | [see template] |
-| azureFirewall | object | Network configuration for the firewall instance. | [see template] |
-| location | string | Deployment location. | resourceGroup().location | 
+| `location` | string | Deployment location. Location must support availability zones. | `resourceGroup().location` | 
+| `deployVirtualMachines` | bool | If true, deploys one basic Linux virtual machine to spoke one and one basic Windows virtual machine to spoke two. | `false` |
+| `adminUserName` | string | If deploying virtual machines, the admin user name for both VMs. | `azureadmin` |
+| `adminPassword` | securestring | If deploying virtual machines, the admin password for both VMs. | `null` |
+| `deployVpnGateway` | bool | If true, a virtual network gateway is deployed into the hub network (+30 min deployment). | `false` |
 
 ## Diagnostic configurations
 
@@ -97,7 +103,11 @@ The following resources are configured to send diagnostic logs to the included L
 - Azure Firewall
 - Azure Bastion
 
-Note, this deployment includes optional virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-linux).
+Note, this deployment includes optional basic virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-linux).
+
+## Bicep implementation
+
+The links above use JSON Azure Resource Manager (ARM) templates to support network referencing. The ARM templates were generated from the following [source bicep file](https://github.com/mspnp/samples/blob/main/solutions/azure-hub-spoke/bicep/main.bicep), which has additional comments and considerations.
 
 ## Microsoft Open Source Code of Conduct
 
