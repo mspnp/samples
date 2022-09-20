@@ -499,7 +499,36 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
     ]
     properties: {
       priority: 300
-      ruleCollections: []
+      ruleCollections: [ 
+        {
+          ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
+          name: 'org-wide-allowed'
+          priority: 100
+          action: {
+            type: 'Allow'
+          }
+          rules: deployVirtualMachines ? [
+            {
+              ruleType: 'ApplicationRule'
+              name: 'WindowsVirtualMachineHealth'
+              description: 'Supports Windows Updates and Windows Diagnostics'
+              fqdnTags: [
+                'WindowsDiagnostics'
+                'WindowsUpdate'
+              ]
+              protocols: [
+                {
+                  protocolType: 'Https'
+                  port: 443
+                }
+              ]
+              sourceAddresses: [
+                '10.200.0.0/24' // The subnet that contains the Windows VMs
+              ]
+            }
+          ] : []
+        }
+      ]
     }
   }
 }
