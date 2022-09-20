@@ -32,20 +32,21 @@ targetScope = 'resourceGroup'
 ])
 param location string
 
-
-
-
 @description('Set to true to include a basic VPN Gateway deployment into the hub. Set to false to leave network space for a VPN Gateway, but do not deploy one. Default is false.')
 param deployVpnGateway bool = false
 
+@description('Set to true to include one Windows and one Linux virtual machine for you to experience peering, gateway transit, and bastion access. Default is false.')
 param deployVirtualMachines bool = false
 
 @minLength(4)
-@maxLength(30)
+@maxLength(20)
+@description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number.')
 param adminUsername string = 'azureadmin'
 
 @secure()
-@minLength(8)
+@minLength(12)
+@maxLength(70)
+@description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character.')
 param adminPassword string
 
 /*** VARIABLES ***/
@@ -319,7 +320,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
     name: 'AzureBastionSubnet'
   }
 
-  resource gatewaySubnet 'subnets' existing = if (deployVpnGateway) {
+  resource gatewaySubnet 'subnets' existing = {
     name: 'GatewaySubnet'
   }
 
@@ -693,14 +694,8 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' = if (depl
       tier: 'VpnGw2AZ'
     }
     gatewayType: 'Vpn'
-    vpnGatewayGeneration: 'Generation2'
     vpnType: 'RouteBased'
-    activeActive: false
-    disableIPSecReplayProtection: false
     enableBgp: false
-    enableBgpRouteTranslationForNat: false
-    enableDnsForwarding: false
-    enablePrivateIpAddress: false
     ipConfigurations: [
       {
         properties: {
@@ -910,6 +905,9 @@ resource vnetSpokeOne 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           }
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Disabled'
+          routeTable: {
+            id: routeNextHopToFirewall.id
+          }
         }
       }
       {
@@ -921,12 +919,15 @@ resource vnetSpokeOne 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           }
           privateEndpointNetworkPolicies: 'Enabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
+          routeTable: {
+            id: routeNextHopToFirewall.id
+          }
         }
       }
     ]
   }
 
-  resource snetResources 'subnets@2022-01-01' existing = {
+  resource snetResources 'subnets' existing = {
     name: 'snet-resources'
   }
 
@@ -959,9 +960,9 @@ resource vnetSpokeOne_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
   }
 }
 
-@description("The private Network Interface Card for the linux VM)
-resource nicVmSpokeOneLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = if(deployVirtualMachines) {
-  name: 'nic-vm-spoke-one-linux'
+@description('The private Network Interface Card for the linux VM in spoke one.')
+resource nicVmSpokeOneLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = if (deployVirtualMachines) {
+  name: 'nic-vm-${location}-spoke-one-linux'
   location: location
   properties: {
     ipConfigurations: [
@@ -979,12 +980,24 @@ resource nicVmSpokeOneLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = i
   }
 }
 
-resource vmSpokeOneLinux 'Microsoft.Compute/virtualMachines@2022-03-01' = if(deployVirtualMachines) {
-  name: 'vm-spoke-one-linux'
+resource nicVmSpokeOneLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nicVmSpokeOneLinux
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('A basic Linux virtual machine that will be attached to spoke one.')
+resource vmSpokeOneLinux 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMachines) {
+  name: 'vm-${location}-spoke-one-linux'
   location: location
-  zones: [
-    '1'
-  ]
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_D2ds_v4'
@@ -1010,14 +1023,6 @@ resource vmSpokeOneLinux 'Microsoft.Compute/virtualMachines@2022-03-01' = if(dep
       }
       dataDisks: []
     }
-    additionalCapabilities: {
-      hibernationEnabled: false
-      ultraSSDEnabled: false
-    }
-    applicationProfile: {
-      galleryApplications: []
-    }
-    availabilitySet: {}
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: true
@@ -1036,12 +1041,14 @@ resource vmSpokeOneLinux 'Microsoft.Compute/virtualMachines@2022-03-01' = if(dep
       ]
     }
     osProfile: {
+      computerName: 'examplevm'
       adminUsername: adminUsername
       adminPassword: adminPassword
       linuxConfiguration: {
         disablePasswordAuthentication: false
         patchSettings: {
           patchMode: 'ImageDefault'
+          assessmentMode: 'ImageDefault'
         }
       }
     }
@@ -1070,6 +1077,9 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           }
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Disabled'
+          routeTable: {
+            id: routeNextHopToFirewall.id
+          }
         }
       }
       {
@@ -1081,12 +1091,15 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           }
           privateEndpointNetworkPolicies: 'Enabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
+          routeTable: {
+            id: routeNextHopToFirewall.id
+          }
         }
       }
     ]
   }
 
-  resource snetResources 'subnets@2022-01-01' existing = {
+  resource snetResources 'subnets' existing = {
     name: 'snet-resources'
   }
 
@@ -1116,5 +1129,98 @@ resource vnetSpokeTwo_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
         enabled: true
       }
     ]
+  }
+}
+
+@description('The private Network Interface Card for the Windows VM in spoke two.')
+resource nicVmSpokeTwoLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = if (deployVirtualMachines) {
+  name: 'nic-vm-${location}-spoke-two-windows'
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'default'
+        properties: {
+          subnet: {
+            id: vnetSpokeTwo::snetResources.id
+          }
+          privateIPAllocationMethod: 'Dynamic'
+        }
+      }
+    ]
+    enableAcceleratedNetworking: true
+  }
+}
+
+resource nicVmSpokeTwoLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nicVmSpokeTwoLinux
+  name: 'to-hub-la'
+  properties: {
+    workspaceId: laHub.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
+@description('A basic Windows virtual machine that will be attached to spoke two.')
+resource vmSpokeTwoWindows 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMachines) {
+  name: 'vm-${location}-spoke-two-windows'
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_D2s_v3'
+    }
+    storageProfile: {
+      osDisk: {
+        createOption: 'FromImage'
+        caching: 'ReadWrite'
+        managedDisk: {
+          storageAccountType: 'Premium_LRS'
+        }
+        deleteOption: 'Delete'
+      }
+      imageReference: {
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: '2022-datacenter-azure-edition'
+        version: 'latest'
+      }
+      dataDisks: []
+    }
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: true
+        storageUri: null
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nicVmSpokeTwoLinux.id
+          properties: {
+            deleteOption: 'Delete'
+            primary: true
+          }
+        }
+      ]
+    }
+    osProfile: {
+      computerName: 'examplevm'
+      adminUsername: adminUsername
+      adminPassword: adminPassword
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+        provisionVMAgent: true
+        patchSettings: {
+          patchMode: 'AutomaticByOS'
+          assessmentMode: 'ImageDefault'
+        }
+      }
+    }
+    priority: 'Regular'
   }
 }
