@@ -14,11 +14,6 @@ description: This sample deploys Azure virtual networks in a hub and spoke confi
 
 # Hub and spoke deployment
 
-| Deployment | Status |
-|---|---|
-| ARM Template | [![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/hub-and-spoke?branchName=main)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3727&branchName=main) |
-| Bicep Template | [![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/hub-spoke-bastion-bicep?branchName=main)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3729&branchName=main) |
-
 This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
@@ -54,6 +49,9 @@ az deployment group create \
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a Windows VM deployed to the second spoke network.
 
+| :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind.  Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
+|-----------|:--------------------------|
+
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
@@ -75,6 +73,9 @@ az deployment group create \
 **Deploy with virtual machines and a VPN gateway**
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a Windows VM deployed to the second spoke network.
+
+| :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind.  Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
+|-----------|:--------------------------|
 
 ```azurecli-interactive
 az deployment group create \
