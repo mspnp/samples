@@ -1,4 +1,6 @@
-# patterns & practices Samples  
+# patterns & practices Samples
+
+This repo contains various samples and references used in the Azure Architecture Center and elsewhere.
 
 ---
 ## Microsoft Open Source Code of Conduct
