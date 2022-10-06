@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.10.61.36676",
-      "templateHash": "8098904774099552204"
+      "version": "0.11.1.770",
+      "templateHash": "13320210290143748634"
     }
   },
   "parameters": {
@@ -1137,6 +1137,7 @@
       }
     },
     {
+      "condition": "[parameters('deployVirtualMachines')]",
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2021-05-01-preview",
       "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('nic-vm-{0}-spoke-one-linux', parameters('location')))]",
@@ -1319,6 +1320,7 @@
       }
     },
     {
+      "condition": "[parameters('deployVirtualMachines')]",
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2021-05-01-preview",
       "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('nic-vm-{0}-spoke-two-windows', parameters('location')))]",
