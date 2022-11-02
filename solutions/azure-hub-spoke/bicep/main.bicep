@@ -801,7 +801,7 @@ resource connectivityConfiguration 'Microsoft.Network/networkManagers/connectivi
   parent: networkManager
   dependsOn: [
     networkManager::networkGroup::staticMembersSpokeOne
-    networkManager::networkGroup::staticMembersSpokeOne
+    networkManager::networkGroup::staticMembersSpokeTwo
   ]
   properties: {
     description: 'Spoke-to-spoke connectivity configuration'
@@ -817,7 +817,7 @@ resource connectivityConfiguration 'Microsoft.Network/networkManagers/connectivi
     hubs: [ 
       {
         resourceId: vnetHub.id
-        resourceType: '"Microsoft.Network/virtualNetworks'
+        resourceType: 'Microsoft.Network/virtualNetworks'
       } 
     ]
     isGlobal: 'False'
