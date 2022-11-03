@@ -42,6 +42,12 @@ param deployVirtualMachines bool = false
 @description('Set to true to deploy an Azure Virtual Networking Manager (AVNM) instance and a Connected Group to implement direct spoke-to-spoke connectivity. Default is false.')
 param deployAvnm bool = false
 
+@description('Set to true to deploy Azure Bastion. Default is true')
+param deployAzureBastion bool = true
+
+@description('Set to true to deploy an Azure Firewall. Default is true.')
+param deployAzureFirewall bool = true
+
 @minLength(4)
 @maxLength(20)
 @description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number. Only needed when providing deployVirtualMachines=true.')
@@ -336,7 +342,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   // be handled via Azure Policy or Portal. How virtual networks are peered  might
   // vary from organization to organization. This example simply does it in the most
   // direct way to simplify ease of deployment.
-  resource peerToSpokeOne 'virtualNetworkPeerings@2022-01-01' = {
+  resource peerToSpokeOne 'virtualNetworkPeerings@2022-01-01' = if (!deployAvnm) {
     name: 'to_${vnetSpokeOne.name}'
     dependsOn: [
       vnetSpokeOne::peerToHub // This artificially waits until the spoke peers with the hub first to control order of operations.
@@ -353,7 +359,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   }
 
   // Connect regional hub back to spoke one (created later below).
-  resource peerToSpokeTwo 'virtualNetworkPeerings@2022-01-01' = {
+  resource peerToSpokeTwo 'virtualNetworkPeerings@2022-01-01' = if(!deployAvnm) {
     name: 'to_${vnetSpokeTwo.name}'
     dependsOn: [
       vnetSpokeTwo::peerToHub // This artificially waits until the spoke peers with the hub first to control order of operations.
@@ -386,7 +392,7 @@ resource vnetHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-
 
 // Allocate three IP addresses to the firewall
 var numFirewallIpAddressesToAssign = 3
-resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2022-01-01' = [for i in range(0, numFirewallIpAddressesToAssign): {
+resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2022-01-01' = [for i in range(0, numFirewallIpAddressesToAssign): if (deployAzureFirewall) {
   name: 'pip-fw-${location}-${padLeft(i, 2, '0')}'
   location: location
   sku: {
@@ -404,7 +410,7 @@ resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2022-01-01' = [f
   }
 }]
 
-resource pipsAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for i in range(0, numFirewallIpAddressesToAssign): {
+resource pipsAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = [for i in range(0, numFirewallIpAddressesToAssign): if (deployAzureFirewall) {
   name: 'to-hub-la'
   scope: pipsAzureFirewall[i]
   properties: {
@@ -425,7 +431,7 @@ resource pipsAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSetti
 }]
 
 @description('Azure Firewall Policy')
-resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
+resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = if (deployAzureFirewall) {
   name: 'fw-policies-${location}'
   location: location
   properties: {
@@ -456,7 +462,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
   // This network hub starts out with only supporting external DNS queries. This is only being done for
   // simplicity in this deployment and is not guidance, please ensure all firewall rules are aligned with
   // your security standards.
-  resource defaultNetworkRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = {
+  resource defaultNetworkRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = if (deployAzureFirewall) {
     name: 'DefaultNetworkRuleCollectionGroup'
     properties: {
       priority: 200
@@ -496,7 +502,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
   }
 
   // Network hub starts out with no allowances for appliction rules
-  resource defaultApplicationRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = {
+  resource defaultApplicationRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = if (deployAzureFirewall) {
     name: 'DefaultApplicationRuleCollectionGroup'
     dependsOn: [
       defaultNetworkRuleCollectionGroup
@@ -538,7 +544,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
 }
 
 @description('This is the regional Azure Firewall that all regional spoke networks can egress through.')
-resource fwHub 'Microsoft.Network/azureFirewalls@2022-01-01' = {
+resource fwHub 'Microsoft.Network/azureFirewalls@2022-01-01' = if (deployAzureFirewall) {
   name: 'fw-${location}'
   location: location
   zones: [
@@ -574,7 +580,7 @@ resource fwHub 'Microsoft.Network/azureFirewalls@2022-01-01' = {
   }
 }
 
-resource fwHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource fwHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployAzureFirewall) {
   name: 'to-hub-la'
   scope: fwHub
   properties: {
@@ -594,8 +600,9 @@ resource fwHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05
   }
 }
 
+
 @description('The public IP for the regional hub\'s Azure Bastion service.')
-resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2022-01-01' = if (deployAzureBastion) {
   name: 'pip-ab-${location}'
   location: location
   sku: {
@@ -613,7 +620,7 @@ resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   }
 }
 
-resource pipAzureBastion_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource pipAzureBastion_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployAzureBastion) {
   name: 'to-hub-la'
   scope: pipAzureBastion
   properties: {
@@ -634,7 +641,7 @@ resource pipAzureBastion_diagnosticSetting 'Microsoft.Insights/diagnosticSetting
 }
 
 @description('This regional hub\'s Azure Bastion service. NSGs are configured to allow Bastion to reach any resource subnet in peered spokes.')
-resource azureBastion 'Microsoft.Network/bastionHosts@2022-01-01' = {
+resource azureBastion 'Microsoft.Network/bastionHosts@2022-01-01' = if (deployAzureBastion) {
   name: 'ab-${location}-${suffix}'
   location: location
   sku: {
@@ -658,7 +665,7 @@ resource azureBastion 'Microsoft.Network/bastionHosts@2022-01-01' = {
   }
 }
 
-resource azureBastion_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource azureBastion_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployAzureBastion) {
   name: 'to-hub-la'
   scope: azureBastion
   properties: {
@@ -814,6 +821,7 @@ resource connectivityConfiguration 'Microsoft.Network/networkManagers/connectivi
       }
     ]
     connectivityTopology: 'HubAndSpoke'
+    deleteExistingPeering: 'True'
     hubs: [ 
       {
         resourceId: vnetHub.id
@@ -824,10 +832,139 @@ resource connectivityConfiguration 'Microsoft.Network/networkManagers/connectivi
   }
 }
 
+@description('This user assigned identity is used by the Deployment Script resource to interact with Azure resources.')
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = if (deployAvnm) {
+  name: 'uai-${location}-${suffix}'
+  location: location
+}
+
+@description('This role assignment grants the user assignmed identity the Contributor role on the resource group.')
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (deployAvnm) {
+  name: guid(resourceGroup().id, userAssignedIdentity.name)
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635') // Contributor
+    principalId: userAssignedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+@description('Create a Deployment Script resource to perform the deployment of the Network Manager connectivity configuration.')
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (deployAvnm) {
+  name: 'ds-${location}-${suffix}'
+  location: location
+  kind: 'AzurePowerShell'
+  dependsOn: [
+    roleAssignment
+  ]
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userAssignedIdentity.id}': {}
+    }
+  }
+  properties: {
+    cleanupPreference: 'OnExpiration'
+    azPowerShellVersion: '8.3'
+    retentionInterval: 'PT1H'
+    timeout: 'PT1H'
+    arguments: '-uri "${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkManagers/${networkManager.name}/commit?api-version=2022-05-01" -location ${location} -connectivityConfigId ${connectivityConfiguration.id} -subscriptionId ${subscription().subscriptionId} -resourceManagerURL ${environment().resourceManager}'
+    scriptContent: '''
+    param (
+      $resourceGroup,
+      $subscriptionId,
+      $networkManagerName,
+      $resourceManagerURL,
+      $connectivityConfigId,
+      $location,
+      [string]$uri
+    )
+    
+    $DeploymentScriptOutputs = @{}
+    $DeploymentScriptOutputs['text'] = ''
+
+    $null = Login-AzAccount -Identity -Subscription $subscriptionId
+    $token = ConvertTo-SecureString -Force -AsPlainText (Get-AzAccessToken -ResourceUrl $resourceManagerURL).Token
+
+    $body = "{ `
+      `"commitType`": `"Connectivity`", `
+      `"configurationIds`": [`"$connectivityConfigId`"], `
+      `"targetLocations`": [`"$location`"] `
+    }"
+
+    $result = Invoke-RestMethod -Method POST -Authentication Bearer -Token $token -URI "$uri" -Body $body -ContentType 'application/json' -ResponseHeadersVariable responseHeaders -StatusCodeVariable statusCode
+
+    $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($statusCode)`n"
+    $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n"
+    
+    If ($statusCode -ne 202) {
+        throw "Failed to commit connectivity configuration. Status code: $statusCode"
+        exit 1
+    }
+    Else {
+      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+      $timeout = New-TimeSpan -Seconds 300
+        do {
+          $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n"
+            Start-Sleep -Seconds 1
+            $result = Invoke-AzRestMethod -Method GET -Uri $responseHeaders['Location'][0]
+        }
+        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))
+
+        If ($timedOut) {
+          $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for deployment timed out...`n"
+          throw "Waiting for deployment timed out!"
+          exit 1
+        }
+        Else {
+          $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n"
+        }
+    }
+
+    # check deployment status
+    $body = "{ `
+    `"deploymentTypes`": `"Connectivity`", `
+    `"regions`": [`"$location`"] `
+    }"
+
+    $uri = $uri.Replace('commit', 'listDeploymentStatus')
+    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body
+
+    If ($result.statusCode -eq 200) {
+      $content = $result.Content | ConvertFrom-Json -Depth 10
+
+      If ($content.value[0].deploymentStatus -eq 'Deploying') {
+        $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n"
+
+        While ($content.value[0].deploymentStatus -eq 'Deploying') {
+          $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n"
+          Start-Sleep -Seconds 1
+          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body
+          $content = $result.Content | ConvertFrom-Json -Depth 10
+        }
+      }
+      If ($content.value[0].deploymentStatus -eq 'Failed') {
+        $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n"
+        throw "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'"
+        exit 1
+      }
+      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {
+        $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n"
+      }
+      Else {
+        $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled`n"
+        throw "ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled"
+        exit 1
+      }
+    }
+
+    '''
+    }
+}
+
 /*** RESOURCES (ALL SPOKES) ***/
 
 @description('Next hop to the regional hub\'s Azure Firewall')
-resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2022-01-01' = {
+resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2022-01-01' = if (deployAzureFirewall) {
   name: 'route-to-${location}-hub-fw'
   location: location
   properties: {
