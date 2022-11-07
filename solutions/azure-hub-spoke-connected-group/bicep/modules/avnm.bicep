@@ -102,7 +102,8 @@ resource connectivityConfigurationNonProd 'Microsoft.Network/networkManagers/con
     networkManager::networkGroupNonProd::staticMembersSpokeTwo
   ]
   properties: {
-    description: 'Spoke-to-spoke connectivity configuration'
+    description: 'Non-prod poke-to-spoke connectivity configuration'
+    displayName: 'Non-prod Spoke-to-Spoke Connectivity'
     appliesToGroups: [
       {
         networkGroupId: networkManager::networkGroupNonProd.id
@@ -132,7 +133,8 @@ resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connec
     networkManager::networkGroupProd::staticMembersSpokeTwo
   ]
   properties: {
-    description: 'Spoke-to-spoke connectivity configuration'
+    description: 'Prod spoke-to-spoke connectivity configuration (through hub)'
+    displayName: 'Prod Spoke-to-Spoke Connectivity'
     appliesToGroups: [
       {
         networkGroupId: networkManager::networkGroupProd.id
@@ -169,32 +171,21 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
-module deploymentScriptConnectivityNonProd './avnmDeploymentScript.bicep' = {
-  name: 'ds-${location}-nonprod'
+//
+// In order to deploy a Connectivity or Security configruation, the /commit endpoint must be called or a Deployment created in the Portal. 
+// This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
+//
+module deploymentScriptConnectivityConfigs './avnmDeploymentScript.bicep' = {
+  name: 'ds-${location}-connectivityconfigs'
   dependsOn: [
     roleAssignment
   ]
   params: {
     location: location
     userAssignedIdentityId: userAssignedIdentity.id
-    configurationId: connectivityConfigurationNonProd.id
+    configurationIds: '${connectivityConfigurationProd.id},${connectivityConfigurationNonProd.id}' // each configuration separated by a semicolon
     configType: 'Connectivity'
     networkManagerName: networkManager.name
-    deploymentScriptName: 'ds-${location}-nonprod'
-  }
-}
-
-module deploymentScriptConnectivityProd './avnmDeploymentScript.bicep' = {
-  name: 'ds-${location}-prod'
-  dependsOn: [
-    roleAssignment
-  ]
-  params: {
-    location: location
-    userAssignedIdentityId: userAssignedIdentity.id
-    configurationId: connectivityConfigurationProd.id
-    configType: 'Connectivity'
-    networkManagerName: networkManager.name
-    deploymentScriptName: 'ds-${location}-prod'
+    deploymentScriptName: 'ds-${location}-connectivityconfigs'
   }
 }

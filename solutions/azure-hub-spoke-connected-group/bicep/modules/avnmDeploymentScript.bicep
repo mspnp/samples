@@ -1,7 +1,7 @@
 param location string
 param userAssignedIdentityId string
 param networkManagerName string
-param configurationId string
+param configurationIds string
 param deploymentScriptName string
 @allowed([
   'Connectivity'
@@ -24,14 +24,14 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     azPowerShellVersion: '8.3'
     retentionInterval: 'PT1H'
     timeout: 'PT1H'
-    arguments: '-uri "${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkManagers/${networkManagerName}/commit?api-version=2022-05-01" -location ${location} -configId ${configurationId} -subscriptionId ${subscription().subscriptionId} -resourceManagerURL ${environment().resourceManager} -configType ${configType}'
+    arguments: '-uri "${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkManagers/${networkManagerName}/commit?api-version=2022-05-01" -location ${location} -configIds ${configurationIds} -subscriptionId ${subscription().subscriptionId} -resourceManagerURL ${environment().resourceManager} -configType ${configType}'
     scriptContent: '''
     param (
       $resourceGroup,
       $subscriptionId,
       $networkManagerName,
       $resourceManagerURL,
-      $configId,
+      $configIds,
       $location,
       $configType,
       [string]$uri
@@ -41,11 +41,15 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     $DeploymentScriptOutputs['text'] = ''
 
     $null = Login-AzAccount -Identity -Subscription $subscriptionId
+
+    $configsJson = ($configIds.split(',') | foreach-object {
+      "`"$_`""
+    }) -join ','
     
     ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###
     $body = "{ `
       `"commitType`": `"$configType`", `
-      `"configurationIds`": [`"$configId`"], `
+      `"configurationIds`": [$configsJson], `
       `"targetLocations`": [`"$location`"] `
     }"
 
