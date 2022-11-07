@@ -138,7 +138,7 @@ resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connec
         networkGroupId: networkManager::networkGroupProd.id
         isGlobal: 'False'
         useHubGateway: string(deployVpnGateway)
-        groupConnectivity: 'NotConnected'
+        groupConnectivity: 'None'
       }
     ]
     connectivityTopology: 'HubAndSpoke'
@@ -180,6 +180,7 @@ module deploymentScriptConnectivityNonProd './avnmDeploymentScript.bicep' = {
     configurationId: connectivityConfigurationNonProd.id
     configType: 'Connectivity'
     networkManagerName: networkManager.name
+    deploymentScriptName: 'ds-${location}-nonprod'
   }
 }
 
@@ -194,5 +195,6 @@ module deploymentScriptConnectivityProd './avnmDeploymentScript.bicep' = {
     configurationId: connectivityConfigurationProd.id
     configType: 'Connectivity'
     networkManagerName: networkManager.name
+    deploymentScriptName: 'ds-${location}-prod'
   }
 }

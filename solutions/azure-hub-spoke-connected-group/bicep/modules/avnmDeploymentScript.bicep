@@ -2,6 +2,7 @@ param location string
 param userAssignedIdentityId string
 param networkManagerName string
 param configurationId string
+param deploymentScriptName string
 @allowed([
   'Connectivity'
   'Security'
@@ -10,7 +11,7 @@ param configType string
 
 @description('Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration.')
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'ds-${location}'
+  name: deploymentScriptName
   location: location
   kind: 'AzurePowerShell'
   identity: {
@@ -23,7 +24,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     azPowerShellVersion: '8.3'
     retentionInterval: 'PT1H'
     timeout: 'PT1H'
-    arguments: '-uri "${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkManagers/${networkManagerName}/commit?api-version=2022-05-01" -location ${location} -onfigId ${configurationId} -subscriptionId ${subscription().subscriptionId} -resourceManagerURL ${environment().resourceManager} -configType ${configType}'
+    arguments: '-uri "${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkManagers/${networkManagerName}/commit?api-version=2022-05-01" -location ${location} -configId ${configurationId} -subscriptionId ${subscription().subscriptionId} -resourceManagerURL ${environment().resourceManager} -configType ${configType}'
     scriptContent: '''
     param (
       $resourceGroup,
@@ -54,7 +55,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n"
     
     If ($result.statusCode -ne 202) {
-        throw "Failed to commit connectivity configuration. Status code: '$($result.statusCode)'"
+        throw "Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'"
         exit 1
     }
     Else {
@@ -96,7 +97,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 
         While ($content.value[0].deploymentStatus -eq 'Deploying') {
           $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n"
-          Start-Sleep -Seconds 1
+          Start-Sleep -Seconds 10
           $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body
           $content = $result.Content | ConvertFrom-Json -Depth 10
         }
