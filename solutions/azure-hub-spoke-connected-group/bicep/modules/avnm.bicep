@@ -171,6 +171,42 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
+@description('This is the security group assigned to the AVNM')
+resource securityGroup 'Microsoft.Network/networkManagers/securityGroups@2022-05-01' = {
+  name: 'sg-${location}'
+  parent: networkManager
+  properties: {
+    description: 'Security Group for AVNM'
+    displayName: 'AVNM Security Group'
+    isGlobal: 'True'
+    
+    securityRules:[
+      {
+        name: 'Allow-All-Internet'
+        targetnetworkGroupId: networkManager::networkGroupAll.id
+        priority: 100
+        action: 'Allow'
+        direction: 'Inbound'
+        protocol: 'Any'
+        source: [ 
+        {
+          addressPrefixes: '*'
+          addressPrefixtype: 'Any'
+          sourcePortRanges: '*'
+        }
+      ]
+        destination: [
+          {
+          addressPrefixes: '*'
+          addressPrefixtype: 'Any'
+          destinationPortRanges: '*'
+        }
+      ]
+    }
+  ]
+}
+}
+         
 //
 // In order to deploy a Connectivity or Security configruation, the /commit endpoint must be called or a Deployment created in the Portal. 
 // This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
@@ -189,3 +225,5 @@ module deploymentScriptConnectivityConfigs './avnmDeploymentScript.bicep' = {
     deploymentScriptName: 'ds-${location}-connectivityconfigs'
   }
 }
+
+
