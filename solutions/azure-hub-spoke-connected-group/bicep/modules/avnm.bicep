@@ -171,6 +171,117 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
+@description('This is the securityadmin configuration assigned to the AVNM')
+resource securityGroup 'Microsoft.Network/networkManagers/securityAdminConfigurations@2022-05-01' = {
+  name: 'sg-${location}'
+  parent: networkManager
+   properties: {
+    applyOnNetworkIntentPolicyBasedServices: ['All'] 
+    description: 'Security Group for AVNM'
+     }
+  }
+
+@description('This is the rules collection for the security admin config assigned to the AVNM')
+resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2022-05-01' = {
+name: 'rc-${location}'
+parent: securityGroup
+properties: {
+  appliesToGroups: [
+     {
+      networkGroupId: networkManager::networkGroupAll.id
+     }
+   ]
+ }
+}
+
+@description('This is the rule is to Deny all TCP Rules')
+resource rule1 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+name: 'r-tcp-${location}'
+kind: 'Custom'
+parent: rulesCollection
+properties: {
+  access: 'Deny'
+  description: 'Denying TCP rules'
+  destinationPortRanges: ['*']
+  destinations: [
+          {
+            addressPrefix: '*'
+            addressPrefixType: 'IPPrefix'
+          }
+      ]
+  direction: 'Inbound'
+  priority: 100
+  protocol: 'TCP'
+  sourcePortRanges: ['20,21,22,23,69,119,161,445,512,514,873,3389,5800,5900']
+  sources: [
+          {
+            addressPrefix: '*'
+            addressPrefixType: 'IPPrefix'
+          }
+      ]  
+  }      
+}
+
+@description('This rule to deny inbound TCP/UDP rules')
+resource rule2 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+name: 'r-tcp-udp-${location}'
+kind: 'Custom'
+parent: rulesCollection
+properties: {
+  access: 'Deny'
+  description: 'Deny all TCP/UDP rules'
+  destinationPortRanges: ['*']
+  destinations: [
+          {
+            addressPrefix: '*'
+            addressPrefixType: 'IPPrefix'
+          }
+      ]
+  direction: 'Inbound'
+  priority: 100
+  protocol: 'TCP,UDP'
+  sourcePortRanges: ['11,135,162,593,2049']
+  sources: [
+          {
+            addressPrefix: '*'
+            addressPrefixType: 'IPPrefix'
+          }
+      ]  
+  }      
+}
+
+@description('This is the rule for the rules collection for the security admin config assigned to the AVNM')
+resource rule3 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+name: 'r-udp-${location}'
+kind: 'Custom'
+parent: rulesCollection
+properties: {
+  access: 'Deny'
+  description: 'Deny all UDP rules'
+  destinationPortRanges: ['*']
+  destinations: [
+          {
+            addressPrefix: '*'
+            addressPrefixType: 'IPPrefix'
+          }
+      ]
+  direction: 'Inbound'
+  priority: 100
+  protocol: 'UDP'
+  sourcePortRanges: ['69,11211']
+  sources: [
+          {
+            addressPrefix: '*'
+            addressPrefixType: 'IPPrefix'
+          }
+      ]  
+  }      
+}
+
+
+
+
+
 //
 // In order to deploy a Connectivity or Security configruation, the /commit endpoint must be called or a Deployment created in the Portal. 
 // This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
@@ -189,3 +300,5 @@ module deploymentScriptConnectivityConfigs './avnmDeploymentScript.bicep' = {
     deploymentScriptName: 'ds-${location}-connectivityconfigs'
   }
 }
+
+
