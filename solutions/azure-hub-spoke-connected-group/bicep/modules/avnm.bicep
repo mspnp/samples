@@ -11,6 +11,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
   properties: {
     networkManagerScopeAccesses: [
       'Connectivity'
+      'SecurityAdmin'
     ]
     networkManagerScopes: {
       subscriptions: [
@@ -172,11 +173,11 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 }
 
 @description('This is the securityadmin configuration assigned to the AVNM')
-resource securityGroup 'Microsoft.Network/networkManagers/securityAdminConfigurations@2022-05-01' = {
+resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigurations@2022-05-01' = {
   name: 'sg-${location}'
   parent: networkManager
    properties: {
-    applyOnNetworkIntentPolicyBasedServices: ['All'] 
+    applyOnNetworkIntentPolicyBasedServices: ['None'] 
     description: 'Security Group for AVNM'
      }
   }
@@ -184,7 +185,7 @@ resource securityGroup 'Microsoft.Network/networkManagers/securityAdminConfigura
 @description('This is the rules collection for the security admin config assigned to the AVNM')
 resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2022-05-01' = {
 name: 'rc-${location}'
-parent: securityGroup
+parent: securityConfig
 properties: {
   appliesToGroups: [
      {
@@ -202,7 +203,7 @@ parent: rulesCollection
 properties: {
   access: 'Deny'
   description: 'Denying TCP rules'
-  destinationPortRanges: ['*']
+  destinationPortRanges: ['20','21','22','23','69','119','161','445','512','514','873','3389','5800','5900']
   destinations: [
           {
             addressPrefix: '*'
@@ -212,7 +213,7 @@ properties: {
   direction: 'Inbound'
   priority: 100
   protocol: 'TCP'
-  sourcePortRanges: ['20,21,22,23,69,119,161,445,512,514,873,3389,5800,5900']
+  sourcePortRanges: ['0-65535']
   sources: [
           {
             addressPrefix: '*'
@@ -230,7 +231,7 @@ parent: rulesCollection
 properties: {
   access: 'Deny'
   description: 'Deny all TCP/UDP rules'
-  destinationPortRanges: ['*']
+  destinationPortRanges: ['11','135','162','593','2049']
   destinations: [
           {
             addressPrefix: '*'
@@ -238,9 +239,9 @@ properties: {
           }
       ]
   direction: 'Inbound'
-  priority: 100
+  priority: 101
   protocol: 'TCP,UDP'
-  sourcePortRanges: ['11,135,162,593,2049']
+  sourcePortRanges: ['0-65535']
   sources: [
           {
             addressPrefix: '*'
@@ -258,7 +259,7 @@ parent: rulesCollection
 properties: {
   access: 'Deny'
   description: 'Deny all UDP rules'
-  destinationPortRanges: ['*']
+  destinationPortRanges: ['69','11211']
   destinations: [
           {
             addressPrefix: '*'
@@ -266,9 +267,9 @@ properties: {
           }
       ]
   direction: 'Inbound'
-  priority: 100
+  priority: 102
   protocol: 'UDP'
-  sourcePortRanges: ['69,11211']
+  sourcePortRanges: ['0-65535']
   sources: [
           {
             addressPrefix: '*'
@@ -277,10 +278,6 @@ properties: {
       ]  
   }      
 }
-
-
-
-
 
 //
 // In order to deploy a Connectivity or Security configruation, the /commit endpoint must be called or a Deployment created in the Portal. 
@@ -301,4 +298,17 @@ module deploymentScriptConnectivityConfigs './avnmDeploymentScript.bicep' = {
   }
 }
 
-
+module deploymentScriptSecurityConfigs './avnmDeploymentScript.bicep' = {
+  name: 'ds-${location}-securityconfigs'
+  dependsOn: [
+    roleAssignment
+  ]
+  params: {
+    location: location
+    userAssignedIdentityId: userAssignedIdentity.id
+    configurationIds: securityConfig.id // each configuration separated by a semicolon
+    configType: 'SecurityAdmin'
+    networkManagerName: networkManager.name
+    deploymentScriptName: 'ds-${location}-securityconfigs'
+  }
+}
