@@ -39,9 +39,6 @@ param deployVpnGateway bool = false
 @description('Set to true to include one Windows and one Linux virtual machine for you to experience peering, gateway transit, and bastion access. Default is false.')
 param deployVirtualMachines bool = false
 
-@description('Set to true to deploy an Azure Virtual Networking Manager (AVNM) instance and a Connected Group to implement direct spoke-to-spoke connectivity. Default is false.')
-param deployAvnm bool = false
-
 @minLength(4)
 @maxLength(20)
 @description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number. Only needed when providing deployVirtualMachines=true.')
@@ -503,7 +500,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
     ]
     properties: {
       priority: 300
-      ruleCollections: [
+      ruleCollections: [ 
         {
           ruleCollectionType: 'FirewallPolicyFilterRuleCollection'
           name: 'org-wide-allowed'
@@ -669,6 +666,12 @@ resource azureBastion_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
         enabled: true
       }
     ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 
@@ -757,70 +760,6 @@ resource vgwHub_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05
         enabled: true
       }
     ]
-  }
-}
-
-@description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
-resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = if (deployAvnm) {
-  name: 'avnm-${location}-${suffix}'
-  location: location
-  properties: {
-    networkManagerScopeAccesses: [
-      'Connectivity'
-    ]
-    networkManagerScopes: {
-      subscriptions: [
-        '/subscriptions/${subscription().subscriptionId}'
-      ]
-      managementGroups: []
-    }
-  }
-  resource networkGroup 'networkGroups@2022-05-01' = {
-    name: 'ng-${location}-spokes'
-    properties: {
-      description: 'Spoke VNETs Network Group'
-    }
-    resource staticMembersSpokeOne 'staticMembers@2022-05-01' = {
-      name: 'sm-${location}-spokeone'
-      properties: {
-        resourceId: vnetSpokeOne.id
-      }
-    }
-    resource staticMembersSpokeTwo 'staticMembers@2022-05-01' = {
-      name: 'sm-${location}-spoketwo'
-      properties: {
-        resourceId: vnetSpokeTwo.id
-      }
-    }
-  }
-}
-
-@description('This connectivity configuration defines the connectivity between the spokes. Only deployed if requested.')
-resource connectivityConfiguration 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-05-01' = if (deployAvnm) {
-  name: 'cc-${location}-spokes'
-  parent: networkManager
-  dependsOn: [
-    networkManager::networkGroup::staticMembersSpokeOne
-    networkManager::networkGroup::staticMembersSpokeOne
-  ]
-  properties: {
-    description: 'Spoke-to-spoke connectivity configuration'
-    appliesToGroups: [
-      {
-        networkGroupId: networkManager::networkGroup.id
-        isGlobal: 'False'
-        useHubGateway: 'False'
-        groupConnectivity: 'DirectlyConnected'
-      }
-    ]
-    connectivityTopology: 'HubAndSpoke'
-    hubs: [ 
-      {
-        resourceId: vnetHub.id
-        resourceType: '"Microsoft.Network/virtualNetworks'
-      } 
-    ]
-    isGlobal: 'False'
   }
 }
 
@@ -1023,7 +962,7 @@ resource vnetSpokeOne 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   }
 
   // Peer to regional hub (hub to spoke peering is in the hub resource)
-  resource peerToHub 'virtualNetworkPeerings@2022-01-01' = if (!deployAvnm) {
+  resource peerToHub 'virtualNetworkPeerings@2022-01-01' = {
     name: 'to_${vnetHub.name}'
     properties: {
       allowForwardedTraffic: false
@@ -1071,7 +1010,7 @@ resource nicVmSpokeOneLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = i
   }
 }
 
-resource nicVmSpokeOneLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployVirtualMachines) {
+resource nicVmSpokeOneLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: nicVmSpokeOneLinux
   name: 'to-hub-la'
   properties: {
@@ -1195,7 +1134,7 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   }
 
   // Peer to regional hub (hub to spoke peering is in the hub resource)
-  resource peerToHub 'virtualNetworkPeerings@2022-01-01' = if (!deployAvnm) {
+  resource peerToHub 'virtualNetworkPeerings@2022-01-01' = {
     name: 'to_${vnetHub.name}'
     properties: {
       allowForwardedTraffic: false
@@ -1243,7 +1182,7 @@ resource nicVmSpokeTwoLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = i
   }
 }
 
-resource nicVmSpokeTwoLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployVirtualMachines) {
+resource nicVmSpokeTwoLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: nicVmSpokeTwoLinux
   name: 'to-hub-la'
   properties: {
