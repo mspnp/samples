@@ -9,12 +9,14 @@ products:
   - azure-virtual-network
   - azure-bastion
   - azure-vpn-gateway
-description: This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
+  - azure-virtual-network-manager
+  - azure-connected-groups
+description: This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
 ---
 
-# Hub and spoke deployment
+# Hub and spoke deployment with Connected Groups
 
-This sample deploys Azure virtual networks in a hub and spoke configuration. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed. 
+This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed.
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
@@ -42,7 +44,7 @@ Run the following command to initiate the deployment. If you would like to also 
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json
 ```
 
 **Deploy with virtual machines**
@@ -55,7 +57,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023!
 ```
 
@@ -66,7 +68,7 @@ Run the following command to initiate the deployment with a virtual network gate
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
     --parameters deployVpnGateway=true
 ```
 
@@ -80,7 +82,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke/azuredeploy.json \
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023! deployVpnGateway=true
 ```
 
@@ -93,6 +95,7 @@ az deployment group create \
 | `adminUserName` | string | If deploying virtual machines, the admin user name for both VMs. | `azureadmin` |
 | `adminPassword` | securestring | If deploying virtual machines, the admin password for both VMs. | `null` |
 | `deployVpnGateway` | bool | If true, a virtual network gateway is deployed into the hub network (+30 min deployment). | `false` |
+|`deployDefaultDenySecurityAdminRules`| bool | If false, the Azure Virtual Network Manager security rule collection is left empty | `true` |
 
 ## Diagnostic configurations
 
