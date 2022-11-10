@@ -42,6 +42,9 @@ param deployVirtualMachines bool = false
 @description('Set to true to deploy Azure Bastion. Default is true')
 param deployAzureBastion bool = true
 
+@description('Set to false to disable the deployment of some provided default deny AVNM security admin rules. Default is true.')
+param deployDefaultDenySecurityAdminRules bool = true
+
 @minLength(4)
 @maxLength(20)
 @description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number. Only needed when providing deployVirtualMachines=true.')
@@ -87,8 +90,8 @@ resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2022-01-01' = {
 }
 
 /*** RESOURCES (SPOKE ONE) ***/
-module spoke1nonprod 'modules/spoke.bicep' = {
-  name: 'spoke1'
+module spokenonprod1 'modules/spoke.bicep' = {
+  name: 'spokenonprod1'
   scope: resourceGroup()
   params: {
     location: location
@@ -96,7 +99,7 @@ module spoke1nonprod 'modules/spoke.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     routeTableId: routeNextHopToFirewall.id
-    spokeName: 'one'
+    spokeName: 'nonprod1'
     spokeVnetPrefix: '10.100.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
   }
@@ -104,8 +107,8 @@ module spoke1nonprod 'modules/spoke.bicep' = {
 
 
 /*** RESOURCES (SPOKE TWO) ***/
-module spoke2nonprod 'modules/spoke.bicep' = {
-  name: 'spoke2'
+module spokenonprod2 'modules/spoke.bicep' = {
+  name: 'spokenonprod2'
   scope: resourceGroup()
   params: {
     location: location
@@ -113,15 +116,15 @@ module spoke2nonprod 'modules/spoke.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     routeTableId: routeNextHopToFirewall.id
-    spokeName: 'two'
+    spokeName: 'nonprod2'
     spokeVnetPrefix: '10.101.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
   }
 }
 
 /*** RESOURCES (SPOKE THREE) ***/
-module spoke3prod 'modules/spoke.bicep' = {
-  name: 'spoke3'
+module spokeprod1 'modules/spoke.bicep' = {
+  name: 'spokeprod1'
   scope: resourceGroup()
   params: {
     location: location
@@ -129,15 +132,15 @@ module spoke3prod 'modules/spoke.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     routeTableId: routeNextHopToFirewall.id
-    spokeName: 'three'
+    spokeName: 'prod1'
     spokeVnetPrefix: '10.200.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
   }
 }
 
 /*** RESOURCES (SPOKE FOUR) ***/
-module spoke4prod 'modules/spoke.bicep' = {
-  name: 'spoke4'
+module spokeprod2 'modules/spoke.bicep' = {
+  name: 'spokeprod2'
   scope: resourceGroup()
   params: {
     location: location
@@ -145,13 +148,13 @@ module spoke4prod 'modules/spoke.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     routeTableId: routeNextHopToFirewall.id
-    spokeName: 'four'
+    spokeName: 'prod2'
     spokeVnetPrefix: '10.201.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
   }
 }
 
-/*** AZURE VIRTUAL NETWORK MANAGER RESOURCes ***/
+/*** AZURE VIRTUAL NETWORK MANAGER RESOURCES ***/
 module avnm 'modules/avnm.bicep' = {
   name: 'avnm'
   scope: resourceGroup()
@@ -159,13 +162,14 @@ module avnm 'modules/avnm.bicep' = {
     location: location
     hubVnetId: hub.outputs.hubVnetId
     nonProdNetworkGroupMembers: [
-      spoke1nonprod.outputs.vnetId
-      spoke2nonprod.outputs.vnetId
+      spokenonprod1.outputs.vnetId
+      spokenonprod2.outputs.vnetId
     ]
     prodNetworkGroupMembers: [
-      spoke3prod.outputs.vnetId
-      spoke4prod.outputs.vnetId
+      spokeprod1.outputs.vnetId
+      spokeprod2.outputs.vnetId
     ]
     deployVpnGateway: deployVpnGateway
+    deployDefaultDenySecurityAdminRules: deployDefaultDenySecurityAdminRules
   }
 }

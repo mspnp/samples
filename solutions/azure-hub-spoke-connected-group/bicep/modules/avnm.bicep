@@ -3,6 +3,7 @@ param prodNetworkGroupMembers array
 param nonProdNetworkGroupMembers array
 param hubVnetId string
 param deployVpnGateway bool
+param deployDefaultDenySecurityAdminRules bool
 
 @description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
 resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
@@ -196,7 +197,7 @@ properties: {
 }
 
 @description('This is the rule is to Deny all TCP Rules')
-resource rule1 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+resource rule1 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = if (deployDefaultDenySecurityAdminRules) {
 name: 'r-tcp-${location}'
 kind: 'Custom'
 parent: rulesCollection
@@ -251,7 +252,7 @@ properties: {
   }      
 }
 
-@description('This is the rule for the rules collection for the security admin config assigned to the AVNM')
+@description('This rule to deny inbound UDP rules')
 resource rule3 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
 name: 'r-udp-${location}'
 kind: 'Custom'

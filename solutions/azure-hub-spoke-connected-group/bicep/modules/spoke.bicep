@@ -3,12 +3,6 @@ param routeTableId string
 param logAnalyticsWorkspaceId string
 param deployVirtualMachines bool
 param adminUsername string
-@allowed([
-  'one'
-  'two'
-  'three'
-  'four'
-])
 param spokeName string 
 param spokeVnetPrefix string
 @secure()
@@ -70,7 +64,7 @@ resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-
 
 @description('The private Network Interface Card for the Windows VM in spoke.')
 resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = if (deployVirtualMachines) {
-  name: 'nic-vm-${location}-spoke-${spokeName}-windows'
+  name: 'nic-vm-${location}-${spokeName}-ubuntu'
   location: location
   properties: {
     ipConfigurations: [
@@ -102,27 +96,27 @@ resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-0
   }
 }
 
-@description('A basic Windows virtual machine that will be attached to spoke.')
+@description('A basic Ubuntu Linux virtual machine that will be attached to spoke.')
 resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMachines) {
-  name: 'vm-${location}-spoke-${spokeName}-windows'
+  name: 'vm-${location}-spoke-${spokeName}-ubuntu'
   location: location
   properties: {
     hardwareProfile: {
-      vmSize: 'Standard_D2s_v3'
+      vmSize: 'Standard_D1_v2'
     }
     storageProfile: {
       osDisk: {
         createOption: 'FromImage'
         caching: 'ReadWrite'
         managedDisk: {
-          storageAccountType: 'Premium_LRS'
+          storageAccountType: 'Standard_LRS'
         }
         deleteOption: 'Delete'
       }
       imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: '2022-datacenter-azure-edition'
+        publisher: 'Canonical'
+        offer: 'UbuntuServer'
+        sku: '19_04-gen2'
         version: 'latest'
       }
       dataDisks: []
@@ -148,13 +142,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMa
       computerName: 'examplevm'
       adminUsername: adminUsername
       adminPassword: adminPassword
-      windowsConfiguration: {
-        enableAutomaticUpdates: true
+      linuxConfiguration: {
+        disablePasswordAuthentication: false
         provisionVMAgent: true
-        patchSettings: {
-          patchMode: 'AutomaticByOS'
-          assessmentMode: 'ImageDefault'
-        }
       }
     }
     priority: 'Regular'
