@@ -20,7 +20,7 @@ This sample deploys Azure virtual networks in a hub and spoke configuration, usi
 
 Where applicable, each resource is configured to send diagnostics to an Azure Log Analytics instance.
 
-![Hub and spoke architectural diagram.](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/images/hub-spoke.png)
+![Hub and spoke connected group architectural diagram.](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/images/hub-spoke.png)
 
 For detailed information, see the Azure Hub and Spoke reference architecture in the Azure Architecture Center:
 
