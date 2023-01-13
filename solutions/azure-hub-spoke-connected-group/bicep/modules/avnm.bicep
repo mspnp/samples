@@ -21,11 +21,15 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
       managementGroups: []
     }
   }
-  // static network group membership is used to avoid potential conflict in the test environment 
+}
+
+  // static network group membership is used to avoid potential conflict in the test environment. 
   // for production deployments, consider using Azure Policy to dynamically bring VNETs under 
   // AVNM management. see https://learn.microsoft.com/azure/virtual-network-manager/concept-azure-policy-integration
-  resource networkGroupProd 'networkGroups@2022-05-01' = {
+  @description('This is the static network group for the production spoke VNETs.')
+  resource networkGroupProd 'Microsoft.Network/networkManagers/networkGroups@2022-05-01' = {
     name: 'ng-${location}-spokes-prod'
+    parent: networkManager
     properties: {
       description: 'Prod Spoke VNETs Network Group'
     }
@@ -42,8 +46,10 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
       }
     }
   }
-  resource networkGroupNonProd 'networkGroups@2022-05-01' = {
+  @description('This is the static network group for the non-production spoke VNETs.')
+  resource networkGroupNonProd 'Microsoft.Network/networkManagers/networkGroups@2022-05-01' = {
     name: 'ng-${location}-spokes-nonprod'
+    parent: networkManager
     properties: {
       description: 'Non-prod Spoke VNETs Network Group'
     }
@@ -60,8 +66,10 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
       }
     }
   }
-  resource networkGroupAll 'networkGroups@2022-05-01' = {
+  @description('This is the static network group for all VNETs.')
+  resource networkGroupAll 'Microsoft.Network/networkManagers/networkGroups@2022-05-01' = {
     name: 'ng-${location}-all'
+    parent: networkManager
     properties: {
       description: 'All VNETs Network Group (for Security Configurations)'
     }
@@ -96,22 +104,21 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
       }
     }
   }
-}
 
 @description('This connectivity configuration defines the connectivity between the spokes.')
 resource connectivityConfigurationNonProd 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-05-01' = {
   name: 'cc-${location}-spokesnonprod'
   parent: networkManager
   dependsOn: [
-    networkManager::networkGroupNonProd::staticMembersSpokeOne
-    networkManager::networkGroupNonProd::staticMembersSpokeTwo
+    networkGroupNonProd::staticMembersSpokeOne
+    networkGroupNonProd::staticMembersSpokeTwo
   ]
   properties: {
     description: 'Non-prod poke-to-spoke connectivity configuration'
     displayName: 'Non-prod Spoke-to-Spoke Connectivity'
     appliesToGroups: [
       {
-        networkGroupId: networkManager::networkGroupNonProd.id
+        networkGroupId: networkGroupNonProd.id
         isGlobal: 'False'
         useHubGateway: string(deployVpnGateway)
         groupConnectivity: 'DirectlyConnected'
@@ -134,15 +141,15 @@ resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connec
   name: 'cc-${location}-spokesprod'
   parent: networkManager
   dependsOn: [
-    networkManager::networkGroupProd::staticMembersSpokeOne
-    networkManager::networkGroupProd::staticMembersSpokeTwo
+    networkGroupProd::staticMembersSpokeOne
+    networkGroupProd::staticMembersSpokeTwo
   ]
   properties: {
     description: 'Prod spoke-to-spoke connectivity configuration (through hub)'
     displayName: 'Prod Spoke-to-Spoke Connectivity'
     appliesToGroups: [
       {
-        networkGroupId: networkManager::networkGroupProd.id
+        networkGroupId: networkGroupProd.id
         isGlobal: 'False'
         useHubGateway: string(deployVpnGateway)
         groupConnectivity: 'None'
@@ -193,7 +200,7 @@ resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigu
   properties: {
     appliesToGroups: [
       {
-        networkGroupId: networkManager::networkGroupAll.id
+        networkGroupId: networkGroupAll.id
       }
     ]
   }
