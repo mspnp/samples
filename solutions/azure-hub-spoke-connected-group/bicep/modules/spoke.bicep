@@ -102,7 +102,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMa
   location: location
   properties: {
     hardwareProfile: {
-      vmSize: 'Standard_D1_v2'
+      vmSize: 'Standard_DS1_v2'
     }
     storageProfile: {
       osDisk: {
@@ -114,9 +114,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMa
         deleteOption: 'Delete'
       }
       imageReference: {
-        publisher: 'Canonical'
-        offer: 'UbuntuServer'
-        sku: '19_04-gen2'
+        publisher: 'canonical'
+        offer: '0001-com-ubuntu-server-jammy'
+        sku: '22_04-lts-gen2'
         version: 'latest'
       }
       dataDisks: []
