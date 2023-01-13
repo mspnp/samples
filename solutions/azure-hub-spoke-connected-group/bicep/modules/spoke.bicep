@@ -5,8 +5,18 @@ param deployVirtualMachines bool
 param adminUsername string
 param spokeName string 
 param spokeVnetPrefix string
+param nsgResourcesSubnetId string
+param nsgPrivateLinkEndpointsSubnetId string
 @secure()
 param adminPassword string
+
+resource hubNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
+  name: 'vnet-${location}-hub'
+
+  resource azureBastionSubnet 'subnets' existing = {
+    name: 'AzureBastionSubnet'
+  }
+}
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: 'vnet-${location}-spoke-${spokeName}'
@@ -24,6 +34,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22','.0.0/24')
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Disabled'
+          networkSecurityGroup: {
+            id: nsgResourcesSubnetId
+          }
           routeTable: {
             id: routeTableId
           }
@@ -35,6 +48,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22','.1.0/26')
           privateEndpointNetworkPolicies: 'Enabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
+          networkSecurityGroup: {
+            id: nsgPrivateLinkEndpointsSubnetId
+          }
           routeTable: {
             id: routeTableId
           }

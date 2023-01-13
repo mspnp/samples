@@ -662,6 +662,7 @@ resource vgwHub_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05
   }
 }
 
+output hubBastionSubnetAddressPrefix string = vnetHub::azureBastionSubnet.properties.addressPrefix
 output hubVnetId string = vnetHub.id
 output firewall object = fwHub
 output logAnalyticsWorkspaceId string = laHub.id

@@ -56,7 +56,6 @@ param adminUsername string = 'azureadmin'
 @description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character. Must be at least 12 characters. Only needed when providing deployVirtualMachines=true.')
 param adminPassword string
 
-
 /*** RESOURCES (HUB) ***/
 
 module hub 'modules/hub.bicep' = {
@@ -89,9 +88,128 @@ resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2022-01-01' = {
   }
 }
 
+@description('NSG on the resource subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke).')
+resource nsgResourcesSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: 'nsg-${location}-spoke-resources'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowBastionRdpFromHub'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: hub.outputs.hubBastionSubnetAddressPrefix
+          destinationPortRanges: [
+            '3389'
+          ]
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 200
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowBastionSshFromHub'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix:  hub.outputs.hubBastionSubnetAddressPrefix
+          destinationPortRanges: [
+            '22'
+          ]
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 210
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllInBound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      // for demonstration purposes, this rule will be overridden by the 'AlwaysAllow' AVNM admin rule r-allowsql-${location}
+      {
+        name: 'DenyOutboundAzureSQL'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: 'Sql'
+          access: 'Deny'
+          priority: 300
+          direction: 'Outbound'
+        }
+      }
+    ]
+  }
+}
+
+@description('NSG on the Private Link subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke).')
+resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: 'nsg-${location}-spoke-privatelinkendpoint'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowAll443InFromVnet'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '443'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 100
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllInbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'DenyAllOutbound'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '*'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Outbound'
+        }
+      }
+    ]
+  }
+}
+
 /*** RESOURCES (SPOKE ONE) ***/
 module spokenonprod1 'modules/spoke.bicep' = {
   name: 'spokenonprod1'
+  dependsOn: [
+    hub // hub vnets must be deployed before spoke vnets for nsg rules
+  ]
   scope: resourceGroup()
   params: {
     location: location
@@ -102,13 +220,17 @@ module spokenonprod1 'modules/spoke.bicep' = {
     spokeName: 'nonprod1'
     spokeVnetPrefix: '10.100.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
+    nsgResourcesSubnetId: nsgResourcesSubnet.id
+    nsgPrivateLinkEndpointsSubnetId: nsgPrivateLinkEndpointsSubnet.id
   }
 }
-
 
 /*** RESOURCES (SPOKE TWO) ***/
 module spokenonprod2 'modules/spoke.bicep' = {
   name: 'spokenonprod2'
+  dependsOn: [
+    hub // hub vnets must be deployed before spoke vnets for nsg rules
+  ]
   scope: resourceGroup()
   params: {
     location: location
@@ -119,12 +241,17 @@ module spokenonprod2 'modules/spoke.bicep' = {
     spokeName: 'nonprod2'
     spokeVnetPrefix: '10.101.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
+    nsgResourcesSubnetId: nsgResourcesSubnet.id
+    nsgPrivateLinkEndpointsSubnetId: nsgPrivateLinkEndpointsSubnet.id
   }
 }
 
 /*** RESOURCES (SPOKE THREE) ***/
 module spokeprod1 'modules/spoke.bicep' = {
   name: 'spokeprod1'
+  dependsOn: [
+    hub // hub vnets must be deployed before spoke vnets for nsg rules
+  ]
   scope: resourceGroup()
   params: {
     location: location
@@ -135,12 +262,17 @@ module spokeprod1 'modules/spoke.bicep' = {
     spokeName: 'prod1'
     spokeVnetPrefix: '10.200.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
+    nsgResourcesSubnetId: nsgResourcesSubnet.id
+    nsgPrivateLinkEndpointsSubnetId: nsgPrivateLinkEndpointsSubnet.id
   }
 }
 
 /*** RESOURCES (SPOKE FOUR) ***/
 module spokeprod2 'modules/spoke.bicep' = {
   name: 'spokeprod2'
+  dependsOn: [
+    hub // hub vnets must be deployed before spoke vnets for nsg rules
+  ]
   scope: resourceGroup()
   params: {
     location: location
@@ -151,6 +283,8 @@ module spokeprod2 'modules/spoke.bicep' = {
     spokeName: 'prod2'
     spokeVnetPrefix: '10.201.0.0/22'
     logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
+    nsgResourcesSubnetId: nsgResourcesSubnet.id
+    nsgPrivateLinkEndpointsSubnetId: nsgPrivateLinkEndpointsSubnet.id
   }
 }
 

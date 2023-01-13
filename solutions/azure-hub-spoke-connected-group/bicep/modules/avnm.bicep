@@ -320,7 +320,7 @@ resource rule4 'Microsoft.Network/networkManagers/securityAdminConfigurations/ru
 
 @description('This example rule allows outbound traffic to Azure SQL, unless an NSG in the path denies it')
 resource rule5 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
-  name: 'r-allow-${location}'
+  name: 'r-allowsql-${location}'
   kind: 'Custom'
   parent: rulesCollection
   properties: {

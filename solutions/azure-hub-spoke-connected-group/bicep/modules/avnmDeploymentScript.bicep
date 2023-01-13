@@ -9,6 +9,7 @@ param deploymentScriptName string
 ])
 param configType string
 
+// the commit action is idempotent, so re-running the deployment will not cause any issues
 @description('Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration.')
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: deploymentScriptName
@@ -115,8 +116,8 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n"
       }
       Else {
-        $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled`n"
-        throw "ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled"
+        $DeploymentScriptOutputs['text'] += "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: '$($content.value[0].deploymentStatus)' is not handled`n"
+        throw "ERROR: Deployment status: '$($content.value[0].deploymentStatus)' is not handled"
         exit 1
       }
     }
