@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.12.40.16777",
-      "templateHash": "9456654584125683322"
+      "version": "0.13.1.58284",
+      "templateHash": "1033780723415785162"
     }
   },
   "parameters": {
@@ -88,6 +88,130 @@
       }
     },
     {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2022-01-01",
+      "name": "[format('nsg-{0}-spoke-resources', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowBastionRdpFromHub",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.hubBastionSubnetAddressPrefix.value]",
+              "destinationPortRanges": [
+                "3389"
+              ],
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowBastionSshFromHub",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.hubBastionSubnetAddressPrefix.value]",
+              "destinationPortRanges": [
+                "22"
+              ],
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 210,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "DenyAllInBound",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "DenyOutboundAzureSQL",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "destinationAddressPrefix": "Sql",
+              "access": "Deny",
+              "priority": 300,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]"
+      ],
+      "metadata": {
+        "description": "NSG on the resource subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke)."
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2022-01-01",
+      "name": "[format('nsg-{0}-spoke-privatelinkendpoint', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowAll443InFromVnet",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationPortRange": "443",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "DenyAllInbound",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "DenyAllOutbound",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationPortRange": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 1000,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "description": "NSG on the Private Link subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke)."
+      }
+    },
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "hub",
@@ -116,8 +240,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.12.40.16777",
-              "templateHash": "10807664288807177290"
+              "version": "0.13.1.58284",
+              "templateHash": "16961807107212421705"
             }
           },
           "parameters": {
@@ -871,6 +995,10 @@
             }
           ],
           "outputs": {
+            "hubBastionSubnetAddressPrefix": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-hub', parameters('location')), 'AzureBastionSubnet'), '2022-01-01').addressPrefix]"
+            },
             "hubVnetId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
@@ -920,6 +1048,12 @@
           },
           "logAnalyticsWorkspaceId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          },
+          "nsgResourcesSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]"
+          },
+          "nsgPrivateLinkEndpointsSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]"
           }
         },
         "template": {
@@ -928,8 +1062,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.12.40.16777",
-              "templateHash": "13698859351307874154"
+              "version": "0.13.1.58284",
+              "templateHash": "7885257939769025654"
             }
           },
           "parameters": {
@@ -952,6 +1086,12 @@
               "type": "string"
             },
             "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "nsgResourcesSubnetId": {
+              "type": "string"
+            },
+            "nsgPrivateLinkEndpointsSubnetId": {
               "type": "string"
             },
             "adminPassword": {
@@ -977,6 +1117,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Disabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgResourcesSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -988,6 +1131,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
                       "privateEndpointNetworkPolicies": "Enabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgPrivateLinkEndpointsSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1068,7 +1214,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "hardwareProfile": {
-                  "vmSize": "Standard_D1_v2"
+                  "vmSize": "Standard_DS1_v2"
                 },
                 "storageProfile": {
                   "osDisk": {
@@ -1080,9 +1226,9 @@
                     "deleteOption": "Delete"
                   },
                   "imageReference": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "19_04-gen2",
+                    "publisher": "canonical",
+                    "offer": "0001-com-ubuntu-server-jammy",
+                    "sku": "22_04-lts-gen2",
                     "version": "latest"
                   },
                   "dataDisks": []
@@ -1133,6 +1279,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]",
         "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
       ]
     },
@@ -1169,6 +1317,12 @@
           },
           "logAnalyticsWorkspaceId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          },
+          "nsgResourcesSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]"
+          },
+          "nsgPrivateLinkEndpointsSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]"
           }
         },
         "template": {
@@ -1177,8 +1331,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.12.40.16777",
-              "templateHash": "13698859351307874154"
+              "version": "0.13.1.58284",
+              "templateHash": "7885257939769025654"
             }
           },
           "parameters": {
@@ -1201,6 +1355,12 @@
               "type": "string"
             },
             "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "nsgResourcesSubnetId": {
+              "type": "string"
+            },
+            "nsgPrivateLinkEndpointsSubnetId": {
               "type": "string"
             },
             "adminPassword": {
@@ -1226,6 +1386,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Disabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgResourcesSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1237,6 +1400,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
                       "privateEndpointNetworkPolicies": "Enabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgPrivateLinkEndpointsSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1317,7 +1483,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "hardwareProfile": {
-                  "vmSize": "Standard_D1_v2"
+                  "vmSize": "Standard_DS1_v2"
                 },
                 "storageProfile": {
                   "osDisk": {
@@ -1329,9 +1495,9 @@
                     "deleteOption": "Delete"
                   },
                   "imageReference": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "19_04-gen2",
+                    "publisher": "canonical",
+                    "offer": "0001-com-ubuntu-server-jammy",
+                    "sku": "22_04-lts-gen2",
                     "version": "latest"
                   },
                   "dataDisks": []
@@ -1382,6 +1548,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]",
         "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
       ]
     },
@@ -1418,6 +1586,12 @@
           },
           "logAnalyticsWorkspaceId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          },
+          "nsgResourcesSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]"
+          },
+          "nsgPrivateLinkEndpointsSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]"
           }
         },
         "template": {
@@ -1426,8 +1600,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.12.40.16777",
-              "templateHash": "13698859351307874154"
+              "version": "0.13.1.58284",
+              "templateHash": "7885257939769025654"
             }
           },
           "parameters": {
@@ -1450,6 +1624,12 @@
               "type": "string"
             },
             "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "nsgResourcesSubnetId": {
+              "type": "string"
+            },
+            "nsgPrivateLinkEndpointsSubnetId": {
               "type": "string"
             },
             "adminPassword": {
@@ -1475,6 +1655,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Disabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgResourcesSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1486,6 +1669,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
                       "privateEndpointNetworkPolicies": "Enabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgPrivateLinkEndpointsSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1566,7 +1752,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "hardwareProfile": {
-                  "vmSize": "Standard_D1_v2"
+                  "vmSize": "Standard_DS1_v2"
                 },
                 "storageProfile": {
                   "osDisk": {
@@ -1578,9 +1764,9 @@
                     "deleteOption": "Delete"
                   },
                   "imageReference": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "19_04-gen2",
+                    "publisher": "canonical",
+                    "offer": "0001-com-ubuntu-server-jammy",
+                    "sku": "22_04-lts-gen2",
                     "version": "latest"
                   },
                   "dataDisks": []
@@ -1631,6 +1817,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]",
         "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
       ]
     },
@@ -1667,6 +1855,12 @@
           },
           "logAnalyticsWorkspaceId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          },
+          "nsgResourcesSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]"
+          },
+          "nsgPrivateLinkEndpointsSubnetId": {
+            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]"
           }
         },
         "template": {
@@ -1675,8 +1869,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.12.40.16777",
-              "templateHash": "13698859351307874154"
+              "version": "0.13.1.58284",
+              "templateHash": "7885257939769025654"
             }
           },
           "parameters": {
@@ -1699,6 +1893,12 @@
               "type": "string"
             },
             "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "nsgResourcesSubnetId": {
+              "type": "string"
+            },
+            "nsgPrivateLinkEndpointsSubnetId": {
               "type": "string"
             },
             "adminPassword": {
@@ -1724,6 +1924,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
                       "privateEndpointNetworkPolicies": "Disabled",
                       "privateLinkServiceNetworkPolicies": "Disabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgResourcesSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1735,6 +1938,9 @@
                       "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
                       "privateEndpointNetworkPolicies": "Enabled",
                       "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgPrivateLinkEndpointsSubnetId')]"
+                      },
                       "routeTable": {
                         "id": "[parameters('routeTableId')]"
                       }
@@ -1815,7 +2021,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "hardwareProfile": {
-                  "vmSize": "Standard_D1_v2"
+                  "vmSize": "Standard_DS1_v2"
                 },
                 "storageProfile": {
                   "osDisk": {
@@ -1827,9 +2033,9 @@
                     "deleteOption": "Delete"
                   },
                   "imageReference": {
-                    "publisher": "Canonical",
-                    "offer": "UbuntuServer",
-                    "sku": "19_04-gen2",
+                    "publisher": "canonical",
+                    "offer": "0001-com-ubuntu-server-jammy",
+                    "sku": "22_04-lts-gen2",
                     "version": "latest"
                   },
                   "dataDisks": []
@@ -1880,6 +2086,8 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-privatelinkendpoint', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-spoke-resources', parameters('location')))]",
         "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
       ]
     },
@@ -1924,8 +2132,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.12.40.16777",
-              "templateHash": "16350468575115428886"
+              "version": "0.13.1.58284",
+              "templateHash": "4130698433748844798"
             }
           },
           "parameters": {
@@ -2049,39 +2257,6 @@
               ]
             },
             {
-              "type": "Microsoft.Network/networkManagers/networkGroups",
-              "apiVersion": "2022-05-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]",
-              "properties": {
-                "description": "Prod Spoke VNETs Network Group"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/networkManagers/networkGroups",
-              "apiVersion": "2022-05-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]",
-              "properties": {
-                "description": "Non-prod Spoke VNETs Network Group"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/networkManagers/networkGroups",
-              "apiVersion": "2022-05-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]",
-              "properties": {
-                "description": "All VNETs Network Group (for Security Configurations)"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ]
-            },
-            {
               "type": "Microsoft.Network/networkManagers",
               "apiVersion": "2022-05-01",
               "name": "[format('avnm-{0}', parameters('location'))]",
@@ -2100,6 +2275,48 @@
               },
               "metadata": {
                 "description": "This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]",
+              "properties": {
+                "description": "Prod Spoke VNETs Network Group"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the static network group for the production spoke VNETs."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]",
+              "properties": {
+                "description": "Non-prod Spoke VNETs Network Group"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the static network group for the non-production spoke VNETs."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]",
+              "properties": {
+                "description": "All VNETs Network Group (for Security Configurations)"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the static network group for all VNETs."
               }
             },
             {
@@ -2134,7 +2351,7 @@
                 "[resourceId('Microsoft.Network/networkManagers/networkGroups/staticMembers', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')), format('sm-{0}-2', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This connectivity configuration defines the connectivity between the spokes. Only deployed if requested."
+                "description": "This connectivity configuration defines the connectivity between the spokes."
               }
             },
             {
@@ -2169,7 +2386,7 @@
                 "[resourceId('Microsoft.Network/networkManagers/networkGroups/staticMembers', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')), format('sm-{0}-2', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This connectivity configuration defines the connectivity between the spokes. Only deployed if requested."
+                "description": "This connectivity configuration defines the connectivity between the spokes."
               }
             },
             {
@@ -2194,7 +2411,7 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This role assignment grants the user assignmed identity the Contributor role on the resource group."
+                "description": "This role assignment grants the user assigned identity the Contributor role on the resource group."
               }
             },
             {
@@ -2241,7 +2458,7 @@
               "kind": "Custom",
               "properties": {
                 "access": "Deny",
-                "description": "Denying TCP rules",
+                "description": "Inbound TCP Deny Example Rule",
                 "destinationPortRanges": [
                   "20",
                   "21",
@@ -2281,7 +2498,7 @@
                 "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This is the rule is to Deny all TCP Rules"
+                "description": "This example rule contains all denied inbound TCP ports"
               }
             },
             {
@@ -2291,7 +2508,7 @@
               "kind": "Custom",
               "properties": {
                 "access": "Deny",
-                "description": "Deny all TCP/UDP rules",
+                "description": "Inbound TCP/UDP Deny Example Rule",
                 "destinationPortRanges": [
                   "11",
                   "135",
@@ -2322,7 +2539,7 @@
                 "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This rule to deny inbound TCP/UDP rules"
+                "description": "This example rule contains all denied inbound TCP or UDP ports"
               }
             },
             {
@@ -2332,7 +2549,7 @@
               "kind": "Custom",
               "properties": {
                 "access": "Deny",
-                "description": "Deny all UDP rules",
+                "description": "Inbound UDP Deny Example Rule",
                 "destinationPortRanges": [
                   "69",
                   "11211"
@@ -2360,7 +2577,81 @@
                 "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This rule to deny inbound UDP rules"
+                "description": "This example rule contains all denied inbound UDP ports"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')), format('r-alwaysallow-{0}', parameters('location')))]",
+              "kind": "Custom",
+              "properties": {
+                "access": "AlwaysAllow",
+                "description": "Always allow outbound traffic to Azure Active Directory",
+                "destinationPortRanges": [
+                  "0-65535"
+                ],
+                "destinations": [
+                  {
+                    "addressPrefix": "AzureActiveDirectory",
+                    "addressPrefixType": "ServiceTag"
+                  }
+                ],
+                "direction": "Outbound",
+                "priority": 103,
+                "protocol": "Any",
+                "sourcePortRanges": [
+                  "0-65535"
+                ],
+                "sources": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This example rule always allows outbound traffic to Azure Active Directory, overriding NSG outbound restrictions"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')), format('r-allowsql-{0}', parameters('location')))]",
+              "kind": "Custom",
+              "properties": {
+                "access": "Allow",
+                "description": "Allow outbound traffic to Azure SQL",
+                "destinationPortRanges": [
+                  "0-65535"
+                ],
+                "destinations": [
+                  {
+                    "addressPrefix": "Sql",
+                    "addressPrefixType": "ServiceTag"
+                  }
+                ],
+                "direction": "Outbound",
+                "priority": 104,
+                "protocol": "Any",
+                "sourcePortRanges": [
+                  "0-65535"
+                ],
+                "sources": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This example rule allows outbound traffic to Azure SQL, unless an NSG in the path denies it"
               }
             },
             {
@@ -2398,8 +2689,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.12.40.16777",
-                      "templateHash": "7560532125695380615"
+                      "version": "0.13.1.58284",
+                      "templateHash": "13702191377868235355"
                     }
                   },
                   "parameters": {
@@ -2444,7 +2735,7 @@
                         "retentionInterval": "PT1H",
                         "timeout": "PT1H",
                         "arguments": "[format('-uri \"{0}subscriptions/{1}/resourceGroups/{2}/providers/Microsoft.Network/networkManagers/{3}/commit?api-version=2022-05-01\" -location {4} -configIds {5} -subscriptionId {6} -resourceManagerURL {7} -configType {8}', environment().resourceManager, subscription().subscriptionId, resourceGroup().name, parameters('networkManagerName'), parameters('location'), parameters('configurationIds'), subscription().subscriptionId, environment().resourceManager, parameters('configType'))]",
-                        "scriptContent": "    param (\r\n      $resourceGroup,\r\n      $subscriptionId,\r\n      $networkManagerName,\r\n      $resourceManagerURL,\r\n      $configIds,\r\n      $location,\r\n      $configType,\r\n      [string]$uri\r\n    )\r\n    \r\n    $DeploymentScriptOutputs = @{}\r\n    $DeploymentScriptOutputs['text'] = ''\r\n\r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n\r\n    $configsJson = ($configIds.split(',') | foreach-object {\r\n      \"`\"$_`\"\"\r\n    }) -join ','\r\n    \r\n    ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###\r\n    $body = \"{ `\r\n      `\"commitType`\": `\"$configType`\", `\r\n      `\"configurationIds`\": [$configsJson], `\r\n      `\"targetLocations`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    $result = Invoke-AzRestMethod -Method POST -URI \"$uri\" -Payload $body\r\n\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result.statusCode)`n\"\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n\"\r\n    \r\n    If ($result.statusCode -ne 202) {\r\n        throw \"Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'\"\r\n        exit 1\r\n    }\r\n    Else {\r\n      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()\r\n      $timeout = New-TimeSpan -Seconds 300 # five minute timer\r\n        do {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n\"\r\n            Start-Sleep -Seconds 1\r\n            $result = Invoke-AzRestMethod -Method GET -Uri $result.Headers.Location\r\n        }\r\n        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))\r\n\r\n        If ($timedOut) {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for commit has timed out...`n\"\r\n          throw \"Waiting for commit to complete has timed out!\"\r\n          exit 1\r\n        }\r\n        Else {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n\"\r\n        }\r\n    }\r\n\r\n    ### Now that commit has been successfully submitted, check for successful deployment of the commit ###\r\n    # check deployment status\r\n    $body = \"{ `\r\n    `\"deploymentTypes`\": `\"$configType`\", `\r\n    `\"regions`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    # update URL from /commit endpoint to /listDeploymentStatus endpoint\r\n    $uri = $uri.Replace('/commit?', '/listDeploymentStatus?') \r\n    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n\r\n    If ($result.statusCode -eq 200) {\r\n      $content = $result.Content | ConvertFrom-Json -Depth 10\r\n\r\n      If ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n\r\n        While ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n          Start-Sleep -Seconds 10\r\n          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n          $content = $result.Content | ConvertFrom-Json -Depth 10\r\n        }\r\n      }\r\n      If ($content.value[0].deploymentStatus -eq 'Failed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n\"\r\n        throw \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - ensure you are in a region that supports AVNM! Error message: '$($content.value[0].errorMessage)'\"\r\n        exit 1\r\n      }\r\n      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n\"\r\n      }\r\n      Else {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled`n\"\r\n        throw \"ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled\"\r\n        exit 1\r\n      }\r\n    }\r\n    Else {\r\n      $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'`n\"\r\n      throw \"ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'\"\r\n      exit 1\r\n    }\r\n\r\n    "
+                        "scriptContent": "    param (\r\n      $resourceGroup,\r\n      $subscriptionId,\r\n      $networkManagerName,\r\n      $resourceManagerURL,\r\n      $configIds,\r\n      $location,\r\n      $configType,\r\n      [string]$uri\r\n    )\r\n    \r\n    $DeploymentScriptOutputs = @{}\r\n    $DeploymentScriptOutputs['text'] = ''\r\n\r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n\r\n    $configsJson = ($configIds.split(',') | foreach-object {\r\n      \"`\"$_`\"\"\r\n    }) -join ','\r\n    \r\n    ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###\r\n    $body = \"{ `\r\n      `\"commitType`\": `\"$configType`\", `\r\n      `\"configurationIds`\": [$configsJson], `\r\n      `\"targetLocations`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    $result = Invoke-AzRestMethod -Method POST -URI \"$uri\" -Payload $body\r\n\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result.statusCode)`n\"\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n\"\r\n    \r\n    If ($result.statusCode -ne 202) {\r\n        throw \"Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'\"\r\n        exit 1\r\n    }\r\n    Else {\r\n      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()\r\n      $timeout = New-TimeSpan -Seconds 300 # five minute timer\r\n        do {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n\"\r\n            Start-Sleep -Seconds 1\r\n            $result = Invoke-AzRestMethod -Method GET -Uri $result.Headers.Location\r\n        }\r\n        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))\r\n\r\n        If ($timedOut) {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for commit has timed out...`n\"\r\n          throw \"Waiting for commit to complete has timed out!\"\r\n          exit 1\r\n        }\r\n        Else {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n\"\r\n        }\r\n    }\r\n\r\n    ### Now that commit has been successfully submitted, check for successful deployment of the commit ###\r\n    # check deployment status\r\n    $body = \"{ `\r\n    `\"deploymentTypes`\": `\"$configType`\", `\r\n    `\"regions`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    # update URL from /commit endpoint to /listDeploymentStatus endpoint\r\n    $uri = $uri.Replace('/commit?', '/listDeploymentStatus?') \r\n    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n\r\n    If ($result.statusCode -eq 200) {\r\n      $content = $result.Content | ConvertFrom-Json -Depth 10\r\n\r\n      If ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n\r\n        While ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n          Start-Sleep -Seconds 10\r\n          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n          $content = $result.Content | ConvertFrom-Json -Depth 10\r\n        }\r\n      }\r\n      If ($content.value[0].deploymentStatus -eq 'Failed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n\"\r\n        throw \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - ensure you are in a region that supports AVNM! Error message: '$($content.value[0].errorMessage)'\"\r\n        exit 1\r\n      }\r\n      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n\"\r\n      }\r\n      Else {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: '$($content.value[0].deploymentStatus)' is not handled`n\"\r\n        throw \"ERROR: Deployment status: '$($content.value[0].deploymentStatus)' is not handled\"\r\n        exit 1\r\n      }\r\n    }\r\n    Else {\r\n      $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'`n\"\r\n      throw \"ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'\"\r\n      exit 1\r\n    }\r\n\r\n    "
                       },
                       "metadata": {
                         "description": "Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration."
@@ -2496,8 +2787,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.12.40.16777",
-                      "templateHash": "7560532125695380615"
+                      "version": "0.13.1.58284",
+                      "templateHash": "13702191377868235355"
                     }
                   },
                   "parameters": {
@@ -2542,7 +2833,7 @@
                         "retentionInterval": "PT1H",
                         "timeout": "PT1H",
                         "arguments": "[format('-uri \"{0}subscriptions/{1}/resourceGroups/{2}/providers/Microsoft.Network/networkManagers/{3}/commit?api-version=2022-05-01\" -location {4} -configIds {5} -subscriptionId {6} -resourceManagerURL {7} -configType {8}', environment().resourceManager, subscription().subscriptionId, resourceGroup().name, parameters('networkManagerName'), parameters('location'), parameters('configurationIds'), subscription().subscriptionId, environment().resourceManager, parameters('configType'))]",
-                        "scriptContent": "    param (\r\n      $resourceGroup,\r\n      $subscriptionId,\r\n      $networkManagerName,\r\n      $resourceManagerURL,\r\n      $configIds,\r\n      $location,\r\n      $configType,\r\n      [string]$uri\r\n    )\r\n    \r\n    $DeploymentScriptOutputs = @{}\r\n    $DeploymentScriptOutputs['text'] = ''\r\n\r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n\r\n    $configsJson = ($configIds.split(',') | foreach-object {\r\n      \"`\"$_`\"\"\r\n    }) -join ','\r\n    \r\n    ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###\r\n    $body = \"{ `\r\n      `\"commitType`\": `\"$configType`\", `\r\n      `\"configurationIds`\": [$configsJson], `\r\n      `\"targetLocations`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    $result = Invoke-AzRestMethod -Method POST -URI \"$uri\" -Payload $body\r\n\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result.statusCode)`n\"\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n\"\r\n    \r\n    If ($result.statusCode -ne 202) {\r\n        throw \"Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'\"\r\n        exit 1\r\n    }\r\n    Else {\r\n      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()\r\n      $timeout = New-TimeSpan -Seconds 300 # five minute timer\r\n        do {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n\"\r\n            Start-Sleep -Seconds 1\r\n            $result = Invoke-AzRestMethod -Method GET -Uri $result.Headers.Location\r\n        }\r\n        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))\r\n\r\n        If ($timedOut) {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for commit has timed out...`n\"\r\n          throw \"Waiting for commit to complete has timed out!\"\r\n          exit 1\r\n        }\r\n        Else {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n\"\r\n        }\r\n    }\r\n\r\n    ### Now that commit has been successfully submitted, check for successful deployment of the commit ###\r\n    # check deployment status\r\n    $body = \"{ `\r\n    `\"deploymentTypes`\": `\"$configType`\", `\r\n    `\"regions`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    # update URL from /commit endpoint to /listDeploymentStatus endpoint\r\n    $uri = $uri.Replace('/commit?', '/listDeploymentStatus?') \r\n    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n\r\n    If ($result.statusCode -eq 200) {\r\n      $content = $result.Content | ConvertFrom-Json -Depth 10\r\n\r\n      If ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n\r\n        While ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n          Start-Sleep -Seconds 10\r\n          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n          $content = $result.Content | ConvertFrom-Json -Depth 10\r\n        }\r\n      }\r\n      If ($content.value[0].deploymentStatus -eq 'Failed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n\"\r\n        throw \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - ensure you are in a region that supports AVNM! Error message: '$($content.value[0].errorMessage)'\"\r\n        exit 1\r\n      }\r\n      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n\"\r\n      }\r\n      Else {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled`n\"\r\n        throw \"ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled\"\r\n        exit 1\r\n      }\r\n    }\r\n    Else {\r\n      $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'`n\"\r\n      throw \"ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'\"\r\n      exit 1\r\n    }\r\n\r\n    "
+                        "scriptContent": "    param (\r\n      $resourceGroup,\r\n      $subscriptionId,\r\n      $networkManagerName,\r\n      $resourceManagerURL,\r\n      $configIds,\r\n      $location,\r\n      $configType,\r\n      [string]$uri\r\n    )\r\n    \r\n    $DeploymentScriptOutputs = @{}\r\n    $DeploymentScriptOutputs['text'] = ''\r\n\r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n\r\n    $configsJson = ($configIds.split(',') | foreach-object {\r\n      \"`\"$_`\"\"\r\n    }) -join ','\r\n    \r\n    ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###\r\n    $body = \"{ `\r\n      `\"commitType`\": `\"$configType`\", `\r\n      `\"configurationIds`\": [$configsJson], `\r\n      `\"targetLocations`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    $result = Invoke-AzRestMethod -Method POST -URI \"$uri\" -Payload $body\r\n\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result.statusCode)`n\"\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n\"\r\n    \r\n    If ($result.statusCode -ne 202) {\r\n        throw \"Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'\"\r\n        exit 1\r\n    }\r\n    Else {\r\n      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()\r\n      $timeout = New-TimeSpan -Seconds 300 # five minute timer\r\n        do {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n\"\r\n            Start-Sleep -Seconds 1\r\n            $result = Invoke-AzRestMethod -Method GET -Uri $result.Headers.Location\r\n        }\r\n        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))\r\n\r\n        If ($timedOut) {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for commit has timed out...`n\"\r\n          throw \"Waiting for commit to complete has timed out!\"\r\n          exit 1\r\n        }\r\n        Else {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n\"\r\n        }\r\n    }\r\n\r\n    ### Now that commit has been successfully submitted, check for successful deployment of the commit ###\r\n    # check deployment status\r\n    $body = \"{ `\r\n    `\"deploymentTypes`\": `\"$configType`\", `\r\n    `\"regions`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    # update URL from /commit endpoint to /listDeploymentStatus endpoint\r\n    $uri = $uri.Replace('/commit?', '/listDeploymentStatus?') \r\n    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n\r\n    If ($result.statusCode -eq 200) {\r\n      $content = $result.Content | ConvertFrom-Json -Depth 10\r\n\r\n      If ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n\r\n        While ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n          Start-Sleep -Seconds 10\r\n          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n          $content = $result.Content | ConvertFrom-Json -Depth 10\r\n        }\r\n      }\r\n      If ($content.value[0].deploymentStatus -eq 'Failed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n\"\r\n        throw \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - ensure you are in a region that supports AVNM! Error message: '$($content.value[0].errorMessage)'\"\r\n        exit 1\r\n      }\r\n      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n\"\r\n      }\r\n      Else {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: '$($content.value[0].deploymentStatus)' is not handled`n\"\r\n        throw \"ERROR: Deployment status: '$($content.value[0].deploymentStatus)' is not handled\"\r\n        exit 1\r\n      }\r\n    }\r\n    Else {\r\n      $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'`n\"\r\n      throw \"ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'\"\r\n      exit 1\r\n    }\r\n\r\n    "
                       },
                       "metadata": {
                         "description": "Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration."
