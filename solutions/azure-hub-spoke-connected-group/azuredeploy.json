@@ -1,0 +1,2573 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.12.40.16777",
+      "templateHash": "9456654584125683322"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "minLength": 6,
+      "metadata": {
+        "description": "The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones."
+      }
+    },
+    "deployVpnGateway": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Set to true to include a basic VPN Gateway deployment into the hub. Set to false to leave network space for a VPN Gateway, but do not deploy one. Default is false. Note deploying VPN gateways can take significant time."
+      }
+    },
+    "deployVirtualMachines": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Set to true to include one Windows and one Linux virtual machine for you to experience peering, gateway transit, and bastion access. Default is false."
+      }
+    },
+    "deployAzureBastion": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Set to true to deploy Azure Bastion. Default is true"
+      }
+    },
+    "deployDefaultDenySecurityAdminRules": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Set to false to disable the deployment of some provided default deny AVNM security admin rules. Default is true."
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "azureadmin",
+      "metadata": {
+        "description": "Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number. Only needed when providing deployVirtualMachines=true."
+      },
+      "maxLength": 20,
+      "minLength": 4
+    },
+    "adminPassword": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character. Must be at least 12 characters. Only needed when providing deployVirtualMachines=true."
+      },
+      "maxLength": 70
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2022-01-01",
+      "name": "[format('route-to-{0}-hub-fw', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "routes": [
+          {
+            "name": "r-nexthop-to-fw",
+            "properties": {
+              "nextHopType": "VirtualAppliance",
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopIpAddress": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.firewall.value.properties.ipConfigurations[0].properties.privateIPAddress]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]"
+      ],
+      "metadata": {
+        "description": "Next hop to the regional hub's Azure Firewall"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "hub",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployVpnGateway": {
+            "value": "[parameters('deployVpnGateway')]"
+          },
+          "deployAzureBastion": {
+            "value": "[parameters('deployAzureBastion')]"
+          },
+          "deployVirtualMachines": {
+            "value": "[parameters('deployVirtualMachines')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.12.40.16777",
+              "templateHash": "10807664288807177290"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "deployAzureBastion": {
+              "type": "bool"
+            },
+            "deployVpnGateway": {
+              "type": "bool"
+            },
+            "deployVirtualMachines": {
+              "type": "bool"
+            }
+          },
+          "variables": {
+            "numFirewallIpAddressesToAssign": 3
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2022-01-01",
+              "name": "[format('{0}/{1}', format('fw-policies-{0}', parameters('location')), 'DefaultNetworkRuleCollectionGroup')]",
+              "properties": {
+                "priority": 200,
+                "ruleCollections": [
+                  {
+                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                    "name": "org-wide-allowed",
+                    "priority": 100,
+                    "action": {
+                      "type": "Allow"
+                    },
+                    "rules": [
+                      {
+                        "ruleType": "NetworkRule",
+                        "name": "DNS",
+                        "description": "Allow DNS outbound (for simplicity, adjust as needed)",
+                        "ipProtocols": [
+                          "UDP"
+                        ],
+                        "sourceAddresses": [
+                          "*"
+                        ],
+                        "sourceIpGroups": [],
+                        "destinationAddresses": [
+                          "*"
+                        ],
+                        "destinationIpGroups": [],
+                        "destinationFqdns": [],
+                        "destinationPorts": [
+                          "53"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', format('fw-policies-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+              "apiVersion": "2022-01-01",
+              "name": "[format('{0}/{1}', format('fw-policies-{0}', parameters('location')), 'DefaultApplicationRuleCollectionGroup')]",
+              "properties": {
+                "priority": 300,
+                "ruleCollections": [
+                  {
+                    "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                    "name": "org-wide-allowed",
+                    "priority": 100,
+                    "action": {
+                      "type": "Allow"
+                    },
+                    "rules": "[if(parameters('deployVirtualMachines'), createArray(createObject('ruleType', 'ApplicationRule', 'name', 'WindowsVirtualMachineHealth', 'description', 'Supports Windows Updates and Windows Diagnostics', 'fqdnTags', createArray('WindowsDiagnostics', 'WindowsUpdate'), 'protocols', createArray(createObject('protocolType', 'Https', 'port', 443)), 'sourceAddresses', createArray('10.100.0.0/24', '10.101.0.0/24', '10.200.0.0/24', '10.201.0.0/24'))), createArray())]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', format('fw-policies-{0}', parameters('location')), 'DefaultNetworkRuleCollectionGroup')]",
+                "[resourceId('Microsoft.Network/firewallPolicies', format('fw-policies-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2021-06-01",
+              "name": "[format('la-hub-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                },
+                "retentionInDays": 90,
+                "forceCmkForQuery": false,
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled",
+                "features": {
+                  "disableLocalAuth": false,
+                  "enableLogAccessUsingOnlyResourcePermissions": true
+                },
+                "workspaceCapping": {
+                  "dailyQuotaGb": -1
+                }
+              },
+              "metadata": {
+                "description": "This Log Analyics Workspace stores logs from the regional hub network, its spokes, and other related resources. Workspaces are regional resource, as such there would be one workspace per hub (region)"
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', format('la-hub-{0}', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2022-01-01",
+              "name": "[format('nsg-{0}-bastion', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "AllowWebExperienceInbound",
+                    "properties": {
+                      "description": "Allow our users in. Update this to be as restrictive as possible.",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "443",
+                      "sourceAddressPrefix": "Internet",
+                      "destinationAddressPrefix": "*",
+                      "access": "Allow",
+                      "priority": 100,
+                      "direction": "Inbound"
+                    }
+                  },
+                  {
+                    "name": "AllowControlPlaneInbound",
+                    "properties": {
+                      "description": "Service Requirement. Allow control plane access. Regional Tag not yet supported.",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "443",
+                      "sourceAddressPrefix": "GatewayManager",
+                      "destinationAddressPrefix": "*",
+                      "access": "Allow",
+                      "priority": 110,
+                      "direction": "Inbound"
+                    }
+                  },
+                  {
+                    "name": "AllowHealthProbesInbound",
+                    "properties": {
+                      "description": "Service Requirement. Allow Health Probes.",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "443",
+                      "sourceAddressPrefix": "AzureLoadBalancer",
+                      "destinationAddressPrefix": "*",
+                      "access": "Allow",
+                      "priority": 120,
+                      "direction": "Inbound"
+                    }
+                  },
+                  {
+                    "name": "AllowBastionHostToHostInbound",
+                    "properties": {
+                      "description": "Service Requirement. Allow Required Host to Host Communication.",
+                      "protocol": "*",
+                      "sourcePortRange": "*",
+                      "destinationPortRanges": [
+                        "8080",
+                        "5701"
+                      ],
+                      "sourceAddressPrefix": "VirtualNetwork",
+                      "destinationAddressPrefix": "VirtualNetwork",
+                      "access": "Allow",
+                      "priority": 130,
+                      "direction": "Inbound"
+                    }
+                  },
+                  {
+                    "name": "DenyAllInbound",
+                    "properties": {
+                      "description": "No further inbound traffic allowed.",
+                      "protocol": "*",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*",
+                      "access": "Deny",
+                      "priority": 1000,
+                      "direction": "Inbound"
+                    }
+                  },
+                  {
+                    "name": "AllowSshToVnetOutbound",
+                    "properties": {
+                      "description": "Allow SSH out to the virtual network",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationPortRange": "22",
+                      "destinationAddressPrefix": "VirtualNetwork",
+                      "access": "Allow",
+                      "priority": 100,
+                      "direction": "Outbound"
+                    }
+                  },
+                  {
+                    "name": "AllowRdpToVnetOutbound",
+                    "properties": {
+                      "description": "Allow RDP out to the virtual network",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationPortRange": "3389",
+                      "destinationAddressPrefix": "VirtualNetwork",
+                      "access": "Allow",
+                      "priority": 110,
+                      "direction": "Outbound"
+                    }
+                  },
+                  {
+                    "name": "AllowControlPlaneOutbound",
+                    "properties": {
+                      "description": "Required for control plane outbound. Regional prefix not yet supported",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationPortRange": "443",
+                      "destinationAddressPrefix": "AzureCloud",
+                      "access": "Allow",
+                      "priority": 120,
+                      "direction": "Outbound"
+                    }
+                  },
+                  {
+                    "name": "AllowBastionHostToHostOutbound",
+                    "properties": {
+                      "description": "Service Requirement. Allow Required Host to Host Communication.",
+                      "protocol": "*",
+                      "sourcePortRange": "*",
+                      "sourceAddressPrefix": "VirtualNetwork",
+                      "destinationPortRanges": [
+                        "8080",
+                        "5701"
+                      ],
+                      "destinationAddressPrefix": "VirtualNetwork",
+                      "access": "Allow",
+                      "priority": 130,
+                      "direction": "Outbound"
+                    }
+                  },
+                  {
+                    "name": "AllowBastionCertificateValidationOutbound",
+                    "properties": {
+                      "description": "Service Requirement. Allow Required Session and Certificate Validation.",
+                      "protocol": "*",
+                      "sourcePortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationPortRange": "80",
+                      "destinationAddressPrefix": "Internet",
+                      "access": "Allow",
+                      "priority": 140,
+                      "direction": "Outbound"
+                    }
+                  },
+                  {
+                    "name": "DenyAllOutbound",
+                    "properties": {
+                      "description": "No further outbound traffic allowed.",
+                      "protocol": "*",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "*",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*",
+                      "access": "Deny",
+                      "priority": 1000,
+                      "direction": "Outbound"
+                    }
+                  }
+                ]
+              },
+              "metadata": {
+                "description": "The NSG around the Azure Bastion subnet. Source: https://learn.microsoft.com/azure/bastion/bastion-nsg"
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', format('nsg-{0}-bastion', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-bastion', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2022-01-01",
+              "name": "[format('vnet-{0}-hub', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "10.0.0.0/22"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "AzureBastionSubnet",
+                    "properties": {
+                      "addressPrefix": "10.0.1.0/26",
+                      "networkSecurityGroup": {
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-bastion', parameters('location')))]"
+                      }
+                    }
+                  },
+                  {
+                    "name": "GatewaySubnet",
+                    "properties": {
+                      "addressPrefix": "10.0.2.0/27"
+                    }
+                  },
+                  {
+                    "name": "AzureFirewallSubnet",
+                    "properties": {
+                      "addressPrefix": "10.0.3.0/26"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', format('nsg-{0}-bastion', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "The regional hub network."
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworks/{0}', format('vnet-{0}-hub', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
+              ]
+            },
+            {
+              "copy": {
+                "name": "pipsAzureFirewall",
+                "count": "[length(range(0, variables('numFirewallIpAddressesToAssign')))]"
+              },
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2022-01-01",
+              "name": "[format('pip-fw-{0}-{1}', parameters('location'), padLeft(range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex()], 2, '0'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "zones": [
+                "1",
+                "2",
+                "3"
+              ],
+              "properties": {
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "publicIPAddressVersion": "IPv4"
+              }
+            },
+            {
+              "copy": {
+                "name": "pipsAzureFirewall_diagnosticSetting",
+                "count": "[length(range(0, variables('numFirewallIpAddressesToAssign')))]"
+              },
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', format('pip-fw-{0}-{1}', parameters('location'), padLeft(range(0, variables('numFirewallIpAddressesToAssign'))[range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex()]], 2, '0')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-fw-{0}-{1}', parameters('location'), padLeft(range(0, variables('numFirewallIpAddressesToAssign'))[range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex()]], 2, '0')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/firewallPolicies",
+              "apiVersion": "2022-01-01",
+              "name": "[format('fw-policies-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "tier": "Basic"
+                },
+                "insights": {
+                  "isEnabled": true,
+                  "retentionDays": 30,
+                  "logAnalyticsResources": {
+                    "defaultWorkspaceId": {
+                      "id": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]"
+                    }
+                  }
+                },
+                "intrusionDetection": null
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "Azure Firewall Policy"
+              }
+            },
+            {
+              "type": "Microsoft.Network/azureFirewalls",
+              "apiVersion": "2022-01-01",
+              "name": "[format('fw-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "zones": [
+                "1",
+                "2",
+                "3"
+              ],
+              "properties": {
+                "copy": [
+                  {
+                    "name": "ipConfigurations",
+                    "count": "[length(range(0, variables('numFirewallIpAddressesToAssign')))]",
+                    "input": {
+                      "name": "[format('pip-fw-{0}-{1}', parameters('location'), padLeft(range(0, variables('numFirewallIpAddressesToAssign'))[range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex('ipConfigurations')]], 2, '0'))]",
+                      "properties": {
+                        "subnet": "[if(equals(0, range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex('ipConfigurations')]), createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-hub', parameters('location')), 'AzureFirewallSubnet')), null())]",
+                        "publicIPAddress": {
+                          "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-fw-{0}-{1}', parameters('location'), padLeft(range(0, variables('numFirewallIpAddressesToAssign'))[range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex('ipConfigurations')]], 2, '0')))]"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "sku": {
+                  "name": "AZFW_VNet",
+                  "tier": "Standard"
+                },
+                "firewallPolicy": {
+                  "id": "[resourceId('Microsoft.Network/firewallPolicies', format('fw-policies-{0}', parameters('location')))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', format('fw-policies-{0}', parameters('location')), 'DefaultApplicationRuleCollectionGroup')]",
+                "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', format('fw-policies-{0}', parameters('location')), 'DefaultNetworkRuleCollectionGroup')]",
+                "[resourceId('Microsoft.Network/firewallPolicies', format('fw-policies-{0}', parameters('location')))]",
+                "pipsAzureFirewall",
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the regional Azure Firewall that all regional spoke networks can egress through."
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/azureFirewalls/{0}', format('fw-{0}', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/azureFirewalls', format('fw-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployAzureBastion')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2022-01-01",
+              "name": "[format('pip-ab-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "zones": [
+                "1",
+                "2",
+                "3"
+              ],
+              "properties": {
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "publicIPAddressVersion": "IPv4"
+              },
+              "metadata": {
+                "description": "The public IP for the regional hub's Azure Bastion service."
+              }
+            },
+            {
+              "condition": "[parameters('deployAzureBastion')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', format('pip-ab-{0}', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-ab-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployAzureBastion')]",
+              "type": "Microsoft.Network/bastionHosts",
+              "apiVersion": "2022-01-01",
+              "name": "[format('ab-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "hub-subnet",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-hub', parameters('location')), 'AzureBastionSubnet')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-ab-{0}', parameters('location')))]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-ab-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This regional hub's Azure Bastion service. NSGs are configured to allow Bastion to reach any resource subnet in peered spokes."
+              }
+            },
+            {
+              "condition": "[parameters('deployAzureBastion')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/bastionHosts/{0}', format('ab-{0}', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/bastionHosts', format('ab-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVpnGateway')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2022-01-01",
+              "name": "[format('pip-vgw-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "zones": [
+                "1",
+                "2",
+                "3"
+              ],
+              "properties": {
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "publicIPAddressVersion": "IPv4"
+              },
+              "metadata": {
+                "description": "The public IPs for the regional VPN gateway. Only deployed if requested."
+              }
+            },
+            {
+              "condition": "[parameters('deployVpnGateway')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', format('pip-vgw-{0}', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-vgw-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVpnGateway')]",
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2022-01-01",
+              "name": "[format('vgw-{0}-hub', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "VpnGw2AZ",
+                  "tier": "VpnGw2AZ"
+                },
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "vpnGatewayGeneration": "Generation2",
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-vgw-{0}', parameters('location')))]"
+                      },
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-hub', parameters('location')), 'GatewaySubnet')]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-vgw-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "The is the regional VPN gateway, configured with basic settings. Only deployed if requested."
+              }
+            },
+            {
+              "condition": "[parameters('deployVpnGateway')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworkGateways/{0}', format('vgw-{0}-hub', parameters('location')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "logs": [
+                  {
+                    "categoryGroup": "allLogs",
+                    "enabled": true
+                  }
+                ],
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/virtualNetworkGateways', format('vgw-{0}-hub', parameters('location')))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "hubVnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
+            },
+            "firewall": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('fw-{0}', parameters('location'))), '2022-01-01', 'full')]"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.OperationalInsights/workspaces', format('la-hub-{0}', parameters('location')))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "spokenonprod1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployVirtualMachines": {
+            "value": "[parameters('deployVirtualMachines')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "routeTableId": {
+            "value": "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+          },
+          "spokeName": {
+            "value": "nonprod1"
+          },
+          "spokeVnetPrefix": {
+            "value": "10.100.0.0/22"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.12.40.16777",
+              "templateHash": "13698859351307874154"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "routeTableId": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
+            },
+            "deployVirtualMachines": {
+              "type": "bool"
+            },
+            "adminUsername": {
+              "type": "string"
+            },
+            "spokeName": {
+              "type": "string"
+            },
+            "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "secureString"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2022-01-01",
+              "name": "[format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('spokeVnetPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "snet-resources",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Disabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  },
+                  {
+                    "name": "snet-privatelinkendpoints",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworks/{0}', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2022-01-01",
+              "name": "[format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')), 'snet-resources')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "The private Network Interface Card for the Windows VM in spoke."
+              }
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[format('vm-{0}-spoke-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_D1_v2"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "Standard_LRS"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "imageReference": {
+                    "publisher": "Canonical",
+                    "offer": "UbuntuServer",
+                    "sku": "19_04-gen2",
+                    "version": "latest"
+                  },
+                  "dataDisks": []
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": null
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+                      "properties": {
+                        "deleteOption": "Delete",
+                        "primary": true
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "examplevm",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true
+                  }
+                },
+                "priority": "Regular"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "spokenonprod2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployVirtualMachines": {
+            "value": "[parameters('deployVirtualMachines')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "routeTableId": {
+            "value": "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+          },
+          "spokeName": {
+            "value": "nonprod2"
+          },
+          "spokeVnetPrefix": {
+            "value": "10.101.0.0/22"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.12.40.16777",
+              "templateHash": "13698859351307874154"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "routeTableId": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
+            },
+            "deployVirtualMachines": {
+              "type": "bool"
+            },
+            "adminUsername": {
+              "type": "string"
+            },
+            "spokeName": {
+              "type": "string"
+            },
+            "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "secureString"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2022-01-01",
+              "name": "[format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('spokeVnetPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "snet-resources",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Disabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  },
+                  {
+                    "name": "snet-privatelinkendpoints",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworks/{0}', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2022-01-01",
+              "name": "[format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')), 'snet-resources')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "The private Network Interface Card for the Windows VM in spoke."
+              }
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[format('vm-{0}-spoke-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_D1_v2"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "Standard_LRS"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "imageReference": {
+                    "publisher": "Canonical",
+                    "offer": "UbuntuServer",
+                    "sku": "19_04-gen2",
+                    "version": "latest"
+                  },
+                  "dataDisks": []
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": null
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+                      "properties": {
+                        "deleteOption": "Delete",
+                        "primary": true
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "examplevm",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true
+                  }
+                },
+                "priority": "Regular"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "spokeprod1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployVirtualMachines": {
+            "value": "[parameters('deployVirtualMachines')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "routeTableId": {
+            "value": "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+          },
+          "spokeName": {
+            "value": "prod1"
+          },
+          "spokeVnetPrefix": {
+            "value": "10.200.0.0/22"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.12.40.16777",
+              "templateHash": "13698859351307874154"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "routeTableId": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
+            },
+            "deployVirtualMachines": {
+              "type": "bool"
+            },
+            "adminUsername": {
+              "type": "string"
+            },
+            "spokeName": {
+              "type": "string"
+            },
+            "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "secureString"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2022-01-01",
+              "name": "[format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('spokeVnetPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "snet-resources",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Disabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  },
+                  {
+                    "name": "snet-privatelinkendpoints",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworks/{0}', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2022-01-01",
+              "name": "[format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')), 'snet-resources')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "The private Network Interface Card for the Windows VM in spoke."
+              }
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[format('vm-{0}-spoke-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_D1_v2"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "Standard_LRS"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "imageReference": {
+                    "publisher": "Canonical",
+                    "offer": "UbuntuServer",
+                    "sku": "19_04-gen2",
+                    "version": "latest"
+                  },
+                  "dataDisks": []
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": null
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+                      "properties": {
+                        "deleteOption": "Delete",
+                        "primary": true
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "examplevm",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true
+                  }
+                },
+                "priority": "Regular"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "spokeprod2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployVirtualMachines": {
+            "value": "[parameters('deployVirtualMachines')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "routeTableId": {
+            "value": "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+          },
+          "spokeName": {
+            "value": "prod2"
+          },
+          "spokeVnetPrefix": {
+            "value": "10.201.0.0/22"
+          },
+          "logAnalyticsWorkspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.12.40.16777",
+              "templateHash": "13698859351307874154"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "routeTableId": {
+              "type": "string"
+            },
+            "logAnalyticsWorkspaceId": {
+              "type": "string"
+            },
+            "deployVirtualMachines": {
+              "type": "bool"
+            },
+            "adminUsername": {
+              "type": "string"
+            },
+            "spokeName": {
+              "type": "string"
+            },
+            "spokeVnetPrefix": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "secureString"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2022-01-01",
+              "name": "[format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('spokeVnetPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "snet-resources",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.0.0/24')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Disabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  },
+                  {
+                    "name": "snet-privatelinkendpoints",
+                    "properties": {
+                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/26')]",
+                      "privateEndpointNetworkPolicies": "Enabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "routeTable": {
+                        "id": "[parameters('routeTableId')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/virtualNetworks/{0}', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2022-01-01",
+              "name": "[format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')), 'snet-resources')]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "The private Network Interface Card for the Windows VM in spoke."
+              }
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+              "name": "to-hub-la",
+              "properties": {
+                "workspaceId": "[parameters('logAnalyticsWorkspaceId')]",
+                "metrics": [
+                  {
+                    "category": "AllMetrics",
+                    "enabled": true
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployVirtualMachines')]",
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[format('vm-{0}-spoke-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_D1_v2"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "Standard_LRS"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "imageReference": {
+                    "publisher": "Canonical",
+                    "offer": "UbuntuServer",
+                    "sku": "19_04-gen2",
+                    "version": "latest"
+                  },
+                  "dataDisks": []
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": null
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+                      "properties": {
+                        "deleteOption": "Delete",
+                        "primary": true
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "examplevm",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true
+                  }
+                },
+                "priority": "Regular"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-spoke-{1}', parameters('location'), parameters('spokeName')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Network/routeTables', format('route-to-{0}-hub-fw', parameters('location')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "avnm",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "hubVnetId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'hub'), '2020-10-01').outputs.hubVnetId.value]"
+          },
+          "nonProdNetworkGroupMembers": {
+            "value": [
+              "[reference(resourceId('Microsoft.Resources/deployments', 'spokenonprod1'), '2020-10-01').outputs.vnetId.value]",
+              "[reference(resourceId('Microsoft.Resources/deployments', 'spokenonprod2'), '2020-10-01').outputs.vnetId.value]"
+            ]
+          },
+          "prodNetworkGroupMembers": {
+            "value": [
+              "[reference(resourceId('Microsoft.Resources/deployments', 'spokeprod1'), '2020-10-01').outputs.vnetId.value]",
+              "[reference(resourceId('Microsoft.Resources/deployments', 'spokeprod2'), '2020-10-01').outputs.vnetId.value]"
+            ]
+          },
+          "deployVpnGateway": {
+            "value": "[parameters('deployVpnGateway')]"
+          },
+          "deployDefaultDenySecurityAdminRules": {
+            "value": "[parameters('deployDefaultDenySecurityAdminRules')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.12.40.16777",
+              "templateHash": "16350468575115428886"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "prodNetworkGroupMembers": {
+              "type": "array"
+            },
+            "nonProdNetworkGroupMembers": {
+              "type": "array"
+            },
+            "hubVnetId": {
+              "type": "string"
+            },
+            "deployVpnGateway": {
+              "type": "bool"
+            },
+            "deployDefaultDenySecurityAdminRules": {
+              "type": "bool"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')), format('sm-{0}-1', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('prodNetworkGroupMembers')[0]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')), format('sm-{0}-2', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('prodNetworkGroupMembers')[1]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')), format('sm-{0}-1', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('nonProdNetworkGroupMembers')[0]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')), format('sm-{0}-2', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('nonProdNetworkGroupMembers')[1]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')), format('sm-{0}-0', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('prodNetworkGroupMembers')[0]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')), format('sm-{0}-1', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('prodNetworkGroupMembers')[1]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')), format('sm-{0}-2', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('nonProdNetworkGroupMembers')[0]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')), format('sm-{0}-3', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('nonProdNetworkGroupMembers')[1]]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')), format('sm-{0}-4', parameters('location')))]",
+              "properties": {
+                "resourceId": "[parameters('hubVnetId')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]",
+              "properties": {
+                "description": "Prod Spoke VNETs Network Group"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]",
+              "properties": {
+                "description": "Non-prod Spoke VNETs Network Group"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/networkGroups",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]",
+              "properties": {
+                "description": "All VNETs Network Group (for Security Configurations)"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkManagers",
+              "apiVersion": "2022-05-01",
+              "name": "[format('avnm-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "networkManagerScopeAccesses": [
+                  "Connectivity",
+                  "SecurityAdmin"
+                ],
+                "networkManagerScopes": {
+                  "subscriptions": [
+                    "[format('/subscriptions/{0}', subscription().subscriptionId)]"
+                  ],
+                  "managementGroups": []
+                }
+              },
+              "metadata": {
+                "description": "This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-spokesnonprod', parameters('location')))]",
+              "properties": {
+                "description": "Non-prod poke-to-spoke connectivity configuration",
+                "displayName": "Non-prod Spoke-to-Spoke Connectivity",
+                "appliesToGroups": [
+                  {
+                    "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]",
+                    "isGlobal": "False",
+                    "useHubGateway": "[string(parameters('deployVpnGateway'))]",
+                    "groupConnectivity": "DirectlyConnected"
+                  }
+                ],
+                "connectivityTopology": "HubAndSpoke",
+                "deleteExistingPeering": "True",
+                "hubs": [
+                  {
+                    "resourceId": "[parameters('hubVnetId')]",
+                    "resourceType": "Microsoft.Network/virtualNetworks"
+                  }
+                ],
+                "isGlobal": "False"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups/staticMembers', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')), format('sm-{0}-1', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups/staticMembers', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-nonprod', parameters('location')), format('sm-{0}-2', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This connectivity configuration defines the connectivity between the spokes. Only deployed if requested."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-spokesprod', parameters('location')))]",
+              "properties": {
+                "description": "Prod spoke-to-spoke connectivity configuration (through hub)",
+                "displayName": "Prod Spoke-to-Spoke Connectivity",
+                "appliesToGroups": [
+                  {
+                    "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]",
+                    "isGlobal": "False",
+                    "useHubGateway": "[string(parameters('deployVpnGateway'))]",
+                    "groupConnectivity": "None"
+                  }
+                ],
+                "connectivityTopology": "HubAndSpoke",
+                "deleteExistingPeering": "True",
+                "hubs": [
+                  {
+                    "resourceId": "[parameters('hubVnetId')]",
+                    "resourceType": "Microsoft.Network/virtualNetworks"
+                  }
+                ],
+                "isGlobal": "False"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups/staticMembers', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')), format('sm-{0}-1', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups/staticMembers', format('avnm-{0}', parameters('location')), format('ng-{0}-spokes-prod', parameters('location')), format('sm-{0}-2', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This connectivity configuration defines the connectivity between the spokes. Only deployed if requested."
+              }
+            },
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2022-01-31-preview",
+              "name": "[format('uai-{0}', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "metadata": {
+                "description": "This user assigned identity is used by the Deployment Script resource to interact with Azure resources."
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(resourceGroup().id, format('uai-{0}', parameters('location')))]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location'))), '2022-01-31-preview').principalId]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This role assignment grants the user assignmed identity the Contributor role on the resource group."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')))]",
+              "properties": {
+                "applyOnNetworkIntentPolicyBasedServices": [
+                  "None"
+                ],
+                "description": "Security Group for AVNM"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the securityadmin configuration assigned to the AVNM"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]",
+              "properties": {
+                "appliesToGroups": [
+                  {
+                    "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-all', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the rules collection for the security admin config assigned to the AVNM"
+              }
+            },
+            {
+              "condition": "[parameters('deployDefaultDenySecurityAdminRules')]",
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')), format('r-tcp-{0}', parameters('location')))]",
+              "kind": "Custom",
+              "properties": {
+                "access": "Deny",
+                "description": "Denying TCP rules",
+                "destinationPortRanges": [
+                  "20",
+                  "21",
+                  "22",
+                  "23",
+                  "69",
+                  "119",
+                  "161",
+                  "445",
+                  "512",
+                  "514",
+                  "873",
+                  "3389",
+                  "5800",
+                  "5900"
+                ],
+                "destinations": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ],
+                "direction": "Inbound",
+                "priority": 100,
+                "protocol": "TCP",
+                "sourcePortRanges": [
+                  "0-65535"
+                ],
+                "sources": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the rule is to Deny all TCP Rules"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')), format('r-tcp-udp-{0}', parameters('location')))]",
+              "kind": "Custom",
+              "properties": {
+                "access": "Deny",
+                "description": "Deny all TCP/UDP rules",
+                "destinationPortRanges": [
+                  "11",
+                  "135",
+                  "162",
+                  "593",
+                  "2049"
+                ],
+                "destinations": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ],
+                "direction": "Inbound",
+                "priority": 101,
+                "protocol": "TCP,UDP",
+                "sourcePortRanges": [
+                  "0-65535"
+                ],
+                "sources": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This rule to deny inbound TCP/UDP rules"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')), format('r-udp-{0}', parameters('location')))]",
+              "kind": "Custom",
+              "properties": {
+                "access": "Deny",
+                "description": "Deny all UDP rules",
+                "destinationPortRanges": [
+                  "69",
+                  "11211"
+                ],
+                "destinations": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ],
+                "direction": "Inbound",
+                "priority": 102,
+                "protocol": "UDP",
+                "sourcePortRanges": [
+                  "0-65535"
+                ],
+                "sources": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This rule to deny inbound UDP rules"
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('ds-{0}-connectivityconfigs', parameters('location'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "userAssignedIdentityId": {
+                    "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+                  },
+                  "configurationIds": {
+                    "value": "[format('{0},{1}', resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokesprod', parameters('location'))), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokesnonprod', parameters('location'))))]"
+                  },
+                  "configType": {
+                    "value": "Connectivity"
+                  },
+                  "networkManagerName": {
+                    "value": "[format('avnm-{0}', parameters('location'))]"
+                  },
+                  "deploymentScriptName": {
+                    "value": "[format('ds-{0}-connectivityconfigs', parameters('location'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.12.40.16777",
+                      "templateHash": "7560532125695380615"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "userAssignedIdentityId": {
+                      "type": "string"
+                    },
+                    "networkManagerName": {
+                      "type": "string"
+                    },
+                    "configurationIds": {
+                      "type": "string"
+                    },
+                    "deploymentScriptName": {
+                      "type": "string"
+                    },
+                    "configType": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Connectivity",
+                        "SecurityAdmin"
+                      ]
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deploymentScripts",
+                      "apiVersion": "2020-10-01",
+                      "name": "[parameters('deploymentScriptName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "AzurePowerShell",
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('userAssignedIdentityId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "azPowerShellVersion": "8.3",
+                        "retentionInterval": "PT1H",
+                        "timeout": "PT1H",
+                        "arguments": "[format('-uri \"{0}subscriptions/{1}/resourceGroups/{2}/providers/Microsoft.Network/networkManagers/{3}/commit?api-version=2022-05-01\" -location {4} -configIds {5} -subscriptionId {6} -resourceManagerURL {7} -configType {8}', environment().resourceManager, subscription().subscriptionId, resourceGroup().name, parameters('networkManagerName'), parameters('location'), parameters('configurationIds'), subscription().subscriptionId, environment().resourceManager, parameters('configType'))]",
+                        "scriptContent": "    param (\r\n      $resourceGroup,\r\n      $subscriptionId,\r\n      $networkManagerName,\r\n      $resourceManagerURL,\r\n      $configIds,\r\n      $location,\r\n      $configType,\r\n      [string]$uri\r\n    )\r\n    \r\n    $DeploymentScriptOutputs = @{}\r\n    $DeploymentScriptOutputs['text'] = ''\r\n\r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n\r\n    $configsJson = ($configIds.split(',') | foreach-object {\r\n      \"`\"$_`\"\"\r\n    }) -join ','\r\n    \r\n    ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###\r\n    $body = \"{ `\r\n      `\"commitType`\": `\"$configType`\", `\r\n      `\"configurationIds`\": [$configsJson], `\r\n      `\"targetLocations`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    $result = Invoke-AzRestMethod -Method POST -URI \"$uri\" -Payload $body\r\n\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result.statusCode)`n\"\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n\"\r\n    \r\n    If ($result.statusCode -ne 202) {\r\n        throw \"Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'\"\r\n        exit 1\r\n    }\r\n    Else {\r\n      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()\r\n      $timeout = New-TimeSpan -Seconds 300 # five minute timer\r\n        do {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n\"\r\n            Start-Sleep -Seconds 1\r\n            $result = Invoke-AzRestMethod -Method GET -Uri $result.Headers.Location\r\n        }\r\n        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))\r\n\r\n        If ($timedOut) {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for commit has timed out...`n\"\r\n          throw \"Waiting for commit to complete has timed out!\"\r\n          exit 1\r\n        }\r\n        Else {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n\"\r\n        }\r\n    }\r\n\r\n    ### Now that commit has been successfully submitted, check for successful deployment of the commit ###\r\n    # check deployment status\r\n    $body = \"{ `\r\n    `\"deploymentTypes`\": `\"$configType`\", `\r\n    `\"regions`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    # update URL from /commit endpoint to /listDeploymentStatus endpoint\r\n    $uri = $uri.Replace('/commit?', '/listDeploymentStatus?') \r\n    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n\r\n    If ($result.statusCode -eq 200) {\r\n      $content = $result.Content | ConvertFrom-Json -Depth 10\r\n\r\n      If ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n\r\n        While ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n          Start-Sleep -Seconds 10\r\n          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n          $content = $result.Content | ConvertFrom-Json -Depth 10\r\n        }\r\n      }\r\n      If ($content.value[0].deploymentStatus -eq 'Failed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n\"\r\n        throw \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - ensure you are in a region that supports AVNM! Error message: '$($content.value[0].errorMessage)'\"\r\n        exit 1\r\n      }\r\n      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n\"\r\n      }\r\n      Else {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled`n\"\r\n        throw \"ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled\"\r\n        exit 1\r\n      }\r\n    }\r\n    Else {\r\n      $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'`n\"\r\n      throw \"ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'\"\r\n      exit 1\r\n    }\r\n\r\n    "
+                      },
+                      "metadata": {
+                        "description": "Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration."
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokesnonprod', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokesprod', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, format('uai-{0}', parameters('location'))))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('ds-{0}-securityconfigs', parameters('location'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "userAssignedIdentityId": {
+                    "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+                  },
+                  "configurationIds": {
+                    "value": "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')))]"
+                  },
+                  "configType": {
+                    "value": "SecurityAdmin"
+                  },
+                  "networkManagerName": {
+                    "value": "[format('avnm-{0}', parameters('location'))]"
+                  },
+                  "deploymentScriptName": {
+                    "value": "[format('ds-{0}-securityconfigs', parameters('location'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.12.40.16777",
+                      "templateHash": "7560532125695380615"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "userAssignedIdentityId": {
+                      "type": "string"
+                    },
+                    "networkManagerName": {
+                      "type": "string"
+                    },
+                    "configurationIds": {
+                      "type": "string"
+                    },
+                    "deploymentScriptName": {
+                      "type": "string"
+                    },
+                    "configType": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Connectivity",
+                        "SecurityAdmin"
+                      ]
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deploymentScripts",
+                      "apiVersion": "2020-10-01",
+                      "name": "[parameters('deploymentScriptName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "AzurePowerShell",
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('userAssignedIdentityId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "azPowerShellVersion": "8.3",
+                        "retentionInterval": "PT1H",
+                        "timeout": "PT1H",
+                        "arguments": "[format('-uri \"{0}subscriptions/{1}/resourceGroups/{2}/providers/Microsoft.Network/networkManagers/{3}/commit?api-version=2022-05-01\" -location {4} -configIds {5} -subscriptionId {6} -resourceManagerURL {7} -configType {8}', environment().resourceManager, subscription().subscriptionId, resourceGroup().name, parameters('networkManagerName'), parameters('location'), parameters('configurationIds'), subscription().subscriptionId, environment().resourceManager, parameters('configType'))]",
+                        "scriptContent": "    param (\r\n      $resourceGroup,\r\n      $subscriptionId,\r\n      $networkManagerName,\r\n      $resourceManagerURL,\r\n      $configIds,\r\n      $location,\r\n      $configType,\r\n      [string]$uri\r\n    )\r\n    \r\n    $DeploymentScriptOutputs = @{}\r\n    $DeploymentScriptOutputs['text'] = ''\r\n\r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n\r\n    $configsJson = ($configIds.split(',') | foreach-object {\r\n      \"`\"$_`\"\"\r\n    }) -join ','\r\n    \r\n    ### Deploy the connectivityConfiguration by calling the /commit endpoint via REST API ###\r\n    $body = \"{ `\r\n      `\"commitType`\": `\"$configType`\", `\r\n      `\"configurationIds`\": [$configsJson], `\r\n      `\"targetLocations`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    $result = Invoke-AzRestMethod -Method POST -URI \"$uri\" -Payload $body\r\n\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result.statusCode)`n\"\r\n    $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit status: $($result)`n\"\r\n    \r\n    If ($result.statusCode -ne 202) {\r\n        throw \"Failed to commit connectivity configuration. Status code: '$($result.statusCode)'; Message: '$($result.content)'\"\r\n        exit 1\r\n    }\r\n    Else {\r\n      $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()\r\n      $timeout = New-TimeSpan -Seconds 300 # five minute timer\r\n        do {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Waiting 1 second for commit to complete...`n\"\r\n            Start-Sleep -Seconds 1\r\n            $result = Invoke-AzRestMethod -Method GET -Uri $result.Headers.Location\r\n        }\r\n        until (($result.StatusCode -eq 204) -or ($timedOut = $stopwatch.elapsed -gt $timeout))\r\n\r\n        If ($timedOut) {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: waiting for commit has timed out...`n\"\r\n          throw \"Waiting for commit to complete has timed out!\"\r\n          exit 1\r\n        }\r\n        Else {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Commit completed successfully.`n\"\r\n        }\r\n    }\r\n\r\n    ### Now that commit has been successfully submitted, check for successful deployment of the commit ###\r\n    # check deployment status\r\n    $body = \"{ `\r\n    `\"deploymentTypes`\": `\"$configType`\", `\r\n    `\"regions`\": [`\"$location`\"] `\r\n    }\"\r\n\r\n    # update URL from /commit endpoint to /listDeploymentStatus endpoint\r\n    $uri = $uri.Replace('/commit?', '/listDeploymentStatus?') \r\n    $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n\r\n    If ($result.statusCode -eq 200) {\r\n      $content = $result.Content | ConvertFrom-Json -Depth 10\r\n\r\n      If ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n\r\n        While ($content.value[0].deploymentStatus -eq 'Deploying') {\r\n          $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment status: $($content.value[0].deploymentStatus); waiting for completion...`n\"\r\n          Start-Sleep -Seconds 10\r\n          $result = Invoke-AzRestMethod -Method POST -URI $uri -Payload $body\r\n          $content = $result.Content | ConvertFrom-Json -Depth 10\r\n        }\r\n      }\r\n      If ($content.value[0].deploymentStatus -eq 'Failed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - '$($content.value[0].errorMessage)'...`n\"\r\n        throw \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: deployment failed - ensure you are in a region that supports AVNM! Error message: '$($content.value[0].errorMessage)'\"\r\n        exit 1\r\n      }\r\n      ElseIf ($content.value[0].deploymentStatus -eq 'Deployed') {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]Deployment completed successfully.`n\"\r\n      }\r\n      Else {\r\n        $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled`n\"\r\n        throw \"ERROR: Deployment status: $($content.value[0].deploymentStatus) is not handled\"\r\n        exit 1\r\n      }\r\n    }\r\n    Else {\r\n      $DeploymentScriptOutputs['text'] += \"[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')]ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'`n\"\r\n      throw \"ERROR: Failed to get deployment status. Status code: '$($result.statusCode)'\"\r\n      exit 1\r\n    }\r\n\r\n    "
+                      },
+                      "metadata": {
+                        "description": "Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration."
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, format('uai-{0}', parameters('location'))))]",
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')))]",
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'hub')]",
+        "[resourceId('Microsoft.Resources/deployments', 'spokenonprod1')]",
+        "[resourceId('Microsoft.Resources/deployments', 'spokenonprod2')]",
+        "[resourceId('Microsoft.Resources/deployments', 'spokeprod1')]",
+        "[resourceId('Microsoft.Resources/deployments', 'spokeprod2')]"
+      ]
+    }
+  ]
+}
