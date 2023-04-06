@@ -29,6 +29,19 @@ For detailed information, see the Azure Hub and Spoke reference architecture in 
 > [!div class="nextstepaction"]
 > [Hub-spoke network topology in Azure](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
 
+## Deploying Azure Virtual Network Manager with Infrastructure-as-Code
+
+When deploying or managing Azure Virtual Network Manager using infrastructure-as-code, special consideration should be given to the fact that Azure Virtual Network Manager configuration involves a two step process:
+
+1. A configuration and configuration scope or target are defined, then
+1. The configuration is deployed to the target resources (typically, Virtual Networks).
+
+To complete these steps using the Portal, you create a configuration then choose to deploy it in a separate action. For infrastructure code, after defining a configuration in code, the Azure Virtual Network Manager REST API must be called to perform a 'commit' action (mirroring the 'deploy' step in the Portal).
+
+Declarative infrastructure code on its own cannot call a REST API, requiring the use of a Deployment Script resource, which invokes a script in an Azure Container Instance to call the REST API. In this sample, the script used is a PowerShell script.
+
+Because this call to the REST API occurs within the Deployment Script resource, troubleshooting a failed deployment may require reviewing the script logs found on the Deployment Script resource if the Deployment Script resource deployment reports a failure. It is also possible to view the deployment in the Portal, but note that the Portal interface may take several minutes to update after a code deployment is run. 
+
 ## Deploy sample
 
 Create a resource group for the deployment.
