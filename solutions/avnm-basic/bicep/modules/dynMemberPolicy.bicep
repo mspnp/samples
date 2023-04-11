@@ -1,7 +1,6 @@
 targetScope = 'subscription'
 
 param networkGroupId string
-param resourceGroupName string
 
 @description('This is a Policy definition for dyanamic group membership')
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
@@ -15,7 +14,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
         allof: [
           {
             field: 'type'
-            equals: 'Microsoft.Network/virtualNetwork'
+            equals: 'Microsoft.Network/virtualNetworks'
           }
           {
             field: 'tags[_avnm_quickstart_deployment]'

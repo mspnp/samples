@@ -83,7 +83,6 @@ module policyDef 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipTyp
   scope: subscription()
   params: {
     networkGroupId: avnm.outputs.networkGroupId
-    resourceGroupName: resourceGroupName
   }
 }
 
