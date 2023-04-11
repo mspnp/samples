@@ -1,109 +1,106 @@
-targetScope = 'resourceGroup'
+targetScope = 'subscription'
 
 /*** PARAMETERS ***/
 
+@description('The resource group name where the AVNM and VNET resources will be created')
+param resourceGroupName string
+
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones.')
 @minLength(6)
-/* Ideally we'd include this limitation, but since we want to default to the resource group's location, we cannot.
-@allowed([
-  'brazilsouth'
-  'canadacentral'
-  'centralus'
-  'eastus'
-  'eastus2'
-  'southcentralus'
-  'westus2'
-  'westus3'
-  'francecentral'
-  'germanywestcentral'
-  'northeurope'
-  'norwayeast'
-  'uksouth'
-  'westeurope'
-  'sweedencentral'
-  'switzerlandnorth'
-  'uaenorth'
-  'southafricanorth'
-  'australiaeast'
-  'centralindia'
-  'japaneast'
-  'koreacentral'
-  'southeastasia'
-  'eastasia'
-])*/
-param location string = resourceGroup().location
+param location string
 
-@description('Set to false to disable the deployment of some provided default deny AVNM security admin rules. Default is true.')
-param deployDefaultDenySecurityAdminRules bool = true
+@description('Defines how spokes will communicate with eachother. Valid values: "mesh","hubAndSpoke"; default value: "mesh"')
+@allowed(['mesh','hubAndSpoke'])
+param connectivityTopology string = 'mesh'
+
+@description('Connectivity group membership type. Valid values: "static", "dynamic"; default: "static"')
+@allowed(['static','dynamic'])
+param networkGroupMembershipType string = 'static'
+
+/*** RESOURCE GROUP ***/
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+  name: resourceGroupName
+  location: location
+}
 
 /*** RESOURCES (HUB) ***/
 
 module hub 'modules/hub.bicep' = {
-  name: 'hub'
+  name: 'vnet-hub'
+  scope: resourceGroup
   params: {
     location: location
   }
 }
 
-/*** RESOURCES (SPOKE ONE) ***/
-module spokenonprod1 'modules/spoke.bicep' = {
-  name: 'spokenonprod1'
-  scope: resourceGroup()
+/*** RESOURCES (SPOKE A) ***/
+module spokeA 'modules/spoke.bicep' = {
+  name: 'vnet-spokeA'
+  scope: resourceGroup
   params: {
     location: location
-    spokeName: 'nonprod1'
+    spokeName: 'spokeA'
     spokeVnetPrefix: '10.100.0.0/22'
   }
 }
 
-/*** RESOURCES (SPOKE TWO) ***/
-module spokenonprod2 'modules/spoke.bicep' = {
-  name: 'spokenonprod2'
-  scope: resourceGroup()
+/*** RESOURCES (SPOKE B) ***/
+module spokeB 'modules/spoke.bicep' = {
+  name: 'vnet-spokeB'
+  scope: resourceGroup
   params: {
     location: location
-    spokeName: 'nonprod2'
+    spokeName: 'spokeB'
     spokeVnetPrefix: '10.101.0.0/22'
   }
 }
 
-/*** RESOURCES (SPOKE THREE) ***/
-module spokeprod1 'modules/spoke.bicep' = {
-  name: 'spokeprod1'
-  scope: resourceGroup()
+/*** RESOURCES (SPOKE C) ***/
+module spokeC 'modules/spoke.bicep' = {
+  name: 'vnet-spokeC'
+  scope: resourceGroup
   params: {
     location: location
-    spokeName: 'prod1'
-    spokeVnetPrefix: '10.200.0.0/22'
+    spokeName: 'spokeC'
+    spokeVnetPrefix: '10.102.0.0/22'
   }
 }
 
-/*** RESOURCES (SPOKE FOUR) ***/
-module spokeprod2 'modules/spoke.bicep' = {
-  name: 'spokeprod2'
-  scope: resourceGroup()
+/*** RESOURCES (SPOKE D) ***/
+module spokeD 'modules/spoke.bicep' = {
+  name: 'vnet-spokeD'
+  scope: resourceGroup
   params: {
     location: location
-    spokeName: 'prod2'
-    spokeVnetPrefix: '10.201.0.0/22'
+    spokeName: 'spokeD'
+    spokeVnetPrefix: '10.103.0.0/22'
+  }
+}
+
+/*** Dynamic Membership Policy ***/
+module policyDef 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType == 'dynamic') {
+  name: 'policyDefinition'
+  scope: subscription()
+  params: {
+    networkGroupId: avnm.outputs.networkGroupId
+    resourceGroupName: resourceGroupName
   }
 }
 
 /*** AZURE VIRTUAL NETWORK MANAGER RESOURCES ***/
 module avnm 'modules/avnm.bicep' = {
   name: 'avnm'
-  scope: resourceGroup()
+  scope: resourceGroup
   params: {
     location: location
     hubVnetId: hub.outputs.hubVnetId
-    nonProdNetworkGroupMembers: [
-      spokenonprod1.outputs.vnetId
-      spokenonprod2.outputs.vnetId
+    spokeNetworkGroupMembers: [
+      spokeA.outputs.vnetId
+      spokeB.outputs.vnetId
+      spokeC.outputs.vnetId
+      spokeD.outputs.vnetId
     ]
-    prodNetworkGroupMembers: [
-      spokeprod1.outputs.vnetId
-      spokeprod2.outputs.vnetId
-    ]
-    deployDefaultDenySecurityAdminRules: deployDefaultDenySecurityAdminRules
+    connectivityTopology: connectivityTopology
+    networkGroupMembershipType: networkGroupMembershipType
   }
 }

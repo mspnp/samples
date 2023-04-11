@@ -4,6 +4,9 @@ param location string
 resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: 'vnet-${location}-hub'
   location: location
+  tags:{
+    _avnm_quickstart_deployment: 'hub'
+  }
   properties: {
     addressSpace: {
       addressPrefixes: [
