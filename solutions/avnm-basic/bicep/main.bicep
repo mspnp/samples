@@ -78,8 +78,8 @@ module spokeD 'modules/spoke.bicep' = {
 }
 
 /*** Dynamic Membership Policy ***/
-module policyDef 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType == 'dynamic') {
-  name: 'policyDefinition'
+module policy 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType == 'dynamic') {
+  name: 'policy'
   scope: subscription()
   params: {
     networkGroupId: avnm.outputs.networkGroupId
@@ -101,5 +101,25 @@ module avnm 'modules/avnm.bicep' = {
     ]
     connectivityTopology: connectivityTopology
     networkGroupMembershipType: networkGroupMembershipType
+  }
+}
+
+//
+// In order to deploy a Connectivity or Security configruation, the /commit endpoint must be called or a Deployment created in the Portal. 
+// This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
+//
+module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' = {
+  name: 'ds-${location}-connectivityconfigs'
+  scope: resourceGroup
+  dependsOn: [
+    policy
+  ]
+  params: {
+    location: location
+    userAssignedIdentityId: avnm.outputs.userAssignedIdentityId
+    configurationId: avnm.outputs.connectivityConfigurationId
+    configType: 'Connectivity'
+    networkManagerName: avnm.outputs.networkManagerName
+    deploymentScriptName: 'ds-${location}-connectivityconfigs'
   }
 }

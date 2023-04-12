@@ -117,23 +117,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
   }
 }
 
-//
-// In order to deploy a Connectivity or Security configruation, the /commit endpoint must be called or a Deployment created in the Portal. 
-// This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
-//
-module deploymentScriptConnectivityConfigs './avnmDeploymentScript.bicep' = {
-  name: 'ds-${location}-connectivityconfigs'
-  dependsOn: [
-    roleAssignment
-  ]
-  params: {
-    location: location
-    userAssignedIdentityId: userAssignedIdentity.id
-    configurationId: connectivityTopology == 'mesh' ? connectivityConfigurationMesh.id : connectivityConfigurationHubAndSpoke.id
-    configType: 'Connectivity'
-    networkManagerName: networkManager.name
-    deploymentScriptName: 'ds-${location}-connectivityconfigs'
-  }
-}
-
+output networkManagerName string = networkManager.name
+output userAssignedIdentityId string = userAssignedIdentity.id
+output connectivityConfigurationId string = connectivityTopology == 'mesh' ? connectivityConfigurationMesh.id : connectivityConfigurationHubAndSpoke.id
 output networkGroupId string = networkGroupSpokesDynamic.id ?? networkGroupSpokesStatic.id
