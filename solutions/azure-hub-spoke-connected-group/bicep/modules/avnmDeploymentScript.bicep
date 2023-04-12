@@ -52,7 +52,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     [System.Collections.Generic.List[string]]$configIdList = @()  
     $configIdList.addRange([string[]]$configIds.split(',')) 
     [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment
-    $targetLocationList.addRange($targetLocation)     
+    $targetLocationList.addRange([string[]]$targetLocations.split(','))     
     
     $deployment = @{
         Name = $networkManagerName
