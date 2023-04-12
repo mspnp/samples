@@ -34,10 +34,10 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       [parameter(mandatory=$true)][string]$networkManagerName,
 
       # string with comma-separated list of config ids to deploy. ids must be of the same config type
-      [parameter(mandatory=$true)][string]$configIds,
+      [parameter(mandatory=$true)][string[]]$configIds,
 
       # string with comma-separated list of deployment target regions
-      [parameter(mandatory=$true)][string]$targetLocations,
+      [parameter(mandatory=$true)][string[]]$targetLocations,
 
       # configuration type to deploy. must be either connecticity or securityadmin
       [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,
@@ -49,9 +49,9 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     $null = Login-AzAccount -Identity -Subscription $subscriptionId
   
     [System.Collections.Generic.List[string]]$configIdList = @()  
-    $configIdList.addRange([string[]]$configIds.split(',')) 
+    $configIdList.addRange($configIds) 
     [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment
-    $targetLocationList.addRange([string[]]$targetLocations.split(','))     
+    $targetLocationList.addRange($targetLocations)     
     
     $deployment = @{
         Name = $networkManagerName
