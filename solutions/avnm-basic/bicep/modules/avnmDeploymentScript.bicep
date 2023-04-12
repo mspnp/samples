@@ -24,32 +24,43 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     azPowerShellVersion: '8.3'
     retentionInterval: 'PT1H'
     timeout: 'PT1H'
-    arguments: '-networkManagerName "${networkManagerName}" -location ${location} -configId ${configurationId} -subscriptionId ${subscription().subscriptionId} -configType ${configType} -resourceGroupName ${resourceGroup().name}'
+    arguments: '-networkManagerName "${networkManagerName}" -targetLocations ${location} -configIds ${configurationId} -subscriptionId ${subscription().subscriptionId} -configType ${configType} -resourceGroupName ${resourceGroup().name}'
     scriptContent: '''
     param (
-      $subscriptionId,
-      $networkManagerName,
-      $configId,
-      $location,
-      $configType,
-      $resourceGroupName
+      # AVNM subscription id
+      [parameter(mandatory=$true)][string]$subscriptionId,
+
+      # AVNM resource name
+      [parameter(mandatory=$true)][string]$networkManagerName,
+
+      # string with comma-separated list of config ids to deploy. ids must be of the same config type
+      [parameter(mandatory=$true)][string]$configIds,
+
+      # string with comma-separated list of deployment target regions
+      [parameter(mandatory=$true)][string]$targetLocations,
+
+      # configuration type to deploy. must be either connecticity or securityadmin
+      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,
+
+      # AVNM resource group name
+      [parameter(mandatory=$true)][string]$resourceGroupName
     )
-
+  
     $null = Login-AzAccount -Identity -Subscription $subscriptionId
-
-    [System.Collections.Generic.List[string]]$configIds = @()  
-    $configIds.add($configId) 
-    [System.Collections.Generic.List[string]]$target = @() # target locations for deployment
-    $target.Add($location)     
+  
+    [System.Collections.Generic.List[string]]$configIdList = @()  
+    $configIdList.addRange([string[]]$configIds.split(',')) 
+    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment
+    $targetLocationList.addRange([string[]]$targetLocations.split(','))     
     
     $deployment = @{
         Name = $networkManagerName
         ResourceGroupName = $resourceGroupName
-        ConfigurationId = $configIds
-        TargetLocation = $target
-        CommitType = 'Connectivity'
+        ConfigurationId = $configIdList
+        TargetLocation = $targetLocationList
+        CommitType = $configType
     }
-
+  
     try {
       Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop
     }
