@@ -1,22 +1,22 @@
 ---
 page_type: sample
 languages:
-- azurepowershell
 - azurecli
+- bicep
 products:
   - azure
   - azure-firewall
   - azure-virtual-network
   - azure-bastion
   - azure-vpn-gateway
-  - azure-virtual-network-manager
-  - azure-connected-groups
+  - virtual-network-manager
+urlFragment: hub-and-spoke-virtual-network-manager-connected-groups
 description: This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed.
 urlFragment: hub-and-spoke-deployment-with-connected-groups
 azureDeploy: https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json
 ---
 
-# Hub and spoke deployment with Connected Groups
+# Hub and Spoke Deployment with Connected Groups
 
 This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed.
 
