@@ -10,6 +10,7 @@ products:
   - azure-bastion
   - azure-vpn-gateway
   - virtual-network-manager
+name: Hub-and-Spoke Deployment with Connected Groups
 urlFragment: hub-and-spoke-virtual-network-manager-connected-groups
 description: This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. An Azure Firewall and Bastion host are also deployed. Optionally, a VPN gateway and sample workload (virtual machines) can be deployed.
 urlFragment: hub-and-spoke-deployment-with-connected-groups
