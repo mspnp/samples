@@ -33,7 +33,7 @@ For detailed information, see the Azure Hub and Spoke reference architecture in 
 
 ### Registering Resource Providers
 
-If your Azure Virtual Network Manager's scopes includes Management Groups, you'll need to register the 'Microsoft.Network/'
+If your Azure Virtual Network Manager's scopes includes Management Groups, you'll need to register the 'Microsoft.Network' Resource Provider at each Management Group scope with the REST API. See: [Register Resource Provider at Management Group Scope](https://learn.microsoft.com/rest/api/resources/providers/register-at-management-group-scope).
 
 ### Deploying Configurations
 
@@ -42,11 +42,11 @@ When deploying or managing Azure Virtual Network Manager using infrastructure-as
 1. A configuration and configuration scope or target are defined, then
 1. The configuration is deployed to the target resources (typically, Virtual Networks).
 
-To complete these steps using the Portal, you create a configuration then choose to deploy it in a separate action. For infrastructure code, after defining a configuration in code, the Azure Virtual Network Manager REST API must be called to perform a 'commit' action (mirroring the 'deploy' step in the Portal).
+To complete these steps using the Portal, you create a configuration then choose to deploy it in a separate action. For infrastructure code, after defining a configuration in code, the Azure Virtual Network Manager API must be called to perform a 'commit' action (mirroring the 'deploy' step in the Portal).
 
-Declarative infrastructure code on its own cannot call a REST API, requiring the use of a Deployment Script resource, which invokes a script in an Azure Container Instance to call the REST API. In this sample, the script used is a PowerShell script.
+Declarative infrastructure code on its own cannot call the API, requiring the use of a Deployment Script resource. The Deployment Script resource invokes a script in an Azure Container Instance to execute the `Deploy-AzNetworkManagerCommit` Azure PowerShell command.
 
-Because this call to the REST API occurs within the Deployment Script resource, troubleshooting a failed deployment may require reviewing the script logs found on the Deployment Script resource if the Deployment Script resource deployment reports a failure. It is also possible to view the deployment in the Portal, but note that the Portal interface may take several minutes to update after a code deployment is run. 
+Because the PowerShell script runs within the Deployment Script resource, troubleshooting a failed deployment may require reviewing the script logs found on the Deployment Script resource if the Deployment Script resource deployment reports a failure. It is also possible to view the deployment in the Portal, but note that the Portal interface may take several minutes to update after a code deployment is run.
 
 ## Deploy sample
 
@@ -116,7 +116,7 @@ az deployment group create \
 | `adminUserName` | string | If deploying virtual machines, the admin user name for both VMs. | `azureadmin` |
 | `adminPassword` | securestring | If deploying virtual machines, the admin password for both VMs. | `null` |
 | `deployVpnGateway` | bool | If true, a virtual network gateway is deployed into the hub network (+30 min deployment). | `false` |
-|`deployDefaultDenySecurityAdminRules`| bool | If false, the Azure Virtual Network Manager security rule collection is left empty | `true` |
+| `deployDefaultDenySecurityAdminRules`| bool | If false, the Azure Virtual Network Manager security rule collection is left empty | `true` |
 
 ## Diagnostic configurations
 
