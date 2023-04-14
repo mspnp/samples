@@ -31,6 +31,12 @@ For detailed information, see the Azure Hub and Spoke reference architecture in 
 
 ## Deploying Azure Virtual Network Manager with Infrastructure-as-Code
 
+### Registering Resource Providers
+
+If your Azure Virtual Network Manager's scopes includes Management Groups, you'll need to register the 'Microsoft.Network/'
+
+### Deploying Configurations
+
 When deploying or managing Azure Virtual Network Manager using infrastructure-as-code, special consideration should be given to the fact that Azure Virtual Network Manager configuration involves a two step process:
 
 1. A configuration and configuration scope or target are defined, then
