@@ -66,7 +66,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     }
     catch {
       Write-Error "Deployment failed with error: $_"
-      exit 1
+      throw "Deployment failed with error: $_"
     }
     '''
     }

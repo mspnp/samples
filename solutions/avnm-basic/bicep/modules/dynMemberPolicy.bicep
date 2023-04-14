@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param networkGroupId string
+param resourceGroupName string
 
 @description('This is a Policy definition for dyanamic group membership')
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
@@ -18,7 +19,11 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
           }
           {
             field: 'tags[_avnm_quickstart_deployment]'
-            equals: 'spoke'
+            exists: true
+          }
+          {
+            field: 'id'
+            like: '${subscription().id}/resourcegroups/${resourceGroupName}/*'
           }
         ]
       }
@@ -42,3 +47,6 @@ resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01'
     policyDefinitionId: policyDefinition.id
   }
 }
+
+output policyDefinitionId string = policyDefinition.id
+output policyAssignmentId string = policyAssignment.id

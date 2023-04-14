@@ -90,6 +90,7 @@ module policy 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType =
   scope: subscription()
   params: {
     networkGroupId: avnm.outputs.networkGroupId
+    resourceGroupName: resourceGroupName
   }
 }
 
@@ -130,3 +131,7 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
     deploymentScriptName: 'ds-${location}-connectivityconfigs'
   }
 }
+
+// output policy resource ids to facilitate cleanup
+output policyDefinitionId string = policy.outputs.policyDefinitionId ?? 'not_deployed'
+output policyAssignmentId string = policy.outputs.policyAssignmentId ?? 'not_deployed'

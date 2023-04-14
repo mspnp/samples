@@ -34,6 +34,18 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
           addressPrefix: '10.0.3.0/26'
         }
       }
+      {
+        name: 'AzureFirewallManagementSubnet'
+        properties: {
+          addressPrefix: '10.0.3.64/26'
+        }
+      }
+      {
+        name: 'default'
+        properties: {
+          addressPrefix: '10.0.3.128/25'
+        }
+      }
     ]
   }
 }
