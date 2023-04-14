@@ -9,9 +9,15 @@ param resourceGroupName string
 @minLength(6)
 param location string
 
-@description('Defines how spokes will communicate with eachother. Valid values: "mesh","hubAndSpoke"; default value: "mesh"')
-@allowed(['mesh','hubAndSpoke'])
-param connectivityTopology string = 'mesh'
+// Connectivity Topology Options:
+//
+// Mesh: connects both the spokes and hub VNETs using a Connected Group mesh. WARNING: connected group connectivity does not propagate gateway route from the hub to spokes!
+// Hub and Spoke: connected the spokes to the hub using VNET Peering. Spoke-to-spoke connectivity will need to be routed throug an NVA in the hub, requiring UDRs and an NVA (not part of this sample)
+// Mesh with Hub and Spoke: connects spoke VNETs to eachover with a connected group mesh; connects spokes to the hub with traditional peering. 
+//
+@description('Defines how spokes will reach eachother and how spokes will reach the hub. Valid values: "mesh","hubAndSpoke", "meshWithHubAndSpoke; default value: "meshWithHubAndSpoke"')
+@allowed(['mesh','hubAndSpoke','meshWithHubAndSpoke'])
+param connectivityTopology string = 'meshWithHubAndSpoke'
 
 @description('Connectivity group membership type. Valid values: "static", "dynamic"; default: "static"')
 @allowed(['static','dynamic'])
@@ -30,6 +36,7 @@ module hub 'modules/hub.bicep' = {
   scope: resourceGroup
   params: {
     location: location
+    connectivityTopology: connectivityTopology
   }
 }
 
@@ -66,7 +73,7 @@ module spokeC 'modules/spoke.bicep' = {
   }
 }
 
-/*** RESOURCES (SPOKE D) ***/
+/*** RESOURCES (SPOKE D) - this VNET is left out of the Connected Group ***/
 module spokeD 'modules/spoke.bicep' = {
   name: 'vnet-spokeD'
   scope: resourceGroup

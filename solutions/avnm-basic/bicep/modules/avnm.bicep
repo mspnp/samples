@@ -30,10 +30,10 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
 
 @description('This is the static network group for the spoke VNETs.')
 resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
-  name: 'ng-${location}-spokes-static'
+  name: 'ng-${location}-static'
   parent: networkManager
   properties: {
-    description: 'Spoke VNETs Network Group - Static'
+    description: 'Network Group - Static'
   }
 
   // add spoke vnets A, B, and C to the static network group
@@ -43,14 +43,22 @@ resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGrou
       resourceId: spokeMember
     }
   }]
+
+  // add hub if connectivity topology is 'mesh'
+  resource staticMemberHub 'staticMembers@2022-09-01' = if (connectivityTopology == 'mesh') {
+    name: 'sm-${(toLower(last(split(hubVnetId, '/'))))}'
+    properties: {
+      resourceId: hubVnetId
+    }
+  }
 }
 
 @description('This is the dynamic group for spoke VNETs.')
 resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
-  name: 'ng-${location}-spokes-dynamic'
+  name: 'ng-${location}-dynamic'
   parent: networkManager
   properties: {
-    description: 'Spoke VNETs Network Group - Dynamic'
+    description: 'Network Group - Dynamic'
   }
 }
 
@@ -76,8 +84,34 @@ resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connec
 }
 
 @description('This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it.')
+resource connectivityConfigurationMeshWithHubAndSpoke 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = if (connectivityTopology == 'meshWithAndSpoke') {
+  name: 'cc-${location}-meshwithhubandspoke'
+  parent: networkManager
+  properties: {
+    description: 'Spoke-to-spoke connectivity configuration'
+    appliesToGroups: [
+      {
+        networkGroupId: (networkGroupMembershipType == 'static') ? networkGroupSpokesStatic.id : networkGroupSpokesDynamic.id
+        isGlobal: 'False'
+        useHubGateway: 'False' // cannot be true unless hub has a gateway deployed
+        groupConnectivity: 'DirectlyConnected'
+      }
+    ]
+    connectivityTopology: 'HubAndSpoke'
+    deleteExistingPeering: 'True'
+    hubs: [
+      {
+        resourceId: hubVnetId
+        resourceType: 'Microsoft.Network/virtualNetworks'
+      }
+    ]
+    isGlobal: 'False'
+  }
+}
+
+@description('This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it.')
 resource connectivityConfigurationHubAndSpoke 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = if (connectivityTopology == 'hubAndSpoke') {
-  name: 'cc-${location}-spokes-hubandspoke'
+  name: 'cc-${location}-hubandspoke'
   parent: networkManager
   properties: {
     description: 'Spoke-to-spoke connectivity configuration'
