@@ -1,3 +1,4 @@
+// deployment uses a 'subscription' target scope in order to create resource group and policy
 targetScope = 'subscription'
 
 /*** PARAMETERS ***/
