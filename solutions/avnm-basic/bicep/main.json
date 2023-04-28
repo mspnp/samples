@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "6363824575523051094"
+      "templateHash": "7275427293250353427"
     }
   },
   "parameters": {
@@ -19,7 +19,7 @@
       "type": "string",
       "minLength": 6,
       "metadata": {
-        "description": "The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones."
+        "description": "The location of this regional hub. All resources, including spoke resources, will be deployed to this region."
       }
     },
     "connectivityTopology": {
@@ -31,7 +31,7 @@
         "meshWithHubAndSpoke"
       ],
       "metadata": {
-        "description": "Defines how spokes will reach eachother and how spokes will reach the hub. Valid values: \"mesh\",\"hubAndSpoke\", \"meshWithHubAndSpoke; default value: \"meshWithHubAndSpoke\""
+        "description": "Defines how spokes will connect to each other and how spokes will connect the hub. Valid values: \"mesh\", \"hubAndSpoke\", \"meshWithHubAndSpoke\"; default value: \"meshWithHubAndSpoke\""
       }
     },
     "networkGroupMembershipType": {
