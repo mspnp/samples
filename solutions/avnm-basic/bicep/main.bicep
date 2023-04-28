@@ -6,20 +6,25 @@ targetScope = 'subscription'
 @description('The resource group name where the AVNM and VNET resources will be created')
 param resourceGroupName string
 
-@description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region. This region must support availability zones.')
+@description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
 @minLength(6)
 param location string
 
 // Connectivity Topology Options:
 //
-// Mesh: connects both the spokes and hub VNETs using a Connected Group mesh. WARNING: connected group connectivity does not propagate gateway route from the hub to spokes!
+// Mesh: connects both the spokes and hub VNETs using a Connected Group mesh. WARNING: connected group connectivity does not propagate gateway routes from the hub to spokes, requiring route tables with UDRs!
 // Hub and Spoke: connected the spokes to the hub using VNET Peering. Spoke-to-spoke connectivity will need to be routed throug an NVA in the hub, requiring UDRs and an NVA (not part of this sample)
 // Mesh with Hub and Spoke: connects spoke VNETs to eachover with a connected group mesh; connects spokes to the hub with traditional peering. 
 //
-@description('Defines how spokes will reach eachother and how spokes will reach the hub. Valid values: "mesh","hubAndSpoke", "meshWithHubAndSpoke; default value: "meshWithHubAndSpoke"')
+@description('Defines how spokes will connect to each other and how spokes will connect the hub. Valid values: "mesh", "hubAndSpoke", "meshWithHubAndSpoke"; default value: "meshWithHubAndSpoke"')
 @allowed(['mesh','hubAndSpoke','meshWithHubAndSpoke'])
 param connectivityTopology string = 'meshWithHubAndSpoke'
 
+// Network Group Membership Options:
+//
+// Static: Only the VNET IDs specified in the Network Group are part of the Connectivity Configurations
+// Dynamic: Network Group membership is dynamic using Azure Policy, adding and removing Network Group members based on Policy rules
+//
 @description('Connectivity group membership type. Valid values: "static", "dynamic"; default: "static"')
 @allowed(['static','dynamic'])
 param networkGroupMembershipType string = 'static'
