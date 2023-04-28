@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "7275427293250353427"
+      "templateHash": "936653037590827399"
     }
   },
   "parameters": {
@@ -20,18 +20,6 @@
       "minLength": 6,
       "metadata": {
         "description": "The location of this regional hub. All resources, including spoke resources, will be deployed to this region."
-      }
-    },
-    "connectivityTopology": {
-      "type": "string",
-      "defaultValue": "meshWithHubAndSpoke",
-      "allowedValues": [
-        "mesh",
-        "hubAndSpoke",
-        "meshWithHubAndSpoke"
-      ],
-      "metadata": {
-        "description": "Defines how spokes will connect to each other and how spokes will connect the hub. Valid values: \"mesh\", \"hubAndSpoke\", \"meshWithHubAndSpoke\"; default value: \"meshWithHubAndSpoke\""
       }
     },
     "networkGroupMembershipType": {
@@ -66,9 +54,6 @@
         "parameters": {
           "location": {
             "value": "[parameters('location')]"
-          },
-          "connectivityTopology": {
-            "value": "[parameters('connectivityTopology')]"
           }
         },
         "template": {
@@ -78,14 +63,11 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "8095781805574697284"
+              "templateHash": "4974121020062150351"
             }
           },
           "parameters": {
             "location": {
-              "type": "string"
-            },
-            "connectivityTopology": {
               "type": "string"
             }
           },
@@ -95,7 +77,9 @@
               "apiVersion": "2022-01-01",
               "name": "[format('vnet-{0}-hub', parameters('location'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(equals(parameters('connectivityTopology'), 'mesh'), createObject('_avnm_quickstart_deployment', 'hub'), createObject())]",
+              "tags": {
+                "_avnm_quickstart_deployment": "hub"
+              },
               "properties": {
                 "addressSpace": {
                   "addressPrefixes": [
@@ -626,9 +610,6 @@
               "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeD'), '2022-09-01').outputs.vnetId.value]"
             ]
           },
-          "connectivityTopology": {
-            "value": "[parameters('connectivityTopology')]"
-          },
           "networkGroupMembershipType": {
             "value": "[parameters('networkGroupMembershipType')]"
           }
@@ -640,7 +621,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "7637547325418012669"
+              "templateHash": "17938284154957798435"
             }
           },
           "parameters": {
@@ -651,9 +632,6 @@
               "type": "array"
             },
             "hubVnetId": {
-              "type": "string"
-            },
-            "connectivityTopology": {
               "type": "string"
             },
             "networkGroupMembershipType": {
@@ -685,7 +663,7 @@
               ]
             },
             {
-              "condition": "[and(equals(parameters('networkGroupMembershipType'), 'static'), equals(parameters('connectivityTopology'), 'mesh'))]",
+              "condition": "[equals(parameters('networkGroupMembershipType'), 'static')]",
               "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
               "apiVersion": "2022-09-01",
               "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')), format('sm-{0}', toLower(last(split(parameters('hubVnetId'), '/')))))]",
@@ -747,7 +725,6 @@
               }
             },
             {
-              "condition": "[equals(parameters('connectivityTopology'), 'mesh')]",
               "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
               "apiVersion": "2022-09-01",
               "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-spokes-mesh', parameters('location')))]",
@@ -773,74 +750,6 @@
               ],
               "metadata": {
                 "description": "This connectivity configuration defines the connectivity between VNETs using Direct Connection. The hub will be part of the mesh, but gateway routes from the hub will not propagate to spokes."
-              }
-            },
-            {
-              "condition": "[equals(parameters('connectivityTopology'), 'meshWithHubAndSpoke')]",
-              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-meshwithhubandspoke', parameters('location')))]",
-              "properties": {
-                "description": "Spoke-to-spoke connectivity configuration",
-                "appliesToGroups": [
-                  {
-                    "networkGroupId": "[if(equals(parameters('networkGroupMembershipType'), 'static'), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location'))), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location'))))]",
-                    "isGlobal": "False",
-                    "useHubGateway": "False",
-                    "groupConnectivity": "DirectlyConnected"
-                  }
-                ],
-                "connectivityTopology": "HubAndSpoke",
-                "deleteExistingPeering": "True",
-                "hubs": [
-                  {
-                    "resourceId": "[parameters('hubVnetId')]",
-                    "resourceType": "Microsoft.Network/virtualNetworks"
-                  }
-                ],
-                "isGlobal": "False"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ],
-              "metadata": {
-                "description": "This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it."
-              }
-            },
-            {
-              "condition": "[equals(parameters('connectivityTopology'), 'hubAndSpoke')]",
-              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-hubandspoke', parameters('location')))]",
-              "properties": {
-                "description": "Spoke-to-spoke connectivity configuration",
-                "appliesToGroups": [
-                  {
-                    "networkGroupId": "[if(equals(parameters('networkGroupMembershipType'), 'static'), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location'))), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location'))))]",
-                    "isGlobal": "False",
-                    "useHubGateway": "False",
-                    "groupConnectivity": "None"
-                  }
-                ],
-                "connectivityTopology": "HubAndSpoke",
-                "deleteExistingPeering": "True",
-                "hubs": [
-                  {
-                    "resourceId": "[parameters('hubVnetId')]",
-                    "resourceType": "Microsoft.Network/virtualNetworks"
-                  }
-                ],
-                "isGlobal": "False"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ],
-              "metadata": {
-                "description": "This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it."
               }
             },
             {
@@ -880,7 +789,7 @@
             },
             "connectivityConfigurationId": {
               "type": "string",
-              "value": "[if(equals(parameters('connectivityTopology'), 'meshWithHubAndSpoke'), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-meshwithhubandspoke', parameters('location'))), if(equals(parameters('connectivityTopology'), 'hubAndSpoke'), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-hubandspoke', parameters('location'))), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokes-mesh', parameters('location')))))]"
+              "value": "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokes-mesh', parameters('location')))]"
             },
             "networkGroupId": {
               "type": "string",

@@ -1,14 +1,13 @@
 param location string
-param connectivityTopology string
 
 @description('The regional hub network.')
 resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: 'vnet-${location}-hub'
   location: location
   // add tag to include hub vnet in the connected group mesh only when connectivity topology is 'mesh'
-  tags: (connectivityTopology == 'mesh') ? {
+  tags: {
     _avnm_quickstart_deployment: 'hub'
-  } : {}
+  }
   properties: {
     addressSpace: {
       addressPrefixes: [
