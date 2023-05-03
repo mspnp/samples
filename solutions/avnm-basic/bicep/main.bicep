@@ -33,7 +33,6 @@ module hub 'modules/hub.bicep' = {
   scope: resourceGroup
   params: {
     location: location
-    connectivityTopology: connectivityTopology
   }
 }
 
