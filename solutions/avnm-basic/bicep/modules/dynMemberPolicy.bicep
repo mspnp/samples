@@ -18,9 +18,9 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
             equals: 'Microsoft.Network/virtualNetworks'
           }
           {
-            // virtual networks must have a tag where the key is '_avnm_quickstart_deployment'
-            field: 'tags[_avnm_quickstart_deployment]'
-            exists: true
+            // virtual networks must have -prod in the name
+            field: 'name'
+            contains: '-prod'
           }
           {
             // virtual network ids must include this sample's resource group ID - limiting the chance that dynamic membership impacts other vnets in your subscriptions

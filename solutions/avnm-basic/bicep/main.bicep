@@ -10,24 +10,15 @@ param resourceGroupName string
 @minLength(6)
 param location string
 
-// Connectivity Topology Options:
-//
-// Mesh: connects both the spokes and hub VNETs using a Connected Group mesh. WARNING: connected group connectivity does not propagate gateway routes from the hub to spokes, requiring route tables with UDRs!
-// Hub and Spoke: connected the spokes to the hub using VNET Peering. Spoke-to-spoke connectivity will need to be routed throug an NVA in the hub, requiring UDRs and an NVA (not part of this sample)
-// Mesh with Hub and Spoke: connects spoke VNETs to eachover with a connected group mesh; connects spokes to the hub with traditional peering. 
-//
-@description('Defines how spokes will connect to each other and how spokes will connect the hub. Valid values: "mesh", "hubAndSpoke", "meshWithHubAndSpoke"; default value: "meshWithHubAndSpoke"')
-@allowed(['mesh','hubAndSpoke','meshWithHubAndSpoke'])
-param connectivityTopology string = 'meshWithHubAndSpoke'
+@description('Password for the test VMs deployed in the spokes')
+@secure()
+param adminPassword string
 
-// Network Group Membership Options:
-//
-// Static: Only the VNET IDs specified in the Network Group are part of the Connectivity Configurations
-// Dynamic: Network Group membership is dynamic using Azure Policy, adding and removing Network Group members based on Policy rules
-//
-@description('Connectivity group membership type. Valid values: "static", "dynamic"; default: "static"')
-@allowed(['static','dynamic'])
-param networkGroupMembershipType string = 'static'
+@description('Username for the test VMs deployed in the spokes; default: admin-avnm')
+param adminUsername string = 'admin-avnm'
+
+var connectivityTopology = 'hubAndSpoke'
+var networkGroupMembershipType = 'static'
 
 /*** RESOURCE GROUP ***/
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
@@ -38,7 +29,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
 /*** RESOURCES (HUB) ***/
 
 module hub 'modules/hub.bicep' = {
-  name: 'vnet-hub'
+  name: 'hub-resources-deployment-${location}'
   scope: resourceGroup
   params: {
     location: location
@@ -46,47 +37,29 @@ module hub 'modules/hub.bicep' = {
   }
 }
 
-/*** RESOURCES (SPOKE A) ***/
+/*** RESOURCES (SPOKE 1) ***/
 module spokeA 'modules/spoke.bicep' = {
-  name: 'vnet-spokeA'
+  name: 'spoke1-resources-deployment-${location}'
   scope: resourceGroup
   params: {
     location: location
     spokeName: 'spokeA'
-    spokeVnetPrefix: '10.100.0.0/22'
+    spokeVnetPrefix: '10.1.0.0/16'
+    adminPassword: adminPassword
+    adminUsername: adminUsername
   }
 }
 
-/*** RESOURCES (SPOKE B) ***/
+/*** RESOURCES (SPOKE 2) ***/
 module spokeB 'modules/spoke.bicep' = {
-  name: 'vnet-spokeB'
+  name: 'spoke2-resources-deployment-${location}'
   scope: resourceGroup
   params: {
     location: location
     spokeName: 'spokeB'
-    spokeVnetPrefix: '10.101.0.0/22'
-  }
-}
-
-/*** RESOURCES (SPOKE C) ***/
-module spokeC 'modules/spoke.bicep' = {
-  name: 'vnet-spokeC'
-  scope: resourceGroup
-  params: {
-    location: location
-    spokeName: 'spokeC'
-    spokeVnetPrefix: '10.102.0.0/22'
-  }
-}
-
-/*** RESOURCES (SPOKE D) - this VNET is left out of the Connected Group ***/
-module spokeD 'modules/spoke.bicep' = {
-  name: 'vnet-spokeD'
-  scope: resourceGroup
-  params: {
-    location: location
-    spokeName: 'spokeD'
-    spokeVnetPrefix: '10.103.0.0/22'
+    spokeVnetPrefix: '10.2.0.0/16'
+    adminPassword: adminPassword
+    adminUsername: adminUsername
   }
 }
 
@@ -107,14 +80,7 @@ module avnm 'modules/avnm.bicep' = {
   params: {
     location: location
     hubVnetId: hub.outputs.hubVnetId
-    spokeNetworkGroupMembers: [
-      spokeA.outputs.vnetId
-      spokeB.outputs.vnetId
-      spokeC.outputs.vnetId
-      spokeD.outputs.vnetId
-    ]
     connectivityTopology: connectivityTopology
-    networkGroupMembershipType: networkGroupMembershipType
   }
 }
 
