@@ -18,7 +18,7 @@ param adminPassword string
 param adminUsername string = 'admin-avnm'
 
 var connectivityTopology = 'hubAndSpoke'
-var networkGroupMembershipType = 'static'
+var networkGroupMembershipType = 'dynamic'
 
 /*** RESOURCE GROUP ***/
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
@@ -43,7 +43,7 @@ module spokeA 'modules/spoke.bicep' = {
   scope: resourceGroup
   params: {
     location: location
-    spokeName: 'spokeA'
+    spokeName: '001'
     spokeVnetPrefix: '10.1.0.0/16'
     adminPassword: adminPassword
     adminUsername: adminUsername
@@ -56,7 +56,7 @@ module spokeB 'modules/spoke.bicep' = {
   scope: resourceGroup
   params: {
     location: location
-    spokeName: 'spokeB'
+    spokeName: '002'
     spokeVnetPrefix: '10.2.0.0/16'
     adminPassword: adminPassword
     adminUsername: adminUsername
@@ -101,6 +101,22 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
     configType: 'Connectivity'
     networkManagerName: avnm.outputs.networkManagerName
     deploymentScriptName: 'ds-${location}-connectivityconfigs'
+  }
+}
+
+module deploymentScriptSecurityConfigs 'modules/avnmDeploymentScript.bicep' = {
+  name: 'ds-${location}-securityadminconfigs'
+  scope: resourceGroup
+  dependsOn: [
+    policy
+  ]
+  params: {
+    location: location
+    userAssignedIdentityId: avnm.outputs.userAssignedIdentityId
+    configurationId: avnm.outputs.securtyAdminConfigurationId
+    configType: 'SecurityAdmin'
+    networkManagerName: avnm.outputs.networkManagerName
+    deploymentScriptName: 'ds-${location}-securityadminconfigs'
   }
 }
 

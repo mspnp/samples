@@ -5,20 +5,9 @@ param spokeVnetPrefix string
 param adminPassword string
 param adminUsername string = 'admin-avnm'
 
-// only these VNETs are tagged and will be added to the dynamic Network Group by Policy
-var taggedVNETs = [
-  'spokeA'
-  'spokeB'
-  'spokeC'
-]
-
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
-  name: 'vnet-${location}-${toLower(spokeName)}'
+  name: 'vnet-learn-prod-${location}-${toLower(spokeName)}'
   location: location
-  // add tags to the vnet names in variable tagged vnets - for dynamic group membership
-  tags: contains(taggedVNETs,spokeName) ? {
-    _avnm_quickstart_deployment: 'spoke'
-  } : {}
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -38,7 +27,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
 
 @description('The private Network Interface Card for the Windows VM in spoke.')
 resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = {
-  name: 'nic-vm-${location}-${spokeName}-ubuntu'
+  name: 'nic-learn-prod-${location}-${spokeName}-ubuntu'
   location: location
   properties: {
     ipConfigurations: [
@@ -58,7 +47,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = {
 
 @description('A basic Ubuntu Linux virtual machine that will be attached to spoke.')
 resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
-  name: 'vm-${location}-spoke-${spokeName}-ubuntu'
+  name: 'vm-learn-prod-${location}-${spokeName}-ubuntu'
   location: location
   properties: {
     hardwareProfile: {

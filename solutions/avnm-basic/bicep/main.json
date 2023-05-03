@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "7275427293250353427"
+      "templateHash": "18015242922620438387"
     }
   },
   "parameters": {
@@ -22,29 +22,23 @@
         "description": "The location of this regional hub. All resources, including spoke resources, will be deployed to this region."
       }
     },
-    "connectivityTopology": {
-      "type": "string",
-      "defaultValue": "meshWithHubAndSpoke",
-      "allowedValues": [
-        "mesh",
-        "hubAndSpoke",
-        "meshWithHubAndSpoke"
-      ],
+    "adminPassword": {
+      "type": "securestring",
       "metadata": {
-        "description": "Defines how spokes will connect to each other and how spokes will connect the hub. Valid values: \"mesh\", \"hubAndSpoke\", \"meshWithHubAndSpoke\"; default value: \"meshWithHubAndSpoke\""
+        "description": "Password for the test VMs deployed in the spokes"
       }
     },
-    "networkGroupMembershipType": {
+    "adminUsername": {
       "type": "string",
-      "defaultValue": "static",
-      "allowedValues": [
-        "static",
-        "dynamic"
-      ],
+      "defaultValue": "admin-avnm",
       "metadata": {
-        "description": "Connectivity group membership type. Valid values: \"static\", \"dynamic\"; default: \"static\""
+        "description": "Username for the test VMs deployed in the spokes; default: admin-avnm"
       }
     }
+  },
+  "variables": {
+    "connectivityTopology": "hubAndSpoke",
+    "networkGroupMembershipType": "static"
   },
   "resources": [
     {
@@ -56,7 +50,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "vnet-hub",
+      "name": "[format('hub-resources-deployment-{0}', parameters('location'))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -68,7 +62,7 @@
             "value": "[parameters('location')]"
           },
           "connectivityTopology": {
-            "value": "[parameters('connectivityTopology')]"
+            "value": "[variables('connectivityTopology')]"
           }
         },
         "template": {
@@ -78,7 +72,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "8095781805574697284"
+              "templateHash": "16991199312061428409"
             }
           },
           "parameters": {
@@ -92,29 +86,17 @@
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2022-01-01",
-              "name": "[format('vnet-{0}-hub', parameters('location'))]",
+              "apiVersion": "2022-09-01",
+              "name": "[format('vnet-learn-hub-{0}-001', parameters('location'))]",
               "location": "[parameters('location')]",
               "tags": "[if(equals(parameters('connectivityTopology'), 'mesh'), createObject('_avnm_quickstart_deployment', 'hub'), createObject())]",
               "properties": {
                 "addressSpace": {
                   "addressPrefixes": [
-                    "10.0.0.0/22"
+                    "10.0.0.0/16"
                   ]
                 },
                 "subnets": [
-                  {
-                    "name": "AzureBastionSubnet",
-                    "properties": {
-                      "addressPrefix": "10.0.1.0/26"
-                    }
-                  },
-                  {
-                    "name": "GatewaySubnet",
-                    "properties": {
-                      "addressPrefix": "10.0.2.0/27"
-                    }
-                  },
                   {
                     "name": "AzureFirewallSubnet",
                     "properties": {
@@ -138,12 +120,81 @@
               "metadata": {
                 "description": "The regional hub network."
               }
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "apiVersion": "2022-09-01",
+              "name": "[format('{0}/{1}', format('vnet-learn-hub-{0}-001', parameters('location')), 'GatewaySubnet')]",
+              "properties": {
+                "addressPrefix": "10.0.2.0/27"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-hub-{0}-001', parameters('location')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2022-01-01",
+              "name": "[format('pip-learn-hub-{0}-vngw001', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "zones": [
+                "1",
+                "2",
+                "3"
+              ],
+              "properties": {
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "publicIPAddressVersion": "IPv4"
+              },
+              "metadata": {
+                "description": "The public IPs for the regional VPN gateway."
+              }
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworkGateways",
+              "apiVersion": "2022-01-01",
+              "name": "[format('gw-learn-hub-{0}-001', parameters('location'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "VpnGw2AZ",
+                  "tier": "VpnGw2AZ"
+                },
+                "gatewayType": "Vpn",
+                "vpnType": "RouteBased",
+                "vpnGatewayGeneration": "Generation2",
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-learn-hub-{0}-vngw001', parameters('location')))]"
+                      },
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-learn-hub-{0}-001', parameters('location')), 'GatewaySubnet')]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-learn-hub-{0}-001', parameters('location')), 'GatewaySubnet')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-learn-hub-{0}-vngw001', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "The is the regional VPN gateway, configured with basic settings."
+              }
             }
           ],
           "outputs": {
             "hubVnetId": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-hub', parameters('location')))]"
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-hub-{0}-001', parameters('location')))]"
             }
           }
         }
@@ -155,7 +206,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "vnet-spokeA",
+      "name": "[format('spoke1-resources-deployment-{0}', parameters('location'))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -170,7 +221,13 @@
             "value": "spokeA"
           },
           "spokeVnetPrefix": {
-            "value": "10.100.0.0/22"
+            "value": "10.1.0.0/16"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
           }
         },
         "template": {
@@ -180,7 +237,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "13829162370692408050"
+              "templateHash": "17548292159226992661"
             }
           },
           "parameters": {
@@ -192,6 +249,13 @@
             },
             "spokeVnetPrefix": {
               "type": "string"
+            },
+            "adminPassword": {
+              "type": "securestring"
+            },
+            "adminUsername": {
+              "type": "string",
+              "defaultValue": "admin-avnm"
             }
           },
           "variables": {
@@ -223,6 +287,93 @@
                   }
                 ]
               }
+            },
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2022-01-01",
+              "name": "[format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "subnet": {
+                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName')))), '2022-01-01').subnets[0].id]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
+                    }
+                  }
+                ],
+                "enableAcceleratedNetworking": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName'))))]"
+              ],
+              "metadata": {
+                "description": "The private Network Interface Card for the Windows VM in spoke."
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[format('vm-{0}-spoke-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_DS1_v2"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "Standard_LRS"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "imageReference": {
+                    "publisher": "canonical",
+                    "offer": "0001-com-ubuntu-server-jammy",
+                    "sku": "22_04-lts-gen2",
+                    "version": "latest"
+                  },
+                  "dataDisks": []
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": null
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+                      "properties": {
+                        "deleteOption": "Delete",
+                        "primary": true
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "examplevm",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true
+                  }
+                },
+                "priority": "Regular"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+              }
             }
           ],
           "outputs": {
@@ -240,7 +391,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "vnet-spokeB",
+      "name": "[format('spoke2-resources-deployment-{0}', parameters('location'))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -255,7 +406,13 @@
             "value": "spokeB"
           },
           "spokeVnetPrefix": {
-            "value": "10.101.0.0/22"
+            "value": "10.2.0.0/16"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
           }
         },
         "template": {
@@ -265,7 +422,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "13829162370692408050"
+              "templateHash": "17548292159226992661"
             }
           },
           "parameters": {
@@ -277,6 +434,13 @@
             },
             "spokeVnetPrefix": {
               "type": "string"
+            },
+            "adminPassword": {
+              "type": "securestring"
+            },
+            "adminUsername": {
+              "type": "string",
+              "defaultValue": "admin-avnm"
             }
           },
           "variables": {
@@ -308,90 +472,92 @@
                   }
                 ]
               }
-            }
-          ],
-          "outputs": {
-            "vnetId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName'))))]"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "vnet-spokeC",
-      "resourceGroup": "[parameters('resourceGroupName')]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "spokeName": {
-            "value": "spokeC"
-          },
-          "spokeVnetPrefix": {
-            "value": "10.102.0.0/22"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.16.1.55165",
-              "templateHash": "13829162370692408050"
-            }
-          },
-          "parameters": {
-            "location": {
-              "type": "string"
             },
-            "spokeName": {
-              "type": "string"
-            },
-            "spokeVnetPrefix": {
-              "type": "string"
-            }
-          },
-          "variables": {
-            "taggedVNETs": [
-              "spokeA",
-              "spokeB",
-              "spokeC"
-            ]
-          },
-          "resources": [
             {
-              "type": "Microsoft.Network/virtualNetworks",
+              "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2022-01-01",
-              "name": "[format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName')))]",
+              "name": "[format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(variables('taggedVNETs'), parameters('spokeName')), createObject('_avnm_quickstart_deployment', 'spoke'), createObject())]",
               "properties": {
-                "addressSpace": {
-                  "addressPrefixes": [
-                    "[parameters('spokeVnetPrefix')]"
-                  ]
-                },
-                "subnets": [
+                "ipConfigurations": [
                   {
                     "name": "default",
                     "properties": {
-                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/24')]"
+                      "subnet": {
+                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName')))), '2022-01-01').subnets[0].id]"
+                      },
+                      "privateIPAllocationMethod": "Dynamic"
                     }
                   }
-                ]
+                ],
+                "enableAcceleratedNetworking": true
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName'))))]"
+              ],
+              "metadata": {
+                "description": "The private Network Interface Card for the Windows VM in spoke."
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2022-03-01",
+              "name": "[format('vm-{0}-spoke-{1}-ubuntu', parameters('location'), parameters('spokeName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_DS1_v2"
+                },
+                "storageProfile": {
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "Standard_LRS"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "imageReference": {
+                    "publisher": "canonical",
+                    "offer": "0001-com-ubuntu-server-jammy",
+                    "sku": "22_04-lts-gen2",
+                    "version": "latest"
+                  },
+                  "dataDisks": []
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": true,
+                    "storageUri": null
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]",
+                      "properties": {
+                        "deleteOption": "Delete",
+                        "primary": true
+                      }
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "examplevm",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true
+                  }
+                },
+                "priority": "Regular"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', format('nic-vm-{0}-{1}-ubuntu', parameters('location'), parameters('spokeName')))]"
+              ],
+              "metadata": {
+                "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
               }
             }
           ],
@@ -408,92 +574,7 @@
       ]
     },
     {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "vnet-spokeD",
-      "resourceGroup": "[parameters('resourceGroupName')]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "spokeName": {
-            "value": "spokeD"
-          },
-          "spokeVnetPrefix": {
-            "value": "10.103.0.0/22"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.16.1.55165",
-              "templateHash": "13829162370692408050"
-            }
-          },
-          "parameters": {
-            "location": {
-              "type": "string"
-            },
-            "spokeName": {
-              "type": "string"
-            },
-            "spokeVnetPrefix": {
-              "type": "string"
-            }
-          },
-          "variables": {
-            "taggedVNETs": [
-              "spokeA",
-              "spokeB",
-              "spokeC"
-            ]
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2022-01-01",
-              "name": "[format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName')))]",
-              "location": "[parameters('location')]",
-              "tags": "[if(contains(variables('taggedVNETs'), parameters('spokeName')), createObject('_avnm_quickstart_deployment', 'spoke'), createObject())]",
-              "properties": {
-                "addressSpace": {
-                  "addressPrefixes": [
-                    "[parameters('spokeVnetPrefix')]"
-                  ]
-                },
-                "subnets": [
-                  {
-                    "name": "default",
-                    "properties": {
-                      "addressPrefix": "[replace(parameters('spokeVnetPrefix'), '.0.0/22', '.1.0/24')]"
-                    }
-                  }
-                ]
-              }
-            }
-          ],
-          "outputs": {
-            "vnetId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-{0}-{1}', parameters('location'), toLower(parameters('spokeName'))))]"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
-      ]
-    },
-    {
-      "condition": "[equals(parameters('networkGroupMembershipType'), 'dynamic')]",
+      "condition": "[equals(variables('networkGroupMembershipType'), 'dynamic')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "policy",
@@ -518,7 +599,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "10975790918993970898"
+              "templateHash": "1475288929234893222"
             }
           },
           "parameters": {
@@ -546,8 +627,8 @@
                         "equals": "Microsoft.Network/virtualNetworks"
                       },
                       {
-                        "field": "tags[_avnm_quickstart_deployment]",
-                        "exists": true
+                        "field": "name",
+                        "contains": "-prod"
                       },
                       {
                         "field": "id",
@@ -616,21 +697,10 @@
             "value": "[parameters('location')]"
           },
           "hubVnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-hub'), '2022-09-01').outputs.hubVnetId.value]"
-          },
-          "spokeNetworkGroupMembers": {
-            "value": [
-              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeA'), '2022-09-01').outputs.vnetId.value]",
-              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeB'), '2022-09-01').outputs.vnetId.value]",
-              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeC'), '2022-09-01').outputs.vnetId.value]",
-              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeD'), '2022-09-01').outputs.vnetId.value]"
-            ]
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('hub-resources-deployment-{0}', parameters('location'))), '2022-09-01').outputs.hubVnetId.value]"
           },
           "connectivityTopology": {
-            "value": "[parameters('connectivityTopology')]"
-          },
-          "networkGroupMembershipType": {
-            "value": "[parameters('networkGroupMembershipType')]"
+            "value": "[variables('connectivityTopology')]"
           }
         },
         "template": {
@@ -640,62 +710,21 @@
             "_generator": {
               "name": "bicep",
               "version": "0.16.1.55165",
-              "templateHash": "7637547325418012669"
+              "templateHash": "5841710787089336683"
             }
           },
           "parameters": {
             "location": {
               "type": "string"
             },
-            "spokeNetworkGroupMembers": {
-              "type": "array"
-            },
             "hubVnetId": {
               "type": "string"
             },
             "connectivityTopology": {
               "type": "string"
-            },
-            "networkGroupMembershipType": {
-              "type": "string"
             }
           },
-          "variables": {
-            "groupedVNETs": [
-              "[format('vnet-{0}-spokea', parameters('location'))]",
-              "[format('vnet-{0}-spokeb', parameters('location'))]",
-              "[format('vnet-{0}-spokec', parameters('location'))]"
-            ]
-          },
           "resources": [
-            {
-              "copy": {
-                "name": "staticMemberSpoke",
-                "count": "[length(parameters('spokeNetworkGroupMembers'))]"
-              },
-              "condition": "[and(equals(parameters('networkGroupMembershipType'), 'static'), contains(variables('groupedVNETs'), last(split(parameters('spokeNetworkGroupMembers')[copyIndex()], '/'))))]",
-              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')), format('sm-{0}', last(split(parameters('spokeNetworkGroupMembers')[copyIndex()], '/'))))]",
-              "properties": {
-                "resourceId": "[parameters('spokeNetworkGroupMembers')[copyIndex()]]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]"
-              ]
-            },
-            {
-              "condition": "[and(equals(parameters('networkGroupMembershipType'), 'static'), equals(parameters('connectivityTopology'), 'mesh'))]",
-              "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')), format('sm-{0}', toLower(last(split(parameters('hubVnetId'), '/')))))]",
-              "properties": {
-                "resourceId": "[parameters('hubVnetId')]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]"
-              ]
-            },
             {
               "type": "Microsoft.Network/networkManagers",
               "apiVersion": "2022-09-01",
@@ -717,25 +746,9 @@
               }
             },
             {
-              "condition": "[equals(parameters('networkGroupMembershipType'), 'static')]",
               "type": "Microsoft.Network/networkManagers/networkGroups",
               "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]",
-              "properties": {
-                "description": "Network Group - Static"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ],
-              "metadata": {
-                "description": "This is the static network group for the spoke VNETs, and hub when topology is mesh."
-              }
-            },
-            {
-              "condition": "[equals(parameters('networkGroupMembershipType'), 'dynamic')]",
-              "type": "Microsoft.Network/networkManagers/networkGroups",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location')))]",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
               "properties": {
                 "description": "Network Group - Dynamic"
               },
@@ -747,80 +760,17 @@
               }
             },
             {
-              "condition": "[equals(parameters('connectivityTopology'), 'mesh')]",
-              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-spokes-mesh', parameters('location')))]",
-              "properties": {
-                "description": "Spoke-to-spoke connectivity configuration",
-                "appliesToGroups": [
-                  {
-                    "networkGroupId": "[if(equals(parameters('networkGroupMembershipType'), 'static'), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location'))), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location'))))]",
-                    "isGlobal": "False",
-                    "useHubGateway": "False",
-                    "groupConnectivity": "DirectlyConnected"
-                  }
-                ],
-                "connectivityTopology": "Mesh",
-                "deleteExistingPeering": "True",
-                "hubs": [],
-                "isGlobal": "False"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ],
-              "metadata": {
-                "description": "This connectivity configuration defines the connectivity between VNETs using Direct Connection. The hub will be part of the mesh, but gateway routes from the hub will not propagate to spokes."
-              }
-            },
-            {
-              "condition": "[equals(parameters('connectivityTopology'), 'meshWithHubAndSpoke')]",
-              "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
-              "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-meshwithhubandspoke', parameters('location')))]",
-              "properties": {
-                "description": "Spoke-to-spoke connectivity configuration",
-                "appliesToGroups": [
-                  {
-                    "networkGroupId": "[if(equals(parameters('networkGroupMembershipType'), 'static'), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location'))), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location'))))]",
-                    "isGlobal": "False",
-                    "useHubGateway": "False",
-                    "groupConnectivity": "DirectlyConnected"
-                  }
-                ],
-                "connectivityTopology": "HubAndSpoke",
-                "deleteExistingPeering": "True",
-                "hubs": [
-                  {
-                    "resourceId": "[parameters('hubVnetId')]",
-                    "resourceType": "Microsoft.Network/virtualNetworks"
-                  }
-                ],
-                "isGlobal": "False"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
-              ],
-              "metadata": {
-                "description": "This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it."
-              }
-            },
-            {
               "condition": "[equals(parameters('connectivityTopology'), 'hubAndSpoke')]",
               "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
               "apiVersion": "2022-09-01",
-              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-{0}-hubandspoke', parameters('location')))]",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-learn-prod-{0}-001', parameters('location')))]",
               "properties": {
                 "description": "Spoke-to-spoke connectivity configuration",
                 "appliesToGroups": [
                   {
-                    "networkGroupId": "[if(equals(parameters('networkGroupMembershipType'), 'static'), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location'))), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location'))))]",
+                    "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
                     "isGlobal": "False",
-                    "useHubGateway": "False",
+                    "useHubGateway": "True",
                     "groupConnectivity": "None"
                   }
                 ],
@@ -835,12 +785,85 @@
                 "isGlobal": "False"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location')))]",
-                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
                 "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
               ],
               "metadata": {
                 "description": "This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it."
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')))]",
+              "properties": {
+                "applyOnNetworkIntentPolicyBasedServices": [
+                  "None"
+                ],
+                "description": "Security Group for AVNM"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the securityadmin configuration assigned to the AVNM"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')), format('rc-learn-prod-{0}-001', parameters('location')))]",
+              "properties": {
+                "appliesToGroups": [
+                  {
+                    "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This is the rules collection for the security admin config assigned to the AVNM"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+              "apiVersion": "2022-05-01",
+              "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')), format('rc-learn-prod-{0}-001', parameters('location')), 'DENY_INTERNET_HTTP_HTTPS')]",
+              "kind": "Custom",
+              "properties": {
+                "access": "Deny",
+                "description": "This rule blocks traffic to the internet on HTTP and HTTPS",
+                "destinationPortRanges": [
+                  "80",
+                  "443"
+                ],
+                "destinations": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ],
+                "direction": "Inbound",
+                "priority": 100,
+                "protocol": "TCP",
+                "sourcePortRanges": [
+                  "0-65535"
+                ],
+                "sources": [
+                  {
+                    "addressPrefix": "*",
+                    "addressPrefixType": "IPPrefix"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')), format('rc-learn-prod-{0}-001', parameters('location')))]"
+              ],
+              "metadata": {
+                "description": "This example rule denies outbound HTTP/S traffic to the internet"
               }
             },
             {
@@ -880,22 +903,18 @@
             },
             "connectivityConfigurationId": {
               "type": "string",
-              "value": "[if(equals(parameters('connectivityTopology'), 'meshWithHubAndSpoke'), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-meshwithhubandspoke', parameters('location'))), if(equals(parameters('connectivityTopology'), 'hubAndSpoke'), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-hubandspoke', parameters('location'))), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-{0}-spokes-mesh', parameters('location')))))]"
+              "value": "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-learn-prod-{0}-001', parameters('location')))]"
             },
             "networkGroupId": {
               "type": "string",
-              "value": "[coalesce(resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-dynamic', parameters('location'))), resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-{0}-static', parameters('location'))))]"
+              "value": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]"
             }
           }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-hub')]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeA')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeB')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeC')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'vnet-spokeD')]"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('hub-resources-deployment-{0}', parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
       ]
     },
     {

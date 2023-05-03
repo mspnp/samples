@@ -9,6 +9,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
   properties: {
     networkManagerScopeAccesses: [
       'Connectivity'
+      'SecurityAdmin'
     ]
     networkManagerScopes: {
       subscriptions: [
@@ -134,4 +135,5 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 output networkManagerName string = networkManager.name
 output userAssignedIdentityId string = userAssignedIdentity.id
 output connectivityConfigurationId string = connectivityConfigurationHubAndSpoke.id
+output securtyAdminConfigurationId string = securityConfig.id
 output networkGroupId string = networkGroupSpokesDynamic.id

@@ -5,6 +5,7 @@ param configurationId string
 param deploymentScriptName string
 @allowed([
   'Connectivity'
+  'SecurityAdmin'
 ])
 param configType string
 

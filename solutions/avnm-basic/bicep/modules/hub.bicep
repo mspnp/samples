@@ -1,14 +1,9 @@
 param location string
-param connectivityTopology string
 
 @description('The regional hub network.')
 resource vnetHub 'Microsoft.Network/virtualNetworks@2022-09-01' = {
   name: 'vnet-learn-hub-${location}-001'
   location: location
-  // add tag to include hub vnet in the connected group mesh only when connectivity topology is 'mesh'
-  tags: (connectivityTopology == 'mesh') ? {
-    _avnm_quickstart_deployment: 'hub'
-  } : {}
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -53,11 +48,6 @@ resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
   sku: {
     name: 'Standard'
   }
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
@@ -71,12 +61,12 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' =  {
   location: location
   properties: {
     sku: {
-      name: 'VpnGw2AZ'
-      tier: 'VpnGw2AZ'
+      name: 'VpnGw1'
+      tier: 'VpnGw1'
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
-    vpnGatewayGeneration: 'Generation2'
+    vpnGatewayGeneration: 'Generation1'
     ipConfigurations: [
       {
         name: 'default'
