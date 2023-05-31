@@ -35,14 +35,14 @@ az group create --name hub-spoke --location eastus
 ```azurecli-interactive
 az deployment group create \
     --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/virtual-network-manager-secured-hub-and-spoke/armTemplates/avnmResources.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/armTemplates/avnmResources.json
 ```
 
 ### Step 3: Deploy Virtual Network Manager Dynamic Network Group Policy resources
 
 ```azurecli-interactive
 az deployment subscription create \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/virtual-network-manager-secured-hub-and-spoke/armTemplates/avmnDynamicMembershipPolicy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/armTemplates/avmnDynamicMembershipPolicy.json
 ```
 
 ## Solution deployment parameters
@@ -56,7 +56,7 @@ az deployment subscription create \
 
 ## Bicep implementation
 
-The links above use JSON Azure Resource Manager (ARM) templates to support network referencing. The ARM templates were generated from the following [source bicep file](https://github.com/mspnp/samples/blob/main/solutions/virtual-network-manager-secured-hub-and-spoke/bicep/main.bicep), which has additional comments and considerations.
+The links above use JSON Azure Resource Manager (ARM) templates to support network referencing. The ARM templates were generated from the following [source bicep file](https://github.com/mspnp/samples/blob/main/solutions/avnm-secured-hub-and-spoke/bicep/main.bicep), which has additional comments and considerations.
 
 ## Microsoft Open Source Code of Conduct
 
