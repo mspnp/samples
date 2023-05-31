@@ -4,11 +4,11 @@ targetScope = 'subscription'
 /*** PARAMETERS ***/
 
 @description('The resource group name where the AVNM and VNET resources will be created')
-param resourceGroupName string
+param resourceGroupName string = 'rg-avnm-sample'
 
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
 @minLength(6)
-param location string
+param location string = 'eastus'
 
 // Connectivity Topology Options:
 //
