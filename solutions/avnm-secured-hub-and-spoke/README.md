@@ -15,10 +15,6 @@ urlFragment: virtual-network-manager-secured-hub-and-spoke
 
 This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. A VPN Gateway and test VMs are deployed to complete the hub and spoke features.
 
-For detailed information, see the Azure Hub and Spoke reference architecture in the Azure Architecture Center:
-
-> [!div class="nextstepaction"]
-> [Hub-spoke network topology in Azure](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
 
 ## Deploy sample
 
