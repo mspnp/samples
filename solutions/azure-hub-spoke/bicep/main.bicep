@@ -1010,7 +1010,7 @@ resource nicVmSpokeOneLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = i
   }
 }
 
-resource nicVmSpokeOneLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource nicVmSpokeOneLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployVirtualMachines) {
   scope: nicVmSpokeOneLinux
   name: 'to-hub-la'
   properties: {
@@ -1182,7 +1182,7 @@ resource nicVmSpokeTwoLinux 'Microsoft.Network/networkInterfaces@2022-01-01' = i
   }
 }
 
-resource nicVmSpokeTwoLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource nicVmSpokeTwoLinux_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployVirtualMachines) {
   scope: nicVmSpokeTwoLinux
   name: 'to-hub-la'
   properties: {
