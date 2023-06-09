@@ -1,0 +1,577 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "minLength": 6,
+      "metadata": {
+        "description": "The location of this regional hub. All resources, including spoke resources, will be deployed to this region."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the test VMs deployed in the spokes"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "admin-avnm",
+      "metadata": {
+        "description": "Username for the test VMs deployed in the spokes; default: admin-avnm"
+      }
+    }
+  },
+  "variables": {
+    "connectivityTopology": "hubAndSpoke"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-09-01",
+      "name": "[format('vnet-learn-hub-{0}-001', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "AzureFirewallSubnet",
+            "properties": {
+              "addressPrefix": "10.0.3.0/26"
+            }
+          },
+          {
+            "name": "AzureFirewallManagementSubnet",
+            "properties": {
+              "addressPrefix": "10.0.3.64/26"
+            }
+          },
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "10.0.3.128/25"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "description": "The regional hub network."
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', format('vnet-learn-hub-{0}-001', parameters('location')), 'GatewaySubnet')]",
+      "properties": {
+        "addressPrefix": "10.0.2.0/27"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-hub-{0}-001', parameters('location')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2022-01-01",
+      "name": "[format('pip-learn-hub-{0}-vngw001', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "publicIPAddressVersion": "IPv4"
+      },
+      "metadata": {
+        "description": "The public IPs for the regional VPN gateway."
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworkGateways",
+      "apiVersion": "2022-01-01",
+      "name": "[format('gw-learn-hub-{0}-001', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "VpnGw1",
+          "tier": "VpnGw1"
+        },
+        "gatewayType": "Vpn",
+        "vpnType": "RouteBased",
+        "vpnGatewayGeneration": "Generation1",
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-learn-hub-{0}-vngw001', parameters('location')))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-learn-hub-{0}-001', parameters('location')), 'GatewaySubnet')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', format('vnet-learn-hub-{0}-001', parameters('location')), 'GatewaySubnet')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', format('pip-learn-hub-{0}-vngw001', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "The is the regional VPN gateway, configured with basic settings."
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-01-01",
+      "name": "[format('vnet-learn-prod-{0}-{1}', parameters('location'), toLower('001'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.1.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "[replace('10.1.0.0/16', '.0.0/22', '.1.0/24')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2022-01-01",
+      "name": "[format('nic-learn-prod-{0}-{1}-ubuntu', parameters('location'), '001')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-prod-{0}-{1}', parameters('location'), toLower('001'))), '2022-01-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-prod-{0}-{1}', parameters('location'), toLower('001')))]"
+      ],
+      "metadata": {
+        "description": "The private Network Interface Card for the Windows VM in spoke."
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-03-01",
+      "name": "[format('vm-learn-prod-{0}-{1}-ubuntu', parameters('location'), '001')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS1_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            },
+            "deleteOption": "Delete"
+          },
+          "imageReference": {
+            "publisher": "canonical",
+            "offer": "0001-com-ubuntu-server-jammy",
+            "sku": "22_04-lts-gen2",
+            "version": "latest"
+          },
+          "dataDisks": []
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": null
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-learn-prod-{0}-{1}-ubuntu', parameters('location'), '001'))]",
+              "properties": {
+                "deleteOption": "Delete",
+                "primary": true
+              }
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "examplevm",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false,
+            "provisionVMAgent": true
+          }
+        },
+        "priority": "Regular"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', format('nic-learn-prod-{0}-{1}-ubuntu', parameters('location'), '001'))]"
+      ],
+      "metadata": {
+        "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-01-01",
+      "name": "[format('vnet-learn-prod-{0}-{1}', parameters('location'), toLower('002'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.1.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "[replace('10.2.0.0/16', '.0.0/22', '.1.0/24')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2022-01-01",
+      "name": "[format('nic-learn-prod-{0}-{1}-ubuntu', parameters('location'), '002')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-prod-{0}-{1}', parameters('location'), toLower('001'))), '2022-01-01').subnets[0].id]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-prod-{0}-{1}', parameters('location'), toLower('001')))]"
+      ],
+      "metadata": {
+        "description": "The private Network Interface Card for the Windows VM in spoke."
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-03-01",
+      "name": "[format('vm-learn-prod-{0}-{1}-ubuntu', parameters('location'), '002')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS1_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            },
+            "deleteOption": "Delete"
+          },
+          "imageReference": {
+            "publisher": "canonical",
+            "offer": "0001-com-ubuntu-server-jammy",
+            "sku": "22_04-lts-gen2",
+            "version": "latest"
+          },
+          "dataDisks": []
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": null
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('nic-learn-prod-{0}-{1}-ubuntu', parameters('location'), '002'))]",
+              "properties": {
+                "deleteOption": "Delete",
+                "primary": true
+              }
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "examplevm",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false,
+            "provisionVMAgent": true
+          }
+        },
+        "priority": "Regular"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', format('nic-learn-prod-{0}-{1}-ubuntu', parameters('location'), '002'))]"
+      ],
+      "metadata": {
+        "description": "A basic Ubuntu Linux virtual machine that will be attached to spoke."
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkManagers",
+      "apiVersion": "2022-09-01",
+      "name": "[format('avnm-{0}', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "networkManagerScopeAccesses": [
+          "Connectivity",
+          "SecurityAdmin"
+        ],
+        "networkManagerScopes": {
+          "subscriptions": [
+            "[format('/subscriptions/{0}', subscription().subscriptionId)]"
+          ],
+          "managementGroups": []
+        }
+      },
+      "metadata": {
+        "description": "This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity."
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkManagers/networkGroups",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
+      "properties": {
+        "description": "Network Group - Dynamic"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "This is the dynamic group for spoke VNETs."
+      }
+    },
+    {
+      "condition": "[equals(variables('connectivityTopology'), 'hubAndSpoke')]",
+      "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('cc-learn-prod-{0}-001', parameters('location')))]",
+      "properties": {
+        "description": "Spoke-to-spoke connectivity configuration",
+        "appliesToGroups": [
+          {
+            "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
+            "isGlobal": "False",
+            "useHubGateway": "True",
+            "groupConnectivity": "None"
+          }
+        ],
+        "connectivityTopology": "HubAndSpoke",
+        "deleteExistingPeering": "True",
+        "hubs": [
+          {
+            "resourceId": "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-hub-{0}-001', parameters('location')))]",
+            "resourceType": "Microsoft.Network/virtualNetworks"
+          }
+        ],
+        "isGlobal": "False"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', format('vnet-learn-hub-{0}-001', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it."
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkManagers/securityAdminConfigurations",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')))]",
+      "properties": {
+        "applyOnNetworkIntentPolicyBasedServices": [
+          "None"
+        ],
+        "description": "Security Group for AVNM"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "This is the securityadmin configuration assigned to the AVNM"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}/{2}', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')), format('rc-learn-prod-{0}-001', parameters('location')))]",
+      "properties": {
+        "appliesToGroups": [
+          {
+            "networkGroupId": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "This is the rules collection for the security admin config assigned to the AVNM"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}/{2}/{3}', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')), format('rc-learn-prod-{0}-001', parameters('location')), 'DENY_INTERNET_HTTP_HTTPS')]",
+      "kind": "Custom",
+      "properties": {
+        "access": "Deny",
+        "description": "This rule blocks traffic to the internet on HTTP and HTTPS",
+        "destinationPortRanges": [
+          "80",
+          "443"
+        ],
+        "destinations": [
+          {
+            "addressPrefix": "*",
+            "addressPrefixType": "IPPrefix"
+          }
+        ],
+        "direction": "Inbound",
+        "priority": 100,
+        "protocol": "TCP",
+        "sourcePortRanges": [
+          "0-65535"
+        ],
+        "sources": [
+          {
+            "addressPrefix": "*",
+            "addressPrefixType": "IPPrefix"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')), format('rc-learn-prod-{0}-001', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "This example rule denies outbound HTTP/S traffic to the internet"
+      }
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2022-01-31-preview",
+      "name": "[format('uai-{0}', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "metadata": {
+        "description": "This user assigned identity is used by the Deployment Script resource to interact with Azure resources."
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id, format('uai-{0}', parameters('location')))]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location'))), '2022-01-31-preview').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "This role assignment grants the user assigned identity the Contributor role on the resource group."
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "[format('ds-{0}-connectivityconfigs', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location'))))]": {}
+        }
+      },
+      "properties": {
+        "azPowerShellVersion": "8.3",
+        "retentionInterval": "PT1H",
+        "timeout": "PT1H",
+        "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType \"Connectivity\" -resourceGroupName {4}', format('avnm-{0}', parameters('location')), parameters('location'), resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-learn-prod-{0}-001', parameters('location'))), subscription().subscriptionId, resourceGroup().name)]",
+        "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', format('avnm-{0}', parameters('location')), format('cc-learn-prod-{0}-001', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration."
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "[format('ds-{0}-securityadminconfigs', parameters('location'))]",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location'))))]": {}
+        }
+      },
+      "properties": {
+        "azPowerShellVersion": "8.3",
+        "retentionInterval": "PT1H",
+        "timeout": "PT1H",
+        "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType \"SecurityAdmin\" -resourceGroupName {4}', format('avnm-{0}', parameters('location')), parameters('location'), resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location'))), subscription().subscriptionId, resourceGroup().name)]",
+        "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkManagers', format('avnm-{0}', parameters('location')))]",
+        "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations', format('avnm-{0}', parameters('location')), format('sac-learn-prod-{0}-001', parameters('location')))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('uai-{0}', parameters('location')))]"
+      ],
+      "metadata": {
+        "description": "Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration."
+      }
+    }
+  ],
+  "outputs": {
+    "networkGroupId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/networkManagers/networkGroups', format('avnm-{0}', parameters('location')), format('ng-learn-prod-{0}-dynamic-001', parameters('location')))]"
+    }
+  }
+}
