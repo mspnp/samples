@@ -2,7 +2,7 @@
 
 1. Create a new Resource Group to be used by all deployed resources:
 
-```azurepowershell
+    ```azurepowershell
     New-AzResourceGroup -Name rg-avnmquickstart -Location EastUS
 ```
 
