@@ -15,7 +15,7 @@
     }
 
     New-AzResourceGroupDeployment -Name 'avnm-quickstart-deployment' -ResourceGroupName 'rg-avnmquickstart' -location 'eastus' -templateFile ./avnmResources.json -templateParameterObject $templateParamObj
-```
+    ```
 
 1. Deploy the Azure Policy resources which will manage dynamic membership in the Azure Virtual Network Manager Network Group:
 
