@@ -4,7 +4,7 @@
 
     ```azurepowershell
     New-AzResourceGroup -Name rg-avnmquickstart -Location EastUS
-```
+    ```
 
 1. Deploy the Azure Virtual Network Manager and hub and spoke environment:
 
