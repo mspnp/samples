@@ -8,7 +8,7 @@
 
 1. Deploy the Azure Virtual Network Manager and hub and spoke environment:
 
-```azurepowershell
+    ```azurepowershell
     $templateParamObj = @{
         location = 'eastus'
         adminPassword = '' # something secure
