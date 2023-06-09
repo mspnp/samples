@@ -27,5 +27,5 @@
     }
 
     New-AzSubscriptionDeployment -Name 'avnm-quickstart-policy-deployment' -templateFile ./avmnDynamicMembershipPolicy.json -templateParameterObject $templateParamObj
-```
+    ```
 
