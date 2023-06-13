@@ -10,7 +10,7 @@ var groupedVNETs = [
   'vnet-${location}-spokec'
 ]
 
-@description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
+@description('This is the Azure Virtual Network Manager which will be used to implement the connected group for inter-vnet connectivity.')
 resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
   name: 'vnm-learn-prod-${location}-001'
   location: location
@@ -27,8 +27,8 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
   }
 }
 
-@description('This is the static network group for the spoke VNETs, and hub when topology is mesh.')
-resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
+@description('This is the static network group for all VNETs')
+resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
   name: 'ng-learn-prod-${location}-static001'
   parent: networkManager
   properties: {
@@ -53,7 +53,7 @@ resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGrou
 }
 
 @description('This is the dynamic group for spoke VNETs.')
-resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
+resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
   name: 'ng-learn-prod-${location}-dynamic001'
   parent: networkManager
   properties: {
@@ -78,7 +78,7 @@ resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connec
     description: 'Mesh connectivity configuration'
     appliesToGroups: [
       {
-        networkGroupId: (networkGroupMembershipType == 'static') ? networkGroupSpokesStatic.id : networkGroupSpokesDynamic.id
+        networkGroupId: (networkGroupMembershipType == 'static') ? networkGroupStatic.id : networkGroupDynamic.id
         isGlobal: 'False'
         useHubGateway: 'False'
         groupConnectivity: 'DirectlyConnected'
@@ -110,4 +110,4 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 output networkManagerName string = networkManager.name
 output userAssignedIdentityId string = userAssignedIdentity.id
 output connectivityConfigurationId string = connectivityConfigurationMesh.id
-output networkGroupId string = networkGroupSpokesDynamic.id ?? networkGroupSpokesStatic.id
+output networkGroupId string = networkGroupDynamic.id ?? networkGroupStatic.id
