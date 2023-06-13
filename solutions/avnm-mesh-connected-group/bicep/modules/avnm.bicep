@@ -12,7 +12,7 @@ var groupedVNETs = [
 
 @description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
 resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
-  name: 'avnm-${location}'
+  name: 'vnm-learn-prod-${location}-001'
   location: location
   properties: {
     networkManagerScopeAccesses: [
@@ -29,7 +29,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
 
 @description('This is the static network group for the spoke VNETs, and hub when topology is mesh.')
 resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
-  name: 'ng-${location}-static'
+  name: 'ng-learn-prod-${location}-static001'
   parent: networkManager
   properties: {
     description: 'Network Group - Static'
@@ -54,7 +54,7 @@ resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGrou
 
 @description('This is the dynamic group for spoke VNETs.')
 resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
-  name: 'ng-${location}-dynamic'
+  name: 'ng-learn-prod-${location}-dynamic001'
   parent: networkManager
   properties: {
     description: 'Network Group - Dynamic'
@@ -72,7 +72,7 @@ resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGro
 // ...
 @description('This connectivity configuration defines the connectivity between VNETs using Direct Connection. The hub will be part of the mesh, but gateway routes from the hub will not propagate to spokes.')
 resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = {
-  name: 'cc-${location}-mesh'
+  name: 'cc-learn-prod-${location}-mesh001'
   parent: networkManager
   properties: {
     description: 'Mesh connectivity configuration'
