@@ -43,7 +43,7 @@ resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@202
     }
   }]
 
-  // add hub if connectivity topology is 'mesh' (otherwise, hub is connected via hub and spoke peering)
+  // add hub to mesh
   resource staticMemberHub 'staticMembers@2022-09-01' = {
     name: 'sm-${(toLower(last(split(hubVnetId, '/'))))}'
     properties: {
@@ -52,7 +52,7 @@ resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@202
   }
 }
 
-@description('This is the dynamic group for spoke VNETs.')
+@description('This is the dynamic group for all VNETs.')
 resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
   name: 'ng-learn-prod-${location}-dynamic001'
   parent: networkManager
@@ -63,7 +63,7 @@ resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@20
 
 // Connectivity Topology: mesh
 //
-// Spoke 'A' VM Effective routes
+// Spoke '001' VM Effective routes
 // Source    State    Address Prefix               Next Hop Type    Next Hop IP
 // --------  -------  ---------------------------  ---------------  -------------
 // Default   Active   10.100.0.0/22                VnetLocal
