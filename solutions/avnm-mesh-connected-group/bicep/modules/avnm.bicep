@@ -5,9 +5,9 @@ param networkGroupMembershipType string
 
 // only these spoke VNETs will be added to the static Network Group
 var groupedVNETs = [
-  'vnet-${location}-spokea'
-  'vnet-${location}-spokeb'
-  'vnet-${location}-spokec'
+  'vnet-learn-prod-${location}-spoke001'
+  'vnet-learn-prod-${location}-spoke002'
+  'vnet-learn-prod-${location}-spoke003'
 ]
 
 @description('This is the Azure Virtual Network Manager which will be used to implement the connected group for inter-vnet connectivity.')
