@@ -10,7 +10,7 @@ var taggedVNETs = [
 ]
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
-  name: 'vnet-${location}-${toLower(spokeName)}'
+  name: 'vnet-learn-prod-${location}-${toLower(spokeName)}'
   location: location
   // add tags to the vnet names in variable tagged vnets - for dynamic group membership
   tags: contains(taggedVNETs,spokeName) ? {

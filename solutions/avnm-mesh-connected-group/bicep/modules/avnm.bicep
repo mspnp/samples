@@ -10,9 +10,9 @@ var groupedVNETs = [
   'vnet-${location}-spokec'
 ]
 
-@description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
+@description('This is the Azure Virtual Network Manager which will be used to implement the connected group for inter-vnet connectivity.')
 resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
-  name: 'avnm-${location}'
+  name: 'vnm-learn-prod-${location}-001'
   location: location
   properties: {
     networkManagerScopeAccesses: [
@@ -27,9 +27,9 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
   }
 }
 
-@description('This is the static network group for the spoke VNETs, and hub when topology is mesh.')
-resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
-  name: 'ng-${location}-static'
+@description('This is the static network group for all VNETs')
+resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
+  name: 'ng-learn-prod-${location}-static001'
   parent: networkManager
   properties: {
     description: 'Network Group - Static'
@@ -43,7 +43,7 @@ resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGrou
     }
   }]
 
-  // add hub if connectivity topology is 'mesh' (otherwise, hub is connected via hub and spoke peering)
+  // add hub to mesh
   resource staticMemberHub 'staticMembers@2022-09-01' = {
     name: 'sm-${(toLower(last(split(hubVnetId, '/'))))}'
     properties: {
@@ -52,9 +52,9 @@ resource networkGroupSpokesStatic 'Microsoft.Network/networkManagers/networkGrou
   }
 }
 
-@description('This is the dynamic group for spoke VNETs.')
-resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
-  name: 'ng-${location}-dynamic'
+@description('This is the dynamic group for all VNETs.')
+resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
+  name: 'ng-learn-prod-${location}-dynamic001'
   parent: networkManager
   properties: {
     description: 'Network Group - Dynamic'
@@ -63,7 +63,7 @@ resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGro
 
 // Connectivity Topology: mesh
 //
-// Spoke 'A' VM Effective routes
+// Spoke '001' VM Effective routes
 // Source    State    Address Prefix               Next Hop Type    Next Hop IP
 // --------  -------  ---------------------------  ---------------  -------------
 // Default   Active   10.100.0.0/22                VnetLocal
@@ -72,13 +72,13 @@ resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGro
 // ...
 @description('This connectivity configuration defines the connectivity between VNETs using Direct Connection. The hub will be part of the mesh, but gateway routes from the hub will not propagate to spokes.')
 resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = {
-  name: 'cc-${location}-spokes-mesh'
+  name: 'cc-learn-prod-${location}-mesh001'
   parent: networkManager
   properties: {
-    description: 'Spoke-to-spoke connectivity configuration'
+    description: 'Mesh connectivity configuration'
     appliesToGroups: [
       {
-        networkGroupId: (networkGroupMembershipType == 'static') ? networkGroupSpokesStatic.id : networkGroupSpokesDynamic.id
+        networkGroupId: (networkGroupMembershipType == 'static') ? networkGroupStatic.id : networkGroupDynamic.id
         isGlobal: 'False'
         useHubGateway: 'False'
         groupConnectivity: 'DirectlyConnected'
@@ -110,4 +110,4 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 output networkManagerName string = networkManager.name
 output userAssignedIdentityId string = userAssignedIdentity.id
 output connectivityConfigurationId string = connectivityConfigurationMesh.id
-output networkGroupId string = networkGroupSpokesDynamic.id ?? networkGroupSpokesStatic.id
+output networkGroupId string = networkGroupDynamic.id ?? networkGroupStatic.id

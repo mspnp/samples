@@ -37,44 +37,44 @@ module hub 'modules/hub.bicep' = {
 
 /*** RESOURCES (SPOKE A) ***/
 module spokeA 'modules/spoke.bicep' = {
-  name: 'vnet-spokeA'
+  name: 'spoke001'
   scope: resourceGroup
   params: {
     location: location
-    spokeName: 'spokeA'
+    spokeName: 'spoke001'
     spokeVnetPrefix: '10.100.0.0/22'
   }
 }
 
 /*** RESOURCES (SPOKE B) ***/
 module spokeB 'modules/spoke.bicep' = {
-  name: 'vnet-spokeB'
+  name: 'spoke002'
   scope: resourceGroup
   params: {
     location: location
-    spokeName: 'spokeB'
+    spokeName: 'spoke002'
     spokeVnetPrefix: '10.101.0.0/22'
   }
 }
 
 /*** RESOURCES (SPOKE C) ***/
 module spokeC 'modules/spoke.bicep' = {
-  name: 'vnet-spokeC'
+  name: 'spoke003'
   scope: resourceGroup
   params: {
     location: location
-    spokeName: 'spokeC'
+    spokeName: 'spoke003'
     spokeVnetPrefix: '10.102.0.0/22'
   }
 }
 
 /*** RESOURCES (SPOKE D) - this VNET is left out of the Connected Group ***/
 module spokeD 'modules/spoke.bicep' = {
-  name: 'vnet-spokeD'
+  name: 'spoke004'
   scope: resourceGroup
   params: {
     location: location
-    spokeName: 'spokeD'
+    spokeName: 'spoke004'
     spokeVnetPrefix: '10.103.0.0/22'
   }
 }
