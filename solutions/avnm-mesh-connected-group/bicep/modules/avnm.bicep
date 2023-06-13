@@ -72,10 +72,10 @@ resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGro
 // ...
 @description('This connectivity configuration defines the connectivity between VNETs using Direct Connection. The hub will be part of the mesh, but gateway routes from the hub will not propagate to spokes.')
 resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = {
-  name: 'cc-${location}-spokes-mesh'
+  name: 'cc-${location}-mesh'
   parent: networkManager
   properties: {
-    description: 'Spoke-to-spoke connectivity configuration'
+    description: 'Mesh connectivity configuration'
     appliesToGroups: [
       {
         networkGroupId: (networkGroupMembershipType == 'static') ? networkGroupSpokesStatic.id : networkGroupSpokesDynamic.id
