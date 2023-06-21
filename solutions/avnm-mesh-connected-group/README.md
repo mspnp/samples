@@ -18,7 +18,7 @@ This sample deploys Azure virtual networks, using Azure Virtual Network Manager 
 
 ## Deploy sample
 
-**Default Deployment with Static AVNM Network Group Membership**
+**Default Deployment with Static Network Group Membership**
 
 ```azurecli-interactive
 az deployment subscription create \
@@ -26,7 +26,7 @@ az deployment subscription create \
     --parameters location=eastus
 ```
 
-**Default Deployment with Static AVNM Network Group Membership**
+**Default Deployment with Dynamic Network Group Membership**
 
 Include the deployment parameter `networkGroupMembershipType` with a value of `dynamic` to use Azure Policy to dynamically manage the membership of the network group. 
 
