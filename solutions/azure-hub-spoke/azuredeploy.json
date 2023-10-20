@@ -55,7 +55,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}/{1}', format('vnet-{0}-hub', parameters('location')), format('to_{0}', format('vnet-{0}-spoke-one', parameters('location'))))]",
       "properties": {
         "allowForwardedTraffic": false,
@@ -74,7 +74,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}/{1}', format('vnet-{0}-hub', parameters('location')), format('to_{0}', format('vnet-{0}-spoke-two', parameters('location'))))]",
       "properties": {
         "allowForwardedTraffic": false,
@@ -93,7 +93,7 @@
     },
     {
       "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}/{1}', format('fw-policies-{0}', parameters('location')), 'DefaultNetworkRuleCollectionGroup')]",
       "properties": {
         "priority": 200,
@@ -136,7 +136,7 @@
     },
     {
       "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}/{1}', format('fw-policies-{0}', parameters('location')), 'DefaultApplicationRuleCollectionGroup')]",
       "properties": {
         "priority": 300,
@@ -159,7 +159,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}/{1}', format('vnet-{0}-spoke-one', parameters('location')), format('to_{0}', format('vnet-{0}-hub', parameters('location'))))]",
       "properties": {
         "allowForwardedTraffic": false,
@@ -177,7 +177,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}/{1}', format('vnet-{0}-spoke-two', parameters('location')), format('to_{0}', format('vnet-{0}-hub', parameters('location'))))]",
       "properties": {
         "allowForwardedTraffic": false,
@@ -195,7 +195,7 @@
     },
     {
       "type": "Microsoft.OperationalInsights/workspaces",
-      "apiVersion": "2021-06-01",
+      "apiVersion": "2022-10-01",
       "name": "[format('la-hub-{0}-{1}', parameters('location'), variables('suffix'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -244,7 +244,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('nsg-{0}-bastion', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -436,7 +436,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('vnet-{0}-hub', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -501,7 +501,7 @@
         "count": "[length(range(0, variables('numFirewallIpAddressesToAssign')))]"
       },
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('pip-fw-{0}-{1}', parameters('location'), padLeft(range(0, variables('numFirewallIpAddressesToAssign'))[copyIndex()], 2, '0'))]",
       "location": "[parameters('location')]",
       "sku": {
@@ -549,7 +549,7 @@
     },
     {
       "type": "Microsoft.Network/firewallPolicies",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('fw-policies-{0}', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -585,7 +585,7 @@
     },
     {
       "type": "Microsoft.Network/azureFirewalls",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('fw-{0}', parameters('location'))]",
       "location": "[parameters('location')]",
       "zones": [
@@ -655,7 +655,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('pip-ab-{0}', parameters('location'))]",
       "location": "[parameters('location')]",
       "sku": {
@@ -702,7 +702,7 @@
     },
     {
       "type": "Microsoft.Network/bastionHosts",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('ab-{0}-{1}', parameters('location'), variables('suffix'))]",
       "location": "[parameters('location')]",
       "sku": {
@@ -760,7 +760,7 @@
     {
       "condition": "[parameters('deployVpnGateway')]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('pip-vgw-{0}', parameters('location'))]",
       "location": "[parameters('location')]",
       "sku": {
@@ -809,7 +809,7 @@
     {
       "condition": "[parameters('deployVpnGateway')]",
       "type": "Microsoft.Network/virtualNetworkGateways",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('vgw-{0}-hub', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -871,7 +871,7 @@
     },
     {
       "type": "Microsoft.Network/routeTables",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('route-to-{0}-hub-fw', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -895,7 +895,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "nsg-spoke-resources",
       "location": "[parameters('location')]",
       "properties": {
@@ -973,7 +973,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "nsg-spoke-privatelinkendpoints",
       "location": "[parameters('location')]",
       "properties": {
@@ -1044,7 +1044,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('vnet-{0}-spoke-one', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -1112,7 +1112,7 @@
     {
       "condition": "[parameters('deployVirtualMachines')]",
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('nic-vm-{0}-spoke-one-linux', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -1159,7 +1159,7 @@
     {
       "condition": "[parameters('deployVirtualMachines')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2023-03-01",
       "name": "[format('vm-{0}-spoke-one-linux', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -1227,7 +1227,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('vnet-{0}-spoke-two', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -1295,7 +1295,7 @@
     {
       "condition": "[parameters('deployVirtualMachines')]",
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2022-01-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('nic-vm-{0}-spoke-two-windows', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -1342,7 +1342,7 @@
     {
       "condition": "[parameters('deployVirtualMachines')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2022-03-01",
+      "apiVersion": "2023-03-01",
       "name": "[format('vm-{0}-spoke-two-windows', parameters('location'))]",
       "location": "[parameters('location')]",
       "properties": {
