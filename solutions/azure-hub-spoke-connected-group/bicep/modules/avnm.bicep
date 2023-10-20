@@ -27,7 +27,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
   // for production deployments, consider using Azure Policy to dynamically bring VNETs under 
   // AVNM management. see https://learn.microsoft.com/azure/virtual-network-manager/concept-azure-policy-integration
   @description('This is the static network group for the production spoke VNETs.')
-  resource networkGroupProd 'Microsoft.Network/networkManagers/networkGroups@2022-05-01' = {
+  resource networkGroupProd 'Microsoft.Network/networkManagers/networkGroups@2023-04-01' = {
     name: 'ng-${location}-spokes-prod'
     parent: networkManager
     properties: {
@@ -47,7 +47,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
     }
   }
   @description('This is the static network group for the non-production spoke VNETs.')
-  resource networkGroupNonProd 'Microsoft.Network/networkManagers/networkGroups@2022-05-01' = {
+  resource networkGroupNonProd 'Microsoft.Network/networkManagers/networkGroups@2023-04-01' = {
     name: 'ng-${location}-spokes-nonprod'
     parent: networkManager
     properties: {
@@ -67,7 +67,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
     }
   }
   @description('This is the static network group for all VNETs.')
-  resource networkGroupAll 'Microsoft.Network/networkManagers/networkGroups@2022-05-01' = {
+  resource networkGroupAll 'Microsoft.Network/networkManagers/networkGroups@2023-04-01' = {
     name: 'ng-${location}-all'
     parent: networkManager
     properties: {
@@ -106,7 +106,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-05-01' = {
   }
 
 @description('This connectivity configuration defines the connectivity between the spokes.')
-resource connectivityConfigurationNonProd 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-05-01' = {
+resource connectivityConfigurationNonProd 'Microsoft.Network/networkManagers/connectivityConfigurations@2023-04-01' = {
   name: 'cc-${location}-spokesnonprod'
   parent: networkManager
   dependsOn: [
@@ -137,7 +137,7 @@ resource connectivityConfigurationNonProd 'Microsoft.Network/networkManagers/con
 }
 
 @description('This connectivity configuration defines the connectivity between the spokes.')
-resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-05-01' = {
+resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connectivityConfigurations@2023-04-01' = {
   name: 'cc-${location}-spokesprod'
   parent: networkManager
   dependsOn: [
@@ -168,13 +168,13 @@ resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connec
 }
 
 @description('This user assigned identity is used by the Deployment Script resource to interact with Azure resources.')
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: 'uai-${location}'
   location: location
 }
 
 @description('This role assignment grants the user assigned identity the Contributor role on the resource group.')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(resourceGroup().id, userAssignedIdentity.name)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor: b24988ac-6180-42a0-ab88-20f7382dd24c
@@ -184,7 +184,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 }
 
 @description('This is the securityadmin configuration assigned to the AVNM')
-resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigurations@2022-05-01' = {
+resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigurations@2023-04-01' = {
   name: 'sg-${location}'
   parent: networkManager
   properties: {
@@ -194,7 +194,7 @@ resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigur
 }
 
 @description('This is the rules collection for the security admin config assigned to the AVNM')
-resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2022-05-01' = {
+resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2023-04-01' = {
   name: 'rc-${location}'
   parent: securityConfig
   properties: {
@@ -207,7 +207,7 @@ resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigu
 }
 
 @description('This example rule contains all denied inbound TCP ports')
-resource rule1 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = if (deployDefaultDenySecurityAdminRules) {
+resource rule1 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2023-04-01' = if (deployDefaultDenySecurityAdminRules) {
   name: 'r-tcp-${location}'
   kind: 'Custom'
   parent: rulesCollection
@@ -235,7 +235,7 @@ resource rule1 'Microsoft.Network/networkManagers/securityAdminConfigurations/ru
 }
 
 @description('This example rule contains all denied inbound TCP or UDP ports')
-resource rule2 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+resource rule2 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2023-04-01' = {
   name: 'r-tcp-udp-${location}'
   kind: 'Custom'
   parent: rulesCollection
@@ -263,7 +263,7 @@ resource rule2 'Microsoft.Network/networkManagers/securityAdminConfigurations/ru
 }
 
 @description('This example rule contains all denied inbound UDP ports')
-resource rule3 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+resource rule3 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2023-04-01' = {
   name: 'r-udp-${location}'
   kind: 'Custom'
   parent: rulesCollection
@@ -291,7 +291,7 @@ resource rule3 'Microsoft.Network/networkManagers/securityAdminConfigurations/ru
 }
 
 @description('This example rule always allows outbound traffic to Azure Active Directory, overriding NSG outbound restrictions')
-resource rule4 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+resource rule4 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2023-04-01' = {
   name: 'r-alwaysallow-${location}'
   kind: 'Custom'
   parent: rulesCollection
@@ -319,7 +319,7 @@ resource rule4 'Microsoft.Network/networkManagers/securityAdminConfigurations/ru
 }
 
 @description('This example rule allows outbound traffic to Azure SQL, unless an NSG in the path denies it')
-resource rule5 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+resource rule5 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2023-04-01' = {
   name: 'r-allowsql-${location}'
   kind: 'Custom'
   parent: rulesCollection

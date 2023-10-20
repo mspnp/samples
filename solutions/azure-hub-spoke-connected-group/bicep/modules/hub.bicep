@@ -4,7 +4,7 @@ param deployVpnGateway bool
 param deployVirtualMachines bool
 
 @description('This Log Analyics Workspace stores logs from the regional hub network, its spokes, and other related resources. Workspaces are regional resource, as such there would be one workspace per hub (region)')
-resource laHub 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
+resource laHub 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: 'la-hub-${location}'
   location: location
   properties: {
@@ -46,7 +46,7 @@ resource laHub_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-0
 }
 
 @description('The NSG around the Azure Bastion subnet. Source: https://learn.microsoft.com/azure/bastion/bastion-nsg')
-resource nsgBastionSubnet 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+resource nsgBastionSubnet 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
   name: 'nsg-${location}-bastion'
   location: location
   properties: {
@@ -230,7 +230,7 @@ resource nsgBastionSubnet_diagnosticSettings 'Microsoft.Insights/diagnosticSetti
 }
 
 @description('The regional hub network.')
-resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+resource vnetHub 'Microsoft.Network/virtualNetworks@2023-04-01' = {
   name: 'vnet-${location}-hub'
   location: location
   properties: {
@@ -293,7 +293,7 @@ resource vnetHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-
 
 // Allocate three IP addresses to the firewall
 var numFirewallIpAddressesToAssign = 3
-resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2022-01-01' = [for i in range(0, numFirewallIpAddressesToAssign): {
+resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2023-04-01' = [for i in range(0, numFirewallIpAddressesToAssign): {
   name: 'pip-fw-${location}-${padLeft(i, 2, '0')}'
   location: location
   sku: {
@@ -332,7 +332,7 @@ resource pipsAzureFirewall_diagnosticSetting 'Microsoft.Insights/diagnosticSetti
 }]
 
 @description('Azure Firewall Policy')
-resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
+resource fwPolicy 'Microsoft.Network/firewallPolicies@2023-04-01' = {
   name: 'fw-policies-${location}'
   location: location
   properties: {
@@ -354,7 +354,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
   // This network hub starts out with only supporting external DNS queries. This is only being done for
   // simplicity in this deployment and is not guidance, please ensure all firewall rules are aligned with
   // your security standards.
-  resource defaultNetworkRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = {
+  resource defaultNetworkRuleCollectionGroup 'ruleCollectionGroups@2023-04-01' = {
     name: 'DefaultNetworkRuleCollectionGroup'
     properties: {
       priority: 200
@@ -394,7 +394,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
   }
 
   // Network hub starts out with no allowances for appliction rules
-  resource defaultApplicationRuleCollectionGroup 'ruleCollectionGroups@2022-01-01' = {
+  resource defaultApplicationRuleCollectionGroup 'ruleCollectionGroups@2023-04-01' = {
     name: 'DefaultApplicationRuleCollectionGroup'
     dependsOn: [
       defaultNetworkRuleCollectionGroup
@@ -439,7 +439,7 @@ resource fwPolicy 'Microsoft.Network/firewallPolicies@2022-01-01' = {
 }
 
 @description('This is the regional Azure Firewall that all regional spoke networks can egress through.')
-resource fwHub 'Microsoft.Network/azureFirewalls@2022-01-01' = {
+resource fwHub 'Microsoft.Network/azureFirewalls@2023-04-01' = {
   name: 'fw-${location}'
   location: location
   zones: [
@@ -497,7 +497,7 @@ resource fwHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05
 
 
 @description('The public IP for the regional hub\'s Azure Bastion service.')
-resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2022-01-01' = if (deployAzureBastion) {
+resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2023-04-01' = if (deployAzureBastion) {
   name: 'pip-ab-${location}'
   location: location
   sku: {
@@ -536,7 +536,7 @@ resource pipAzureBastion_diagnosticSetting 'Microsoft.Insights/diagnosticSetting
 }
 
 @description('This regional hub\'s Azure Bastion service. NSGs are configured to allow Bastion to reach any resource subnet in peered spokes.')
-resource azureBastion 'Microsoft.Network/bastionHosts@2022-01-01' = if (deployAzureBastion) {
+resource azureBastion 'Microsoft.Network/bastionHosts@2023-04-01' = if (deployAzureBastion) {
   name: 'ab-${location}'
   location: location
   sku: {
@@ -575,7 +575,7 @@ resource azureBastion_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@
 }
 
 @description('The public IPs for the regional VPN gateway. Only deployed if requested.')
-resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2022-01-01' = if (deployVpnGateway) {
+resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2023-04-01' = if (deployVpnGateway) {
   name: 'pip-vgw-${location}'
   location: location
   sku: {
@@ -614,7 +614,7 @@ resource pipVpnGateway_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@
 }
 
 @description('The is the regional VPN gateway, configured with basic settings. Only deployed if requested.')
-resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' = if (deployVpnGateway) {
+resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = if (deployVpnGateway) {
   name: 'vgw-${location}-hub'
   location: location
   properties: {
