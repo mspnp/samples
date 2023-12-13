@@ -10,7 +10,7 @@ param nsgPrivateLinkEndpointsSubnetId string
 @secure()
 param adminPassword string
 
-resource hubNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
+resource hubNet 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
   name: 'vnet-${location}-hub'
 
   resource azureBastionSubnet 'subnets' existing = {
@@ -18,7 +18,7 @@ resource hubNet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
   name: 'vnet-${location}-spoke-${spokeName}'
   location: location
   properties: {
@@ -79,7 +79,7 @@ resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-
 }
 
 @description('The private Network Interface Card for the Windows VM in spoke.')
-resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = if (deployVirtualMachines) {
+resource nic 'Microsoft.Network/networkInterfaces@2023-04-01' = if (deployVirtualMachines) {
   name: 'nic-vm-${location}-${spokeName}-ubuntu'
   location: location
   properties: {
@@ -113,7 +113,7 @@ resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-0
 }
 
 @description('A basic Ubuntu Linux virtual machine that will be attached to spoke.')
-resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = if (deployVirtualMachines) {
+resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = if (deployVirtualMachines) {
   name: 'vm-${location}-spoke-${spokeName}-ubuntu'
   location: location
   properties: {
