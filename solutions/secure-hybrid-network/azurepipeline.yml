@@ -12,7 +12,7 @@ variables:
   - name: ttk-skip-test
     value: "DependsOn-Best-Practices,IDs-Should-Be-Derived-From-ResourceIDs,Secure-Params-In-Nested-Deployments"
   - name: artifactsLocationTemplate
-    value: "https://raw.githubusercontent.com/mspnp/samples/master/solutions/secure-hybrid-network/"
+    value: "https://raw.githubusercontent.com/mspnp/samples/main/solutions/secure-hybrid-network/"
   - name: mock-on-prem-resource-group-name
     value: secure-moc-onprem-$(Build.BuildId)
   - name: azure-network-resource-group-name
@@ -21,7 +21,7 @@ variables:
 trigger:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - "/solutions/secure-hybrid-network/*"
@@ -31,7 +31,7 @@ trigger:
 pr:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - "/solutions/secure-hybrid-network/*"
@@ -43,7 +43,7 @@ schedules:
     displayName: Weekly Sunday build
     branches:
       include:
-        - master
+        - main
     always: true
 
 stages:
