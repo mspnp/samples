@@ -1,6 +1,6 @@
 # Query limits and quotas for commonly used resources
 
-This set of Azure CLI and Azure PowerShell commands shows how to query limits and quotas for commonly used networking, SQL Database, storage, and virtual machine resources.
+This set of Azure CLI and Azure PowerShell commands shows how to query limits and quotas for commonly used networking, SQL Database, storage, and virtual machine resources. To learn more about how limits and quota impact service selection see [PE:03 Selecting services](https://learn.microsoft.com/azure/well-architected/performance-efficiency/select-services) in the Azure Well-Architected Framework.
 
 ## Azure CLI instructions
 

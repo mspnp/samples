@@ -9,9 +9,7 @@ description: These Azure Resource Manager (ARM) template samples deploy an Azure
 
 # Azure Automation State Configuration
 
-[![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/azure-automation-state-config?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3819&branchName=master)
-
-These Azure Resource Manager (ARM) template samples deploy an Azure Automation account and imports / compiles two PowerShell Desired State Configuration scripts. The template then deploys 1 to many virtual machines (Windows and Linux), onboards them into Azure Automation State Configuration, which then uses the compiled configurations to install a webserver on each of the virtual machines.
+These Azure Resource Manager (ARM) template samples deploy an Azure Automation account and imports / compiles two PowerShell Desired State Configuration scripts. The template then deploys 1 to many virtual machines (Windows and Linux), onboards them into Azure Automation State Configuration, which then uses the compiled configurations to install a webserver on each of the virtual machines. See [Azure Automation State Configuration](https://learn.microsoft.com/azure/architecture/example-scenario/state-configuration/state-configuration) on the Azure Architecture Center for more context.
 
 ## Deploy sample
 
@@ -25,7 +23,7 @@ Run the following command to initiate the deployment. If you would like to adjus
 
 ```azurecli
 az deployment group create --resource-group state-configuration \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-automation-state-configuration/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/azuredeploy.json
 ```
 
 Once complete, click on the **Automation Account** resource and then **State configuration (DSC)** and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.

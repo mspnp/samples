@@ -15,7 +15,7 @@ variables:
 trigger:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - /solutions/azure-automation-state-configuration/*
@@ -25,7 +25,7 @@ trigger:
 pr:
   branches:
     include:
-      - master
+      - main
   paths:
     include:
       - /solutions/azure-automation-state-configuration/*
@@ -37,7 +37,7 @@ schedules:
     displayName: Weekly Sunday build
     branches:
       include:
-        - master
+        - main
     always: true
 
 stages:

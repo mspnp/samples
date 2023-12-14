@@ -13,8 +13,6 @@ description: This sample deploys an empty web app, two web app slots, web app me
 
 # Basic web app deployment
 
-[![Build Status](https://dev.azure.com/ceapex/pnp/_apis/build/status/deployment-validation/basic-web-app?branchName=master)](https://ceapex.visualstudio.com/pnp/_build/latest?definitionId=3728&branchName=master)
-
 This sample deploys an empty web app, two web app slots, web app metric alerts, and autoscale rules. A SQL database is also deployed, the connection string stored in Azure Key Vault, and configured on the web application.
 
 Where applicable, each resource is configured to send diagnostics and metrics to an Azure Log Analytics workspace.
@@ -37,7 +35,7 @@ Run the following command to initiate the deployment. When prompted, enter value
 ```azurecli-interactive
 az deployment group create \
     --resource-group basic-web-app  \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/master/solutions/basic-web-app/azuredeploy.json
+    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/basic-web-app/azuredeploy.json
 ```
 
 ## Solution deployment parameters
@@ -50,7 +48,6 @@ az deployment group create \
 | azureSqlDatabase | object | Network configuration for the Azure SQL and Azure SQL database instances. | name, databaseName, collation, edition, maxSizeBytes, requestedServiceObjectiveName |
 | keyVault | object | Network configuration for the Azure Key Vault instance. | name, skuName, skuFamily |
 | azureAppService | object | Network configuration for the Azure App Service instance. | name, webSiteName, skuName, skuCapacity, autoScaleMin, autoscaleMax, autoscaleDefault |
-
 
 ## Diagnostic configurations
 

@@ -14,7 +14,7 @@ azureDeploy: https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm
 
 # Hub and spoke deployment with Mesh Connected Groups
 
-This sample deploys Azure virtual networks, using Azure Virtual Network Manager to connect the virtual networks with a mesh topology connected group. The sample includes both hub and spoke virtual networks, which are all added to the same mesh. Note that gateway routes are not propagated with mesh connectivity, so deploying a Virtual Network Gateway in the hub with this pattern would require static routes. 
+This sample deploys Azure virtual networks, using Azure Virtual Network Manager to connect the virtual networks with a mesh topology connected group. The sample includes both hub and spoke virtual networks, which are all added to the same mesh. Note that gateway routes are not propagated with mesh connectivity, so deploying a Virtual Network Gateway in the hub with this pattern would require static routes. See [Quickstart: Create a mesh network topology with Azure Virtual Network Manager by using Bicep](https://learn.microsoft.com/azure/virtual-network-manager/create-virtual-network-manager-bicep) for more context.
 
 ## Deploy sample
 
