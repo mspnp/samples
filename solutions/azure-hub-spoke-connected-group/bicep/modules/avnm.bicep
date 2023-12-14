@@ -115,7 +115,6 @@ resource connectivityConfigurationNonProd 'Microsoft.Network/networkManagers/con
   ]
   properties: {
     description: 'Non-prod poke-to-spoke connectivity configuration'
-    displayName: 'Non-prod Spoke-to-Spoke Connectivity'
     appliesToGroups: [
       {
         networkGroupId: networkGroupNonProd.id
@@ -146,7 +145,6 @@ resource connectivityConfigurationProd 'Microsoft.Network/networkManagers/connec
   ]
   properties: {
     description: 'Prod spoke-to-spoke connectivity configuration (through hub)'
-    displayName: 'Prod Spoke-to-Spoke Connectivity'
     appliesToGroups: [
       {
         networkGroupId: networkGroupProd.id
