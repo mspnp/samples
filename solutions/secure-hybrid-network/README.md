@@ -29,8 +29,9 @@ For detailed information, see the Implement a secure hybrid network:
 Run the following command to initiate the deployment. When prompted, enter values for an admin user name and password. These values are used to log into the included virtual machines.
 
 ```azurecli-interactive
-az deployment sub create \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/secure-hybrid-network/azuredeploy.json --location eastus
+# clone github repo
+cd sample/secure-hybrid-network
+az deployment sub create --location eastus --template-file azuredeploy.bicep 
 ```
 
 ## Solution deployment parameters
