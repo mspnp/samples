@@ -39,7 +39,11 @@
                         "[parameters('spokeNetworkAddressPrefix')]"
                     ]
                 },
-                "gatewayIpAddress": "[parameters('gatewayIpAddress')]"
+                "gatewayIpAddress": "[parameters('gatewayIpAddress')]",
+                "bgpSettings": {
+                            "asn": 40000,
+                            "bgpPeeringAddress": "[parameters('gatewayIpAddress')]"
+                }
             }
         },
         {

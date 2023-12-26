@@ -35,7 +35,11 @@
                         "[parameters('azureCloudVnetPrefix')]"
                     ]
                 },
-                "gatewayIpAddress": "[parameters('gatewayIpAddress')]"
+                "gatewayIpAddress": "[parameters('gatewayIpAddress')]",
+                "bgpSettings": {
+                            "asn": 40000,
+                            "bgpPeeringAddress": "[parameters('gatewayIpAddress')]"
+                }
             }
         },
         {
@@ -57,7 +61,7 @@
                 "connectionProtocol": "IKEv2",
                 "routingWeight": 100,
                 "sharedKey": "123secret",
-                "enableBgp": false,
+                "enableBgp": true,
                 "useLocalAzureIpAddress": false,
                 "usePolicyBasedTrafficSelectors": false,
                 "expressRouteGatewayBypass": false,

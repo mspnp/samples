@@ -527,7 +527,10 @@
                 },
                 "gatewayType": "Vpn",
                 "vpnType": "RouteBased",
-                "enableBgp": false
+                "enableBgp": true,
+                "bgpSettings":{
+                    "asn": 60001
+                }
             },
             "resources": [
                 {
