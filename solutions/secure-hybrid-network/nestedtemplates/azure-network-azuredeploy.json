@@ -522,8 +522,8 @@
                     }
                 ],
                 "sku": {
-                    "name": "Basic",
-                    "tier": "Basic"
+                    "name": "VpnGw2",
+                    "tier": "VpnGw2"
                 },
                 "gatewayType": "Vpn",
                 "vpnType": "RouteBased",
