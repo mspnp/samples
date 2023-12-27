@@ -30,7 +30,7 @@ Clone this repo and then run the following commands to initiate the deployment. 
 
 ```azurecli-interactive
 # clone github repo
-cd sample/secure-hybrid-network
+cd solutions/secure-hybrid-network
 az deployment sub create --location eastus --template-file azuredeploy.bicep 
 ```
 
