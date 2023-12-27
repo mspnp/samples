@@ -29,7 +29,6 @@ For detailed information, see the Implement a secure hybrid network:
 Clone this repo and then run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
 
 ```azurecli-interactive
-# clone github repo
 cd solutions/secure-hybrid-network
 az deployment sub create --location eastus --template-file azuredeploy.bicep 
 ```
