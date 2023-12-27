@@ -2587,7 +2587,7 @@
               "kind": "Custom",
               "properties": {
                 "access": "AlwaysAllow",
-                "description": "Always allow outbound traffic to Azure Active Directory",
+                "description": "Always allow outbound traffic to Microsoft Entra ID",
                 "destinationPortRanges": [
                   "0-65535"
                 ],
@@ -2614,7 +2614,7 @@
                 "[resourceId('Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections', format('avnm-{0}', parameters('location')), format('sg-{0}', parameters('location')), format('rc-{0}', parameters('location')))]"
               ],
               "metadata": {
-                "description": "This example rule always allows outbound traffic to Azure Active Directory, overriding NSG outbound restrictions"
+                "description": "This example rule always allows outbound traffic to Microsoft Entra ID, overriding NSG outbound restrictions"
               }
             },
             {
