@@ -418,7 +418,7 @@ resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-04-01
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
-    enableBgp: true
+    enableBgp: false
     bgpSettings: {
       asn: 65001
     }

@@ -36,7 +36,7 @@ resource connection 'Microsoft.Network/connections@2023-04-01' = {
     connectionProtocol: 'IKEv2'
     routingWeight: 100
     sharedKey: '123secret'
-    enableBgp: true
+    enableBgp: false
     useLocalAzureIpAddress: false
     usePolicyBasedTrafficSelectors: false
     expressRouteGatewayBypass: false

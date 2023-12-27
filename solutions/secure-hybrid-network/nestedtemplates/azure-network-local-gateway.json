@@ -61,7 +61,7 @@
                 "connectionProtocol": "IKEv2",
                 "routingWeight": 100,
                 "sharedKey": "123secret",
-                "enableBgp": true,
+                "enableBgp": false,
                 "useLocalAzureIpAddress": false,
                 "usePolicyBasedTrafficSelectors": false,
                 "expressRouteGatewayBypass": false,
