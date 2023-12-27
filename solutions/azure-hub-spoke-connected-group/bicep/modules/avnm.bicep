@@ -288,14 +288,14 @@ resource rule3 'Microsoft.Network/networkManagers/securityAdminConfigurations/ru
   }
 }
 
-@description('This example rule always allows outbound traffic to Azure Active Directory, overriding NSG outbound restrictions')
+@description('This example rule always allows outbound traffic to Microsoft Entra ID, overriding NSG outbound restrictions')
 resource rule4 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2023-04-01' = {
   name: 'r-alwaysallow-${location}'
   kind: 'Custom'
   parent: rulesCollection
   properties: {
     access: 'AlwaysAllow'
-    description: 'Always allow outbound traffic to Azure Active Directory'
+    description: 'Always allow outbound traffic to Microsoft Entra ID'
     destinationPortRanges: [ '0-65535' ]
     destinations: [
       {
