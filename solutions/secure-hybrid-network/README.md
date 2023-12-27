@@ -26,7 +26,7 @@ For detailed information, see the Implement a secure hybrid network:
 
 ## Deploy sample
 
-Run the following command to initiate the deployment. When prompted, enter values for an admin user name and password. These values are used to log into the included virtual machines.
+Clone this repo and then run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
 
 ```azurecli-interactive
 # clone github repo
