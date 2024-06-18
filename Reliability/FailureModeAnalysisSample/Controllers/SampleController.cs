@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http;
 
 namespace FailureModeAnalysisSample.Controllers
 {
