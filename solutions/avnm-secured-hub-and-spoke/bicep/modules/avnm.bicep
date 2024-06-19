@@ -1,4 +1,4 @@
-param location string
+param location string = resourceGroup().location
 param hubVnetId string
 param connectivityTopology string
 
