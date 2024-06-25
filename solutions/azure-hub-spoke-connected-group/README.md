@@ -77,7 +77,7 @@ Run the following command to initiate the deployment. If you would like to also 
 ```bash
 az deployment group create \
     --resource-group ${RESOURCEGROUP_NAME} \
-    --template-uri main.bicep
+    --template-file main.bicep
 ```
 
 **Deploy with virtual machines**
@@ -90,7 +90,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```bash
 az deployment group create \
     --resource-group ${RESOURCEGROUP_NAME} \
-    --template-uri main.bicep \
+    --template-file main.bicep \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023!
 ```
 
@@ -101,7 +101,7 @@ Run the following command to initiate the deployment with a virtual network gate
 ```bash
 az deployment group create \
     --resource-group ${RESOURCEGROUP_NAME} \
-    --template-uri main.bicep \
+    --template-file main.bicep \
     --parameters deployVpnGateway=true
 ```
 
@@ -115,7 +115,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 ```bash
 az deployment group create \
     --resource-group ${RESOURCEGROUP_NAME} \
-    --template-uri main.bicep \
+    --template-file main.bicep \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023! deployVpnGateway=true
 ```
 
