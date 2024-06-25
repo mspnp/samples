@@ -30,7 +30,7 @@ az group create --name ${RESOURCEGROUP} --location ${LOCATION}
 Run the following command to initiate the deployment. If you would like to adjust the number of virtual machines deployed, update the *windowsVMCount* and *linuxVMCount* values.
 
 ```bash
-curl ??
+curl -o azuredeploy.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/azuredeploy.bicep
 az deployment group create --resource-group ${RESOURCEGROUP} -f ./azuredeploy.bicep
 ```
 
