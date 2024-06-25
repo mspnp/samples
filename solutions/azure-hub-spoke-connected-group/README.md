@@ -53,8 +53,11 @@ Because the PowerShell script runs within the Deployment Script resource, troubl
 
 Create a resource group for the deployment.
 
-```azurecli-interactive
-az group create --name hub-spoke --location eastus
+```bash
+LOCATION=eastus
+RESOURCEGROUP_NAME=rg-hub-spoke-${LOCATION}
+
+az group create --name ${RESOURCEGROUP_NAME} --location ${LOCATION}
 ```
 
 > The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means  if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
@@ -65,7 +68,7 @@ Run the following command to initiate the deployment. If you would like to also 
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
+    --resource-group ${RESOURCEGROUP_NAME} \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json
 ```
 
@@ -78,7 +81,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
+    --resource-group ${RESOURCEGROUP_NAME} \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023!
 ```
@@ -89,7 +92,7 @@ Run the following command to initiate the deployment with a virtual network gate
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
+    --resource-group ${RESOURCEGROUP_NAME} \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
     --parameters deployVpnGateway=true
 ```
@@ -103,7 +106,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
+    --resource-group ${RESOURCEGROUP_NAME} \
     --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023! deployVpnGateway=true
 ```
@@ -130,6 +133,12 @@ The following resources are configured to send diagnostic logs to the included L
 - Azure Bastion
 
 Note, this deployment includes optional basic virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-linux).
+
+## Step 5: Clean Up
+
+```bash
+az group delete --name ${RESOURCEGROUP_NAME} --yes
+```
 
 ## Bicep implementation
 
