@@ -37,14 +37,14 @@ az group create --name ${RESOURCEGROUP_NAME} --location ${LOCATION}
 ```bash
 mkdir modules
 cd modules
-curl -o avnm.bicep https://raw.githubusercontent.com/v-fearam/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/avnm.bicep
-curl -o avnmDeploymentScript.bicep https://raw.githubusercontent.com/v-fearam/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/avnmDeploymentScript.bicep
-curl -o dynMemberPolicy.bicep https://raw.githubusercontent.com/v-fearam/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/dynMemberPolicy.bicep
-curl -o hub.bicep https://raw.githubusercontent.com/v-fearam/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/hub.bicep
-curl -o spoke.bicep https://raw.githubusercontent.com/v-fearam/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/spoke.bicep
+curl -o avnm.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/avnm.bicep
+curl -o avnmDeploymentScript.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/avnmDeploymentScript.bicep
+curl -o dynMemberPolicy.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/dynMemberPolicy.bicep
+curl -o hub.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/hub.bicep
+curl -o spoke.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/spoke.bicep
 cd ..
 
-curl -o main.bicep https://raw.githubusercontent.com/v-fearam/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/main.bicep
+curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/main.bicep
 ```
 
 ### Step 4: Deploy infrastructure and Virtual Network Manager resources
