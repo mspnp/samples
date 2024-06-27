@@ -28,9 +28,15 @@ For detailed information, see the Implement a secure hybrid network:
 
 Clone this repo and then run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
 
-```azurecli-interactive
+```bash
+## Environment
+LOCATION=eastus2
+ONPREM_RESOURCEGROUP_NAME=rg-site-to-site-mock-prem-${LOCATION}
+AZURE_NETWORK_RESOURCEGROUP_NAME=rg-site-to-site-azure-network-${LOCATION}
+
+# Resources will be created on deployment region
 cd solutions/secure-hybrid-network
-az deployment sub create --location eastus --template-file azuredeploy.bicep 
+az deployment sub create -n secure-hybrid-network --location ${LOCATION} --template-file azuredeploy.bicep  -p mocOnPremResourceGroup=${ONPREM_RESOURCEGROUP_NAME} azureNetworkResourceGroup=${AZURE_NETWORK_RESOURCEGROUP_NAME}
 ```
 
 ## Solution deployment parameters
@@ -61,7 +67,7 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | spokeRoutes | object | Object representing user-defined routes for the spoke subnet. | tableName, routeNameFirewall |
 | gatewayRoutes | object | Object representing user-defined routes for the gateway network. | tableName, routeNameFirewall |
 | internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, fontendName, probeName |
-| location | string | Location to be used for all resources. | null |
+| location | string | Location to be used for all resources. | rg location |
 
 **nestedtemplates/azure-network-local-gateway.json**
 
@@ -84,7 +90,7 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
 | vmSize | string | Size of the load-balanced virtual machines. | Standard_A1_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
-| location | string | Location to be used for all resources. | null |
+| location | string | Location to be used for all resources. | rg location |
 
 **nestedtemplates/mock-onprem-local-gateway.json**
 
@@ -96,7 +102,15 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | gatewayIpAddress | string | Public IP address of the Azure virtual network gateway. | null |
 | mocOnpremGatewayName | string | Name of the mock on-prem local network gateway.  | null |
 | localNetworkGateway | string | Name of the mock on-prem local network gateway. | local-gateway-moc-prem |
-| location | string | Location to be used for all resources. | null |
+| location | string | Location to be used for all resources. | rg location |
+
+
+## Clean Up 
+
+```bash
+az group delete --name ${ONPREM_RESOURCEGROUP_NAME} --yes
+az group delete --name ${AZURE_NETWORK_RESOURCEGROUP_NAME} --yes
+```
 
 ## Microsoft Open Source Code of Conduct
 
