@@ -22,6 +22,9 @@ This sample deploys Azure virtual networks in a hub and spoke configuration, usi
 ```bash
 LOCATION=eastus
 RESOURCEGROUP_NAME=rg-hub-spoke-${LOCATION}
+
+# Ensure the feature is enable
+az feature register --namespace "Microsoft.Compute" --name "EncryptionAtHost"
 ```
 
 ### Step 2: Create a Resource Group for the sample resources
