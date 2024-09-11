@@ -55,6 +55,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = {
 resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: 'vm-learn-prod-${location}-${spokeName}-ubuntu'
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_DS1_v2'
@@ -131,7 +134,7 @@ resource vaultName_backupFabric_protectionContainer_protectedItem 'Microsoft.Rec
   }
 } 
 
-// Guest Configuration extension should be installed on machines
+// Guest Configuration extension should be installed using the system-assigned managed identity
 @description('Install the Guest Configuration extension for auditing purposes on the VM.')
 resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
   parent: vm
@@ -142,7 +145,10 @@ resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2021
     type: 'ConfigurationforLinux'  // Use 'ConfigurationforWindows' if it's a Windows VM
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {}
+    protectedSettings: {
+    }
   }
 }
 
