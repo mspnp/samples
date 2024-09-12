@@ -7,7 +7,7 @@ param adminPassword string
 param emailAddress string
 param windowsVMCount int = 1
 param linuxVMCount int = 1
-param vmSize string = 'Standard_A1_v2'
+param vmSize string = 'Standard_DS1_v2'
 param windowsConfiguration object = {
   name: 'windowsfeatures'
   description: 'A configuration for installing IIS.'
@@ -134,8 +134,6 @@ resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/aut
   properties: {
     logVerbose: false
     description: linuxConfiguration.description
-    state: 'Published'
-    overwrite: 'true'
     source: {
       type: 'uri'
       value: linuxConfiguration.script
@@ -165,8 +163,6 @@ resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/a
   properties: {
     logVerbose: false
     description: windowsConfiguration.description
-    state: 'Published'
-    overwrite: 'true'
     source: {
       type: 'uri'
       value: windowsConfiguration.script
@@ -325,6 +321,9 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
   for i in range(0, windowsVMCount): {
     name: '${windowsVMName}${i}'
     location: location
+    identity: {
+      type: 'SystemAssigned'
+    }
     properties: {
       hardwareProfile: {
         vmSize: vmSize
@@ -352,10 +351,32 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
           }
         ]
       }
+      securityProfile: {
+        //Virtual machines and virtual machine scale sets should have encryption at host enabled
+        encryptionAtHost: true
+      }
     }
     dependsOn: [
       windowsNic
     ]
+  }
+]
+
+
+resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
+  for i in range(0, windowsVMCount): {
+    parent: windowsVM[i]
+    name: 'Microsoft.GuestConfiguration${windowsVM[i].name}'
+    location: location
+    properties: {
+      publisher: 'Microsoft.GuestConfiguration'
+      type: 'ConfigurationforWindows' 
+      typeHandlerVersion: '1.0'
+      autoUpgradeMinorVersion: true
+      enableAutomaticUpgrade: true
+      settings: {}
+      protectedSettings: {}
+    }
   }
 ]
 
@@ -385,7 +406,7 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
           }
           {
             Name: 'RegistrationUrl'
-#disable-next-line BCP053
+            #disable-next-line BCP053
             Value: automationAccount.properties.registrationUrl
             TypeName: 'System.String'
           }
@@ -473,6 +494,9 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
   for i in range(0, linuxVMCount): {
     name: '${linuxVMNAme}${i}'
     location: location
+    identity: {
+      type: 'SystemAssigned'
+    }
     properties: {
       hardwareProfile: {
         vmSize: vmSize
@@ -500,10 +524,31 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
           }
         ]
       }
+      securityProfile: {
+        //Virtual machines and virtual machine scale sets should have encryption at host enabled
+        encryptionAtHost: true
+      }
     }
     dependsOn: [
       linuxNic
     ]
+  }
+]
+
+resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
+  for i in range(0, linuxVMCount): {
+    parent: linuxVMN[i]
+    name: 'Microsoft.GuestConfiguration${linuxVMN[i].name}'
+    location: location
+    properties: {
+      publisher: 'Microsoft.GuestConfiguration'
+      type: 'ConfigurationforLinux'
+      typeHandlerVersion: '1.0'
+      autoUpgradeMinorVersion: true
+      enableAutomaticUpgrade: true
+      settings: {}
+      protectedSettings: {}
+    }
   }
 ]
 
