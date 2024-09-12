@@ -10,9 +10,8 @@ param resourceGroupName string
 @minLength(6)
 param location string = deployment().location
 
-@description('Password for the test VMs deployed in the spokes')
-@secure()
-param adminPassword string
+@description('your public key. Authentication to Linux machines should require SSH keys.')
+param sshKey string
 
 @description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
@@ -43,7 +42,7 @@ module spokeA 'modules/spoke.bicep' = {
   params: {
     spokeName: '001'
     spokeVnetPrefix: '10.1.0.0/16'
-    adminPassword: adminPassword
+    sshKey: sshKey
     adminUsername: adminUsername
   }
 }
@@ -55,7 +54,7 @@ module spokeB 'modules/spoke.bicep' = {
   params: {
     spokeName: '002'
     spokeVnetPrefix: '10.2.0.0/16'
-    adminPassword: adminPassword
+    sshKey: sshKey
     adminUsername: adminUsername
   }
 }

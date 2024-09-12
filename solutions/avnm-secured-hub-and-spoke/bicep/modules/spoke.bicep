@@ -1,8 +1,8 @@
 param location string = resourceGroup().location
 param spokeName string
 param spokeVnetPrefix string
-@secure()
-param adminPassword string
+
+param sshKey string
 param adminUsername string = 'admin-avnm'
 
 var protectionContainer = 'iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${vm.name}'
@@ -99,9 +99,16 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     osProfile: {
       computerName: 'examplevm'
       adminUsername: adminUsername
-      adminPassword: adminPassword
       linuxConfiguration: {
-        disablePasswordAuthentication: false
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: sshKey
+            }
+          ]
+        }
         provisionVMAgent: true
       }
     }
