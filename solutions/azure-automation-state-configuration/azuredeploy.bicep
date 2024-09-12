@@ -2,6 +2,8 @@ param location string = resourceGroup().location
 
 param adminUserName string
 
+@description('your public key. Authentication to Linux machines should require SSH keys.')
+param sshKey string
 @secure()
 param adminPassword string
 param emailAddress string
@@ -362,7 +364,6 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
   }
 ]
 
-
 resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
   for i in range(0, windowsVMCount): {
     parent: windowsVM[i]
@@ -370,7 +371,7 @@ resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensio
     location: location
     properties: {
       publisher: 'Microsoft.GuestConfiguration'
-      type: 'ConfigurationforWindows' 
+      type: 'ConfigurationforWindows'
       typeHandlerVersion: '1.0'
       autoUpgradeMinorVersion: true
       enableAutomaticUpgrade: true
@@ -504,7 +505,18 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
       osProfile: {
         computerName: '${linuxVMNAme}${i}'
         adminUsername: adminUserName
-        adminPassword: adminPassword
+        linuxConfiguration: {
+          disablePasswordAuthentication: true
+          ssh: {
+            publicKeys: [
+              {
+                path: '/home/${adminUserName}/.ssh/authorized_keys'
+                keyData: sshKey
+              }
+            ]
+          }
+          provisionVMAgent: true
+        }
       }
       storageProfile: {
         imageReference: {
