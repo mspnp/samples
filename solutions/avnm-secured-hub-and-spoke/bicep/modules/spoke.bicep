@@ -109,6 +109,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
             }
           ]
         }
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform '
+        }
         provisionVMAgent: true
       }
     }
@@ -128,8 +133,7 @@ resource recoveryServicesVault 'Microsoft.RecoveryServices/vaults@2021-08-01' = 
     name: 'RS0'
     tier: 'Standard'
   }
-  properties: {
-  }
+  properties: {}
 }
 
 resource vaultName_backupFabric_protectionContainer_protectedItem 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = {
@@ -139,7 +143,7 @@ resource vaultName_backupFabric_protectionContainer_protectedItem 'Microsoft.Rec
     policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
     sourceResourceId: vm.id
   }
-} 
+}
 
 // Guest Configuration extension should be installed using the system-assigned managed identity
 @description('Install the Guest Configuration extension for auditing purposes on the VM.')
@@ -149,13 +153,12 @@ resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2021
   location: location
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
-    type: 'ConfigurationforLinux'  // Use 'ConfigurationforWindows' if it's a Windows VM
+    type: 'ConfigurationforLinux' // Use 'ConfigurationforWindows' if it's a Windows VM
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
     enableAutomaticUpgrade: true
     settings: {}
-    protectedSettings: {
-    }
+    protectedSettings: {}
   }
 }
 
@@ -182,6 +185,5 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
     ]
   }
 }
-
 
 output vnetId string = vnet.id

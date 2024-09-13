@@ -56,9 +56,7 @@ curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solution
 # Generate ssh key and get public data.
 ssh-keygen -t rsa -b 2048
 
-export SSH_KEY=$(cat ~/.ssh/id_rsa.pub)
-
-az deployment sub create --template-file main.bicep -n avnm-secured-hub-and-spoke -l ${LOCATION} --parameters resourceGroupName=${RESOURCEGROUP_NAME} sshKey="${SSH_KEY}"
+az deployment sub create --template-file main.bicep -n avnm-secured-hub-and-spoke -l ${LOCATION} --parameters resourceGroupName=${RESOURCEGROUP_NAME} sshKey="$(cat ~/.ssh/id_rsa.pub)"
 ```
 
 ## Solution deployment parameters
