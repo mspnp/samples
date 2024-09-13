@@ -1,9 +1,12 @@
-param location string
-param spokeName string 
+param location string = resourceGroup().location
+param spokeName string
 param spokeVnetPrefix string
-@secure()
-param adminPassword string
+
+param sshKey string
 param adminUsername string = 'admin-avnm'
+
+var protectionContainer = 'iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${vm.name}'
+var protectedItem = 'vm;iaasvmcontainerv2;${resourceGroup().name};${vm.name}'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: 'vnet-learn-prod-${location}-${toLower(spokeName)}'
@@ -41,6 +44,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = {
         }
       }
     ]
+    networkSecurityGroup: {
+      id: nsg.id
+    }
     enableAcceleratedNetworking: true
   }
 }
@@ -49,6 +55,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2022-01-01' = {
 resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: 'vm-learn-prod-${location}-${spokeName}-ubuntu'
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_DS1_v2'
@@ -90,15 +99,91 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
     osProfile: {
       computerName: 'examplevm'
       adminUsername: adminUsername
-      adminPassword: adminPassword
       linuxConfiguration: {
-        disablePasswordAuthentication: false
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: sshKey
+            }
+          ]
+        }
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform '
+        }
         provisionVMAgent: true
       }
+    }
+    securityProfile: {
+      //Virtual machines and virtual machine scale sets should have encryption at host enabled
+      encryptionAtHost: true
     }
     priority: 'Regular'
   }
 }
 
+// Azure Backup should be enabled for virtual machines
+resource recoveryServicesVault 'Microsoft.RecoveryServices/vaults@2021-08-01' = {
+  name: '${vm.name}-bkp'
+  location: location
+  sku: {
+    name: 'RS0'
+    tier: 'Standard'
+  }
+  properties: {}
+}
+
+resource vaultName_backupFabric_protectionContainer_protectedItem 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = {
+  name: '${recoveryServicesVault.name}/Azure/${protectionContainer}/${protectedItem}'
+  properties: {
+    protectedItemType: 'Microsoft.Compute/virtualMachines'
+    policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
+    sourceResourceId: vm.id
+  }
+}
+
+// Guest Configuration extension should be installed using the system-assigned managed identity
+@description('Install the Guest Configuration extension for auditing purposes on the VM.')
+resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
+  parent: vm
+  name: 'Microsoft.GuestConfiguration'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforLinux' // Use 'ConfigurationforWindows' if it's a Windows VM
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+    settings: {}
+    protectedSettings: {}
+  }
+}
+
+// Non-internet-facing virtual machines should be protected with network security groups
+@description('The Network Security Group to protect the VM.')
+resource nsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
+  name: 'nsg-learn-prod-${location}-${spokeName}-ubuntu'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'DenyInternetAccess'
+        properties: {
+          priority: 2000
+          direction: 'Inbound'
+          access: 'Deny'
+          protocol: '*'
+          sourceAddressPrefix: 'Internet'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '*'
+          sourcePortRange: '*'
+        }
+      }
+    ]
+  }
+}
 
 output vnetId string = vnet.id

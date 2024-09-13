@@ -8,11 +8,10 @@ param resourceGroupName string
 
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
 @minLength(6)
-param location string
+param location string = deployment().location
 
-@description('Password for the test VMs deployed in the spokes')
-@secure()
-param adminPassword string
+@description('your public key. Authentication to Linux machines should require SSH keys.')
+param sshKey string
 
 @description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
@@ -41,10 +40,9 @@ module spokeA 'modules/spoke.bicep' = {
   name: 'spoke1-resources-deployment-${location}'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: '001'
     spokeVnetPrefix: '10.1.0.0/16'
-    adminPassword: adminPassword
+    sshKey: sshKey
     adminUsername: adminUsername
   }
 }
@@ -54,10 +52,9 @@ module spokeB 'modules/spoke.bicep' = {
   name: 'spoke2-resources-deployment-${location}'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: '002'
     spokeVnetPrefix: '10.2.0.0/16'
-    adminPassword: adminPassword
+    sshKey: sshKey
     adminUsername: adminUsername
   }
 }
@@ -77,7 +74,6 @@ module avnm 'modules/avnm.bicep' = {
   name: 'avnm'
   scope: resourceGroup
   params: {
-    location: location
     hubVnetId: hub.outputs.hubVnetId
     connectivityTopology: connectivityTopology
   }
@@ -94,7 +90,6 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
     policy
   ]
   params: {
-    location: location
     userAssignedIdentityId: avnm.outputs.userAssignedIdentityId
     configurationId: avnm.outputs.connectivityConfigurationId
     configType: 'Connectivity'
@@ -110,7 +105,6 @@ module deploymentScriptSecurityConfigs 'modules/avnmDeploymentScript.bicep' = {
     policy
   ]
   params: {
-    location: location
     userAssignedIdentityId: avnm.outputs.userAssignedIdentityId
     configurationId: avnm.outputs.securtyAdminConfigurationId
     configType: 'SecurityAdmin'
