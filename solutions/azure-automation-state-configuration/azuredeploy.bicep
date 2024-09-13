@@ -337,7 +337,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         windowsConfiguration: {
           enableAutomaticUpdates: true
           patchSettings: {
-             //Machines should be configured to periodically check for missing system updates
+            //Machines should be configured to periodically check for missing system updates
             assessmentMode: 'AutomaticByPlatform'
             patchMode: 'AutomaticByPlatform'
           }
@@ -385,6 +385,17 @@ resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensio
       enableAutomaticUpgrade: true
       settings: {}
       protectedSettings: {}
+    }
+  }
+]
+
+resource vaultName_backupFabric_protectionContainer_protectedItem_WindownsVM 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = [
+  for i in range(0, windowsVMCount): {
+    name: '${recoveryServicesVault.name}/Azure/iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${windowsVM[i].name}/vm;iaasvmcontainerv2;${resourceGroup().name};${windowsVM[i].name}'
+    properties: {
+      protectedItemType: 'Microsoft.Compute/virtualMachines'
+      policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
+      sourceResourceId: windowsVM[i].id
     }
   }
 ]
@@ -515,7 +526,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         adminUsername: adminUserName
         linuxConfiguration: {
           patchSettings: {
-             //Machines should be configured to periodically check for missing system updates
+            //Machines should be configured to periodically check for missing system updates
             assessmentMode: 'AutomaticByPlatform'
             patchMode: 'AutomaticByPlatform '
           }
@@ -577,6 +588,17 @@ resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions
   }
 ]
 
+resource vaultName_backupFabric_protectionContainer_protectedItem_LinuxVM 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = [
+  for i in range(0, linuxVMCount): {
+    name: '${recoveryServicesVault.name}/Azure/iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${linuxVMN[i].name}/vm;iaasvmcontainerv2;${resourceGroup().name};${linuxVMN[i].name}'
+    properties: {
+      protectedItemType: 'Microsoft.Compute/virtualMachines'
+      policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
+      sourceResourceId: linuxVMN[i].id
+    }
+  }
+]
+
 resource linuxVMNAme_enabledsc 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = [
   for i in range(0, linuxVMCount): {
     name: '${linuxVMNAme}${i}/enabledsc'
@@ -603,3 +625,14 @@ resource linuxVMNAme_enabledsc 'Microsoft.Compute/virtualMachines/extensions@202
     ]
   }
 ]
+
+// Azure Backup should be enabled for virtual machines
+resource recoveryServicesVault 'Microsoft.RecoveryServices/vaults@2021-08-01' = {
+  name: 'vm-bkp'
+  location: location
+  sku: {
+    name: 'RS0'
+    tier: 'Standard'
+  }
+  properties: {}
+}
