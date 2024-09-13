@@ -334,6 +334,14 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         computerName: '${windowsVMName}${i}'
         adminUsername: adminUserName
         adminPassword: adminPassword
+        windowsConfiguration: {
+          enableAutomaticUpdates: true
+          patchSettings: {
+             //Machines should be configured to periodically check for missing system updates
+            assessmentMode: 'AutomaticByPlatform'
+            patchMode: 'AutomaticByPlatform'
+          }
+        }
       }
       storageProfile: {
         imageReference: {
@@ -506,6 +514,11 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         computerName: '${linuxVMNAme}${i}'
         adminUsername: adminUserName
         linuxConfiguration: {
+          patchSettings: {
+             //Machines should be configured to periodically check for missing system updates
+            assessmentMode: 'AutomaticByPlatform'
+            patchMode: 'AutomaticByPlatform '
+          }
           disablePasswordAuthentication: true
           ssh: {
             publicKeys: [
