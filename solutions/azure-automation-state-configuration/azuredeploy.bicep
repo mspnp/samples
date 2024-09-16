@@ -357,7 +357,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId('Microsoft.Network/networkInterfaces', '${windowsNicName}${i}')
+            id: resourceId('Microsoft.Network/networkInterfaces', windowsNic[i].name)
           }
         ]
       }
@@ -366,16 +366,14 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         encryptionAtHost: true
       }
     }
-    dependsOn: [
-      windowsNic
-    ]
   }
 ]
 
+// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
 resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
   for i in range(0, windowsVMCount): {
     parent: windowsVM[i]
-    name: 'Microsoft.GuestConfiguration${windowsVM[i].name}'
+    name: 'AzurePolicyforWindows${windowsVM[i].name}'
     location: location
     properties: {
       publisher: 'Microsoft.GuestConfiguration'
@@ -556,7 +554,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId('Microsoft.Network/networkInterfaces', '${linuxNicName}${i}')
+            id: resourceId('Microsoft.Network/networkInterfaces', linuxNic[i].name)
           }
         ]
       }
@@ -565,20 +563,18 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         encryptionAtHost: true
       }
     }
-    dependsOn: [
-      linuxNic
-    ]
   }
 ]
 
+// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
 resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [
   for i in range(0, linuxVMCount): {
     parent: linuxVMN[i]
-    name: 'Microsoft.GuestConfiguration${linuxVMN[i].name}'
+    name: 'Microsoft.AzurePolicyforLinux${linuxVMN[i].name}'
     location: location
     properties: {
       publisher: 'Microsoft.GuestConfiguration'
-      type: 'ConfigurationforLinux'
+      type: 'ConfigurationForLinux'
       typeHandlerVersion: '1.0'
       autoUpgradeMinorVersion: true
       enableAutomaticUpgrade: true
