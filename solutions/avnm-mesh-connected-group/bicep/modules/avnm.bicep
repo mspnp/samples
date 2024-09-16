@@ -1,4 +1,4 @@
-param location string
+param location string = resourceGroup().location
 param spokeNetworkGroupMembers array
 param hubVnetId string
 param networkGroupMembershipType string

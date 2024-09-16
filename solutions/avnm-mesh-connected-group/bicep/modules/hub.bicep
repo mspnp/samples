@@ -1,4 +1,4 @@
-param location string
+param location string = resourceGroup().location
 
 @description('The regional hub network.')
 resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {

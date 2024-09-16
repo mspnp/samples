@@ -1,4 +1,4 @@
-param location string
+param location string = resourceGroup().location
 param userAssignedIdentityId string
 param networkManagerName string
 param configurationId string

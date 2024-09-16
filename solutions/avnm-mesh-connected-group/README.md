@@ -1,13 +1,13 @@
 ---
 page_type: sample
 languages:
-- azurepowershell
-- azurecli
+  - azurepowershell
+  - azurecli
 products:
   - azure
   - azure-virtual-network
   - virtual-network-manager
-description: This sample deploys Virtual Networks and implements inter-network connectivity using Azure Virtual Network Manager and a mesh connectivity topology. 
+description: This sample deploys Virtual Networks and implements inter-network connectivity using Azure Virtual Network Manager and a mesh connectivity topology.
 urlFragment: avnm-mesh-connected-group
 azureDeploy: https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/azuredeploy.json
 ---
@@ -20,35 +20,46 @@ This sample deploys Azure virtual networks, using Azure Virtual Network Manager 
 
 **Default Deployment with Static Network Group Membership**
 
-```azurecli-interactive
-az deployment subscription create \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/armTemplates/azuredeploy.json \
-    --parameters location=eastus
+```bash
+LOCATION=eastus
+RESOURCEGROUP_NAME=rg-avnm-mesh-${LOCATION}
+
+curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/bicep/main.bicep
+mkdir modules
+cd modules
+curl -o avnm.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/bicep/modules/avnm.bicep
+curl -o avnmDeploymentScript.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/bicep/modules/avnmDeploymentScript.bicep
+curl -o dynMemberPolicy.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/bicep/modules/dynMemberPolicy.bicep
+curl -o hub.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/bicep/modules/hub.bicep
+curl -o spoke.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/bicep/modules/spoke.bicep
+cd ..
+
+az deployment sub create --template-file main.bicep -n avnm-mesh-connected-group -l ${LOCATION} --parameters resourceGroupName=${RESOURCEGROUP_NAME}
 ```
 
 **Default Deployment with Dynamic Network Group Membership**
 
-Include the deployment parameter `networkGroupMembershipType` with a value of `dynamic` to use Azure Policy to dynamically manage the membership of the network group. 
+Include the deployment parameter `networkGroupMembershipType` with a value of `dynamic` to use Azure Policy to dynamically manage the membership of the network group.
 
->![NOTE] This deployment requires permissions to create and assign Azure Policy at the target subscription level. 
+> ![NOTE] This deployment requires permissions to create and assign Azure Policy at the target subscription level.
 
-```azurecli-interactive
-az deployment subscription create \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-mesh-connected-group/armTemplates/azuredeploy.json \
-    --parameters networkGroupMembershipType=dynamic location=eastus
+```bash
+az deployment sub create --template-file main.bicep -n avnm-mesh-connected-group -l ${LOCATION} --parameters resourceGroupName=${RESOURCEGROUP_NAME} networkGroupMembershipType=dynamic
 ```
 
 ## Solution deployment parameters
 
-| Parameter | Type | Description | Default |
-|---|---|---|--|
-| `location` | string | Deployment location. Location must support availability zones. | `resourceGroup().location` | 
-| `deployVirtualMachines` | bool | If true, deploys one basic Linux virtual machine to spoke one and one basic Windows virtual machine to spoke two. | `false` |
-| `networkGroupMembershipType` | string | Specify either 'static' or 'dynamic' network group membership. Default: 'static' | `false` |
+| Parameter                    | Type   | Description                                                                                                       | Default                    |
+| ---------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `location`                   | string | Deployment location. Location must support availability zones.                                                    | `resourceGroup().location` |
+| `deployVirtualMachines`      | bool   | If true, deploys one basic Linux virtual machine to spoke one and one basic Windows virtual machine to spoke two. | `false`                    |
+| `networkGroupMembershipType` | string | Specify either 'static' or 'dynamic' network group membership. Default: 'static'                                  | `false`                    |
 
-## Bicep implementation
+## Clean up
 
-The links above use JSON Azure Resource Manager (ARM) templates to support network referencing. The ARM templates were generated from the following [source bicep file](https://github.com/mspnp/samples/blob/main/solutions/avnm-mesh-connected-group/bicep), which has additional comments and considerations.
+```bash
+az group delete --name ${RESOURCEGROUP_NAME} --yes
+```
 
 ## Microsoft Open Source Code of Conduct
 
