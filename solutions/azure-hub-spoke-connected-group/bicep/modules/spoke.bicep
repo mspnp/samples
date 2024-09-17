@@ -10,6 +10,11 @@ param nsgPrivateLinkEndpointsSubnetId string
 @secure()
 param adminPassword string
 
+// Azure DDoS Protection Standard should be enabled
+resource ddosProtectionPlan 'Microsoft.Network/ddosProtectionPlans@2021-05-01'  existing = {
+  name: 'vnet-${location}-ddos'
+}
+
 resource hubNet 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
   name: 'vnet-${location}-hub'
 
@@ -57,6 +62,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         }
       }
     ]
+    enableDdosProtection: true
+    ddosProtectionPlan: {
+      id: ddosProtectionPlan.id
+    }
   }
 
   resource snetResources 'subnets' existing = {
