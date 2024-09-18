@@ -282,6 +282,12 @@ resource nsgBastionSubnet_diagnosticSettings 'Microsoft.Insights/diagnosticSetti
   }
 }
 
+// Azure DDoS Protection Standard should be enabled
+resource ddosProtectionPlan 'Microsoft.Network/ddosProtectionPlans@2021-05-01' = {
+  name: 'vnet-${location}-ddos'
+  location: location
+}
+
 @description('The regional hub network.')
 resource vnetHub 'Microsoft.Network/virtualNetworks@2023-04-01' = {
   name: 'vnet-${location}-hub'
@@ -315,6 +321,10 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         }
       }
     ]
+    enableDdosProtection: true
+    ddosProtectionPlan: {
+      id: ddosProtectionPlan.id
+    }
   }
 
   resource azureBastionSubnet 'subnets' existing = {
@@ -955,6 +965,10 @@ resource vnetSpokeOne 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         }
       }
     ]
+    enableDdosProtection: true
+    ddosProtectionPlan: {
+      id: ddosProtectionPlan.id
+    }
   }
 
   resource snetResources 'subnets' existing = {
@@ -1127,6 +1141,10 @@ resource vnetSpokeTwo 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         }
       }
     ]
+    enableDdosProtection: true
+    ddosProtectionPlan: {
+      id: ddosProtectionPlan.id
+    }
   }
 
   resource snetResources 'subnets' existing = {
