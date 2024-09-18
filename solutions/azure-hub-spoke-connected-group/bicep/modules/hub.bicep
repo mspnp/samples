@@ -3,6 +3,11 @@ param deployAzureBastion bool
 param deployVpnGateway bool
 param deployVirtualMachines bool
 
+// Azure DDoS Protection Standard should be enabled
+resource ddosProtectionPlan 'Microsoft.Network/ddosProtectionPlans@2021-05-01'  existing = {
+  name: 'vnet-${location}-ddos'
+}
+
 @description('This Log Analyics Workspace stores logs from the regional hub network, its spokes, and other related resources. Workspaces are regional resource, as such there would be one workspace per hub (region)')
 resource laHub 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: 'la-hub-${location}'
@@ -262,6 +267,10 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2023-04-01' = {
         }
       }
     ]
+    enableDdosProtection: true
+    ddosProtectionPlan: {
+      id: ddosProtectionPlan.id
+    }
   }
 
   resource azureBastionSubnet 'subnets' existing = {

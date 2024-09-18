@@ -204,6 +204,12 @@ resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@
   }
 }
 
+// Azure DDoS Protection Standard should be enabled
+resource ddosProtectionPlan 'Microsoft.Network/ddosProtectionPlans@2021-05-01' = {
+  name: 'vnet-${location}-ddos'
+  location: location
+}
+
 /*** RESOURCES (SPOKE ONE) ***/
 module spokenonprod1 'modules/spoke.bicep' = {
   name: 'spokenonprod1'
