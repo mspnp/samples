@@ -3,7 +3,7 @@ param gatewayIpAddress string
 param azureCloudVnetPrefix string
 param azureNetworkGatewayName string
 param localNetworkGatewayName string = 'local-gateway-azure-network'
-param location string
+param location string  = resourceGroup().location
 
 resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-04-01' = {
   name: localNetworkGatewayName
