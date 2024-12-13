@@ -58,7 +58,7 @@ var peering_name_hub_to_spoke = 'hub-to-spoke'
 var peering_name_spoke_to_hub = 'spoke-to-hub'
 var nicNameWebName = 'nic-web-server'
 var vmNameWebName = 'vm-web-server'
-var windowsOSVersion = '2012-R2-Datacenter'
+var windowsOSVersion = '2016-Datacenter'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
