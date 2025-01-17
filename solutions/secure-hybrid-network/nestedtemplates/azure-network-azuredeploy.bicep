@@ -51,11 +51,9 @@ param internalLoadBalancer object = {
   fontendName: 'lb-frontend'
   probeName: 'lb-probe'
 }
-param location string
+param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
-var peering_name_hub_to_spoke = 'hub-to-spoke'
-var peering_name_spoke_to_hub = 'spoke-to-hub'
 var nicNameWebName = 'nic-web-server'
 var vmNameWebName = 'vm-web-server'
 var windowsOSVersion = '2016-Datacenter'
@@ -386,15 +384,19 @@ resource spokeNetwork_name_Microsoft_Insights_default_logAnalyticsWorkspace 'Mic
   }
 }
 
-resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-04-01' = if (configureSitetosite) {
+resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (configureSitetosite) {
   name: vpnGateway.publicIPAddressName
   location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: 'Static'
   }
 }
 
-resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = if (configureSitetosite) {
+resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-11-01' = if (configureSitetosite) {
   name: vpnGateway.name
   location: location
   properties: {

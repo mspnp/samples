@@ -23,7 +23,7 @@ param bastionHost object = {
 }
 param vmSize string = 'Standard_A1_v2'
 param configureSitetosite bool = true
-param location string
+param location string  = resourceGroup().location
 
 var nicNameWindowsName = 'nic-windows'
 var vmNameWindowsName = 'vm-windows'
@@ -61,15 +61,19 @@ resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2023-04-01'
   }
 }
 
-resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-04-01' = if (configureSitetosite) {
+resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (configureSitetosite) {
   name: mocOnpremGateway.publicIPAddressName
   location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: 'Static'
   }
 }
 
-resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = if (configureSitetosite) {
+resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-11-01' = if (configureSitetosite) {
   name: mocOnpremGateway.name
   location: location
   properties: {
