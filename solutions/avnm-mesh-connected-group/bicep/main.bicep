@@ -8,7 +8,7 @@ param resourceGroupName string
 
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
 @minLength(6)
-param location string
+param location string = deployment().location
 
 // Network Group Membership Options:
 //
@@ -31,7 +31,6 @@ module hub 'modules/hub.bicep' = {
   name: 'vnet-hub'
   scope: resourceGroup
   params: {
-    location: location
   }
 }
 
@@ -40,7 +39,6 @@ module spokeA 'modules/spoke.bicep' = {
   name: 'spoke001'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: 'spoke001'
     spokeVnetPrefix: '10.100.0.0/22'
   }
@@ -51,7 +49,6 @@ module spokeB 'modules/spoke.bicep' = {
   name: 'spoke002'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: 'spoke002'
     spokeVnetPrefix: '10.101.0.0/22'
   }
@@ -62,7 +59,6 @@ module spokeC 'modules/spoke.bicep' = {
   name: 'spoke003'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: 'spoke003'
     spokeVnetPrefix: '10.102.0.0/22'
   }
@@ -73,7 +69,6 @@ module spokeD 'modules/spoke.bicep' = {
   name: 'spoke004'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: 'spoke004'
     spokeVnetPrefix: '10.103.0.0/22'
   }
@@ -94,7 +89,6 @@ module avnm 'modules/avnm.bicep' = {
   name: 'avnm'
   scope: resourceGroup
   params: {
-    location: location
     hubVnetId: hub.outputs.hubVnetId
     spokeNetworkGroupMembers: [
       spokeA.outputs.vnetId
@@ -127,5 +121,5 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
 }
 
 // output policy resource ids to facilitate cleanup
-output policyDefinitionId string = policy.outputs.policyDefinitionId ?? 'not_deployed'
-output policyAssignmentId string = policy.outputs.policyAssignmentId ?? 'not_deployed'
+output policyDefinitionId string = (networkGroupMembershipType == 'dynamic') ? policy.outputs.policyDefinitionId : 'not_deployed'
+output policyAssignmentId string = (networkGroupMembershipType == 'dynamic') ? policy.outputs.policyAssignmentId : 'not_deployed'
