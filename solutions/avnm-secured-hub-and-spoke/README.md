@@ -65,7 +65,7 @@ az deployment sub create --template-file main.bicep -n avnm-secured-hub-and-spok
 | --------------- | ------------ | ------------------------------------- | -------------------------- |
 | `location`      | string       | Deployment location                   | `resourceGroup().location` |
 | `adminUserName` | string       | The admin user name for deployed VMs. | `admin-avnm`               |
-| `adminPassword` | securestring | The admin password for deployed VMs.  | `null`                     |
+| `sshkey`        | string       | Your public key. Authentication to Linux machines should require SSH keys  |                  |
 
 ## Step 5: Clean Up
 
