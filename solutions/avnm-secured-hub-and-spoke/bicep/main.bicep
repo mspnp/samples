@@ -10,7 +10,7 @@ param resourceGroupName string
 @minLength(6)
 param location string = deployment().location
 
-@description('your public key. Authentication to Linux machines should require SSH keys.')
+@description('The user´s public SSH key that is added as authorized key to the Linux machines.')
 param sshKey string
 
 @description('Username for the test VMs deployed in the spokes; default: admin-avnm')

@@ -5,9 +5,6 @@ param spokeVnetPrefix string
 param sshKey string
 param adminUsername string = 'admin-avnm'
 
-var protectionContainer = 'iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${vm.name}'
-var protectedItem = 'vm;iaasvmcontainerv2;${resourceGroup().name};${vm.name}'
-
 resource vnet 'Microsoft.Network/virtualNetworks@2022-01-01' = {
   name: 'vnet-learn-prod-${location}-${toLower(spokeName)}'
   location: location
@@ -56,6 +53,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: 'vm-learn-prod-${location}-${spokeName}-ubuntu'
   location: location
   identity: {
+    // It is required by the Guest Configuration extension.
     type: 'SystemAssigned'
   }
   properties: {
@@ -112,41 +110,22 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-03-01' = {
         patchSettings: {
           //Machines should be configured to periodically check for missing system updates
           assessmentMode: 'AutomaticByPlatform'
-          patchMode: 'AutomaticByPlatform '
+          patchMode: 'AutomaticByPlatform'
         }
         provisionVMAgent: true
       }
     }
     securityProfile: {
-      //Virtual machines and virtual machine scale sets should have encryption at host enabled
+      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
       encryptionAtHost: true
     }
     priority: 'Regular'
   }
 }
 
-// Azure Backup should be enabled for virtual machines
-resource recoveryServicesVault 'Microsoft.RecoveryServices/vaults@2021-08-01' = {
-  name: '${vm.name}-bkp'
-  location: location
-  sku: {
-    name: 'RS0'
-    tier: 'Standard'
-  }
-  properties: {}
-}
 
-resource vaultName_backupFabric_protectionContainer_protectedItem 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = {
-  name: '${recoveryServicesVault.name}/Azure/${protectionContainer}/${protectedItem}'
-  properties: {
-    protectedItemType: 'Microsoft.Compute/virtualMachines'
-    policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
-    sourceResourceId: vm.id
-  }
-}
-
-// Guest Configuration extension should be installed using the system-assigned managed identity
-@description('Install the Guest Configuration extension for auditing purposes on the VM.')
+// The Guest Configuration extension supports Azure governance at cloud scale, and can be installed after ensuring that a system-assigned identity is added at the VM level. This enable Azure policies to audit and report on configuration settings inside machines.
+@description('Install the Guest Configuration extension for Azure auto-manage machine configuration on top regulatory, security, and operational compliance.')
 resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = {
   parent: vm
   name: 'Microsoft.GuestConfiguration'
@@ -162,7 +141,7 @@ resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2021
   }
 }
 
-// Non-internet-facing virtual machines should be protected with network security groups
+// All network resources, including non-internet-facing virtual machines in a Secure Hub-Spoke topology, must be protected with Network Security Groups to secure east-west traffic.
 @description('The Network Security Group to protect the VM.')
 resource nsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
   name: 'nsg-learn-prod-${location}-${spokeName}-ubuntu'
@@ -170,7 +149,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
   properties: {
     securityRules: [
       {
-        name: 'DenyInternetAccess'
+        name: 'DenyInboundInternet'
         properties: {
           priority: 2000
           direction: 'Inbound'

@@ -20,8 +20,7 @@ This sample deploys Azure virtual networks in a hub and spoke configuration, usi
 ### Step 1: Environment
 
 ```bash
-LOCATION=eastus
-RESOURCEGROUP_NAME=rg-hub-spoke-${LOCATION}
+RESOURCEGROUP_NAME=rg-hub-spoke-eastus
 
 # Ensure the feature is enable
 az feature register --namespace "Microsoft.Compute" --name "EncryptionAtHost"
@@ -32,22 +31,14 @@ az feature register --namespace "Microsoft.Compute" --name "EncryptionAtHost"
 Create a resource group for the deployment.
 
 ```bash
-az group create --name ${RESOURCEGROUP_NAME} --location ${LOCATION}
+az group create --name ${RESOURCEGROUP_NAME} --location eastus
 ```
 
-### Step 3: Download bicep files
+### Step 3: Clone repository and navigate to the correct folder
 
 ```bash
-mkdir modules
-cd modules
-curl -o avnm.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/avnm.bicep
-curl -o avnmDeploymentScript.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/avnmDeploymentScript.bicep
-curl -o dynMemberPolicy.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/dynMemberPolicy.bicep
-curl -o hub.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/hub.bicep
-curl -o spoke.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/modules/spoke.bicep
-cd ..
-
-curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/bicep/main.bicep
+git clone https://github.com/mspnp/samples.git
+cd ./samples/solutions/avnm-secured-hub-and-spoke/bicep
 ```
 
 ### Step 4: Deploy infrastructure and Virtual Network Manager resources
@@ -56,7 +47,7 @@ curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solution
 # Generate ssh key and get public data.
 ssh-keygen -t rsa -b 2048
 
-az deployment sub create --template-file main.bicep -n avnm-secured-hub-and-spoke -l ${LOCATION} --parameters resourceGroupName=${RESOURCEGROUP_NAME} sshKey="$(cat ~/.ssh/id_rsa.pub)"
+az deployment sub create --location eastus --template-file main.bicep -n avnm-secured-hub-and-spoke --parameters resourceGroupName=${RESOURCEGROUP_NAME} sshKey="$(cat ~/.ssh/id_rsa.pub)"
 ```
 
 ## Solution deployment parameters
@@ -65,7 +56,7 @@ az deployment sub create --template-file main.bicep -n avnm-secured-hub-and-spok
 | --------------- | ------------ | ------------------------------------- | -------------------------- |
 | `location`      | string       | Deployment location                   | `resourceGroup().location` |
 | `adminUserName` | string       | The admin user name for deployed VMs. | `admin-avnm`               |
-| `sshkey`        | string       | Your public key. Authentication to Linux machines should require SSH keys  |                  |
+| `sshkey`        | string       | The user's public SSH key to be added to the Linux machines as part of the `ssh_authorized_keys` list    |                  |
 
 ## Step 5: Clean Up
 
