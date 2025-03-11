@@ -4,7 +4,7 @@ param networkGroupId string
 param resourceGroupName string
 
 @description('This is a Policy definition for dyanamic group membership')
-resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
+resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2025-01-01' = {
   name: uniqueString(networkGroupId)
   properties: {
     description: 'AVNM quickstart dynamic group membership Policy'
@@ -42,7 +42,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01'
 
 // once assigned, the policy will evaluate as new VNETs are created and on a special evaluation cycle for AVNM, enabling quick dynamic group updates
 @description('Assigns above policy for dynamic group membership')
-resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+resource policyAssignment 'Microsoft.Authorization/policyAssignments@2025-01-01' = {
   name: uniqueString(networkGroupId)
   properties: {
     description: 'AVNM quickstart dynamic group membership Policy'

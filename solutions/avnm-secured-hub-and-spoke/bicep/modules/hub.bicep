@@ -1,7 +1,7 @@
 param location string = resourceGroup().location
 
 @description('The regional hub network.')
-resource vnetHub 'Microsoft.Network/virtualNetworks@2022-09-01' = {
+resource vnetHub 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: 'vnet-learn-hub-${location}-001'
   location: location
   properties: {
@@ -33,7 +33,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-09-01' = {
   }
 }
 
-resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' = {
+resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   name: 'GatewaySubnet'
   parent: vnetHub
   properties: {
@@ -42,7 +42,7 @@ resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2022-09-01' = 
 }
 
 @description('The public IPs for the regional VPN gateway.')
-resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
+resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: 'pip-learn-hub-${location}-vngw001'
   location: location
   sku: {
@@ -56,7 +56,7 @@ resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2022-01-01' = {
 }
 
 @description('The is the regional VPN gateway, configured with basic settings.')
-resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2022-01-01' =  {
+resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2024-05-01' =  {
   name: 'gw-learn-hub-${location}-001'
   location: location
   properties: {

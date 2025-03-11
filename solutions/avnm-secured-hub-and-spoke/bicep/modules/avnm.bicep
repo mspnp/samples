@@ -21,7 +21,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
 }
 
 @description('This is the dynamic group for spoke VNETs.')
-resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = {
+resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGroups@2024-05-01' = {
   name: 'ng-learn-prod-${location}-dynamic-001'
   parent: networkManager
   properties: {
@@ -39,7 +39,7 @@ resource networkGroupSpokesDynamic 'Microsoft.Network/networkManagers/networkGro
 // Default   Active   0.0.0.0/0                    Internet
 // ...
 @description('This connectivity configuration defines the connectivity between the spokes using Hub and Spoke - traffic flow through hub requires an NVA to route it.')
-resource connectivityConfigurationHubAndSpoke 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = if (connectivityTopology == 'hubAndSpoke') {
+resource connectivityConfigurationHubAndSpoke 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-05-01' = if (connectivityTopology == 'hubAndSpoke') {
   name: 'cc-learn-prod-${location}-001'
   parent: networkManager
   properties: {
@@ -65,7 +65,7 @@ resource connectivityConfigurationHubAndSpoke 'Microsoft.Network/networkManagers
 }
 
 @description('This is the securityadmin configuration assigned to the AVNM')
-resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigurations@2022-05-01' = {
+resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigurations@2024-05-01' = {
   name: 'sac-learn-prod-${location}-001'
   parent: networkManager
   properties: {
@@ -75,7 +75,7 @@ resource securityConfig 'Microsoft.Network/networkManagers/securityAdminConfigur
 }
 
 @description('This is the rules collection for the security admin config assigned to the AVNM')
-resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2022-05-01' = {
+resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections@2024-05-01' = {
   name: 'rc-learn-prod-${location}-001'
   parent: securityConfig
   properties: {
@@ -88,7 +88,7 @@ resource rulesCollection 'Microsoft.Network/networkManagers/securityAdminConfigu
 }
 
 @description('This example rule denies outbound HTTP/S traffic to the internet')
-resource DENY_INTERNET_HTTP_HTTPS 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2022-05-01' = {
+resource DENY_INTERNET_HTTP_HTTPS 'Microsoft.Network/networkManagers/securityAdminConfigurations/ruleCollections/rules@2024-05-01' = {
   name: 'DENY_INTERNET_HTTP_HTTPS'
   kind: 'Custom'
   parent: rulesCollection
@@ -117,13 +117,13 @@ resource DENY_INTERNET_HTTP_HTTPS 'Microsoft.Network/networkManagers/securityAdm
 
 
 @description('This user assigned identity is used by the Deployment Script resource to interact with Azure resources.')
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: 'uai-${location}'
   location: location
 }
 
 @description('This role assignment grants the user assigned identity the Contributor role on the resource group.')
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(resourceGroup().id, userAssignedIdentity.name)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c') // Contributor: b24988ac-6180-42a0-ab88-20f7382dd24c

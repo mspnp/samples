@@ -17,37 +17,28 @@ This sample deploys Azure virtual networks in a hub and spoke configuration, usi
 
 ## Deploy sample
 
-### Step 1: Create a Resource Group for the sample resources
-
-Create a resource group for the deployment.
-
-```bash
-az group create --name rg-hub-spoke-eastus --location eastus
-```
-
-### Step 2: Clone repository and navigate to the correct folder
+### Step 1: Clone repository and navigate to the correct folder
 
 ```bash
 git clone https://github.com/mspnp/samples.git
 cd ./samples/solutions/avnm-secured-hub-and-spoke/bicep
 ```
 
-### Step 3: Deploy infrastructure and Virtual Network Manager resources
+### Step 2: Deploy infrastructure and Virtual Network Manager resources
 
 ```bash
 # Generate ssh key and get public data.
 ssh-keygen -t rsa -b 2048
 
-az deployment sub create --location eastus --template-file main.bicep -n avnm-secured-hub-and-spoke --parameters resourceGroupName=rg-hub-spoke-eastus sshKey="$(cat ~/.ssh/id_rsa.pub)"
+az deployment sub create --location eastus --template-file main.bicep -n avnm-secured-hub-and-spoke --parameters sshKey="$(cat ~/.ssh/id_rsa.pub)"
 ```
 
 ## Solution deployment parameters
 
 | Parameter       | Type         | Description                           | Default                    |
 | --------------- | ------------ | ------------------------------------- | -------------------------- |
-| `location`      | string       | Deployment location                   | `resourceGroup().location` |
 | `adminUserName` | string       | The admin user name for deployed VMs. | `admin-avnm`               |
-| `sshkey`        | string       | The user's public SSH key to be added to the Linux machines as part of the `ssh_authorized_keys` list    |                  |
+| `sshkey`        | string       | The user's public SSH key to be added to the Linux machines as part of the `ssh_authorized_keys` list    |                 |
 
 ## Step 4: Clean Up
 

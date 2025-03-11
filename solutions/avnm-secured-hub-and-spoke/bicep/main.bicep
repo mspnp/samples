@@ -2,10 +2,6 @@
 targetScope = 'subscription'
 
 /*** PARAMETERS ***/
-
-@description('The resource group name where the AVNM and VNET resources will be created')
-param resourceGroupName string
-
 @description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
 @minLength(6)
 param location string = deployment().location
@@ -18,10 +14,11 @@ param adminUsername string = 'admin-avnm'
 
 var connectivityTopology = 'hubAndSpoke'
 var networkGroupMembershipType = 'dynamic'
+var resourceGroupName = 'rg-hub-spoke-${location}'
 
 /*** RESOURCE GROUP ***/
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: resourceGroupName
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+  name:  resourceGroupName
   location: location
 }
 
@@ -31,7 +28,6 @@ module hub 'modules/hub.bicep' = {
   name: 'hub-resources-deployment-${location}'
   scope: resourceGroup
   params: {
-    location: location
   }
 }
 
