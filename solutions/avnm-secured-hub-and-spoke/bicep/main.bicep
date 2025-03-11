@@ -15,7 +15,7 @@ var resourceGroupName = 'rg-hub-spoke-${location}'
 
 /*** RESOURCE GROUP ***/
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
-  name:  resourceGroupName
+  name: resourceGroupName
   location: location
 }
 
