@@ -4,6 +4,7 @@ param adminUserName string
 
 @description('your public key. Authentication to Linux machines should require SSH keys.')
 param sshKey string
+
 @secure()
 param adminPassword string
 param emailAddress string
@@ -131,7 +132,7 @@ resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modul
 
 resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2023-11-01' = {
   parent: automationAccount
-  name: '${linuxConfiguration.name}'
+  name: linuxConfiguration.name
   location: location
   properties: {
     logVerbose: false
@@ -145,7 +146,7 @@ resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/aut
 
 resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccountName_linuxConfiguration_name 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
   parent: automationAccount
-  name: '${linuxConfiguration.name}'
+  name: linuxConfiguration.name
   location: location
   properties: {
     configuration: {
@@ -160,7 +161,7 @@ resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccou
 
 resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
   parent: automationAccount
-  name: '${windowsConfiguration.name}'
+  name: windowsConfiguration.name
   location: location
   properties: {
     logVerbose: false
@@ -174,7 +175,7 @@ resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/a
 
 resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccountName_windowsConfiguration_name 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
   parent: automationAccount
-  name: '${windowsConfiguration.name}'
+  name: windowsConfiguration.name
   location: location
   properties: {
     configuration: {
@@ -324,6 +325,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
     name: '${windowsVMName}${i}'
     location: location
     identity: {
+      // It is required by the Guest Configuration extension.
       type: 'SystemAssigned'
     }
     properties: {
@@ -362,8 +364,8 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         ]
       }
       securityProfile: {
-        //Virtual machines and virtual machine scale sets should have encryption at host enabled
-        encryptionAtHost: true
+        // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+        encryptionAtHost: false
       }
     }
   }
@@ -383,17 +385,6 @@ resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensio
       enableAutomaticUpgrade: true
       settings: {}
       protectedSettings: {}
-    }
-  }
-]
-
-resource vaultName_backupFabric_protectionContainer_protectedItem_WindownsVM 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = [
-  for i in range(0, windowsVMCount): {
-    name: '${recoveryServicesVault.name}/Azure/iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${windowsVM[i].name}/vm;iaasvmcontainerv2;${resourceGroup().name};${windowsVM[i].name}'
-    properties: {
-      protectedItemType: 'Microsoft.Compute/virtualMachines'
-      policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
-      sourceResourceId: windowsVM[i].id
     }
   }
 ]
@@ -513,6 +504,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
     name: '${linuxVMNAme}${i}'
     location: location
     identity: {
+      // It is required by the Guest Configuration extension.
       type: 'SystemAssigned'
     }
     properties: {
@@ -559,8 +551,8 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
         ]
       }
       securityProfile: {
-        //Virtual machines and virtual machine scale sets should have encryption at host enabled
-        encryptionAtHost: true
+         // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+        encryptionAtHost: false
       }
     }
   }
@@ -580,17 +572,6 @@ resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions
       enableAutomaticUpgrade: true
       settings: {}
       protectedSettings: {}
-    }
-  }
-]
-
-resource vaultName_backupFabric_protectionContainer_protectedItem_LinuxVM 'Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems@2020-02-02' = [
-  for i in range(0, linuxVMCount): {
-    name: '${recoveryServicesVault.name}/Azure/iaasvmcontainer;iaasvmcontainerv2;${resourceGroup().name};${linuxVMN[i].name}/vm;iaasvmcontainerv2;${resourceGroup().name};${linuxVMN[i].name}'
-    properties: {
-      protectedItemType: 'Microsoft.Compute/virtualMachines'
-      policyId: '${recoveryServicesVault.id}/backupPolicies/DefaultPolicy'
-      sourceResourceId: linuxVMN[i].id
     }
   }
 ]
@@ -621,14 +602,3 @@ resource linuxVMNAme_enabledsc 'Microsoft.Compute/virtualMachines/extensions@202
     ]
   }
 ]
-
-// Azure Backup should be enabled for virtual machines
-resource recoveryServicesVault 'Microsoft.RecoveryServices/vaults@2021-08-01' = {
-  name: 'vm-bkp'
-  location: location
-  sku: {
-    name: 'RS0'
-    tier: 'Standard'
-  }
-  properties: {}
-}
