@@ -2,10 +2,6 @@
 targetScope = 'subscription'
 
 /*** PARAMETERS ***/
-@description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
-@minLength(6)
-param location string = deployment().location
-
 @description('The user´s public SSH key that is added as authorized key to the Linux machines.')
 param sshKey string
 
@@ -14,6 +10,7 @@ param adminUsername string = 'admin-avnm'
 
 var connectivityTopology = 'hubAndSpoke'
 var networkGroupMembershipType = 'dynamic'
+var location = deployment().location
 var resourceGroupName = 'rg-hub-spoke-${location}'
 
 /*** RESOURCE GROUP ***/
