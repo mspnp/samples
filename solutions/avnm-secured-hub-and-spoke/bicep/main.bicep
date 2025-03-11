@@ -2,26 +2,19 @@
 targetScope = 'subscription'
 
 /*** PARAMETERS ***/
-
-@description('The resource group name where the AVNM and VNET resources will be created')
-param resourceGroupName string
-
-@description('The location of this regional hub. All resources, including spoke resources, will be deployed to this region.')
-@minLength(6)
-param location string
-
-@description('Password for the test VMs deployed in the spokes')
-@secure()
-param adminPassword string
+@description('The user´s public SSH key that is added as authorized key to the Linux machines.')
+param sshKey string
 
 @description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
 
 var connectivityTopology = 'hubAndSpoke'
 var networkGroupMembershipType = 'dynamic'
+var location = deployment().location
+var resourceGroupName = 'rg-hub-spoke-${location}'
 
 /*** RESOURCE GROUP ***/
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: resourceGroupName
   location: location
 }
@@ -32,7 +25,6 @@ module hub 'modules/hub.bicep' = {
   name: 'hub-resources-deployment-${location}'
   scope: resourceGroup
   params: {
-    location: location
   }
 }
 
@@ -41,10 +33,9 @@ module spokeA 'modules/spoke.bicep' = {
   name: 'spoke1-resources-deployment-${location}'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: '001'
     spokeVnetPrefix: '10.1.0.0/16'
-    adminPassword: adminPassword
+    sshKey: sshKey
     adminUsername: adminUsername
   }
 }
@@ -54,10 +45,9 @@ module spokeB 'modules/spoke.bicep' = {
   name: 'spoke2-resources-deployment-${location}'
   scope: resourceGroup
   params: {
-    location: location
     spokeName: '002'
     spokeVnetPrefix: '10.2.0.0/16'
-    adminPassword: adminPassword
+    sshKey: sshKey
     adminUsername: adminUsername
   }
 }
@@ -77,7 +67,6 @@ module avnm 'modules/avnm.bicep' = {
   name: 'avnm'
   scope: resourceGroup
   params: {
-    location: location
     hubVnetId: hub.outputs.hubVnetId
     connectivityTopology: connectivityTopology
   }
@@ -94,7 +83,6 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
     policy
   ]
   params: {
-    location: location
     userAssignedIdentityId: avnm.outputs.userAssignedIdentityId
     configurationId: avnm.outputs.connectivityConfigurationId
     configType: 'Connectivity'
@@ -110,7 +98,6 @@ module deploymentScriptSecurityConfigs 'modules/avnmDeploymentScript.bicep' = {
     policy
   ]
   params: {
-    location: location
     userAssignedIdentityId: avnm.outputs.userAssignedIdentityId
     configurationId: avnm.outputs.securtyAdminConfigurationId
     configType: 'SecurityAdmin'

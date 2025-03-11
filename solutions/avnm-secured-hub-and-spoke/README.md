@@ -1,8 +1,8 @@
 ---
 page_type: sample
 languages:
-- azurepowershell
-- azurecli
+  - azurepowershell
+  - azurecli
 products:
   - azure
   - azure-virtual-network
@@ -15,44 +15,36 @@ urlFragment: virtual-network-manager-secured-hub-and-spoke
 
 This sample deploys Azure virtual networks in a hub and spoke configuration, using Azure Virtual Network Manager to manage Virtual Network connectivity and implement sample Security Admin Rules. A VPN Gateway and test VMs are deployed to complete the hub and spoke features.
 
-
 ## Deploy sample
 
-### Step 1: Create a Resource Group for the sample resources
+### Step 1: Clone repository and navigate to the correct folder
 
-Create a resource group for the deployment.
-
-```azurecli-interactive
-az group create --name hub-spoke --location eastus
+```bash
+git clone https://github.com/mspnp/samples.git
+cd ./samples/solutions/avnm-secured-hub-and-spoke/bicep
 ```
 
 ### Step 2: Deploy infrastructure and Virtual Network Manager resources
 
-```azurecli-interactive
-az deployment group create \
-    --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/armTemplates/avnmResources.json
-```
+```bash
+# Generate ssh key and get public data.
+ssh-keygen -t rsa -b 2048
 
-### Step 3: Deploy Virtual Network Manager Dynamic Network Group Policy resources
-
-```azurecli-interactive
-az deployment subscription create \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/avnm-secured-hub-and-spoke/armTemplates/avmnDynamicMembershipPolicy.json
+az deployment sub create --location eastus --template-file main.bicep -n avnm-secured-hub-and-spoke --parameters sshKey="$(cat ~/.ssh/id_rsa.pub)"
 ```
 
 ## Solution deployment parameters
 
-| Parameter | Type | Description | Default |
-|---|---|---|--|
-| `location` | string | Deployment location | `resourceGroup().location` | 
-| `adminUserName` | string | The admin user name for deployed VMs. | `admin-avnm` |
-| `adminPassword` | securestring | The admin password for deployed VMs. | `null` |
+| Parameter       | Type         | Description                           | Default                    |
+| --------------- | ------------ | ------------------------------------- | -------------------------- |
+| `adminUserName` | string       | The admin user name for deployed VMs. | `admin-avnm`               |
+| `sshkey`        | string       | The user's public SSH key to be added to the Linux machines as part of the `ssh_authorized_keys` list    |                 |
 
+## Step 4: Clean Up
 
-## Bicep implementation
-
-The links above use JSON Azure Resource Manager (ARM) templates to support network referencing. The ARM templates were generated from the following [source bicep file](https://github.com/mspnp/samples/blob/main/solutions/avnm-secured-hub-and-spoke/bicep/main.bicep), which has additional comments and considerations.
+```bash
+az group delete --name rg-hub-spoke-eastus --yes
+```
 
 ## Microsoft Open Source Code of Conduct
 
