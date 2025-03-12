@@ -2,9 +2,6 @@ param location string = resourceGroup().location
 
 param adminUserName string
 
-@description('your public key. Authentication to Linux machines should require SSH keys.')
-param sshKey string
-
 @secure()
 param adminPassword string
 param emailAddress string
@@ -514,21 +511,14 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2023-09-01' = [
       osProfile: {
         computerName: '${linuxVMNAme}${i}'
         adminUsername: adminUserName
+        adminPassword: adminPassword
         linuxConfiguration: {
           patchSettings: {
             //Machines should be configured to periodically check for missing system updates
             assessmentMode: 'AutomaticByPlatform'
             patchMode: 'AutomaticByPlatform '
           }
-          disablePasswordAuthentication: true
-          ssh: {
-            publicKeys: [
-              {
-                path: '/home/${adminUserName}/.ssh/authorized_keys'
-                keyData: sshKey
-              }
-            ]
-          }
+          disablePasswordAuthentication: false
           provisionVMAgent: true
         }
       }

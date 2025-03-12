@@ -24,10 +24,7 @@ Run the following command to initiate the deployment. If you would like to adjus
 ```bash
 curl -o azuredeploy.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/azuredeploy.bicep
 
-# Generate ssh key and get public data.
-ssh-keygen -t rsa -b 2048
-
-az deployment group create --resource-group rg-state-configuration-eastus -f ./azuredeploy.bicep --parameters sshKey="$(cat ~/.ssh/id_rsa.pub)"
+az deployment group create --resource-group rg-state-configuration-eastus -f ./azuredeploy.bicep
 ```
 
 Once complete, click on the **Automation Account** resource and then **State configuration (DSC)** and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
@@ -43,8 +40,7 @@ Browse to the public IP address of any virtual machine to verify that a web serv
 | Parameter | Type | Description | Default |
 |---|---|---|--|
 | adminUserName | string | If deploying virtual machines, the admin user name. | null |
-| adminPassword | securestring | If deploying windows virtual machines, the admin password. | null |
-| sshkey | string | The user's public SSH key to be added to the Linux machines as part of the ssh_authorized_keys list. | null |
+| adminPassword | securestring | If deploying virtual machines, the admin password. | null |
 | windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 0 |
 | linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 1 |
 | vmSize | string | Size for the Windows and Linux virtual machines. | Standard_DS1_v2 |
