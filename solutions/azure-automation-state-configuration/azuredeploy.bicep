@@ -50,9 +50,9 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   }
 }
 
-resource logAnalyticsName_91192b47_5f04_4215_a142_1fcb2b1622b1 'Microsoft.OperationalInsights/workspaces/savedSearches@2020-08-01' = {
+resource logAnalytics_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearches@2020-08-01' = {
   parent: logAnalytics
-  name: '91192b47-5f04-4215-a142-1fcb2b1622b1'
+  name: '${logAnalyticsName}_savedSearches'
   properties: {
     category: 'event'
     displayName: 'Non Compliant DSC Node'
