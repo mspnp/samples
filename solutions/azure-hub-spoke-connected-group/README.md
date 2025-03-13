@@ -50,22 +50,17 @@ Because the PowerShell script runs within the Deployment Script resource, troubl
 
 ## Deploy sample
 
+Clone repository
+
+```bash
+git clone https://github.com/mspnp/samples.git
+cd samples/solutions/azure-hub-spoke-connected-group/bicep
+```
+
 Create a resource group for the deployment.
 
 ```bash
-LOCATION=eastus
-RESOURCEGROUP_NAME=rg-hub-spoke-${LOCATION}
-
-az group create --name ${RESOURCEGROUP_NAME} --location ${LOCATION}
-
-curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/bicep/main.bicep
-mkdir modules
-cd modules
-curl -o avnm.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/bicep/modules/avnm.bicep
-curl -o avnmDeploymentScript.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/bicep/modules/avnmDeploymentScript.bicep
-curl -o hub.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/bicep/modules/hub.bicep
-curl -o spoke.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/bicep/modules/spoke.bicep
-cd ..
+az group create --name rg-hub-spoke-eastus --location eastus
 ```
 
 > The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
@@ -76,7 +71,7 @@ Run the following command to initiate the deployment. If you would like to also 
 
 ```bash
 az deployment group create \
-    --resource-group ${RESOURCEGROUP_NAME} \
+    --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep
 ```
 
@@ -89,7 +84,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 
 ```bash
 az deployment group create \
-    --resource-group ${RESOURCEGROUP_NAME} \
+    --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023!
 ```
@@ -100,7 +95,7 @@ Run the following command to initiate the deployment with a virtual network gate
 
 ```bash
 az deployment group create \
-    --resource-group ${RESOURCEGROUP_NAME} \
+    --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
     --parameters deployVpnGateway=true
 ```
@@ -114,7 +109,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 
 ```bash
 az deployment group create \
-    --resource-group ${RESOURCEGROUP_NAME} \
+    --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023! deployVpnGateway=true
 ```
@@ -145,7 +140,7 @@ Note, this deployment includes optional basic virtual machines. These are not co
 ## Step 5: Clean Up
 
 ```bash
-az group delete --name ${RESOURCEGROUP_NAME} --yes
+az group delete --name rg-hub-spoke-eastus --yes
 ```
 
 ## Microsoft Open Source Code of Conduct
