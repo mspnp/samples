@@ -262,9 +262,13 @@ resource nicNameWindows 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   }
 }
 
-resource vmNameWindows 'Microsoft.Compute/virtualMachines@2023-03-01' = {
+resource windowsVM 'Microsoft.Compute/virtualMachines@2023-03-01' = {
   name: vmNameWindowsName
   location: location
+  identity: {
+    // It is required by the Guest Configuration extension.
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -273,6 +277,14 @@ resource vmNameWindows 'Microsoft.Compute/virtualMachines@2023-03-01' = {
       computerName: vmNameWindowsName
       adminUsername: adminUserName
       adminPassword: adminPassword
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform'
+        }
+      }
     }
     storageProfile: {
       imageReference: {
@@ -292,6 +304,26 @@ resource vmNameWindows 'Microsoft.Compute/virtualMachines@2023-03-01' = {
         }
       ]
     }
+    securityProfile: {
+      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+      encryptionAtHost: false
+    }
+  }
+}
+
+// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
+resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' =  {
+  parent: windowsVM
+  name: 'AzurePolicyforWindows${windowsVM.name}'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+    settings: {}
+    protectedSettings: {}
   }
 }
 

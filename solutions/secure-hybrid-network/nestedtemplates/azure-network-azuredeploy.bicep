@@ -689,9 +689,13 @@ resource nicNameWeb 'Microsoft.Network/networkInterfaces@2023-04-01' = [for i in
     internalLoadBalancerResource]
 }]
 
-resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in range(0, windowsVMCount): {
+resource windowsVM 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in range(0, windowsVMCount): {
   name: '${vmNameWebName}${i}'
   location: location
+  identity: {
+    // It is required by the Guest Configuration extension.
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -700,6 +704,14 @@ resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
       computerName: '${vmNameWebName}${i}'
       adminUsername: adminUserName
       adminPassword: adminPassword
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform'
+        }
+      }
     }
     storageProfile: {
       imageReference: {
@@ -719,10 +731,15 @@ resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
         }
       ]
     }
+    securityProfile: {
+      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+      encryptionAtHost: false
+    }
   }}]
 
 resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWebName}${i}/installIIS'
+  parent: windowsVM[i]
+  name: 'installIIS'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'
@@ -733,11 +750,24 @@ resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023
       commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
     }
   }
-  dependsOn: [
-    vmNameWeb[i]
-  ]
 }]
 
+// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
+resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, windowsVMCount): {
+    parent: windowsVM[i]
+    name: 'AzurePolicyforWindows${windowsVM[i].name}'
+    location: location
+    properties: {
+      publisher: 'Microsoft.GuestConfiguration'
+      type: 'ConfigurationforWindows'
+      typeHandlerVersion: '1.0'
+      autoUpgradeMinorVersion: true
+      enableAutomaticUpgrade: true
+      settings: {}
+      protectedSettings: {}
+    }
+  }
+]
 
 output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetwork string = hubNetwork.addressPrefix
