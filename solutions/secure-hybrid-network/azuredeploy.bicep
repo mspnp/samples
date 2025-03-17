@@ -26,7 +26,6 @@ module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
-    location: location
   }
 }
 
@@ -36,7 +35,6 @@ module azureNetwork 'nestedtemplates/azure-network-azuredeploy.bicep' = {
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
-    location: location
   }
 }
 
@@ -48,7 +46,6 @@ module mockOnPremLocalGateway 'nestedtemplates/mock-onprem-local-gateway.bicep' 
     azureCloudVnetPrefix: azureNetwork.outputs.mocOnpremNetwork
     spokeNetworkAddressPrefix: azureNetwork.outputs.spokeNetworkAddressPrefix
     mocOnpremGatewayName: onPremMock.outputs.mocOnpremGatewayName
-    location: location
   }
 }
 
@@ -59,6 +56,5 @@ module azureNetworkLocalGateway 'nestedtemplates/azure-network-local-gateway.bic
     azureCloudVnetPrefix: onPremMock.outputs.mocOnpremNetworkPrefix
     gatewayIpAddress: onPremMock.outputs.vpnIp
     azureNetworkGatewayName: azureNetwork.outputs.azureGatewayName
-    location: location
   }
 }
