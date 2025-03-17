@@ -1,6 +1,6 @@
 targetScope = 'subscription'
-param mocOnPremResourceGroup string = 'site-to-site-mock-prem'
-param azureNetworkResourceGroup string = 'site-to-site-azure-network'
+param mocOnPremResourceGroup string
+param azureNetworkResourceGroup string
 
 @description('The admin user name for both the Windows and Linux virtual machines.')
 param adminUserName string
