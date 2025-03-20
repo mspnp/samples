@@ -71,7 +71,7 @@ module hub 'modules/hub.bicep' = {
 /*** RESOURCES (ALL SPOKES) ***/
 
 @description('Next hop to the regional hub\'s Azure Firewall')
-resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2023-04-01' = {
+resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2024-05-01' = {
   name: 'route-to-${location}-hub-fw'
   location: location
   properties: {
@@ -89,7 +89,7 @@ resource routeNextHopToFirewall 'Microsoft.Network/routeTables@2023-04-01' = {
 }
 
 @description('NSG on the resource subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke).')
-resource nsgResourcesSubnet 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
+resource nsgResourcesSubnet 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: 'nsg-${location}-spoke-resources'
   location: location
   properties: {
@@ -156,7 +156,7 @@ resource nsgResourcesSubnet 'Microsoft.Network/networkSecurityGroups@2023-04-01'
 }
 
 @description('NSG on the Private Link subnet (just using a common one for all as an example, but usually would be based on the specific needs of the spoke).')
-resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
+resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: 'nsg-${location}-spoke-privatelinkendpoint'
   location: location
   properties: {
@@ -205,7 +205,7 @@ resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@
 }
 
 // Azure DDoS Protection Standard should be enabled
-resource ddosProtectionPlan 'Microsoft.Network/ddosProtectionPlans@2021-05-01' = {
+resource ddosProtectionPlan 'Microsoft.Network/ddosProtectionPlans@2024-05-01' = {
   name: 'vnet-${location}-ddos'
   location: location
 }
