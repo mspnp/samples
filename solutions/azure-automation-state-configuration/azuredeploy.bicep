@@ -61,32 +61,35 @@ resource logAnalytics_savedSearches 'Microsoft.OperationalInsights/workspaces/sa
   }
 }
 
-resource non_compliant_dsc 'microsoft.insights/scheduledqueryrules@2018-04-16' = {
+resource non_compliant_dsc 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
   name: 'non-compliant-dsc'
   location: location
   properties: {
-    enabled: 'true'
-    source: {
-      query: alertQuery
-      dataSourceId: logAnalytics.id
-      queryType: 'ResultCount'
+    severity: 3
+    enabled: true
+    evaluationFrequency: 'PT5M'
+    scopes: [
+      logAnalytics.id
+    ]
+    windowSize: 'PT5M'
+    criteria: {
+      allOf: [
+        {
+          query: 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
+          timeAggregation: 'Count'
+          operator: 'GreaterThan'
+          threshold: json('0')
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
     }
-    schedule: {
-      frequencyInMinutes: 5
-      timeWindowInMinutes: 5
-    }
-    action: {
-      severity: '3'
-      aznsAction: {
-        actionGroup: [
-          email_action.id
-        ]
-      }
-      trigger: {
-        thresholdOperator: 'GreaterThan'
-        threshold: 0
-      }
-      'odata.type': 'Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction'
+    actions: {
+      actionGroups: [
+        email_action.id
+      ]
     }
   }
 }
