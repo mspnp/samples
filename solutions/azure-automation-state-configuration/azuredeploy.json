@@ -78,7 +78,7 @@
     "resources": [
         {
             "type": "Microsoft.OperationalInsights/workspaces",
-            "apiVersion": "2020-10-01",
+            "apiVersion": "2023-09-01",
             "name": "[variables('logAnalyticsName')]",
             "location": "[parameters('location')]",
             "properties": {
@@ -92,7 +92,7 @@
         },
         {
             "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2023-09-01",
             "name": "[concat(variables('logAnalyticsName'), '/91192b47-5f04-4215-a142-1fcb2b1622b1')]",
             "dependsOn": [
                 "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
@@ -106,38 +106,41 @@
         },
         {
             "type": "microsoft.insights/scheduledqueryrules",
-            "apiVersion": "2018-04-16",
+            "apiVersion": "2024-01-01-preview",
             "name": "non-compliant-dsc",
             "location": "[parameters('location')]",
             "properties": {
+                "severity": 3,
                 "enabled": true,
-                "source": {
-                    "query": "[variables('alertQuery')]",
-                    "dataSourceId": "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsName'))]",
-                    "queryType": "ResultCount"
+                "evaluationFrequency" :"PT5M",
+                "scopes": [
+                    "[resourceId('microsoft.operationalinsights/workspaces', variables('logAnalyticsName'))]"
+                ],
+                "windowSize": "PT5M",
+                "criteria":{
+                    "allOf": [
+                        {
+                            "query":"[variables('alertQuery')]",
+                            "timeAggregation": "Count",
+                            "operator": "GreaterThan",
+                            "threshold": 0,
+                            "failingPeriods": {
+                                "minFailingPeriodsToAlert":1,
+                                "numberOfEvaluationPeriods":1
+                            }
+                        }
+                    ]
                 },
-                "schedule": {
-                    "frequencyInMinutes": 5,
-                    "timeWindowInMinutes": 5
-                },
-                "action": {
-                    "severity": "3",
-                    "aznsAction": {
-                        "actionGroup": [
-                            "[resourceId('microsoft.insights/actionGroups', 'email-action')]"
-                        ]
-                    },
-                    "trigger": {
-                        "thresholdOperator": "GreaterThan",
-                        "threshold": 0
-                    },
-                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction"
+                "actions": {
+                    "actionGroups": [
+                        "[resourceId('microsoft.insights/actionGroups','email-action')]"
+                    ]
                 }
             }
         },
         {
             "type": "microsoft.insights/actionGroups",
-            "apiVersion": "2019-06-01",
+            "apiVersion": "2024-10-01-preview",
             "name": "email-action",
             "location": "Global",
             "properties": {
@@ -155,7 +158,7 @@
         {
             "name": "[variables('automationAccountName')]",
             "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2020-01-13-preview",
+            "apiVersion": "2023-05-15-preview",
             "location": "[parameters('location')]",
             "properties": {
                 "sku": {
@@ -166,7 +169,7 @@
                 {
                     "name": "nx",
                     "type": "modules",
-                    "apiVersion": "2020-01-13-preview",
+                    "apiVersion": "2023-05-15-preview",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', variables('automationAccountName'))]",
                         "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]"
@@ -180,7 +183,7 @@
                 {
                     "name": "[parameters('linuxConfiguration').name]",
                     "type": "configurations",
-                    "apiVersion": "2019-06-01",
+                    "apiVersion": "2023-05-15-preview",
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
@@ -200,7 +203,7 @@
                 {
                     "name": "[parameters('linuxConfiguration').name]",
                     "type": "compilationjobs",
-                    "apiVersion": "2020-01-13-preview",
+                    "apiVersion": "2023-05-15-preview",
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
@@ -217,7 +220,7 @@
                 {
                     "name": "[parameters('windowsConfiguration').name]",
                     "type": "configurations",
-                    "apiVersion": "2019-06-01",
+                    "apiVersion": "2023-05-15-preview",
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
@@ -237,7 +240,7 @@
                 {
                     "name": "[parameters('windowsConfiguration').name]",
                     "type": "compilationjobs",
-                    "apiVersion": "2020-01-13-preview",
+                    "apiVersion": "2023-05-15-preview",
                     "location": "[parameters('location')]",
                     "dependsOn": [
                         "[resourceId('Microsoft.Automation/automationAccounts', variables('automationAccountName'))]",
@@ -252,7 +255,7 @@
                 },
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2021-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsName'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
@@ -273,7 +276,7 @@
         {
             "comments": "Network security group + rules for spoke network and diagnostic configuration",
             "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "name": "nsg",
             "location": "[parameters('location')]",
             "properties": {
@@ -309,7 +312,7 @@
             "resources": [
                 {
                     "type": "providers/diagnosticSettings",
-                    "apiVersion": "2017-05-01-preview",
+                    "apiVersion": "2021-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsName'))]",
                     "dependsOn": [
                         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]",
@@ -332,7 +335,7 @@
             ]
         },
         {
-            "apiVersion": "2020-08-01",
+            "apiVersion":"2024-05-01",
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[parameters('virtualNetworkName')]",
             "location": "[parameters('location')]",
@@ -349,7 +352,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
@@ -362,7 +365,7 @@
             }
         },
         {
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[concat(variables('windowsPIPName'), copyIndex())]",
             "location": "[parameters('location')]",
@@ -375,7 +378,7 @@
             }
         },
         {
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[concat(variables('windowsNicName'), copyIndex())]",
             "location": "[parameters('location')]",
@@ -405,7 +408,7 @@
             }
         },
         {
-            "apiVersion": "2020-12-01",
+            "apiVersion": "2024-11-01",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[concat(variables('windowsVMName'), copyIndex())]",
             "location": "[parameters('location')]",
@@ -448,7 +451,7 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('windowsVMName'), copyIndex(), '/Microsoft.Powershell.DSC')]",
-            "apiVersion": "2020-12-01",
+            "apiVersion": "2024-11-01",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('windowsVMName'), copyIndex())]"
@@ -522,7 +525,7 @@
             }
         },
         {
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[concat(variables('linuxPIPName'), copyIndex())]",
             "location": "[parameters('location')]",
@@ -535,7 +538,7 @@
             }
         },
         {
-            "apiVersion": "2020-08-01",
+            "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[concat(variables('linuxNicName'), copyIndex())]",
             "location": "[parameters('location')]",
@@ -565,7 +568,7 @@
             }
         },
         {
-            "apiVersion": "2020-12-01",
+            "apiVersion": "2024-11-01",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[concat(variables('linuxVMNAme'), copyIndex())]",
             "location": "[parameters('location')]",
@@ -606,7 +609,7 @@
             }
         },
         {
-            "apiVersion": "2020-12-01",
+            "apiVersion": "2024-11-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('linuxVMNAme'), copyIndex(),'/enabledsc')]",
             "location": "[parameters('location')]",

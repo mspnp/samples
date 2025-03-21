@@ -133,7 +133,7 @@ resource email_action 'microsoft.insights/actionGroups@2024-10-01-preview' = {
   }
 }
 
-resource automationAccount 'Microsoft.Automation/automationAccounts@2015-01-01-preview' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
   name: automationAccountName
   location: location
   properties: {
@@ -143,7 +143,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-01-01-p
   }
 }
 
-resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modules@2015-01-01-preview' = {
+resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modules@2023-05-15-preview' = {
   parent: automationAccount
   name: 'nx'
   properties: {
@@ -153,7 +153,7 @@ resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modul
   }
 }
 
-resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2015-01-01-preview' = {
+resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
   parent: automationAccount
   name: linuxConfiguration.name
   location: location
