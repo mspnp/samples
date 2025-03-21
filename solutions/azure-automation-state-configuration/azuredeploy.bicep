@@ -1,28 +1,51 @@
+targetScope = 'resourceGroup'
+
+/*** PARAMETERS ***/
+
+@description('The location of all resources')
 param location string = resourceGroup().location
 
+@description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number.')
 param adminUserName string
 
 @secure()
+@description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character.')
 param adminPassword string
+
+@description('Email to send not complient alerts')
 param emailAddress string
+
+@description('Windows VMs to be created')
 param windowsVMCount int = 1
+
+@description('Linux VMs to be created')
 param linuxVMCount int = 1
+
+@description('SKU of the Vms')
 param vmSize string = 'Standard_DS1_v2'
+
+@description('Windows VMs configurations')
 param windowsConfiguration object = {
   name: 'windowsfeatures'
   description: 'A configuration for installing IIS.'
   script: 'https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/windows-config.ps1'
 }
+
+@description('Linux VMs configurations')
 param linuxConfiguration object = {
   name: 'linuxpackage'
   description: 'A configuration for installing Nginx.'
   script: 'https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/linux-config.ps1'
 }
-param virtualNetworkName string = 'virtial-network'
-param addressPrefix string = '10.0.0.0/16'
-param subnetPrefix string = '10.0.0.0/24'
-param subnetName string = 'subnet'
 
+@description('Virtual Network address space')
+param addressPrefix string = '10.0.0.0/16'
+
+@description('Virtual Network dubnet address space')
+param subnetPrefix string = '10.0.0.0/24'
+
+var virtualNetworkName = 'virtial-network'
+var subnetName = 'subnet'
 var logAnalyticsName = uniqueString(resourceGroup().id)
 var automationAccountName = uniqueString(resourceGroup().id)
 var moduleUri = 'https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg'
@@ -75,7 +98,7 @@ resource non_compliant_dsc 'microsoft.insights/scheduledqueryrules@2024-01-01-pr
     criteria: {
       allOf: [
         {
-          query: 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
+          query: alertQuery
           timeAggregation: 'Count'
           operator: 'GreaterThan'
           threshold: json('0')
