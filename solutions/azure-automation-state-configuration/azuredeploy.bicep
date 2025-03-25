@@ -51,7 +51,7 @@ var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where
 var windowsPIPName = 'windows-pip-'
 var windowsVMName = 'windows-vm-'
 var linuxPIPName = 'linux-pip-'
-var linuxVMNAme = 'linux-vm-'
+var linuxVMname  = 'linux-vm-'
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
@@ -517,7 +517,7 @@ resource linuxNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
 
 resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   for i in range(0, linuxVMCount): {
-    name: '${linuxVMNAme}${i}'
+    name: '${linuxVMname }${i}'
     location: location
     identity: {
       // It is required by the Guest Configuration extension.
@@ -528,7 +528,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
         vmSize: vmSize
       }
       osProfile: {
-        computerName: '${linuxVMNAme}${i}'
+        computerName: '${linuxVMname }${i}'
         adminUsername: adminUserName
         adminPassword: adminPassword
         linuxConfiguration: {
@@ -585,9 +585,9 @@ resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions
   }
 ]
 
-resource linuxVMNAme_enabledsc 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
+resource linuxVMname_enabledsc 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, linuxVMCount): {
-    name: '${linuxVMNAme}${i}/enabledsc'
+    name: '${linuxVMname }${i}/enabledsc'
     location: location
     properties: {
       publisher: 'Microsoft.OSTCExtensions'
