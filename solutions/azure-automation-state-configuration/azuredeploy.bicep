@@ -44,21 +44,14 @@ param addressPrefix string = '10.0.0.0/16'
 @description('Virtual Network dubnet address space')
 param subnetPrefix string = '10.0.0.0/24'
 
-var virtualNetworkName = 'virtial-network'
-var subnetName = 'subnet'
 var logAnalyticsName = uniqueString(resourceGroup().id)
 var automationAccountName = uniqueString(resourceGroup().id)
-var moduleUri = 'https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg'
 var subnetRef = virtualNetworkName_subnet.id
 var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
-var windowsNicName = 'windows-nic-'
 var windowsPIPName = 'windows-pip-'
 var windowsVMName = 'windows-vm-'
-var windowsOSVersion = '2016-Datacenter'
-var linuxNicName = 'linux-nic-'
 var linuxPIPName = 'linux-pip-'
 var linuxVMNAme = 'linux-vm-'
-var osVersion = '16.04.0-LTS'
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
@@ -148,7 +141,7 @@ resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modul
   name: 'nx'
   properties: {
     contentLink: {
-      uri: moduleUri
+      uri: 'https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg'
     }
   }
 }
@@ -282,7 +275,7 @@ resource nsg_Microsoft_Insights_default_logAnalytics 'Microsoft.Network/networkS
 }
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
-  name: virtualNetworkName
+  name: 'virtial-network'
   location: location
   properties: {
     addressSpace: {
@@ -298,7 +291,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
 
 resource virtualNetworkName_subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   parent: virtualNetwork
-  name: subnetName
+  name: 'subnet'
   properties: {
     addressPrefix: subnetPrefix
     networkSecurityGroup: {
@@ -319,7 +312,7 @@ resource windowsPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
 
 resource windowsNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   for i in range(0, windowsVMCount): {
-    name: '${windowsNicName}${i}'
+    name: 'windows-nic-${i}'
     location: location
     properties: {
       ipConfigurations: [
@@ -372,7 +365,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = [
         imageReference: {
           publisher: 'MicrosoftWindowsServer'
           offer: 'WindowsServer'
-          sku: windowsOSVersion
+          sku: '2016-Datacenter'
           version: 'latest'
         }
         osDisk: {
@@ -498,7 +491,7 @@ resource linuxPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
 
 resource linuxNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   for i in range(0, linuxVMCount): {
-    name: '${linuxNicName}${i}'
+    name: 'linux-nic-${i}'
     location: location
     properties: {
       ipConfigurations: [
@@ -552,7 +545,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
         imageReference: {
           publisher: 'Canonical'
           offer: 'UbuntuServer'
-          sku: osVersion
+          sku: '16.04.0-LTS'
           version: 'latest'
         }
         osDisk: {
