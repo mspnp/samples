@@ -15,7 +15,7 @@ param adminPassword string
 @description('The email address configured in the Action Group for receiving non-compliance notifications.')
 param emailAddress string
 
-@description('Windows VMs to be created')
+@description('The number of Azure Windows VMs to be deployed as web servers, configured via Desired State Configuration to install IIS.')
 param windowsVMCount int = 1
 
 @description('Linux VMs to be created')
