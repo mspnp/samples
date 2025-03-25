@@ -21,7 +21,7 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_DS1_v2"
+            "defaultValue": "Standard_A4_v2"
         },
         "windowsConfiguration": {
             "type": "object",

@@ -43,7 +43,7 @@ Browse to the public IP address of any virtual machine to verify that a web serv
 | adminPassword | securestring | If deploying virtual machines, the admin password. | null |
 | windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 0 |
 | linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 1 |
-| vmSize | string | Size for the Windows and Linux virtual machines. | Standard_DS1_v2 |
+| vmSize | string | Size for the Windows and Linux virtual machines. | Standard_A4_v2 |
 | windowsConfiguration | object | DSC configuration details for the Windows virtual machines. | name, description, script |
 | linuxConfiguration | object | DSC configuration details for the Linux virtual machines. | name, description, script |
 | virtualNetworkName | string | Name for the virtual network. | virtial-network|
