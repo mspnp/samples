@@ -21,7 +21,7 @@ param windowsVMCount int = 1
 @description('The number of Azure Linux VMs to be deployed as web servers, configured via Desired State Configuration to install NGINX.')
 param linuxVMCount int = 1
 
-@description('SKU of the Vms')
+@description('The Azure VM size. Defaults to an optimally balanced for general purpose, providing sufficient performance for deploying IIS on Windows and NGINX on Linux in testing environments.')
 param vmSize string = 'Standard_DS1_v2'
 
 @description('Windows VMs configurations')
