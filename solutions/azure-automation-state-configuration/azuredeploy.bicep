@@ -38,22 +38,18 @@ param linuxConfiguration object = {
   script: 'https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/linux-config.ps1'
 }
 
-@description('Virtual Network address space')
-param addressPrefix string = '10.0.0.0/16'
-
-@description('Virtual Network dubnet address space')
-param subnetPrefix string = '10.0.0.0/24'
-
-var logAnalyticsName = uniqueString(resourceGroup().id)
-var automationAccountName = uniqueString(resourceGroup().id)
-var subnetRef = virtualNetworkName_subnet.id
+var logAnalyticsName = 'log-${uniqueString(resourceGroup().id)}-${location}'
+var automationAccountName = 'aa-${uniqueString(resourceGroup().id)}-${location}'
 var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
-var windowsPIPName = 'windows-pip-'
-var windowsVMName = 'windows-vm-'
-var linuxPIPName = 'linux-pip-'
-var linuxVMname  = 'linux-vm-'
+var windowsPIPName = 'pip-windows-${location}'
+var windowsVMName = 'vm-win-${location}'
+var linuxPIPName = 'pip-linux-${location}'
+var linuxVMname  = 'vm-linux-${location}'
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+//https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
+
+@description('This Log Analytics Workspace stores logs from various resources')
+resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
   location: location
   properties: {
@@ -66,9 +62,10 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   }
 }
 
-resource logAnalytics_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearches@2023-09-01' = {
-  parent: logAnalytics
-  name: '${logAnalyticsName}_savedSearches'
+@description('Non Compliant DSC query saved on Log Analytics Workpace')
+resource la_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearches@2023-09-01' = {
+  parent: la
+  name: '${logAnalyticsName}-savedSearches'
   properties: {
     category: 'event'
     displayName: 'Non Compliant DSC Node'
@@ -77,15 +74,16 @@ resource logAnalytics_savedSearches 'Microsoft.OperationalInsights/workspaces/sa
   }
 }
 
-resource non_compliant_dsc 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
-  name: 'non-compliant-dsc'
+@description('Non Compliant DSC Alert based on Query')
+resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
+  name: 'la-nonCompliantDsc'
   location: location
   properties: {
     severity: 3
     enabled: true
     evaluationFrequency: 'PT5M'
     scopes: [
-      logAnalytics.id
+      la.id
     ]
     windowSize: 'PT5M'
     criteria: {
@@ -104,14 +102,15 @@ resource non_compliant_dsc 'microsoft.insights/scheduledqueryrules@2024-01-01-pr
     }
     actions: {
       actionGroups: [
-        email_action.id
+        ag_email.id
       ]
     }
   }
 }
 
-resource email_action 'microsoft.insights/actionGroups@2024-10-01-preview' = {
-  name: 'email-action'
+@description('Action Group to send an email when an alert is detected')
+resource ag_email 'microsoft.insights/actionGroups@2024-10-01-preview' = {
+  name: 'ag-email'
   location: 'Global'
   properties: {
     groupShortName: 'emailService'
@@ -126,7 +125,8 @@ resource email_action 'microsoft.insights/actionGroups@2024-10-01-preview' = {
   }
 }
 
-resource automationAccount 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
+@description('Azure Automation delivers a cloud-based automation service that supports consistent management across your Azure and non-Azure environments. ')
+resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
   name: automationAccountName
   location: location
   properties: {
@@ -136,8 +136,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2023-05-15-p
   }
 }
 
-resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modules@2023-05-15-preview' = {
-  parent: automationAccount
+@description('Azure Automation module')
+resource aa_nx 'Microsoft.Automation/automationAccounts/modules@2023-05-15-preview' = {
+  parent: aa
   name: 'nx'
   properties: {
     contentLink: {
@@ -146,8 +147,9 @@ resource automationAccountName_nx 'Microsoft.Automation/automationAccounts/modul
   }
 }
 
-resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
-  parent: automationAccount
+@description('Azure Automation Linux Configuration')
+resource aa_linuxConfiguration 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
+  parent: aa
   name: linuxConfiguration.name
   location: location
   properties: {
@@ -160,8 +162,9 @@ resource automationAccountName_linuxConfiguration_name 'Microsoft.Automation/aut
   }
 }
 
-resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccountName_linuxConfiguration_name 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
-  parent: automationAccount
+@description('Azure Automation Linux Configuration Job')
+resource aa_compilationJobsLinuxConfiguration 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
+  parent: aa
   name: linuxConfiguration.name
   location: location
   properties: {
@@ -170,13 +173,14 @@ resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccou
     }
   }
   dependsOn: [
-    automationAccountName_linuxConfiguration_name
-    automationAccountName_nx
+    aa_linuxConfiguration
+    aa_nx
   ]
 }
 
-resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
-  parent: automationAccount
+@description('Azure Automation Windows Configuration')
+resource aa_windowsConfiguration 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
+  parent: aa
   name: windowsConfiguration.name
   location: location
   properties: {
@@ -189,8 +193,9 @@ resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/a
   }
 }
 
-resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccountName_windowsConfiguration_name 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
-  parent: automationAccount
+@description('Azure Automation Windows Configuration Job')
+resource aa_CompilationJobsWindowsConfiguration 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
+  parent: aa
   name: windowsConfiguration.name
   location: location
   properties: {
@@ -199,14 +204,16 @@ resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccou
     }
   }
   dependsOn: [
-    automationAccountName_windowsConfiguration_name
+    aa_windowsConfiguration
   ]
 }
 
-resource automationAccountName_Microsoft_Insights_default_logAnalytics 'Microsoft.Automation/automationAccounts/providers/diagnosticSettings@2021-05-01-preview' = {
+
+@description('Azure Automation logs')
+resource aa_diagnosticSettings 'Microsoft.Automation/automationAccounts/providers/diagnosticSettings@2021-05-01-preview' = {
   name: '${automationAccountName}/Microsoft.Insights/default${logAnalyticsName}'
   properties: {
-    workspaceId: logAnalytics.id
+    workspaceId: la.id
     logs: [
       {
         category: 'DscNodeStatus'
@@ -215,10 +222,11 @@ resource automationAccountName_Microsoft_Insights_default_logAnalytics 'Microsof
     ]
   }
   dependsOn: [
-    automationAccount
+    aa
   ]
 }
 
+@description('Network security group to control traffic on the vnet')
 resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: 'nsg'
   location: location
@@ -254,10 +262,11 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   }
 }
 
-resource nsg_Microsoft_Insights_default_logAnalytics 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2021-05-01-preview' = {
+@description('Network Security Grpup log')
+resource nsg_diagnosticSettings 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2021-05-01-preview' = {
   name: 'nsg/Microsoft.Insights/default${logAnalyticsName}'
   properties: {
-    workspaceId: logAnalytics.id
+    workspaceId: la.id
     logs: [
       {
         category: 'NetworkSecurityGroupEvent'
@@ -274,13 +283,14 @@ resource nsg_Microsoft_Insights_default_logAnalytics 'Microsoft.Network/networkS
   ]
 }
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
-  name: 'virtial-network'
+@description('Virtual Network')
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+  name: 'vnet'
   location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
-        addressPrefix
+        '10.0.0.0/16'
       ]
     }
   }
@@ -289,18 +299,20 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   ]
 }
 
-resource virtualNetworkName_subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
-  parent: virtualNetwork
+@description('Virtual Network subnet')
+resource sbnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+  parent: vnet
   name: 'subnet'
   properties: {
-    addressPrefix: subnetPrefix
+    addressPrefix: '10.0.0.0/24'
     networkSecurityGroup: {
       id: nsg.id
     }
   }
 }
 
-resource windowsPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
+@description('Public ips for windows VMs')
+resource pip_windows 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   for i in range(0, windowsVMCount): {
     name: '${windowsPIPName}${i}'
     location: location
@@ -310,9 +322,10 @@ resource windowsPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   }
 ]
 
-resource windowsNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
+@description('Network Interfaces for windows VMs')
+resource nic_windows 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   for i in range(0, windowsVMCount): {
-    name: 'windows-nic-${i}'
+    name: 'nic-windows-${i}'
     location: location
     properties: {
       ipConfigurations: [
@@ -321,22 +334,23 @@ resource windowsNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
           properties: {
             privateIPAllocationMethod: 'Dynamic'
             publicIPAddress: {
-              id: resourceId('Microsoft.Network/publicIPAddresses/', '${windowsPIPName}${i}')
+              id: pip_windows[i].id
             }
             subnet: {
-              id: subnetRef
+              id: sbnet.id
             }
           }
         }
       ]
     }
     dependsOn: [
-      windowsPIP
+      pip_windows
     ]
   }
 ]
 
-resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = [
+@description('Windows VMs')
+resource vm_windows 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   for i in range(0, windowsVMCount): {
     name: '${windowsVMName}${i}'
     location: location
@@ -375,7 +389,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId('Microsoft.Network/networkInterfaces', windowsNic[i].name)
+            id: nic_windows[i].id
           }
         ]
       }
@@ -387,11 +401,12 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   }
 ]
 
+@description('Windows VM guest extension')
 // https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
-resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
+resource vm_guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, windowsVMCount): {
-    parent: windowsVM[i]
-    name: 'AzurePolicyforWindows${windowsVM[i].name}'
+    parent: vm_windows[i]
+    name: 'AzurePolicyforWindows${vm_windows[i].name}'
     location: location
     properties: {
       publisher: 'Microsoft.GuestConfiguration'
@@ -405,7 +420,8 @@ resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensio
   }
 ]
 
-resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
+@description('Windows VM PowerShell DSC extension')
+resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, windowsVMCount): {
     name: '${windowsVMName}${i}/Microsoft.Powershell.DSC'
     location: location
@@ -416,7 +432,7 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
       autoUpgradeMinorVersion: true
       protectedSettings: {
         Items: {
-          registrationKeyPrivate: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+          registrationKeyPrivate: listKeys(aa.id, '2019-06-01').Keys[0].value
         }
       }
       settings: {
@@ -432,7 +448,7 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
           {
             Name: 'RegistrationUrl'
             #disable-next-line BCP053
-            Value: automationAccount.properties.registrationUrl
+            Value: aa.properties.registrationUrl
             TypeName: 'System.String'
           }
           {
@@ -474,12 +490,13 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
       }
     }
     dependsOn: [
-      windowsVM
+      vm_windows
     ]
   }
 ]
 
-resource linuxPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
+@description('Public ips for linux VMs')
+resource pip_linux 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   for i in range(0, linuxVMCount): {
     name: '${linuxPIPName}${i}'
     location: location
@@ -489,9 +506,10 @@ resource linuxPIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   }
 ]
 
-resource linuxNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
+@description('Network Interfaces for linux VMs')
+resource nic_linux 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   for i in range(0, linuxVMCount): {
-    name: 'linux-nic-${i}'
+    name: 'nic-linux-${i}'
     location: location
     properties: {
       ipConfigurations: [
@@ -500,24 +518,25 @@ resource linuxNic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
           properties: {
             privateIPAllocationMethod: 'Dynamic'
             publicIPAddress: {
-              id: resourceId('Microsoft.Network/publicIPAddresses/', '${linuxPIPName}${i}')
+              id: pip_linux[i].id
             }
             subnet: {
-              id: subnetRef
+              id: sbnet.id
             }
           }
         }
       ]
     }
     dependsOn: [
-      linuxPIP
+      pip_linux
     ]
   }
 ]
 
-resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
+@description('Linux VMs')
+resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   for i in range(0, linuxVMCount): {
-    name: '${linuxVMname }${i}'
+    name: '${linuxVMname}${i}'
     location: location
     identity: {
       // It is required by the Guest Configuration extension.
@@ -528,7 +547,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
         vmSize: vmSize
       }
       osProfile: {
-        computerName: '${linuxVMname }${i}'
+        computerName: '${linuxVMname}${i}'
         adminUsername: adminUserName
         adminPassword: adminPassword
         linuxConfiguration: {
@@ -555,7 +574,7 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId('Microsoft.Network/networkInterfaces', linuxNic[i].name)
+            id: nic_linux[i].id
           }
         ]
       }
@@ -567,11 +586,12 @@ resource linuxVMN 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   }
 ]
 
+@description('Linux VM guest extension')
 // https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
-resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
+resource vm_guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, linuxVMCount): {
-    parent: linuxVMN[i]
-    name: 'Microsoft.AzurePolicyforLinux${linuxVMN[i].name}'
+    parent: vm_linux[i]
+    name: 'Microsoft.AzurePolicyforLinux${vm_linux[i].name}'
     location: location
     properties: {
       publisher: 'Microsoft.GuestConfiguration'
@@ -585,7 +605,8 @@ resource guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions
   }
 ]
 
-resource linuxVMname_enabledsc 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
+@description('Linux VM DSC extension')
+resource vm_enableDCLExtemsionLinux 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, linuxVMCount): {
     name: '${linuxVMname }${i}/enabledsc'
     location: location
@@ -600,14 +621,14 @@ resource linuxVMname_enabledsc 'Microsoft.Compute/virtualMachines/extensions@202
         RefreshFrequencyMins: 30
         ConfigurationMode: 'applyAndAutoCorrect'
         ConfigurationModeFrequencyMins: 15
-        RegistrationUrl: automationAccount.properties.registrationUrl
+        RegistrationUrl: aa.properties.registrationUrl
       }
       protectedSettings: {
-        RegistrationKey: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+        RegistrationKey: listKeys(aa.id, '2019-06-01').Keys[0].value
       }
     }
     dependsOn: [
-      linuxVMN
+      vm_linux
     ]
   }
 ]
