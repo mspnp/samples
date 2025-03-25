@@ -18,7 +18,7 @@ param emailAddress string
 @description('The number of Azure Windows VMs to be deployed as web servers, configured via Desired State Configuration to install IIS.')
 param windowsVMCount int = 1
 
-@description('Linux VMs to be created')
+@description('The number of Azure Linux VMs to be deployed as web servers, configured via Desired State Configuration to install NGINX.')
 param linuxVMCount int = 1
 
 @description('SKU of the Vms')
