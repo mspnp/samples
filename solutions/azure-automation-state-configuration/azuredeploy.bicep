@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 param adminUserName string = 'admin-automation'
 
 @secure()
-@description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character.')
+@description('The admin password for both the Windows and Linux virtual machines.')
 param adminPassword string
 
 @description('Email to send not complient alerts')
