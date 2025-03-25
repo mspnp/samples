@@ -6,7 +6,7 @@ targetScope = 'resourceGroup'
 param location string = resourceGroup().location
 
 @description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number.')
-param adminUserName string
+param adminUserName string = 'admin-automation'
 
 @secure()
 @description('Password for both the Linux and Windows VM. Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character.')
