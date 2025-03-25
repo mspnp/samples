@@ -24,7 +24,7 @@ param linuxVMCount int = 1
 @description('The Azure VM size. Defaults to an optimally balanced for general purpose, providing sufficient performance for deploying IIS on Windows and NGINX on Linux in testing environments.')
 param vmSize string = 'Standard_A4_v2'
 
-@description('Windows VMs configurations')
+@description('The DSC configuration object containing a reference to the script that defines the desired state for Windows VMs. By default, it points to a PowerShell script that installs IIS for testing purposes as desired state of the system.')
 param windowsConfiguration object = {
   name: 'windowsfeatures'
   description: 'A configuration for installing IIS.'
