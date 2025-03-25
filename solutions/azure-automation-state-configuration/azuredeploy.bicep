@@ -5,7 +5,7 @@ targetScope = 'resourceGroup'
 @description('Azure Virtual Machines, and supporting services (Automation State Configuration) region. This defaults to the resource group\'s location for higher reliability.')
 param location string = resourceGroup().location
 
-@description('Username for both the Linux and Windows VM. Must only contain letters, numbers, hyphens, and underscores and may not start with a hyphen or number.')
+@description('The admin user name for both the Windows and Linux virtual machines.')
 param adminUserName string = 'admin-automation'
 
 @secure()
