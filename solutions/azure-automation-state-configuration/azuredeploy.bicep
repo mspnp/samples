@@ -31,7 +31,7 @@ param windowsConfiguration object = {
   script: 'https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/windows-config.ps1'
 }
 
-@description('Linux VMs configurations')
+@description('The DSC configuration object containing a reference to the script that defines the desired state for Linux VMs. By default, it points to a PowerShell script that installs NGINX for testing purposes as desired state of the system.')
 param linuxConfiguration object = {
   name: 'linuxpackage'
   description: 'A configuration for installing Nginx.'
