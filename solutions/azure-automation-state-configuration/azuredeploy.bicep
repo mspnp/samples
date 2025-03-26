@@ -161,7 +161,7 @@ resource aa_linuxConfiguration 'Microsoft.Automation/automationAccounts/configur
   }
 }
 
-@description('Azure Automation Linux Configuration Job')
+@description('The Automation Account compilation job for Linux DSC.')
 resource aa_compilationJobsLinuxConfiguration 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
   parent: aa
   name: linuxConfiguration.name
