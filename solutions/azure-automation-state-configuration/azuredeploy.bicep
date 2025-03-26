@@ -136,7 +136,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
   }
 }
 
-@description('Azure Automation module')
+@description('Azure Automation module with DSC Resources for Linux')
 resource aa_nx 'Microsoft.Automation/automationAccounts/modules@2023-05-15-preview' = {
   parent: aa
   name: 'nx'
