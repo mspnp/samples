@@ -208,7 +208,7 @@ resource aa_CompilationJobsWindowsConfiguration 'Microsoft.Automation/automation
 }
 
 
-@description('Azure Automation logs')
+@description('A diagnostic setting for the Automation Account that emits DSC Node Status logs. It is configured to enable log collection for monitoring and analysis, supporting the creation of saved and scheduled queries for alerting purposes.')
 resource aa_diagnosticSettings 'Microsoft.Automation/automationAccounts/providers/diagnosticSettings@2021-05-01-preview' = {
   name: '${automationAccountName}/Microsoft.Insights/default${logAnalyticsName}'
   properties: {
