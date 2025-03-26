@@ -124,7 +124,7 @@ resource ag_email 'microsoft.insights/actionGroups@2024-10-01-preview' = {
   }
 }
 
-@description('Azure Automation delivers a cloud-based automation service that supports consistent management across your Azure and non-Azure environments. ')
+@description('The Automation Account to deliver consistent management across your Azure Windows and Linux Virtual Machines.')
 resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
   name: automationAccountName
   location: location
