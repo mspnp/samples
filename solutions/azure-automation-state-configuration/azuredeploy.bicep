@@ -61,7 +61,7 @@ resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   }
 }
 
-@description('Non Compliant DSC query saved on Log Analytics Workpace')
+@description('The Log Analytics workspace saved search to monitor Virtual Machines with Non-Compliant DSC status.')
 resource la_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearches@2023-09-01' = {
   parent: la
   name: '${la.name}-savedSearches'
