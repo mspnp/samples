@@ -41,15 +41,11 @@ Browse to the public IP address of any virtual machine to verify that a web serv
 |---|---|---|--|
 | adminUserName | string | If deploying virtual machines, the admin user name. | null |
 | adminPassword | securestring | If deploying virtual machines, the admin password. | null |
-| windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 0 |
+| windowsVMCount | int | Number of Windows virtual machines to create in spoke network. | 1 |
 | linuxVMCount | int | Number of Linux virtual machines to create in spoke network. | 1 |
 | vmSize | string | Size for the Windows and Linux virtual machines. | Standard_A4_v2 |
 | windowsConfiguration | object | DSC configuration details for the Windows virtual machines. | name, description, script |
 | linuxConfiguration | object | DSC configuration details for the Linux virtual machines. | name, description, script |
-| virtualNetworkName | string | Name for the virtual network. | virtial-network|
-| addressPrefix | string | Address prefix for the virtual network. | 10.0.0.0/16 |
-| subnetPrefix | string | Address prefix for the subnet. | 10.0.0.0/24 |
-| subnetName | string | Name for the subnet. | subnet |
 | location | string | Deployment location. | resourceGroup().location |
 
 ## Clean Up

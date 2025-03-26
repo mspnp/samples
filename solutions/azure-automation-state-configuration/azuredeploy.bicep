@@ -39,13 +39,15 @@ param linuxConfiguration object = {
   script: 'https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/linux-config.ps1'
 }
 
+/*** VARIABLES ***/
+
 var logAnalyticsName = 'log-${uniqueString(resourceGroup().id)}-${location}'
 var automationAccountName = 'aa-${uniqueString(resourceGroup().id)}-${location}'
 var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
-var windowsPIPName = 'pip-windows-${location}'
 var windowsVMName = 'vm-win-${location}'
-var linuxPIPName = 'pip-linux-${location}'
 var linuxVMname  = 'vm-linux-${location}'
+
+/*** RESOURCES ***/
 
 @description('This Log Analytics workspace stores logs from the regional automation account and the virtual network.')
 resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -91,7 +93,7 @@ resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-p
           query: alertQuery
           timeAggregation: 'Count'
           operator: 'GreaterThan'
-          threshold: json('0')
+          threshold: 0
           failingPeriods: {
             numberOfEvaluationPeriods: 1
             minFailingPeriodsToAlert: 1
@@ -133,84 +135,79 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       name: 'Basic'
     }
   }
-}
-
-@description('Azure Automation module with DSC Resources for Linux')
-resource aa_nx 'Microsoft.Automation/automationAccounts/modules@2023-05-15-preview' = {
-  parent: aa
-  name: 'nx'
-  properties: {
-    contentLink: {
-      uri: 'https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg'
+  
+  @description('Azure Automation module with DSC Resources for Linux')
+  resource aa_nx 'modules@2023-05-15-preview' = {
+    name: 'nx'
+    properties: {
+      contentLink: {
+        uri: 'https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg'
+      }
     }
   }
-}
-
-@description('The Automation Account configuration for managing Linux DSC.')
-resource aa_linuxConfiguration 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
-  parent: aa
-  name: linuxConfiguration.name
-  location: location
-  properties: {
-    logVerbose: false
-    description: linuxConfiguration.description
-    source: {
-      type: 'uri'
-      value: linuxConfiguration.script
+  
+  @description('The Automation Account configuration for managing Linux DSC.')
+  resource aa_linuxConfiguration 'configurations@2023-05-15-preview' = {
+    name: linuxConfiguration.name
+    location: location
+    properties: {
+      logVerbose: false
+      description: linuxConfiguration.description
+      source: {
+        type: 'uri'
+        value: linuxConfiguration.script
+      }
     }
   }
-}
-
-@description('The Automation Account compilation job for Linux DSC.')
-resource aa_compilationJobsLinuxConfiguration 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
-  parent: aa
-  name: linuxConfiguration.name
-  location: location
-  properties: {
-    configuration: {
-      name: linuxConfiguration.name
+  
+  @description('The Automation Account compilation job for Linux DSC.')
+  resource aa_compilationJobsLinuxConfiguration 'compilationjobs@2023-05-15-preview' = {
+    name: linuxConfiguration.name
+    location: location
+    properties: {
+      configuration: {
+        name: linuxConfiguration.name
+      }
+    }
+    dependsOn: [
+      aa_linuxConfiguration
+      aa_nx
+    ]
+  }
+  
+  @description('The Automation Account configuration for managing Windows DSC.')
+  resource aa_windowsConfiguration 'configurations@2023-05-15-preview' = {
+    name: windowsConfiguration.name
+    location: location
+    properties: {
+      logVerbose: false
+      description: windowsConfiguration.description
+      source: {
+        type: 'uri'
+        value: windowsConfiguration.script
+      }
     }
   }
-  dependsOn: [
-    aa_linuxConfiguration
-    aa_nx
-  ]
-}
 
-@description('The Automation Account configuration for managing Windows DSC.')
-resource aa_windowsConfiguration 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
-  parent: aa
-  name: windowsConfiguration.name
-  location: location
-  properties: {
-    logVerbose: false
-    description: windowsConfiguration.description
-    source: {
-      type: 'uri'
-      value: windowsConfiguration.script
+  @description('The Automation Account compilation job for Windows DSC.')
+  resource aa_CompilationJobsWindowsConfiguration 'compilationjobs@2023-05-15-preview' = {
+    name: windowsConfiguration.name
+    location: location
+    properties: {
+      configuration: {
+        name: windowsConfiguration.name
+      }
     }
+    dependsOn: [
+      aa_windowsConfiguration
+    ]
   }
 }
-
-@description('The Automation Account compilation job for Windows DSC.')
-resource aa_CompilationJobsWindowsConfiguration 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
-  parent: aa
-  name: windowsConfiguration.name
-  location: location
-  properties: {
-    configuration: {
-      name: windowsConfiguration.name
-    }
-  }
-  dependsOn: [
-    aa_windowsConfiguration
-  ]
-}
-
 
 @description('A diagnostic setting for the Automation Account that emits DSC Node Status logs. It is configured to enable log collection for monitoring and analysis, supporting the creation of saved and scheduled queries for alerting purposes.')
-resource aa_diagnosticSettings 'Microsoft.Automation/automationAccounts/providers/diagnosticSettings@2021-05-01-preview' = {
-  name: '${automationAccountName}/Microsoft.Insights/default${logAnalyticsName}'
+resource aa_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: aa 
+  name: 'aa-${la.name}'
   properties: {
     workspaceId: la.id
     logs: [
@@ -220,9 +217,6 @@ resource aa_diagnosticSettings 'Microsoft.Automation/automationAccounts/provider
       }
     ]
   }
-  dependsOn: [
-    aa
-  ]
 }
 
 @description('Network security group to control traffic on the vnet')
@@ -261,9 +255,10 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   }
 }
 
-@description('Network Security Grpup log')
-resource nsg_diagnosticSettings 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2021-05-01-preview' = {
-  name: 'nsg/Microsoft.Insights/default${logAnalyticsName}'
+@description('Network Security Group log')
+resource nsg_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nsg
+  name: 'nsg-{logAnalyticsName}'
   properties: {
     workspaceId: la.id
     logs: [
@@ -277,9 +272,6 @@ resource nsg_diagnosticSettings 'Microsoft.Network/networkSecurityGroups/provide
       }
     ]
   }
-  dependsOn: [
-    nsg
-  ]
 }
 
 @description('Virtual Network')
@@ -293,13 +285,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
       ]
     }
   }
-  dependsOn: [
-    nsg
-  ]
 }
 
 @description('Virtual Network subnet')
-resource snet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+resource sbnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   parent: vnet
   name: 'subnet'
   properties: {
@@ -313,7 +302,7 @@ resource snet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
 @description('Public IPs for Windows VMs')
 resource pip_windows 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   for i in range(0, windowsVMCount): {
-    name: '${windowsPIPName}${i}'
+    name: 'pip-windows-${location}${i}'
     location: location
     properties: {
       publicIPAllocationMethod: 'Dynamic'
@@ -342,9 +331,6 @@ resource nic_windows 'Microsoft.Network/networkInterfaces@2024-05-01' = [
         }
       ]
     }
-    dependsOn: [
-      pip_windows
-    ]
   }
 ]
 
@@ -421,7 +407,7 @@ resource vm_guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/exten
 @description('Windows VM PowerShell DSC extension')
 resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, windowsVMCount): {
-    name: '${windowsVMName}${i}/Microsoft.Powershell.DSC'
+    name: '${vm_windows[i].name}/Microsoft.Powershell.DSC'
     location: location
     properties: {
       publisher: 'Microsoft.Powershell'
@@ -487,16 +473,13 @@ resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2
         ]
       }
     }
-    dependsOn: [
-      vm_windows
-    ]
   }
 ]
 
 @description('Public IPs for Linux VMs')
 resource pip_linux 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   for i in range(0, linuxVMCount): {
-    name: '${linuxPIPName}${i}'
+    name: 'pip-linux-${location}${i}'
     location: location
     properties: {
       publicIPAllocationMethod: 'Dynamic'
@@ -525,8 +508,6 @@ resource nic_linux 'Microsoft.Network/networkInterfaces@2024-05-01' = [
         }
       ]
     }
-    dependsOn: [
-    ]
   }
 ]
 
@@ -584,7 +565,6 @@ resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
 ]
 
 @description('Linux VM guest extension')
-// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
 resource vm_guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, linuxVMCount): {
     parent: vm_linux[i]
@@ -605,7 +585,7 @@ resource vm_guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensi
 @description('Linux VM DSC extension')
 resource vm_enableDCLExtemsionLinux 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, linuxVMCount): {
-    name: '${linuxVMname }${i}/enabledsc'
+    name: '${vm_linux[i].name}/enabledsc'
     location: location
     properties: {
       publisher: 'Microsoft.OSTCExtensions'
@@ -624,8 +604,5 @@ resource vm_enableDCLExtemsionLinux 'Microsoft.Compute/virtualMachines/extension
         RegistrationKey: listKeys(aa.id, '2019-06-01').Keys[0].value
       }
     }
-    dependsOn: [
-      vm_linux
-    ]
   }
 ]
