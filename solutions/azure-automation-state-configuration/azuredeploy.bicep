@@ -321,7 +321,7 @@ resource pip_windows 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   }
 ]
 
-@description('Network Interfaces for windows VMs')
+@description('Network Interfaces for Windows VMs')
 resource nic_windows 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   for i in range(0, windowsVMCount): {
     name: 'nic-windows-${i}'
