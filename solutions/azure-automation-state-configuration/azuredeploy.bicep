@@ -107,7 +107,7 @@ resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-p
   }
 }
 
-@description('Action Group to send an email when an alert is detected')
+@description('The Action Group responsible for sending email notifications when Non-Compliant DSC alerts are triggered.')
 resource ag_email 'microsoft.insights/actionGroups@2024-10-01-preview' = {
   name: 'ag-email'
   location: 'Global'
