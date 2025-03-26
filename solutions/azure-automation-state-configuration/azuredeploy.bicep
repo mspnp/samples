@@ -533,7 +533,7 @@ resource nic_linux 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   }
 ]
 
-@description('Linux VMs')
+@description('The Linux VMs managed by DSC. By default, these virtual machines are configured to enforce the desired state using the DSC VM extension, ensuring consistency and compliance.')
 resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   for i in range(0, linuxVMCount): {
     name: '${linuxVMname}${i}'
