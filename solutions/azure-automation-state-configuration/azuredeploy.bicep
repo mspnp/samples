@@ -65,7 +65,7 @@ resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
 @description('Non Compliant DSC query saved on Log Analytics Workpace')
 resource la_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearches@2023-09-01' = {
   parent: la
-  name: '${logAnalyticsName}-savedSearches'
+  name: '${la.name}-savedSearches'
   properties: {
     category: 'event'
     displayName: 'Non Compliant DSC Node'
