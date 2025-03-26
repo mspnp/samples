@@ -47,7 +47,7 @@ var windowsVMName = 'vm-win-${location}'
 var linuxPIPName = 'pip-linux-${location}'
 var linuxVMname  = 'vm-linux-${location}'
 
-@description('This Log Analytics Workspace stores logs from various resources')
+@description('This Log Analytics workspace stores logs from the regional automation account and the virtual network.')
 resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: logAnalyticsName
   location: location
