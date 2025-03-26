@@ -526,7 +526,6 @@ resource nic_linux 'Microsoft.Network/networkInterfaces@2024-05-01' = [
       ]
     }
     dependsOn: [
-      pip_linux
     ]
   }
 ]
