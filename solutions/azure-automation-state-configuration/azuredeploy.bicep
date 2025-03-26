@@ -146,7 +146,7 @@ resource aa_nx 'Microsoft.Automation/automationAccounts/modules@2023-05-15-previ
   }
 }
 
-@description('Azure Automation Linux Configuration')
+@description('The Automation Account configuration for managing Linux DSC.')
 resource aa_linuxConfiguration 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
   parent: aa
   name: linuxConfiguration.name
