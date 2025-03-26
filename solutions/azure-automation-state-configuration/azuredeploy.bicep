@@ -401,7 +401,6 @@ resource vm_windows 'Microsoft.Compute/virtualMachines@2024-11-01' = [
 ]
 
 @description('Windows VM guest extension')
-// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
 resource vm_guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [
   for i in range(0, windowsVMCount): {
     parent: vm_windows[i]
