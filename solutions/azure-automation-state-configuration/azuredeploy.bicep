@@ -177,7 +177,7 @@ resource aa_compilationJobsLinuxConfiguration 'Microsoft.Automation/automationAc
   ]
 }
 
-@description('Azure Automation Windows Configuration')
+@description('The Automation Account configuration for managing Windows DSC.')
 resource aa_windowsConfiguration 'Microsoft.Automation/automationAccounts/configurations@2023-05-15-preview' = {
   parent: aa
   name: windowsConfiguration.name
