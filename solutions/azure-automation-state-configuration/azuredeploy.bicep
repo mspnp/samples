@@ -192,7 +192,7 @@ resource aa_windowsConfiguration 'Microsoft.Automation/automationAccounts/config
   }
 }
 
-@description('Azure Automation Windows Configuration Job')
+@description('The Automation Account compilation job for Windows DSC.')
 resource aa_CompilationJobsWindowsConfiguration 'Microsoft.Automation/automationAccounts/compilationjobs@2023-05-15-preview' = {
   parent: aa
   name: windowsConfiguration.name
