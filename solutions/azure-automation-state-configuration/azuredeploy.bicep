@@ -495,7 +495,7 @@ resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2
   }
 ]
 
-@description('Public ips for linux VMs')
+@description('Public IPs for Linux VMs')
 resource pip_linux 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   for i in range(0, linuxVMCount): {
     name: '${linuxPIPName}${i}'
