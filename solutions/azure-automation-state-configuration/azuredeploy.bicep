@@ -16,6 +16,7 @@ param adminPassword string
 param emailAddress string
 
 @description('The number of Azure Windows VMs to be deployed as web servers, configured via Desired State Configuration to install IIS.')
+@minValue(0)
 param windowsVMCount int = 1
 
 @description('The number of Azure Linux VMs to be deployed as web servers, configured via Desired State Configuration to install NGINX.')
