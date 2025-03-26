@@ -300,7 +300,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
 }
 
 @description('Virtual Network subnet')
-resource sbnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+resource snet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   parent: vnet
   name: 'subnet'
   properties: {
