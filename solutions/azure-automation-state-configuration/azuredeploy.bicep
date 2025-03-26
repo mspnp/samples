@@ -349,7 +349,7 @@ resource nic_windows 'Microsoft.Network/networkInterfaces@2024-05-01' = [
   }
 ]
 
-@description('Windows VMs')
+@description('The Windows VMs managed by DSC. By default, these virtual machines are configured to enforce the desired state using the DSC VM extension, ensuring consistency and compliance.')
 resource vm_windows 'Microsoft.Compute/virtualMachines@2024-11-01' = [
   for i in range(0, windowsVMCount): {
     name: '${windowsVMName}${i}'
