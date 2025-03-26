@@ -47,7 +47,6 @@ var windowsVMName = 'vm-win-${location}'
 var linuxPIPName = 'pip-linux-${location}'
 var linuxVMname  = 'vm-linux-${location}'
 
-//https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
 @description('This Log Analytics Workspace stores logs from various resources')
 resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
