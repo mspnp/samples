@@ -73,7 +73,7 @@ resource la_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearche
   }
 }
 
-@description('Non Compliant DSC Alert based on Query')
+@description('The Log Analytics workspace scheduled query rule that trigger alerts based on Virtual Machines with Non-Compliant DSC status.')
 resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
   name: 'la-nonCompliantDsc'
   location: location
