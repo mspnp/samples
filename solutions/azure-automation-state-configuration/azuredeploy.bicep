@@ -310,7 +310,7 @@ resource snet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   }
 }
 
-@description('Public ips for windows VMs')
+@description('Public IPs for Windows VMs')
 resource pip_windows 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
   for i in range(0, windowsVMCount): {
     name: '${windowsPIPName}${i}'
