@@ -61,17 +61,15 @@ resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
       searchVersion: 1
     }
   }
-}
-
-@description('The Log Analytics workspace saved search to monitor Virtual Machines with Non-Compliant DSC status.')
-resource la_savedSearches 'Microsoft.OperationalInsights/workspaces/savedSearches@2023-09-01' = {
-  parent: la
-  name: '${la.name}-savedSearches'
-  properties: {
-    category: 'event'
-    displayName: 'Non Compliant DSC Node'
-    query: alertQuery
-    version: 2
+  @description('The Log Analytics workspace saved search to monitor Virtual Machines with Non-Compliant DSC status.')
+  resource la_savedSearches 'savedSearches' = {
+    name: '${la.name}-savedSearches'
+    properties: {
+      category: 'event'
+      displayName: 'Non Compliant DSC Node'
+      query: alertQuery
+      version: 2
+    }
   }
 }
 
@@ -257,7 +255,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
 @description('Network Security Group log')
 resource nsg_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: nsg
-  name: 'nsg-{logAnalyticsName}'
+  name: 'nsg-${logAnalyticsName}'
   properties: {
     workspaceId: la.id
     logs: [
@@ -283,18 +281,17 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         '10.0.0.0/16'
       ]
     }
-  }
-}
-
-@description('Virtual Network subnet')
-resource sbnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
-  parent: vnet
-  name: 'subnet'
-  properties: {
-    addressPrefix: '10.0.0.0/24'
-    networkSecurityGroup: {
-      id: nsg.id
-    }
+    subnets: [
+      {
+        name: 'subnet'
+        properties: {
+          addressPrefix: '10.0.0.0/24'
+          networkSecurityGroup: {
+            id: nsg.id
+          }
+        }
+      }
+    ]
   }
 }
 
@@ -324,7 +321,7 @@ resource nic_windows 'Microsoft.Network/networkInterfaces@2024-05-01' = [
               id: pip_windows[i].id
             }
             subnet: {
-              id: sbnet.id
+              id: vnet.properties.subnets[0].id
             }
           }
         }
@@ -501,7 +498,7 @@ resource nic_linux 'Microsoft.Network/networkInterfaces@2024-05-01' = [
               id: pip_linux[i].id
             }
             subnet: {
-              id: sbnet.id
+              id: vnet.properties.subnets[0].id
             }
           }
         }
