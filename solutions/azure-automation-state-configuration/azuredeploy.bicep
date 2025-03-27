@@ -135,7 +135,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       name: 'Basic'
     }
   }
-  
+    
   @description('Azure Automation module with DSC Resources for Linux')
   resource aa_nx 'modules@2023-05-15-preview' = {
     name: 'nx'
@@ -145,9 +145,9 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       }
     }
   }
-  
+ 
   @description('The Automation Account configuration for managing Linux DSC.')
-  resource aa_linuxConfiguration 'configurations@2023-05-15-preview' = {
+  resource aa_linuxConfiguration 'configurations' = {
     name: linuxConfiguration.name
     location: location
     properties: {
@@ -161,22 +161,21 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
   }
   
   @description('The Automation Account compilation job for Linux DSC.')
-  resource aa_compilationJobsLinuxConfiguration 'compilationjobs@2023-05-15-preview' = {
-    name: linuxConfiguration.name
+  resource aa_compilationJobsLinuxConfiguration 'compilationjobs' = {
+    name: aa_linuxConfiguration.name
     location: location
     properties: {
       configuration: {
-        name: linuxConfiguration.name
+        name: aa_linuxConfiguration.name
       }
     }
     dependsOn: [
-      aa_linuxConfiguration
       aa_nx
     ]
   }
   
   @description('The Automation Account configuration for managing Windows DSC.')
-  resource aa_windowsConfiguration 'configurations@2023-05-15-preview' = {
+  resource aa_windowsConfiguration 'configurations' = {
     name: windowsConfiguration.name
     location: location
     properties: {
@@ -190,7 +189,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
   }
 
   @description('The Automation Account compilation job for Windows DSC.')
-  resource aa_CompilationJobsWindowsConfiguration 'compilationjobs@2023-05-15-preview' = {
+  resource aa_CompilationJobsWindowsConfiguration 'compilationjobs' = {
     name: windowsConfiguration.name
     location: location
     properties: {
