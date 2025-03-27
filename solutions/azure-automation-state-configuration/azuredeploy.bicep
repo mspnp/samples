@@ -16,11 +16,12 @@ param adminPassword string
 param emailAddress string
 
 @description('The number of Azure Windows VMs to be deployed as web servers, configured via Desired State Configuration to install IIS.')
-param windowsVMCount int = 0
+@minValue(0)
+param windowsVMCount int = 1
 
 @description('The number of Azure Linux VMs to be deployed as web servers, configured via Desired State Configuration to install NGINX.')
 @minValue(0)
-param linuxVMCount int = 0
+param linuxVMCount int = 1
 
 @description('The Azure VM size. Defaults to an optimally balanced for general purpose, providing sufficient performance for deploying IIS on Windows and NGINX on Linux in testing environments.')
 param vmSize string = 'Standard_A4_v2'
