@@ -296,40 +296,15 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   }
 }
 
-@description('Public IPs for Windows VMs')
-resource pip_windows 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
-  for i in range(0, windowsVMCount): {
-    name: 'pip-windows-${location}${i}'
+@description('Create Network Interfaces and Public Ips for Windows VMS')
+module windowsVMNetworkResources 'vmNetworkResources.bicep' ={
+  params:{
+    subnetId: vnet.properties.subnets[0].id
     location: location
-    properties: {
-      publicIPAllocationMethod: 'Dynamic'
-    }
+    vMCount: windowsVMCount
+    identifier: 'windows'
   }
-]
-
-@description('Network Interfaces for Windows VMs')
-resource nic_windows 'Microsoft.Network/networkInterfaces@2024-05-01' = [
-  for i in range(0, windowsVMCount): {
-    name: 'nic-windows-${i}'
-    location: location
-    properties: {
-      ipConfigurations: [
-        {
-          name: 'ipconfig1'
-          properties: {
-            privateIPAllocationMethod: 'Dynamic'
-            publicIPAddress: {
-              id: pip_windows[i].id
-            }
-            subnet: {
-              id: vnet.properties.subnets[0].id
-            }
-          }
-        }
-      ]
-    }
-  }
-]
+}
 
 @description('The Windows VMs managed by DSC. By default, these virtual machines are configured to enforce the desired state using the DSC VM extension, ensuring consistency and compliance.')
 resource vm_windows 'Microsoft.Compute/virtualMachines@2024-11-01' = [
@@ -371,7 +346,7 @@ resource vm_windows 'Microsoft.Compute/virtualMachines@2024-11-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: nic_windows[i].id
+            id: windowsVMNetworkResources.outputs.nics[i].resourceId
           }
         ]
       }
@@ -473,40 +448,15 @@ resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2
   }
 ]
 
-@description('Public IPs for Linux VMs')
-resource pip_linux 'Microsoft.Network/publicIPAddresses@2024-05-01' = [
-  for i in range(0, linuxVMCount): {
-    name: 'pip-linux-${location}${i}'
+@description('Create Network Interfaces and Public Ips for Linux VMS')
+module linuxVMNetworkResources 'vmNetworkResources.bicep' ={
+  params:{
+    subnetId: vnet.properties.subnets[0].id
     location: location
-    properties: {
-      publicIPAllocationMethod: 'Dynamic'
-    }
+    vMCount: linuxVMCount
+    identifier: 'linux'
   }
-]
-
-@description('Network Interfaces for linux VMs')
-resource nic_linux 'Microsoft.Network/networkInterfaces@2024-05-01' = [
-  for i in range(0, linuxVMCount): {
-    name: 'nic-linux-${i}'
-    location: location
-    properties: {
-      ipConfigurations: [
-        {
-          name: 'ipconfig1'
-          properties: {
-            privateIPAllocationMethod: 'Dynamic'
-            publicIPAddress: {
-              id: pip_linux[i].id
-            }
-            subnet: {
-              id: vnet.properties.subnets[0].id
-            }
-          }
-        }
-      ]
-    }
-  }
-]
+}
 
 @description('The Linux VMs managed by DSC. By default, these virtual machines are configured to enforce the desired state using the DSC VM extension, ensuring consistency and compliance.')
 resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
@@ -549,7 +499,7 @@ resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: nic_linux[i].id
+            id: linuxVMNetworkResources.outputs.nics[i].resourceId
           }
         ]
       }
