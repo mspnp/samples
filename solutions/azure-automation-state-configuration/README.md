@@ -22,9 +22,9 @@ az group create --name rg-state-configuration-eastus --location eastus
 Run the following command to initiate the deployment. If you would like to adjust the number of virtual machines deployed, update the *windowsVMCount* and *linuxVMCount* values.
 
 ```bash
-curl -o azuredeploy.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/azuredeploy.bicep
+curl -o main.bicep https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/bicep/main.bicep
 
-az deployment group create --resource-group rg-state-configuration-eastus -f ./azuredeploy.bicep
+az deployment group create --resource-group rg-state-configuration-eastus -f ./main.bicep
 ```
 
 Once complete, click on the **Automation Account** resource and then **State configuration (DSC)** and notice that all virtual machines have been added to the system and are compliant. These machines have all had the PowerShell DSC configuration applied, which has installed a web server on each.
