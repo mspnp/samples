@@ -46,7 +46,7 @@ var logAnalyticsName = 'log-${uniqueString(resourceGroup().id)}-${location}'
 var automationAccountName = 'aa-${uniqueString(resourceGroup().id)}-${location}'
 var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
 var windowsVMName = 'vm-win-${location}'
-var linuxVMname  = 'vm-linux-${location}'
+var linuxVMname = 'vm-linux-${location}'
 
 /*** RESOURCES ***/
 
@@ -134,7 +134,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       name: 'Basic'
     }
   }
-    
+
   @description('Azure Automation module with DSC Resources for Linux')
   resource aa_nx 'modules@2023-05-15-preview' = {
     name: 'nx'
@@ -144,7 +144,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       }
     }
   }
- 
+
   @description('The Automation Account configuration for managing Linux DSC.')
   resource aa_linuxConfiguration 'configurations' = {
     name: linuxConfiguration.name
@@ -158,7 +158,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       }
     }
   }
-  
+
   @description('The Automation Account compilation job for Linux DSC.')
   resource aa_compilationJobsLinuxConfiguration 'compilationjobs' = {
     name: aa_linuxConfiguration.name
@@ -172,7 +172,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
       aa_nx
     ]
   }
-  
+
   @description('The Automation Account configuration for managing Windows DSC.')
   resource aa_windowsConfiguration 'configurations' = {
     name: windowsConfiguration.name
@@ -204,7 +204,7 @@ resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
 
 @description('A diagnostic setting for the Automation Account that emits DSC Node Status logs. It is configured to enable log collection for monitoring and analysis, supporting the creation of saved and scheduled queries for alerting purposes.')
 resource aa_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  scope: aa 
+  scope: aa
   name: 'aa-${la.name}'
   properties: {
     workspaceId: la.id
@@ -217,89 +217,17 @@ resource aa_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01
   }
 }
 
-@description('Network security group to control traffic on the vnet')
-resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
-  name: 'nsg'
-  location: location
-  properties: {
-    securityRules: [
-      {
-        name: 'DenyAllInBound'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '*'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'HTTP'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '80'
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-    ]
-  }
-}
-
-@description('Network Security Group log')
-resource nsg_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  scope: nsg
-  name: 'nsg-${logAnalyticsName}'
-  properties: {
-    workspaceId: la.id
-    logs: [
-      {
-        category: 'NetworkSecurityGroupEvent'
-        enabled: true
-      }
-      {
-        category: 'NetworkSecurityGroupRuleCounter'
-        enabled: true
-      }
-    ]
-  }
-}
-
-@description('Virtual Network')
-resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
-  name: 'vnet'
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
-    }
-    subnets: [
-      {
-        name: 'subnet'
-        properties: {
-          addressPrefix: '10.0.0.0/24'
-          networkSecurityGroup: {
-            id: nsg.id
-          }
-        }
-      }
-    ]
+module network './modules/network.bicep' = {
+  params: {
+    logAnalyticsName: la.name
+    location: location
   }
 }
 
 @description('Create Network Interfaces and Public Ips for Windows VMS')
-module windowsVMNetworkResources 'vmNetworkResources.bicep' ={
-  params:{
-    subnetId: vnet.properties.subnets[0].id
+module windowsVMNetworkResources './modules/vmNetworkResources.bicep' = {
+  params: {
+    subnetId: network.outputs.subnetId
     location: location
     vMCount: windowsVMCount
     identifier: 'windows'
@@ -449,9 +377,9 @@ resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2
 ]
 
 @description('Create Network Interfaces and Public Ips for Linux VMS')
-module linuxVMNetworkResources 'vmNetworkResources.bicep' ={
-  params:{
-    subnetId: vnet.properties.subnets[0].id
+module linuxVMNetworkResources './modules/vmNetworkResources.bicep' = {
+  params: {
+    subnetId: network.outputs.subnetId
     location: location
     vMCount: linuxVMCount
     identifier: 'linux'
@@ -504,7 +432,7 @@ resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
         ]
       }
       securityProfile: {
-         // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+        // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
         encryptionAtHost: false
       }
     }

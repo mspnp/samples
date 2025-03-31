@@ -54,10 +54,14 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = [
 
 /*** OUTPUT ***/
 
-output nics array = [for i in range(0, vMCount): {
-  resourceId: nic[i].id
-}]
+output nics array = [
+  for i in range(0, vMCount): {
+    resourceId: nic[i].id
+  }
+]
 
-output pips array = [for i in range(0, vMCount): {
-  resourceId: pip[i].id
-}]
+output pips array = [
+  for i in range(0, vMCount): {
+    resourceId: pip[i].id
+  }
+]
