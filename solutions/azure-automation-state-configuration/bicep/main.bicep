@@ -43,7 +43,6 @@ param linuxConfiguration object = {
 /*** VARIABLES ***/
 
 var logAnalyticsName = 'log-${uniqueString(resourceGroup().id)}-${location}'
-var automationAccountName = 'aa-${uniqueString(resourceGroup().id)}-${location}'
 var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
 var windowsVMName = 'vm-win-${location}'
 var linuxVMname = 'vm-linux-${location}'
@@ -125,98 +124,17 @@ resource ag_email 'microsoft.insights/actionGroups@2024-10-01-preview' = {
   }
 }
 
-@description('The Automation Account to deliver consistent management across your Azure Windows and Linux Virtual Machines.')
-resource aa 'Microsoft.Automation/automationAccounts@2023-05-15-preview' = {
-  name: automationAccountName
-  location: location
-  properties: {
-    sku: {
-      name: 'Basic'
-    }
-  }
-
-  @description('Azure Automation module with DSC Resources for Linux')
-  resource aa_nx 'modules@2023-05-15-preview' = {
-    name: 'nx'
-    properties: {
-      contentLink: {
-        uri: 'https://devopsgallerystorage.blob.core.windows.net/packages/nx.1.0.0.nupkg'
-      }
-    }
-  }
-
-  @description('The Automation Account configuration for managing Linux DSC.')
-  resource aa_linuxConfiguration 'configurations' = {
-    name: linuxConfiguration.name
+@description('Automation Account creation')
+module automationAccount 'modules/automationAccounts.bicep' = {
+  params:{
+    logAnalyticsName:la.name
+    linuxConfiguration: linuxConfiguration
+    windowsConfiguration: windowsConfiguration
     location: location
-    properties: {
-      logVerbose: false
-      description: linuxConfiguration.description
-      source: {
-        type: 'uri'
-        value: linuxConfiguration.script
-      }
-    }
-  }
-
-  @description('The Automation Account compilation job for Linux DSC.')
-  resource aa_compilationJobsLinuxConfiguration 'compilationjobs' = {
-    name: aa_linuxConfiguration.name
-    location: location
-    properties: {
-      configuration: {
-        name: aa_linuxConfiguration.name
-      }
-    }
-    dependsOn: [
-      aa_nx
-    ]
-  }
-
-  @description('The Automation Account configuration for managing Windows DSC.')
-  resource aa_windowsConfiguration 'configurations' = {
-    name: windowsConfiguration.name
-    location: location
-    properties: {
-      logVerbose: false
-      description: windowsConfiguration.description
-      source: {
-        type: 'uri'
-        value: windowsConfiguration.script
-      }
-    }
-  }
-
-  @description('The Automation Account compilation job for Windows DSC.')
-  resource aa_CompilationJobsWindowsConfiguration 'compilationjobs' = {
-    name: windowsConfiguration.name
-    location: location
-    properties: {
-      configuration: {
-        name: windowsConfiguration.name
-      }
-    }
-    dependsOn: [
-      aa_windowsConfiguration
-    ]
   }
 }
 
-@description('A diagnostic setting for the Automation Account that emits DSC Node Status logs. It is configured to enable log collection for monitoring and analysis, supporting the creation of saved and scheduled queries for alerting purposes.')
-resource aa_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  scope: aa
-  name: 'aa-${la.name}'
-  properties: {
-    workspaceId: la.id
-    logs: [
-      {
-        category: 'DscNodeStatus'
-        enabled: true
-      }
-    ]
-  }
-}
-
+@description('Network creation')
 module network './modules/network.bicep' = {
   params: {
     logAnalyticsName: la.name
@@ -316,7 +234,7 @@ resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2
       autoUpgradeMinorVersion: true
       protectedSettings: {
         Items: {
-          registrationKeyPrivate: listKeys(aa.id, '2019-06-01').Keys[0].value
+          registrationKeyPrivate: automationAccount.outputs.keyValue
         }
       }
       settings: {
@@ -332,7 +250,7 @@ resource vm_powershellDSCWindows 'Microsoft.Compute/virtualMachines/extensions@2
           {
             Name: 'RegistrationUrl'
             #disable-next-line BCP053
-            Value: aa.properties.registrationUrl
+            Value: automationAccount.outputs.registrationURL
             TypeName: 'System.String'
           }
           {
@@ -473,10 +391,10 @@ resource vm_enableDCLExtemsionLinux 'Microsoft.Compute/virtualMachines/extension
         RefreshFrequencyMins: 30
         ConfigurationMode: 'applyAndAutoCorrect'
         ConfigurationModeFrequencyMins: 15
-        RegistrationUrl: aa.properties.registrationUrl
+        RegistrationUrl: automationAccount.outputs.registrationURL
       }
       protectedSettings: {
-        RegistrationKey: listKeys(aa.id, '2019-06-01').Keys[0].value
+        RegistrationKey: automationAccount.outputs.keyValue
       }
     }
   }

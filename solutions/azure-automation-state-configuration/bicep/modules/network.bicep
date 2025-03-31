@@ -8,12 +8,12 @@ param location string = resourceGroup().location
 @description('Log Analytic Workspace where the logs will be sent')
 param logAnalyticsName string
 
+/*** RESOURCES ***/
+
 @description('This Log Analytics workspace stores logs from the regional automation account and the virtual network.')
 resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   name: logAnalyticsName
 }
-
-/*** RESOURCES ***/
 
 @description('Network security group to control traffic on the vnet')
 resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
