@@ -77,6 +77,7 @@
     },
     "resources": [
         {
+            // "This is a storage account for storing data."
             "type": "Microsoft.OperationalInsights/workspaces",
             "apiVersion": "2023-09-01",
             "name": "[variables('logAnalyticsName')]",
@@ -91,6 +92,7 @@
             }
         },
         {
+            // The Log Analytics workspace saved search to monitor Virtual Machines with Non-Compliant DSC status.
             "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
             "apiVersion": "2023-09-01",
             "name": "[concat(variables('logAnalyticsName'), '/91192b47-5f04-4215-a142-1fcb2b1622b1')]",
@@ -105,6 +107,7 @@
             }
         },
         {
+            // The Log Analytics workspace scheduled query rule that trigger alerts based on Virtual Machines with Non-Compliant DSC status.
             "type": "microsoft.insights/scheduledqueryrules",
             "apiVersion": "2024-01-01-preview",
             "name": "non-compliant-dsc",
@@ -139,6 +142,7 @@
             }
         },
         {
+            // The Action Group responsible for sending email notifications when Non-Compliant DSC alerts are triggered.
             "type": "microsoft.insights/actionGroups",
             "apiVersion": "2024-10-01-preview",
             "name": "email-action",
@@ -156,6 +160,7 @@
             }
         },
         {
+            // The Automation Account to deliver consistent management across your Azure Windows and Linux Virtual Machines.
             "name": "[variables('automationAccountName')]",
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2023-05-15-preview",
@@ -167,6 +172,7 @@
             },
             "resources": [
                 {
+                    // Azure Automation module with DSC Resources for Linux
                     "name": "nx",
                     "type": "modules",
                     "apiVersion": "2023-05-15-preview",
@@ -181,6 +187,7 @@
                     }
                 },
                 {
+                    // The Automation Account configuration for managing Linux DSC.
                     "name": "[parameters('linuxConfiguration').name]",
                     "type": "configurations",
                     "apiVersion": "2023-05-15-preview",
@@ -201,6 +208,7 @@
                     }
                 },
                 {
+                    // The Automation Account compilation job for Linux DSC.
                     "name": "[parameters('linuxConfiguration').name]",
                     "type": "compilationjobs",
                     "apiVersion": "2023-05-15-preview",
@@ -218,6 +226,7 @@
                     }
                 },
                 {
+                    // The Automation Account configuration for managing Windows DSC.
                     "name": "[parameters('windowsConfiguration').name]",
                     "type": "configurations",
                     "apiVersion": "2023-05-15-preview",
@@ -238,6 +247,7 @@
                     }
                 },
                 {
+                    // The Automation Account compilation job for Windows DSC.
                     "name": "[parameters('windowsConfiguration').name]",
                     "type": "compilationjobs",
                     "apiVersion": "2023-05-15-preview",
@@ -254,6 +264,7 @@
                     }
                 },
                 {
+                    // A diagnostic setting for the Automation Account that emits DSC Node Status logs. It is configured to enable log collection for monitoring and analysis, supporting the creation of saved and scheduled queries for alerting purposes.
                     "type": "providers/diagnosticSettings",
                     "apiVersion": "2021-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsName'))]",
@@ -274,6 +285,7 @@
             ]
         },
         {
+            // Network security group to control traffic on the vnet
             "comments": "Network security group + rules for spoke network and diagnostic configuration",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2024-05-01",
@@ -311,6 +323,8 @@
             },
             "resources": [
                 {
+                    
+                    // Network Security Group log
                     "type": "providers/diagnosticSettings",
                     "apiVersion": "2021-05-01-preview",
                     "name": "[concat('Microsoft.Insights/default', variables('logAnalyticsName'))]",
@@ -335,6 +349,7 @@
             ]
         },
         {
+            // Virtual Network
             "apiVersion":"2024-05-01",
             "type": "Microsoft.Network/virtualNetworks",
             "name": "[parameters('virtualNetworkName')]",
@@ -351,6 +366,7 @@
             }
         },
         {
+            // Virtual Network subnet
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2024-05-01",
             "name": "[concat(parameters('virtualNetworkName'), '/', parameters('subnetName'))]",
@@ -365,6 +381,7 @@
             }
         },
         {
+            // Public IPs for Window VMs
             "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[concat(variables('windowsPIPName'), copyIndex())]",
@@ -378,6 +395,7 @@
             }
         },
         {
+            // Network Interfaces for Windows VMs
             "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[concat(variables('windowsNicName'), copyIndex())]",
@@ -408,6 +426,7 @@
             }
         },
         {
+            // The Windows VMs managed by DSC. By default, these virtual machines are configured to enforce the desired state using the DSC VM extension, ensuring consistency and compliance.
             "apiVersion": "2024-11-01",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[concat(variables('windowsVMName'), copyIndex())]",
@@ -449,6 +468,7 @@
             }
         },
         {
+            // Windows VM PowerShell DSC extension
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('windowsVMName'), copyIndex(), '/Microsoft.Powershell.DSC')]",
             "apiVersion": "2024-11-01",
@@ -525,6 +545,7 @@
             }
         },
         {
+            // Public IPs for Linux VMs
             "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[concat(variables('linuxPIPName'), copyIndex())]",
@@ -538,6 +559,7 @@
             }
         },
         {
+            // Network Interfaces for Linux VMs
             "apiVersion": "2024-05-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[concat(variables('linuxNicName'), copyIndex())]",
@@ -568,6 +590,7 @@
             }
         },
         {
+            // The Linux VMs managed by DSC. By default, these virtual machines are configured to enforce the desired state using the DSC VM extension, ensuring consistency and compliance.
             "apiVersion": "2024-11-01",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[concat(variables('linuxVMNAme'), copyIndex())]",
@@ -609,6 +632,7 @@
             }
         },
         {
+            // Linux VM DSC extension
             "apiVersion": "2024-11-01",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(variables('linuxVMNAme'), copyIndex(),'/enabledsc')]",
