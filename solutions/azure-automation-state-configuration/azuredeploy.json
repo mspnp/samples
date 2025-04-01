@@ -3,25 +3,43 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminUserName": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+               "description": "The admin user name for both the Windows and Linux virtual machines."
+            }
         },
         "adminPassword": {
-            "type": "securestring"
+            "type": "securestring",
+            "metadata": {
+               "description": "The admin password for both the Windows and Linux virtual machines."
+            }
         },
         "emailAddress": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+               "description": "The email address configured in the Action Group for receiving non-compliance notifications"
+            }
         },
         "windowsVMCount": {
             "type": "int",
-            "defaultValue": 1
+            "defaultValue": 1,
+            "metadata": {
+               "description": "The number of Azure Windows VMs to be deployed as web servers, configured via Desired State Configuration to install IIS."
+            }
         },
         "linuxVMCount": {
             "type": "int",
-            "defaultValue": 1
+            "defaultValue": 1,
+            "metadata": {
+               "description": "The number of Azure Linux VMs to be deployed as web servers, configured via Desired State Configuration to install NGINX."
+            }
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_A4_v2"
+            "defaultValue": "Standard_A4_v2",
+            "metadata": {
+               "description": "The Azure VM size. Defaults to an optimally balanced for general purpose, providing sufficient performance for deploying IIS on Windows and NGINX on Linux in testing environments."
+            }
         },
         "windowsConfiguration": {
             "type": "object",
@@ -29,6 +47,9 @@
                 "name": "windowsfeatures",
                 "description": "A configuration for installing IIS.",
                 "script": "https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/windows-config.ps1"
+            },
+            "metadata": {
+               "description": "The DSC configuration object containing a reference to the script that defines the desired state for Windows VMs. By default, it points to a PowerShell script that installs IIS for testing purposes as desired state of the system."
             }
         },
         "linuxConfiguration": {
@@ -37,27 +58,45 @@
                 "name": "linuxpackage",
                 "description": "A configuration for installing Nginx.",
                 "script": "https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-automation-state-configuration/scripts/linux-config.ps1"
+            },
+            "metadata": {
+               "description": "The DSC configuration object containing a reference to the script that defines the desired state for Linux VMs. By default, it points to a PowerShell script that installs NGINX for testing purposes as desired state of the system."
             }
         },
         "virtualNetworkName": {
             "type": "string",
-            "defaultValue": "virtial-network"
+            "defaultValue": "virtial-network",
+            "metadata": {
+               "description": "The Virtual Network name"
+            }
         },
         "addressPrefix": {
             "type": "string",
-            "defaultValue": "10.0.0.0/16"
+            "defaultValue": "10.0.0.0/16",
+            "metadata": {
+               "description": "The Virtual Network address space"
+            }
         },
         "subnetPrefix": {
             "type": "string",
-            "defaultValue": "10.0.0.0/24"
+            "defaultValue": "10.0.0.0/24",
+            "metadata": {
+               "description": "The Virtual Network subnet address space"
+            }
         },
         "subnetName": {
             "type": "string",
-            "defaultValue": "subnet"
+            "defaultValue": "subnet",
+            "metadata": {
+               "description": "The Virtual Network Subnet name"
+            }
         },
         "location": {
             "type": "string",
-            "defaultValue": "[resourceGroup().location]"
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+               "description": "Azure Virtual Machines, and supporting services (Automation State Configuration) region. This defaults to the resource group's location for higher reliability."
+            }
         }
     },
     "variables": {
