@@ -28,21 +28,21 @@ For detailed information, see the Implement a secure hybrid network:
 
 Clone this repo
 
-```bash
+```azurecli-interactive
 git clone https://github.com/mspnp/samples.git
 cd samples/solutions/secure-hybrid-network
 ```
 
 Run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
 
-```bash
+```azurecli-interactive
 # Resources will be created on deployment region
 az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep  -p mocOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
 ```
 
 ## Solution deployment parameters
 
-**azuredeploy.json**
+**azuredeploy.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
@@ -51,7 +51,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
 
-**nestedtemplates/azure-network-azuredeploy.json**
+**nestedtemplates/azure-network-azuredeploy.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
@@ -70,7 +70,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, fontendName, probeName |
 | location | string | Location to be used for all resources. | rg location |
 
-**nestedtemplates/azure-network-local-gateway.json**
+**nestedtemplates/azure-network-local-gateway.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
@@ -80,7 +80,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | azureNetworkGatewayName | string | Name of the Azure virtual network gateway. | null |
 | localNetworkGatewayName | string |  Name of the Azure local network gateway. | local-gateway-azure-network |
 
-**nestedtemplates/mock-onprem-azuredeploy.json**
+**nestedtemplates/mock-onprem-azuredeploy.bicep**
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
@@ -93,7 +93,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | location | string | Location to be used for all resources. | rg location |
 
-**nestedtemplates/mock-onprem-local-gateway.json**
+**nestedtemplates/mock-onprem-local-gateway.bicep**
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
@@ -107,7 +107,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 
 ## Clean Up
 
-```bash
+```azurecli-interactive
 az group delete --name rg-site-to-site-mock-prem-eastus2 --yes
 az group delete --name rg-site-to-site-azure-network-eastus2 --yes
 ```

@@ -689,7 +689,7 @@ resource nicNameWeb 'Microsoft.Network/networkInterfaces@2023-04-01' = [for i in
     internalLoadBalancerResource]
 }]
 
-resource windowsVM 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in range(0, windowsVMCount): {
+resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in range(0, windowsVMCount): {
   name: '${vmNameWebName}${i}'
   location: location
   identity: {
@@ -738,7 +738,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
   }}]
 
 resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, windowsVMCount): {
-  parent: windowsVM[i]
+  parent: vmNameWeb [i]
   name: 'installIIS'
   location: location
   properties: {
@@ -752,10 +752,9 @@ resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023
   }
 }]
 
-// https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
 resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, windowsVMCount): {
-    parent: windowsVM[i]
-    name: 'AzurePolicyforWindows${windowsVM[i].name}'
+    parent: vmNameWeb[i]
+    name: 'AzurePolicyforWindows${vmNameWeb[i].name}'
     location: location
     properties: {
       publisher: 'Microsoft.GuestConfiguration'
