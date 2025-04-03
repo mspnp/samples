@@ -27,7 +27,8 @@ Where applicable, each resource is configured to send diagnostics to an Azure Lo
 
 For detailed information, see the Azure Hub and Spoke reference architecture in the Azure Architecture Center:
 
-> [!div class="nextstepaction"] > [Hub-spoke network topology in Azure](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
+> [!div class="nextstepaction"] 
+> [Hub-spoke network topology in Azure](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
 
 ## Deploying Azure Virtual Network Manager with Infrastructure-as-Code
 
@@ -52,14 +53,14 @@ Because the PowerShell script runs within the Deployment Script resource, troubl
 
 Clone repository
 
-```bash
+```azurecli-interactive
 git clone https://github.com/mspnp/samples.git
 cd samples/solutions/azure-hub-spoke-connected-group/bicep
 ```
 
 Create a resource group for the deployment.
 
-```bash
+```azurecli-interactive
 az group create --name rg-hub-spoke-eastus --location eastus
 ```
 
@@ -69,7 +70,7 @@ az group create --name rg-hub-spoke-eastus --location eastus
 
 Run the following command to initiate the deployment. If you would like to also deploy this sample with virtual machines and / or an Azure VPN gateway, see the `az deployment group create` examples found later in this document.
 
-```bash
+```azurecli-interactive
 az deployment group create \
     --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep
@@ -82,7 +83,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 | :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind. Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
 | --------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-```bash
+```azurecli-interactive
 az deployment group create \
     --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
@@ -93,7 +94,7 @@ az deployment group create \
 
 Run the following command to initiate the deployment with a virtual network gateway deployed into the hub virtual network. Note, VPN gateways take a significant time to deploy.
 
-```bash
+```azurecli-interactive
 az deployment group create \
     --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
@@ -107,7 +108,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 | :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind. Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
 | --------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-```bash
+```azurecli-interactive
 az deployment group create \
     --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
@@ -139,7 +140,7 @@ Note, this deployment includes optional basic virtual machines. These are not co
 
 ## Step 5: Clean Up
 
-```bash
+```azurecli-interactive
 az group delete --name rg-hub-spoke-eastus --yes
 ```
 
