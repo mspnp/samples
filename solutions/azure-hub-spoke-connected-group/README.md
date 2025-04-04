@@ -124,7 +124,7 @@ az deployment group create \
 | `adminUserName`                       | string       | If deploying virtual machines, the admin user name for both VMs.                                                  | `azureadmin`               |
 | `adminPassword`                       | securestring | If deploying virtual machines, the admin password for both VMs.                                                   | `null`                     |
 | `deployVpnGateway`                    | bool         | If true, a virtual network gateway is deployed into the hub network (+30 min deployment).                         | `false`                    |
-| `deployDefaultDenySecurityAdminRules` | bool         | If false, the Azure Virtual Network Manager security rule collection is left empty                                | `true`                     |
+| `deployDefaultDenySecurityAdminRules` | bool         | If false, the Azure Virtual Network Manager security rule collection is left empty.                               | `true`                     |
 
 ## Diagnostic configurations
 
