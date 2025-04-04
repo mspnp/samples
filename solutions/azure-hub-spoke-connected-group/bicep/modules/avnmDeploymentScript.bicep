@@ -11,7 +11,7 @@ param configType string
 
 // the commit action is idempotent, so re-running the deployment will not cause any issues
 @description('Create a Deployment Script resource to perform the commit/deployment of the Network Manager connectivity configuration.')
-resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: deploymentScriptName
   location: location
   kind: 'AzurePowerShell'

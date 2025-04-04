@@ -27,7 +27,7 @@ Where applicable, each resource is configured to send diagnostics to an Azure Lo
 
 For detailed information, see the Azure Hub and Spoke reference architecture in the Azure Architecture Center:
 
-> [!div class="nextstepaction"]
+> [!div class="nextstepaction"] 
 > [Hub-spoke network topology in Azure](https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke)
 
 ## Deploying Azure Virtual Network Manager with Infrastructure-as-Code
@@ -51,13 +51,20 @@ Because the PowerShell script runs within the Deployment Script resource, troubl
 
 ## Deploy sample
 
+Clone repository
+
+```azurecli-interactive
+git clone https://github.com/mspnp/samples.git
+cd samples/solutions/azure-hub-spoke-connected-group/bicep
+```
+
 Create a resource group for the deployment.
 
 ```azurecli-interactive
-az group create --name hub-spoke --location eastus
+az group create --name rg-hub-spoke-eastus --location eastus
 ```
 
-> The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means  if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
+> The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value that supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
 
 **Basic deployment**
 
@@ -65,21 +72,21 @@ Run the following command to initiate the deployment. If you would like to also 
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json
+    --resource-group rg-hub-spoke-eastus \
+    --template-file main.bicep
 ```
 
 **Deploy with virtual machines**
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a Windows VM deployed to the second spoke network.
 
-| :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind.  Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
-|-----------|:--------------------------|
+| :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind. Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
+| --------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
+    --resource-group rg-hub-spoke-eastus \
+    --template-file main.bicep \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023!
 ```
 
@@ -89,8 +96,8 @@ Run the following command to initiate the deployment with a virtual network gate
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
+    --resource-group rg-hub-spoke-eastus \
+    --template-file main.bicep \
     --parameters deployVpnGateway=true
 ```
 
@@ -98,26 +105,26 @@ az deployment group create \
 
 Run the following command to initiate the deployment with a Linux VM deployed to the first spoke network and a Windows VM deployed to the second spoke network.
 
-| :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind.  Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
-|-----------|:--------------------------|
+| :warning: | This deploys these VMs with basic configuration, they are not Internet facing, but security should always be top of mind. Please update the `adminUsername` and `adminPassword` to a value of your choosing. |
+| --------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ```azurecli-interactive
 az deployment group create \
-    --resource-group hub-spoke \
-    --template-uri https://raw.githubusercontent.com/mspnp/samples/main/solutions/azure-hub-spoke-connected-group/azuredeploy.json \
+    --resource-group rg-hub-spoke-eastus \
+    --template-file main.bicep \
     --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword=Password2023! deployVpnGateway=true
 ```
 
 ## Solution deployment parameters
 
-| Parameter | Type | Description | Default |
-|---|---|---|--|
-| `location` | string | Deployment location. Location must support availability zones. | `resourceGroup().location` | 
-| `deployVirtualMachines` | bool | If true, deploys one basic Linux virtual machine to spoke one and one basic Windows virtual machine to spoke two. | `false` |
-| `adminUserName` | string | If deploying virtual machines, the admin user name for both VMs. | `azureadmin` |
-| `adminPassword` | securestring | If deploying virtual machines, the admin password for both VMs. | `null` |
-| `deployVpnGateway` | bool | If true, a virtual network gateway is deployed into the hub network (+30 min deployment). | `false` |
-| `deployDefaultDenySecurityAdminRules`| bool | If false, the Azure Virtual Network Manager security rule collection is left empty | `true` |
+| Parameter                             | Type         | Description                                                                                                       | Default                    |
+| ------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `location`                            | string       | Deployment location. Location must support availability zones.                                                    | `resourceGroup().location` |
+| `deployVirtualMachines`               | bool         | If true, deploys one basic Linux virtual machine to spoke one and one basic Windows virtual machine to spoke two. | `false`                    |
+| `adminUserName`                       | string       | If deploying virtual machines, the admin user name for both VMs.                                                  | `azureadmin`               |
+| `adminPassword`                       | securestring | If deploying virtual machines, the admin password for both VMs.                                                   | `null`                     |
+| `deployVpnGateway`                    | bool         | If true, a virtual network gateway is deployed into the hub network (+30 min deployment).                         | `false`                    |
+| `deployDefaultDenySecurityAdminRules` | bool         | If false, the Azure Virtual Network Manager security rule collection is left empty.                               | `true`                     |
 
 ## Diagnostic configurations
 
@@ -131,9 +138,11 @@ The following resources are configured to send diagnostic logs to the included L
 
 Note, this deployment includes optional basic virtual machines. These are not configured with a Log Analytics workspace, however, can be with the Log Analytics virtual machine extension for [Windows](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-windows) and [Linux](https://learn.microsoft.com/azure/virtual-machines/extensions/oms-linux).
 
-## Bicep implementation
+## Step 5: Clean Up
 
-The links above use JSON Azure Resource Manager (ARM) templates to support network referencing. The ARM templates were generated from the following [source bicep file](https://github.com/mspnp/samples/blob/main/solutions/azure-hub-spoke/bicep/main.bicep), which has additional comments and considerations.
+```azurecli-interactive
+az group delete --name rg-hub-spoke-eastus --yes
+```
 
 ## Microsoft Open Source Code of Conduct
 

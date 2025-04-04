@@ -10,7 +10,7 @@ param nsgPrivateLinkEndpointsSubnetId string
 @secure()
 param adminPassword string
 
-resource hubNet 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
+resource hubNet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
   name: 'vnet-${location}-hub'
 
   resource azureBastionSubnet 'subnets' existing = {
@@ -18,7 +18,7 @@ resource hubNet 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: 'vnet-${location}-spoke-${spokeName}'
   location: location
   properties: {
@@ -79,7 +79,7 @@ resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-
 }
 
 @description('The private Network Interface Card for the Windows VM in spoke.')
-resource nic 'Microsoft.Network/networkInterfaces@2023-04-01' = if (deployVirtualMachines) {
+resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = if (deployVirtualMachines) {
   name: 'nic-vm-${location}-${spokeName}-ubuntu'
   location: location
   properties: {
@@ -113,9 +113,13 @@ resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-0
 }
 
 @description('A basic Ubuntu Linux virtual machine that will be attached to spoke.')
-resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = if (deployVirtualMachines) {
+resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = if (deployVirtualMachines) {
   name: 'vm-${location}-spoke-${spokeName}-ubuntu'
   location: location
+  identity: {
+    // It is required by the Guest Configuration extension.
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_DS1_v2'
@@ -160,10 +164,36 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = if (deployVirtualMa
       adminPassword: adminPassword
       linuxConfiguration: {
         disablePasswordAuthentication: false
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform'
+        }
         provisionVMAgent: true
       }
     }
+    securityProfile: {
+      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+      encryptionAtHost: false
+    }
     priority: 'Regular'
+  }
+}
+
+// The Guest Configuration extension supports Azure governance at cloud scale, and can be installed after ensuring that a system-assigned identity is added at the VM level. This enable Azure policies to audit and report on configuration settings inside machines.
+@description('Install the Guest Configuration extension for Azure auto-manage machine configuration on top regulatory, security, and operational compliance.')
+resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = {
+  parent: vm
+  name: 'Microsoft.GuestConfiguration'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforLinux' // Use 'ConfigurationforWindows' if it's a Windows VM
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+    settings: {}
+    protectedSettings: {}
   }
 }
 
