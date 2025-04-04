@@ -64,7 +64,7 @@ Create a resource group for the deployment.
 az group create --name rg-hub-spoke-eastus --location eastus
 ```
 
-> The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
+> The location for the deployed resources defaults to the location used for the target resource group. This deployment uses availability zones for all resources that support it, as hub networks are usually business critical. This means if the resource group's location does not support availability zones, you must provide an additional parameter to your chosen command below of `location=value` with a value that supports availability zones. See [Azure regions with availability zones](https://learn.microsoft.com/azure/availability-zones/az-overview#azure-regions-with-availability-zones).
 
 **Basic deployment**
 
