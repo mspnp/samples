@@ -38,7 +38,7 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_A1_v2"
+            "defaultValue": "Standard_DS1_v2"
         },
         "configureSitetosite": {
             "type": "bool",
@@ -96,7 +96,7 @@
             "name": "[parameters('mocOnpremGateway').publicIPAddressName]",
             "location": "[parameters('location')]",
             "properties": {
-                "publicIPAllocationMethod": "Dynamic"
+                "publicIPAllocationMethod": "Static"
             }
         },
         {

@@ -5,7 +5,7 @@ param adminPassword string
 
 @description('The count of Windows virtual machines to create.')
 param windowsVMCount int = 2
-param vmSize string = 'Standard_A1_v2'
+param vmSize string = 'Standard_DS1_v2'
 param configureSitetosite bool = true
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -51,14 +51,12 @@ param internalLoadBalancer object = {
   fontendName: 'lb-frontend'
   probeName: 'lb-probe'
 }
-param location string
+param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
-var peering_name_hub_to_spoke = 'hub-to-spoke'
-var peering_name_spoke_to_hub = 'spoke-to-hub'
 var nicNameWebName = 'nic-web-server'
 var vmNameWebName = 'vm-web-server'
-var windowsOSVersion = '2016-Datacenter'
+var windowsOSVersion = '2022-datacenter-g2'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
@@ -386,15 +384,19 @@ resource spokeNetwork_name_Microsoft_Insights_default_logAnalyticsWorkspace 'Mic
   }
 }
 
-resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-04-01' = if (configureSitetosite) {
+resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (configureSitetosite) {
   name: vpnGateway.publicIPAddressName
   location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: 'Static'
   }
 }
 
-resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = if (configureSitetosite) {
+resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-11-01' = if (configureSitetosite) {
   name: vpnGateway.name
   location: location
   properties: {
@@ -690,6 +692,10 @@ resource nicNameWeb 'Microsoft.Network/networkInterfaces@2023-04-01' = [for i in
 resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in range(0, windowsVMCount): {
   name: '${vmNameWebName}${i}'
   location: location
+  identity: {
+    // It is required by the Guest Configuration extension.
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -698,6 +704,14 @@ resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
       computerName: '${vmNameWebName}${i}'
       adminUsername: adminUserName
       adminPassword: adminPassword
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform'
+        }
+      }
     }
     storageProfile: {
       imageReference: {
@@ -717,10 +731,15 @@ resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
         }
       ]
     }
+    securityProfile: {
+      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+      encryptionAtHost: false
+    }
   }}]
 
 resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWebName}${i}/installIIS'
+  parent: vmNameWeb [i]
+  name: 'installIIS'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'
@@ -731,11 +750,23 @@ resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023
       commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
     }
   }
-  dependsOn: [
-    vmNameWeb[i]
-  ]
 }]
 
+resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' = [for i in range(0, windowsVMCount): {
+    parent: vmNameWeb[i]
+    name: 'AzurePolicyforWindows${vmNameWeb[i].name}'
+    location: location
+    properties: {
+      publisher: 'Microsoft.GuestConfiguration'
+      type: 'ConfigurationforWindows'
+      typeHandlerVersion: '1.0'
+      autoUpgradeMinorVersion: true
+      enableAutomaticUpgrade: true
+      settings: {}
+      protectedSettings: {}
+    }
+  }
+]
 
 output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetwork string = hubNetwork.addressPrefix

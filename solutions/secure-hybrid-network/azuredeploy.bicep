@@ -1,6 +1,6 @@
 targetScope = 'subscription'
-param mocOnPremResourceGroup string = 'site-to-site-mock-prem'
-param azureNetworkResourceGroup string = 'site-to-site-azure-network'
+param mocOnPremResourceGroup string
+param azureNetworkResourceGroup string
 
 @description('The admin user name for both the Windows and Linux virtual machines.')
 param adminUserName string
@@ -8,16 +8,16 @@ param adminUserName string
 @description('The admin password for both the Windows and Linux virtual machines.')
 @secure()
 param adminPassword string
-param resourceGrouplocation string = 'eastus'
+param location string = deployment().location
 
 resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: mocOnPremResourceGroup
-  location: resourceGrouplocation
+  location: location
 }
 
 resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: azureNetworkResourceGroup
-  location: resourceGrouplocation
+  location: location
 }
 
 module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
@@ -26,7 +26,6 @@ module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
-    location: resourceGrouplocation
   }
 }
 
@@ -36,7 +35,6 @@ module azureNetwork 'nestedtemplates/azure-network-azuredeploy.bicep' = {
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
-    location: resourceGrouplocation
   }
 }
 
@@ -48,7 +46,6 @@ module mockOnPremLocalGateway 'nestedtemplates/mock-onprem-local-gateway.bicep' 
     azureCloudVnetPrefix: azureNetwork.outputs.mocOnpremNetwork
     spokeNetworkAddressPrefix: azureNetwork.outputs.spokeNetworkAddressPrefix
     mocOnpremGatewayName: onPremMock.outputs.mocOnpremGatewayName
-    location: resourceGrouplocation
   }
 }
 
@@ -59,6 +56,5 @@ module azureNetworkLocalGateway 'nestedtemplates/azure-network-local-gateway.bic
     azureCloudVnetPrefix: onPremMock.outputs.mocOnpremNetworkPrefix
     gatewayIpAddress: onPremMock.outputs.vpnIp
     azureNetworkGatewayName: azureNetwork.outputs.azureGatewayName
-    location: resourceGrouplocation
   }
 }
