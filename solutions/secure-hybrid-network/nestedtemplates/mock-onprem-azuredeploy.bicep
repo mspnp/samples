@@ -29,7 +29,7 @@ var nicNameWindowsName = 'nic-windows'
 var vmNameWindowsName = 'vm-windows'
 var windowsOSVersion = '2016-Datacenter'
 
-resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: mocOnpremNetwork.name
   location: location
   properties: {
@@ -61,7 +61,7 @@ resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2023-04-01'
   }
 }
 
-resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (configureSitetosite) {
+resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-05-01' = if (configureSitetosite) {
   name: mocOnpremGateway.publicIPAddressName
   location: location
   sku: {
@@ -73,7 +73,7 @@ resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2
   }
 }
 
-resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-11-01' = if (configureSitetosite) {
+resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2024-05-01' = if (configureSitetosite) {
   name: mocOnpremGateway.name
   location: location
   properties: {
@@ -104,7 +104,7 @@ resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023
   }
 }
 
-resource bastionHost_publicIPAddress 'Microsoft.Network/publicIpAddresses@2023-04-01' = {
+resource bastionHost_publicIPAddress 'Microsoft.Network/publicIpAddresses@2024-05-01' = {
   name: bastionHost.publicIPAddressName
   location: location
   sku: {
@@ -115,7 +115,7 @@ resource bastionHost_publicIPAddress 'Microsoft.Network/publicIpAddresses@2023-0
   }
 }
 
-resource bastionHost_nsg 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
+resource bastionHost_nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: bastionHost.nsgName
   location: location
   properties: {
@@ -224,7 +224,7 @@ resource bastionHost_nsg 'Microsoft.Network/networkSecurityGroups@2023-04-01' = 
   }
 }
 
-resource bastionHostResource 'Microsoft.Network/bastionHosts@2023-04-01' = {
+resource bastionHostResource 'Microsoft.Network/bastionHosts@2024-05-01' = {
   name: bastionHost.name
   location: location
   properties: {
@@ -244,7 +244,7 @@ resource bastionHostResource 'Microsoft.Network/bastionHosts@2023-04-01' = {
   }
 }
 
-resource nicNameWindows 'Microsoft.Network/networkInterfaces@2023-04-01' = {
+resource nicNameWindows 'Microsoft.Network/networkInterfaces@2024-05-01' = {
   name: nicNameWindowsName
   location: location
   properties: {
@@ -262,7 +262,7 @@ resource nicNameWindows 'Microsoft.Network/networkInterfaces@2023-04-01' = {
   }
 }
 
-resource windowsVM 'Microsoft.Compute/virtualMachines@2023-03-01' = {
+resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = {
   name: vmNameWindowsName
   location: location
   identity: {
@@ -312,7 +312,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2023-03-01' = {
 }
 
 // https://learn.microsoft.com/azure/virtual-machines/extensions/guest-configuration#bicep-template
-resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2021-03-01' =  {
+resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' =  {
   parent: windowsVM
   name: 'AzurePolicyforWindows${windowsVM.name}'
   location: location

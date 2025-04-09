@@ -5,7 +5,7 @@ param azureNetworkGatewayName string
 param localNetworkGatewayName string = 'local-gateway-azure-network'
 param location string  = resourceGroup().location
 
-resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-04-01' = {
+resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
   name: localNetworkGatewayName
   location: location
   properties: {
@@ -22,7 +22,7 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-04-01'
   }
 }
 
-resource connection 'Microsoft.Network/connections@2023-04-01' = {
+resource connection 'Microsoft.Network/connections@2024-05-01' = {
   name: connectionName
   location: location
   properties: {

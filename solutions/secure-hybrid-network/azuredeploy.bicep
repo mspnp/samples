@@ -1,5 +1,11 @@
 targetScope = 'subscription'
+
+/*** PARAMETERS ***/
+
+@description('The name of the moc on-prem resource group.')
 param mocOnPremResourceGroup string
+
+@description('The name of the Azure network resource group.')
 param azureNetworkResourceGroup string
 
 @description('The admin user name for both the Windows and Linux virtual machines.')
@@ -8,14 +14,19 @@ param adminUserName string
 @description('The admin password for both the Windows and Linux virtual machines.')
 @secure()
 param adminPassword string
+
+@description('Azure Virtual Machines, and supporting services region. This defaults to the resource group\'s location for higher reliability.')
 param location string = deployment().location
 
-resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+
+/*** RESOURCES ***/
+
+resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: mocOnPremResourceGroup
   location: location
 }
 
-resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: azureNetworkResourceGroup
   location: location
 }
