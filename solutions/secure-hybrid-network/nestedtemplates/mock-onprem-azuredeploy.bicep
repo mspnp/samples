@@ -21,7 +21,7 @@ param bastionHost object = {
   publicIPAddressName: 'pip-bastion'
   nsgName: 'nsg-hub-bastion'
 }
-param vmSize string = 'Standard_DS1_v2'
+param vmSize string = 'Standard_A4_v2'
 param configureSitetosite bool = true
 param location string  = resourceGroup().location
 

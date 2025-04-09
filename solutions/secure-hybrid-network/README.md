@@ -58,7 +58,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
 | windowsVMCount | int | The number of load-balanced virtual machines running IIS. | 2 |
-| vmSize | string | Size of the load-balanced virtual machines. | Standard_DS1_v2 |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | hubNetwork | object | Object representing the configuration of the hub network. | name, addressPrefix |
 | spokeNetwork | object | Object representing the configuration of the spoke network. | name, addressPrefix, subnetName, subnetPrefix, subnetNsgName |
@@ -89,7 +89,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | mocOnpremNetwork | object | Object representing the configuration of the mock on-prem network. | name, addressPrefix, mgmt, subnetPrefix |
 | mocOnpremGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
 | bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
-| vmSize | string | Size of the load-balanced virtual machines. | Standard_DS1_v2 |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | location | string | Location to be used for all resources. | rg location |
 
