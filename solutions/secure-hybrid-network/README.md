@@ -47,7 +47,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
 | mocOnPremResourceGroup | string | The name of the moc on-prem resource group. | null |
-| azureNetworkResourceGroup | string | Name of the Azure network resource group. | null |
+| azureNetworkResourceGroup | string | The name of the Azure network resource group. | null |
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
 
