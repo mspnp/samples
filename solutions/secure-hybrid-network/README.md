@@ -26,32 +26,39 @@ For detailed information, see the Implement a secure hybrid network:
 
 ## Deploy sample
 
-Clone this repo and then run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
+Clone this repo
 
 ```azurecli-interactive
-cd solutions/secure-hybrid-network
-az deployment sub create --location eastus --template-file azuredeploy.bicep 
+git clone https://github.com/mspnp/samples.git
+cd samples/solutions/secure-hybrid-network
+```
+
+Run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
+
+```azurecli-interactive
+# Resources will be created on deployment region
+az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep -p mocOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
 ```
 
 ## Solution deployment parameters
 
-**azuredeploy.json**
+**azuredeploy.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
-| mocOnPremResourceGroup | string | Name of the moc on-prem resource group. | site-to-site-mock-prem |
-| azureNetworkResourceGroup | string | Name of the Azure network resource group. | site-to-site-azure-network |
+| mocOnPremResourceGroup | string | The name of the moc on-prem resource group. | null |
+| azureNetworkResourceGroup | string | The name of the Azure network resource group. | null |
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
 
-**nestedtemplates/azure-network-azuredeploy.json**
+**nestedtemplates/azure-network-azuredeploy.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
 | windowsVMCount | int | The number of load-balanced virtual machines running IIS. | 2 |
-| vmSize | string | Size of the load-balanced virtual machines. | Standard_A1_v2 |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | hubNetwork | object | Object representing the configuration of the hub network. | name, addressPrefix |
 | spokeNetwork | object | Object representing the configuration of the spoke network. | name, addressPrefix, subnetName, subnetPrefix, subnetNsgName |
@@ -61,9 +68,9 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | spokeRoutes | object | Object representing user-defined routes for the spoke subnet. | tableName, routeNameFirewall |
 | gatewayRoutes | object | Object representing user-defined routes for the gateway network. | tableName, routeNameFirewall |
 | internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, fontendName, probeName |
-| location | string | Location to be used for all resources. | null |
+| location | string | Location to be used for all resources. | rg location |
 
-**nestedtemplates/azure-network-local-gateway.json**
+**nestedtemplates/azure-network-local-gateway.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
@@ -73,7 +80,7 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | azureNetworkGatewayName | string | Name of the Azure virtual network gateway. | null |
 | localNetworkGatewayName | string |  Name of the Azure local network gateway. | local-gateway-azure-network |
 
-**nestedtemplates/mock-onprem-azuredeploy.json**
+**nestedtemplates/mock-onprem-azuredeploy.bicep**
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
@@ -82,11 +89,11 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | mocOnpremNetwork | object | Object representing the configuration of the mock on-prem network. | name, addressPrefix, mgmt, subnetPrefix |
 | mocOnpremGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
 | bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
-| vmSize | string | Size of the load-balanced virtual machines. | Standard_A1_v2 |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
-| location | string | Location to be used for all resources. | null |
+| location | string | Location to be used for all resources. | rg location |
 
-**nestedtemplates/mock-onprem-local-gateway.json**
+**nestedtemplates/mock-onprem-local-gateway.bicep**
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
@@ -96,7 +103,14 @@ az deployment sub create --location eastus --template-file azuredeploy.bicep
 | gatewayIpAddress | string | Public IP address of the Azure virtual network gateway. | null |
 | mocOnpremGatewayName | string | Name of the mock on-prem local network gateway.  | null |
 | localNetworkGateway | string | Name of the mock on-prem local network gateway. | local-gateway-moc-prem |
-| location | string | Location to be used for all resources. | null |
+| location | string | Location to be used for all resources. | rg location |
+
+## Clean Up
+
+```azurecli-interactive
+az group delete --name rg-site-to-site-mock-prem-eastus2 --yes
+az group delete --name rg-site-to-site-azure-network-eastus2 --yes
+```
 
 ## Microsoft Open Source Code of Conduct
 

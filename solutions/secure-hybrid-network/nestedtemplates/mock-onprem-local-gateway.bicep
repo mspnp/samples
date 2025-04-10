@@ -4,9 +4,9 @@ param spokeNetworkAddressPrefix string
 param gatewayIpAddress string
 param mocOnpremGatewayName string
 param localNetworkGateway string = 'local-gateway-moc-prem'
-param location string
+param location string  = resourceGroup().location
 
-resource localNetworkGateway_resource 'Microsoft.Network/localNetworkGateways@2023-04-01' = {
+resource localNetworkGateway_resource 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
   name: localNetworkGateway
   location: location
   properties: {
@@ -24,7 +24,7 @@ resource localNetworkGateway_resource 'Microsoft.Network/localNetworkGateways@20
   } 
 }
 
-resource connection 'Microsoft.Network/connections@2023-04-01' = {
+resource connection 'Microsoft.Network/connections@2024-05-01' = {
   name: connectionName
   location: location
   properties: {

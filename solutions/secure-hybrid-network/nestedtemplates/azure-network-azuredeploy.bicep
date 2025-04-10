@@ -5,7 +5,7 @@ param adminPassword string
 
 @description('The count of Windows virtual machines to create.')
 param windowsVMCount int = 2
-param vmSize string = 'Standard_A1_v2'
+param vmSize string = 'Standard_A4_v2'
 param configureSitetosite bool = true
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -51,16 +51,14 @@ param internalLoadBalancer object = {
   fontendName: 'lb-frontend'
   probeName: 'lb-probe'
 }
-param location string
+param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
-var peering_name_hub_to_spoke = 'hub-to-spoke'
-var peering_name_spoke_to_hub = 'spoke-to-hub'
 var nicNameWebName = 'nic-web-server'
 var vmNameWebName = 'vm-web-server'
 var windowsOSVersion = '2016-Datacenter'
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
   name: logAnalyticsWorkspaceName
   location: location
   properties: {
@@ -73,7 +71,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
   }
 }
 
-resource gatewayRoutes_table 'Microsoft.Network/routeTables@2023-04-01' = {
+resource gatewayRoutes_table 'Microsoft.Network/routeTables@2024-05-01' = {
   name: gatewayRoutes.tableName
   location: location
   properties: {
@@ -81,7 +79,7 @@ resource gatewayRoutes_table 'Microsoft.Network/routeTables@2023-04-01' = {
   }
 }
 
-resource spokeRoutes_table 'Microsoft.Network/routeTables@2023-04-01' = {
+resource spokeRoutes_table 'Microsoft.Network/routeTables@2024-05-01' = {
   name: spokeRoutes.tableName
   location: location
   properties: {
@@ -89,7 +87,7 @@ resource spokeRoutes_table 'Microsoft.Network/routeTables@2023-04-01' = {
   }
 }
 
-resource bastionHost_nsg 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
+resource bastionHost_nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: bastionHost.nsgName
   location: location
   properties: {
@@ -198,7 +196,7 @@ resource bastionHost_nsg 'Microsoft.Network/networkSecurityGroups@2023-04-01' = 
   }
 }
 
-resource hubNetworkResource 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource hubNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: hubNetwork.name
   location: location
   properties: {
@@ -256,7 +254,7 @@ resource hubNetwork_name_Microsoft_Insights_default_logAnalyticsWorkspace 'Micro
   }
 }
 
-resource spokeNetwork_subnetNsg 'Microsoft.Network/networkSecurityGroups@2023-04-01' = {
+resource spokeNetwork_subnetNsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: spokeNetwork.subnetNsgName
   location: location
   properties: {
@@ -291,7 +289,7 @@ resource spokeNetwork_subnetNsg 'Microsoft.Network/networkSecurityGroups@2023-04
   }
 }
 
-resource spokeNetworkResource 'Microsoft.Network/virtualNetworks@2023-04-01' = {
+resource spokeNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: spokeNetwork.name
   location: location
   properties: {
@@ -335,7 +333,7 @@ resource bastionHost_nsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'M
   }
 }
 
-resource bastionHost_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-04-01' = {
+resource bastionHost_publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: bastionHost.publicIPAddressName
   location: location
   sku: {
@@ -346,7 +344,7 @@ resource bastionHost_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-0
   }
 }
 
-resource bastionHostResource 'Microsoft.Network/bastionHosts@2023-04-01' = {
+resource bastionHostResource 'Microsoft.Network/bastionHosts@2024-05-01' = {
   name: bastionHost.name
   location: location
   properties: {
@@ -386,15 +384,19 @@ resource spokeNetwork_name_Microsoft_Insights_default_logAnalyticsWorkspace 'Mic
   }
 }
 
-resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-04-01' = if (configureSitetosite) {
+resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-05-01' = if (configureSitetosite) {
   name: vpnGateway.publicIPAddressName
   location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'
+  }
   properties: {
-    publicIPAllocationMethod: 'Dynamic'
+    publicIPAllocationMethod: 'Static'
   }
 }
 
-resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2023-04-01' = if (configureSitetosite) {
+resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2024-05-01' = if (configureSitetosite) {
   name: vpnGateway.name
   location: location
   properties: {
@@ -455,7 +457,7 @@ resource vpnGatewayResource_Microsoft_Insights_default_logAnalyticsWorkspace 'Mi
   }
 }
 
-resource azureFirewall_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023-04-01' = {
+resource azureFirewall_publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   name: azureFirewall.publicIPAddressName
   location: location
   sku: {
@@ -466,7 +468,7 @@ resource azureFirewall_publicIPAddress 'Microsoft.Network/publicIPAddresses@2023
   }
 }
 
-resource azureFirewallResource 'Microsoft.Network/azureFirewalls@2023-04-01' = {
+resource azureFirewallResource 'Microsoft.Network/azureFirewalls@2024-05-01' = {
   name: azureFirewall.name
   location: location
   properties: {
@@ -545,7 +547,7 @@ resource azureFirewallResource_Microsoft_Insights_default_logAnalyticsWorkspace 
   }
 }
 
-resource spokeNetwork_subnetNsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2017-05-01-preview' = {
+resource spokeNetwork_subnetNsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2021-05-01-preview' = {
   name: '${spokeNetwork.subnetNsgName}/Microsoft.Insights/default${logAnalyticsWorkspaceName}'
   properties: {
     workspaceId: logAnalyticsWorkspace.id
@@ -566,7 +568,7 @@ resource spokeNetwork_subnetNsgName_Microsoft_Insights_default_logAnalyticsWorks
   ]
 }
 
-resource internalLoadBalancerResource 'Microsoft.Network/loadBalancers@2023-04-01' = {
+resource internalLoadBalancerResource 'Microsoft.Network/loadBalancers@2024-05-01' = {
   name: internalLoadBalancer.name
   location: location
   sku: {
@@ -642,7 +644,7 @@ resource internalLoadBalancer_name_Microsoft_Insights_default_logAnalyticsWorksp
   }
 }
 
-resource gatewayRoutes_tableName_gatewayRoutes_routeNameFirewall 'Microsoft.Network/routeTables/routes@2023-04-01' = {
+resource gatewayRoutes_tableName_gatewayRoutes_routeNameFirewall 'Microsoft.Network/routeTables/routes@2024-05-01' = {
   parent: gatewayRoutes_table
   name: gatewayRoutes.routeNameFirewall
   properties: {
@@ -652,7 +654,7 @@ resource gatewayRoutes_tableName_gatewayRoutes_routeNameFirewall 'Microsoft.Netw
   }
 }
 
-resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/routeTables/routes@2020-07-01' = {
+resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/routeTables/routes@2024-05-01' = {
   parent: spokeRoutes_table
   name: spokeRoutes.routeNameFirewall
   properties: {
@@ -662,7 +664,7 @@ resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/
   }
 }
 
-resource nicNameWeb 'Microsoft.Network/networkInterfaces@2023-04-01' = [for i in range(0, windowsVMCount): {
+resource nicNameWeb 'Microsoft.Network/networkInterfaces@2024-05-01' = [for i in range(0, windowsVMCount): {
   name: '${nicNameWebName}${i}'
   location: location
   properties: {
@@ -687,9 +689,13 @@ resource nicNameWeb 'Microsoft.Network/networkInterfaces@2023-04-01' = [for i in
     internalLoadBalancerResource]
 }]
 
-resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in range(0, windowsVMCount): {
+resource vmNameWeb 'Microsoft.Compute/virtualMachines@2024-11-01' = [for i in range(0, windowsVMCount): {
   name: '${vmNameWebName}${i}'
   location: location
+  identity: {
+    // It is required by the Guest Configuration extension.
+    type: 'SystemAssigned'
+  }
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -698,6 +704,14 @@ resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
       computerName: '${vmNameWebName}${i}'
       adminUsername: adminUserName
       adminPassword: adminPassword
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+        patchSettings: {
+          //Machines should be configured to periodically check for missing system updates
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform'
+        }
+      }
     }
     storageProfile: {
       imageReference: {
@@ -717,10 +731,15 @@ resource vmNameWeb 'Microsoft.Compute/virtualMachines@2023-03-01' = [for i in ra
         }
       ]
     }
+    securityProfile: {
+      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+      encryptionAtHost: false
+    }
   }}]
 
-resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWebName}${i}/installIIS'
+resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [for i in range(0, windowsVMCount): {
+  parent: vmNameWeb [i]
+  name: 'installIIS'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'
@@ -731,11 +750,23 @@ resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2023
       commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
     }
   }
-  dependsOn: [
-    vmNameWeb[i]
-  ]
 }]
 
+resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [for i in range(0, windowsVMCount): {
+    parent: vmNameWeb[i]
+    name: 'AzurePolicyforWindows${vmNameWeb[i].name}'
+    location: location
+    properties: {
+      publisher: 'Microsoft.GuestConfiguration'
+      type: 'ConfigurationforWindows'
+      typeHandlerVersion: '1.0'
+      autoUpgradeMinorVersion: true
+      enableAutomaticUpgrade: true
+      settings: {}
+      protectedSettings: {}
+    }
+  }
+]
 
 output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetwork string = hubNetwork.addressPrefix

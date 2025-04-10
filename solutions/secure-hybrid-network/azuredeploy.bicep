@@ -1,6 +1,12 @@
 targetScope = 'subscription'
-param mocOnPremResourceGroup string = 'site-to-site-mock-prem'
-param azureNetworkResourceGroup string = 'site-to-site-azure-network'
+
+/*** PARAMETERS ***/
+
+@description('The name of the moc on-prem resource group.')
+param mocOnPremResourceGroup string
+
+@description('The name of the Azure network resource group.')
+param azureNetworkResourceGroup string
 
 @description('The admin user name for both the Windows and Linux virtual machines.')
 param adminUserName string
@@ -8,16 +14,21 @@ param adminUserName string
 @description('The admin password for both the Windows and Linux virtual machines.')
 @secure()
 param adminPassword string
-param resourceGrouplocation string = 'eastus'
 
-resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+@description('Azure Virtual Machines, and supporting services region. This defaults to the resource group\'s location for higher reliability.')
+param location string = deployment().location
+
+
+/*** RESOURCES ***/
+
+resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: mocOnPremResourceGroup
-  location: resourceGrouplocation
+  location: location
 }
 
-resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: azureNetworkResourceGroup
-  location: resourceGrouplocation
+  location: location
 }
 
 module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
@@ -26,7 +37,6 @@ module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
-    location: resourceGrouplocation
   }
 }
 
@@ -36,7 +46,6 @@ module azureNetwork 'nestedtemplates/azure-network-azuredeploy.bicep' = {
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
-    location: resourceGrouplocation
   }
 }
 
@@ -48,7 +57,6 @@ module mockOnPremLocalGateway 'nestedtemplates/mock-onprem-local-gateway.bicep' 
     azureCloudVnetPrefix: azureNetwork.outputs.mocOnpremNetwork
     spokeNetworkAddressPrefix: azureNetwork.outputs.spokeNetworkAddressPrefix
     mocOnpremGatewayName: onPremMock.outputs.mocOnpremGatewayName
-    location: resourceGrouplocation
   }
 }
 
@@ -59,6 +67,5 @@ module azureNetworkLocalGateway 'nestedtemplates/azure-network-local-gateway.bic
     azureCloudVnetPrefix: onPremMock.outputs.mocOnpremNetworkPrefix
     gatewayIpAddress: onPremMock.outputs.vpnIp
     azureNetworkGatewayName: azureNetwork.outputs.azureGatewayName
-    location: resourceGrouplocation
   }
 }
