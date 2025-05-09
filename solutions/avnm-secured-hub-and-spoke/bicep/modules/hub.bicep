@@ -1,5 +1,47 @@
 param location string = resourceGroup().location
 
+@description('This Log Analyics Workspace stores logs from the regional hub network, its spokes, and other related resources. Workspaces are regional resource, as such there would be one workspace per hub (region)')
+resource laHub 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: 'la-hub-${location}'
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 90
+    forceCmkForQuery: false
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+    features: {
+      disableLocalAuth: false
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
+    workspaceCapping: {
+      dailyQuotaGb: -1
+    }
+  }
+}
+
+resource laHub_diagnosticsSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: laHub
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
 @description('The regional hub network.')
 resource vnetHub 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: 'vnet-learn-hub-${location}-001'
@@ -28,6 +70,20 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         properties: {
           addressPrefix: '10.0.3.128/25'
         }
+      }
+    ]
+  }
+}
+
+resource vnetHub_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: vnetHub
+  properties: {
+    workspaceId: laHub.id
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
       }
     ]
   }
@@ -85,3 +141,4 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2024-05-01' =  {
 }
 
 output hubVnetId string = vnetHub.id
+output logAnalyticsWorkspaceId string = laHub.id

@@ -1,7 +1,7 @@
 param location string = resourceGroup().location
 param spokeName string
 param spokeVnetPrefix string
-
+param logAnalyticsWorkspaceId string
 param sshKey string
 param adminUsername string = 'admin-avnm'
 
@@ -25,6 +25,20 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   }
 }
 
+resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: vnet
+  name: 'vnet-to-hub-la'
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
 @description('The private Network Interface Card for the Windows VM in spoke.')
 resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
   name: 'nic-learn-prod-${location}-${spokeName}-ubuntu'
@@ -42,6 +56,20 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
       }
     ]
     enableAcceleratedNetworking: true
+  }
+}
+
+resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nic
+  name: 'mic-to-hub-la'
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 

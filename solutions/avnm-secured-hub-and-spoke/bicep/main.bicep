@@ -8,6 +8,8 @@ param sshKey string
 @description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
 
+/*** VARIABLES ***/
+
 var connectivityTopology = 'hubAndSpoke'
 var networkGroupMembershipType = 'dynamic'
 var location = deployment().location
@@ -33,6 +35,7 @@ module spokeA 'modules/spoke.bicep' = {
   name: 'spoke1-resources-deployment-${location}'
   scope: resourceGroup
   params: {
+    logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
     spokeName: '001'
     spokeVnetPrefix: '10.1.0.0/16'
     sshKey: sshKey
@@ -45,6 +48,7 @@ module spokeB 'modules/spoke.bicep' = {
   name: 'spoke2-resources-deployment-${location}'
   scope: resourceGroup
   params: {
+    logAnalyticsWorkspaceId: hub.outputs.logAnalyticsWorkspaceId
     spokeName: '002'
     spokeVnetPrefix: '10.2.0.0/16'
     sshKey: sshKey
