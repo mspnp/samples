@@ -33,7 +33,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   }
 }
 
-resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
+resource snetGateway 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   name: 'GatewaySubnet'
   parent: vnetHub
   properties: {
@@ -57,7 +57,7 @@ resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
 
 @description('The is the regional VPN gateway, configured with basic settings.')
 resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2024-05-01' =  {
-  name: 'gw-learn-hub-${location}-001'
+  name: 'vgw-learn-hub-${location}-001'
   location: location
   properties: {
     sku: {
@@ -76,7 +76,7 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2024-05-01' =  {
             id: pipVpnGateway.id
           }
           subnet: {
-            id: gatewaySubnet.id
+            id: snetGateway.id
           }
         }
       }

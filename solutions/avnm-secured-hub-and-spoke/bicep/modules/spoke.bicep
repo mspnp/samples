@@ -123,7 +123,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
 
 // The Guest Configuration extension supports Azure governance at cloud scale, and can be installed after ensuring that a system-assigned identity is added at the VM level. This enable Azure policies to audit and report on configuration settings inside machines.
 @description('Install the Guest Configuration extension for Azure auto-manage machine configuration on top regulatory, security, and operational compliance.')
-resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = {
+resource vmGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = {
   parent: vm
   name: 'Microsoft.GuestConfiguration'
   location: location

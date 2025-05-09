@@ -54,7 +54,7 @@ module spokeB 'modules/spoke.bicep' = {
 
 /*** Dynamic Membership Policy ***/
 module policy 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType == 'dynamic') {
-  name: 'policy'
+  name: 'policy-${location}'
   scope: subscription()
   params: {
     networkGroupId: avnm.outputs.networkGroupId
@@ -64,7 +64,7 @@ module policy 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType =
 
 /*** AZURE VIRTUAL NETWORK MANAGER RESOURCES ***/
 module avnm 'modules/avnm.bicep' = {
-  name: 'avnm'
+  name: 'avnm-${location}'
   scope: resourceGroup
   params: {
     hubVnetId: hub.outputs.hubVnetId
@@ -77,7 +77,7 @@ module avnm 'modules/avnm.bicep' = {
 // This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
 //
 module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' = {
-  name: 'ds-${location}-connectivityconfigs'
+  name: 'ds-connectivityconfigs-${location}'
   scope: resourceGroup
   dependsOn: [
     policy
@@ -92,7 +92,7 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
 }
 
 module deploymentScriptSecurityConfigs 'modules/avnmDeploymentScript.bicep' = {
-  name: 'ds-${location}-securityadminconfigs'
+  name: 'ds-securityadminconfigs-${location}'
   scope: resourceGroup
   dependsOn: [
     policy
