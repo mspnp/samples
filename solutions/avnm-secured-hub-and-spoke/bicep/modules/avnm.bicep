@@ -3,7 +3,7 @@ param hubVnetId string
 param connectivityTopology string
 
 @description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
-resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
+resource networkManager 'Microsoft.Network/networkManagers@2024-05-01' = {
   name: 'avnm-${location}'
   location: location
   properties: {
@@ -117,7 +117,7 @@ resource DENY_INTERNET_HTTP_HTTPS 'Microsoft.Network/networkManagers/securityAdm
 
 
 @description('This user assigned identity is used by the Deployment Script resource to interact with Azure resources.')
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
   name: 'uai-${location}'
   location: location
 }
