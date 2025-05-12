@@ -1,6 +1,14 @@
+/*** PARAMETERS ***/
+@description('All resources will be deployed to this region.')
 param location string = resourceGroup().location
+
+@description('Hub VNet ID to which the spokes will connect.')
 param hubVnetId string
+
+@description('Connectivity topology to be used for networkManagers Configuration.')
 param connectivityTopology string
+
+/*** RESOURCES ***/
 
 @description('This is the Azure Virtual Network Manager which will be used to implement the connected group for spoke-to-spoke connectivity.')
 resource vnm 'Microsoft.Network/networkManagers@2024-05-01' = {

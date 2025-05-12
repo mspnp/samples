@@ -1,7 +1,12 @@
 targetScope = 'subscription'
 
+/*** PARAMETERS ***/
+@description('network group ID to which the policy will be assigned')
 param networkGroupId string
+@description('resource group name for filtering the policy assignment')
 param resourceGroupName string
+
+/*** RESOURCES ***/
 
 @description('This is a Policy definition for dyanamic group membership')
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2025-01-01' = {

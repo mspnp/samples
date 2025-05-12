@@ -1,4 +1,8 @@
+/*** PARAMETERS ***/
+@description('the location where hub resources will deployed. It includes a Log Analytics Workspace, a VNet, and a VPN Gateway.')
 param location string = resourceGroup().location
+
+/*** RESOURCES ***/
 
 @description('This Log Analyics Workspace stores logs from the regional hub network, its spokes, and other related resources. Workspaces are regional resource, as such there would be one workspace per hub (region)')
 resource laHub 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {

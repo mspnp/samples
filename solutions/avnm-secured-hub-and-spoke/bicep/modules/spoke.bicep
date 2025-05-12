@@ -1,9 +1,24 @@
+/*** PARAMETERS ***/
+
+@description('All resources will be deployed to this region.')
 param location string = resourceGroup().location
+
+@description('Shrot name to identify the spoke.')
 param spokeName string
+
+@description('Vnet address prefix for the spoke.')
 param spokeVnetPrefix string
+
+@description('The Log Analytics Workspace ID to which the spoke will send its logs.')
 param logAnalyticsWorkspaceId string
+
+@description('The public SSH key to be used for the VM in the spoke.')
 param sshKey string
+
+@description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
+
+/*** RESOURCES ***/
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: 'vnet-learn-prod-${location}-${toLower(spokeName)}'
@@ -147,7 +162,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
     priority: 'Regular'
   }
 }
-
 
 // The Guest Configuration extension supports Azure governance at cloud scale, and can be installed after ensuring that a system-assigned identity is added at the VM level. This enable Azure policies to audit and report on configuration settings inside machines.
 @description('Install the Guest Configuration extension for Azure auto-manage machine configuration on top regulatory, security, and operational compliance.')
