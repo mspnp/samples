@@ -108,10 +108,35 @@ resource pipVpnGateway 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
   sku: {
     name: 'Standard'
   }
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
     publicIPAddressVersion: 'IPv4'
+  }
+}
+
+resource pipVpnGateway_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: 'to-hub-la'
+  scope: pipVpnGateway
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
   }
 }
 
@@ -121,12 +146,12 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2024-05-01' =  {
   location: location
   properties: {
     sku: {
-      name: 'VpnGw1'
-      tier: 'VpnGw1'
+      name: 'VpnGw2AZ'
+      tier: 'VpnGw2AZ'
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
-    vpnGatewayGeneration: 'Generation1'
+    vpnGatewayGeneration: 'Generation2'
     ipConfigurations: [
       {
         name: 'default'
@@ -139,6 +164,26 @@ resource vgwHub 'Microsoft.Network/virtualNetworkGateways@2024-05-01' =  {
             id: snetGateway.id
           }
         }
+      }
+    ]
+  }
+}
+
+resource vgwHub_diagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' =  {
+  name: 'to-hub-la'
+  scope: vgwHub
+  properties: {
+    workspaceId: laHub.id
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
       }
     ]
   }
