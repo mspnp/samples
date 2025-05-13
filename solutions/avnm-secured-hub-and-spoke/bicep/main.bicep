@@ -30,7 +30,8 @@ module hub 'modules/hub.bicep' = {
   }
 }
 
-/*** RESOURCES (SPOKE 1) ***/
+/*** RESOURCES (SPOKE) ***/
+
 module spokeA 'modules/spoke.bicep' = {
   name: 'spoke1-resources-deployment-${location}'
   scope: resourceGroup
@@ -40,10 +41,10 @@ module spokeA 'modules/spoke.bicep' = {
     spokeVnetPrefix: '10.1.0.0/16'
     sshKey: sshKey
     adminUsername: adminUsername
+    routeTableId: hub.outputs.routeNextHopToFirewall
   }
 }
 
-/*** RESOURCES (SPOKE 2) ***/
 module spokeB 'modules/spoke.bicep' = {
   name: 'spoke2-resources-deployment-${location}'
   scope: resourceGroup
@@ -53,6 +54,7 @@ module spokeB 'modules/spoke.bicep' = {
     spokeVnetPrefix: '10.2.0.0/16'
     sshKey: sshKey
     adminUsername: adminUsername
+    routeTableId: hub.outputs.routeNextHopToFirewall
   }
 }
 

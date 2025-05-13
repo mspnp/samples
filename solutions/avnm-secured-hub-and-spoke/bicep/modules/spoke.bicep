@@ -18,6 +18,9 @@ param sshKey string
 @description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
 
+@description('The route table ID to define the next hop for the spoke.')
+param routeTableId string
+
 /*** RESOURCES ***/
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
@@ -34,6 +37,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'default'
         properties: {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22', '.1.0/24')
+          routeTable: {
+            id: routeTableId
+          }
         }
       }
     ]
