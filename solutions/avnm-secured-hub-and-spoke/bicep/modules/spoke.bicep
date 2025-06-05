@@ -3,7 +3,7 @@
 @description('All resources will be deployed to this region.')
 param location string = resourceGroup().location
 
-@description('Shrot name to identify the spoke.')
+@description('Short name to identify the spoke.')
 param spokeName string
 
 @description('VNet address prefix for the spoke.')
