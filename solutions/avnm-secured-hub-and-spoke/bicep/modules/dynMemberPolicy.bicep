@@ -3,7 +3,7 @@ targetScope = 'subscription'
 /*** PARAMETERS ***/
 @description('Network group ID to which the policy will be assigned')
 param networkGroupId string
-@description('resource group name for filtering the policy assignment')
+@description('Resource group name for filtering the policy assignment')
 param resourceGroupName string
 
 /*** RESOURCES ***/
