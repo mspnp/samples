@@ -6,7 +6,7 @@ param location string = resourceGroup().location
 @description('Shrot name to identify the spoke.')
 param spokeName string
 
-@description('Vnet address prefix for the spoke.')
+@description('VNet address prefix for the spoke.')
 param spokeVnetPrefix string
 
 @description('The Log Analytics Workspace ID to which the spoke will send its logs.')
