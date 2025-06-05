@@ -1,5 +1,5 @@
 /*** PARAMETERS ***/
-@description('the location where hub resources will deployed. It includes a Log Analytics Workspace, a VNet, and a VPN Gateway.')
+@description('The location where hub resources will deployed. It includes a Log Analytics Workspace, a VNet, and a VPN Gateway.')
 param location string = resourceGroup().location
 
 /*** RESOURCES ***/
