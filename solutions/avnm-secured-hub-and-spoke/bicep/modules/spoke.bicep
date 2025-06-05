@@ -1,9 +1,27 @@
+/*** PARAMETERS ***/
+
+@description('All resources will be deployed to this region.')
 param location string = resourceGroup().location
+
+@description('Short name to identify the spoke.')
 param spokeName string
+
+@description('VNet address prefix for the spoke.')
 param spokeVnetPrefix string
 
+@description('The Log Analytics Workspace ID to which the spoke will send its logs.')
+param logAnalyticsWorkspaceId string
+
+@description('The public SSH key to be used for the VM in the spoke.')
 param sshKey string
+
+@description('Username for the test VMs deployed in the spokes; default: admin-avnm')
 param adminUsername string = 'admin-avnm'
+
+@description('The route table ID to define the next hop for the spoke.')
+param routeTableId string
+
+/*** RESOURCES ***/
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: 'vnet-learn-prod-${location}-${toLower(spokeName)}'
@@ -19,7 +37,24 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'default'
         properties: {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22', '.1.0/24')
+          routeTable: {
+            id: routeTableId
+          }
         }
+      }
+    ]
+  }
+}
+
+resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: vnet
+  name: 'vnet-to-hub-la'
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
       }
     ]
   }
@@ -45,8 +80,22 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
   }
 }
 
+resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: nic
+  name: 'mic-to-hub-la'
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+}
+
 @description('A basic Ubuntu Linux virtual machine that will be attached to spoke.')
-resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
   name: 'vm-learn-prod-${location}-${spokeName}-ubuntu'
   location: location
   identity: {
@@ -120,10 +169,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
   }
 }
 
-
 // The Guest Configuration extension supports Azure governance at cloud scale, and can be installed after ensuring that a system-assigned identity is added at the VM level. This enable Azure policies to audit and report on configuration settings inside machines.
 @description('Install the Guest Configuration extension for Azure auto-manage machine configuration on top regulatory, security, and operational compliance.')
-resource guestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2024-07-01' = {
+resource vmGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = {
   parent: vm
   name: 'Microsoft.GuestConfiguration'
   location: location
