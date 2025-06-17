@@ -4,12 +4,12 @@ languages:
 - azurecli
 products:
 - azure
-description: These Bicep template samples deploy Azure Machine Configuration scenario, compiles PowerShell Desired State Configuration scripts. The template then deploys 1 to many virtual machines (Windows and Linux), which then uses the compiled configurations to install a webserver on each of the virtual machines.
+description: These Bicep template samples deploy Azure Machine Configuration scenario, and it will compile PowerShell Desired State Configuration scripts. Then, the Bicep template deploys 1 to many virtual machines (Windows and Linux), which then uses the compiled configurations to install a webserver on each of the virtual machines.
 ---
 
 # Azure Machine Configuration
 
-This sample deploys an [Azure Machine Configuration](https://learn.microsoft.com/azure/governance/machine-configuration/) scenario, and it will compile PowerShell Desired State Configuration scripts. The Bicep template then deploys 1 to many virtual machines (Windows and Linux), which then uses the compiled configurations to install a webserver on each of the virtual machines.  
+This sample deploys an [Azure Machine Configuration](https://learn.microsoft.com/azure/governance/machine-configuration/) scenario, and it will compile PowerShell Desired State Configuration scripts. Then, the Bicep template deploys 1 to many virtual machines (Windows and Linux), which then uses the compiled configurations to install a webserver on each of the virtual machines.  
 
 Azure Machine Configuration enables you to audit and enforce configuration settings on both Azure and hybrid (Arc-enabled) machines using code. It leverages PowerShell Desired State Configuration (DSC) to define the desired state of a system and ensures compliance through Azure Policy. It supports custom configuration packages and provides detailed compliance reporting through Azure Resource Graph.  
 
@@ -17,107 +17,161 @@ The main difference between Azure Machine Configuration and Azure Automation Sta
 
 ## Deploy bases
 
-  Azure Command-Line Interface is required
-  The repository need to be clone
+  Before you begin, ensure you have the Azure Command-Line Interface (CLI) installed.
+
+  Clone this repository:
+
   ```bash
     git clone https://github.com/mspnp/samples.git
-    cd ./solutions/azure-machine-configuration
+    cd ./samples/solutions/azure-machine-configuration
   ```
 
-### Create a resource group for the deployment.
+### Create a Resource Group
 
 ```bash
   az group create --name rg-machine-configuration-eastus --location eastus
 ```
 
-### Deploy storage Account and User Manage Identity
-To deploy a custom guest configuration policy in Azure, a Storage Account is required to host the .zip package that contains the compiled .mof file, metadata, and any required DSC resources. This storage location allows Azure Policy to access and distribute the configuration package to target machines.  
-Azure Storage requires access via RBAC. This script assigns the necessary roles to the current user to enable file uploads.
+### Deploy Storage Account and User-Assigned Managed Identities
+To deploy a custom guest configuration policy in Azure, you’ll need a Storage Account to host the .zip package containing the compiled .mof file, metadata, and any required DSC resources. This storage location enables Azure Policy to access and distribute the configuration package to target machines.  
+
+Azure Storage access is managed via RBAC. The provided script assigns the necessary roles to the current user to allow file uploads.  
+
+The Bicep template also deploys two User-Assigned Managed Identities:
+
+* Policy VM Identity: Assigned to the virtual machine and policy. It requires Storage Blob Data Reader permissions to download the policy package from the VM.
+* Policy Assignment Identity: Used during policy assignment. It must have Contributor and Guest Configuration Resource Contributor roles. We use Resource Group scope.
 
 ```bash
   CURRENT_USER_OBJECT_ID=$(az ad signed-in-user show -o tsv --query id)
   STORAGE_ACCOUNT_NAME="stpolices$(LC_ALL=C tr -dc 'a-z0-9' < /dev/urandom | fold -w 7 | head -n 1)"
-  az deployment group create --resource-group rg-machine-configuration-eastus --template-file ./bicep/storage_account.bicep  -p storageAccountName=$STORAGE_ACCOUNT_NAME principalId=$CURRENT_USER_OBJECT_ID
+  az deployment group create --resource-group rg-machine-configuration-eastus --template-file ./bicep/guestConfigInfraSetup.bicep  -p storageAccountName=$STORAGE_ACCOUNT_NAME principalId=$CURRENT_USER_OBJECT_ID
 
-  POLICY_USER_ASSIGNED_IDENTITY=$(az deployment group show --resource-group rg-machine-configuration-eastus --name storage_account --query "properties.outputs.policyUserAssignedIdentityId.value" --output tsv)
+  POLICY_DOWNLOAD_USER_ASSIGNED_IDENTITY=$(az deployment group show --resource-group rg-machine-configuration-eastus --name guestConfigInfraSetup --query "properties.outputs.policyDownloadUserAssignedIdentityId.value" --output tsv)
 ```
 
 ## Azure Policy Creation
-Custom policies using DSC in Azure are built on the Guest Configuration framework, which allows administrators to define and enforce configuration baselines across Windows and Linux machines. These policies are authored using PowerShell DSC resources and compiled into MOF (Managed Object Format) files. The process typically involves creating a DSC resource, defining a configuration, compiling it, and packaging it into a ZIP file. This package is then published and assigned as an Azure Policy. Azure Policy evaluates the configuration against the target machines and reports compliance.  
+Custom policies using Desired State Configuration (DSC) in Azure are built on the **Guest Configuration** framework. This framework enables administrators to define and enforce configuration baselines across both Windows and Linux machines.  
 
-It section requires:
-* PowerShell 7 is required for authoring and compiling DSC configurations
-* PSDscResources: This module contains a collection of commonly used DSC resources.
-* GuestConfiguration: This module is used to create and manage guest configuration packages and policies. It includes cmdlets like New-GuestConfigurationPolicy and Get-GuestConfigurationPackageComplianceStatus
-* Az.Resources for commands like New-AzPolicyDefinition, New-AzPolicyAssignment
-* Az.Accounts. Required for authentication and context management. Use Connect-AzAccount and Set-AzContext to authenticate and select the correct subscription 
-* Nxtools module to compile the linux Script
+These policies are authored using PowerShell DSC resources and compiled into MOF (Managed Object Format) files. The typical workflow includes:  
+
+1. Creating a DSC resource.
+2. Defining the configuration.
+3. Compiling it into a MOF file.
+4. Packaging the output into a .zip file.
+5. Publishing and assigning the package as an Azure Policy.  
+
+Once assigned, **Azure Policy** evaluates the configuration on target machines and reports compliance status.  
+
+### Prerequisites
+
+To author and deploy custom guest configuration policies, ensure the following tools and modules are installed:
+
+* **PowerShell 7** – Required for authoring and compiling DSC configurations.
+* **PSDscResources** – A powershell module containing commonly used DSC resources.
+* **GuestConfiguration** – A powershell module which provides cmdlets like New-GuestConfigurationPolicy and Get-GuestConfigurationPackageComplianceStatus to manage guest configuration packages and policies.
+* **Az.Resources** – Required for commands such as New-AzPolicyDefinition and New-AzPolicyAssignment.
+* **Az.Accounts** – Used for authentication and context management. Use Connect-AzAccount and Set-AzContext to authenticate and select the appropriate subscription.
+* **Nxtools** – A powershell module used to compile Linux-based DSC scripts. It is an open-source module to help make managing Linux systems easier for PowerShell users. The module helps in managing common tasks such as: Managing users and groups,Performing file system operations, Managing services, Performing archive operations,Managing packages. The module includes class-based DSC resources for Linux and built-in machine configuration packages.
 
 ```powershell
+  # Navigate to the Scripts Directory
   cd scripts
 ```
 
-### Create mof files
+### Create MOF Files
 
-We have the DSC script for linux and Windows and we are going to execute the PowerShell scripts.
-A MOF file (Managed Object Format) is a compiled output of a PowerShell Desired State Configuration (DSC) script that defines the desired state of a system. It contains the configuration instructions in a standardized format that can be interpreted by the Local Configuration Manager (LCM) on a target machine to enforce or audit system settings.
+This step involves generating **MOF (Managed Object Format)** files from PowerShell DSC scripts for both Linux and Windows environments.  
+
+A MOF file is the compiled output of a PowerShell Desired State Configuration (DSC) script. It defines the desired state of a system in a standardized format that can be interpreted by the Local Configuration Manager (LCM) on a target machine. The LCM uses this file to enforce or audit system settings.  
+
+You can generate the MOF files by running the following scripts:  
 
 ```powershell
   ./linux-config.ps1   # It will generate ./NginxInstall/localhost.mof
   ./windows-config.ps1 # It will generate ./windowsfeatures/localhost.mof
 ```
+Each script compiles its respective configuration and outputs the MOF file into a subdirectory named after the configuration.  
+
 ### Package Configuration 
-The New-GuestConfigurationPackage cmdlet is used to create a guest configuration package from a compiled .mof file, which defines the desired state of a system using PowerShell DSC. This package is then used to audit or enforce configuration compliance on Azure or Arc-enabled machines through Azure Policy.
-The expected output is a .zip package that includes the .mof, metadata, and any required DSC resources, ready to be published and assigned as a custom policy in Azure.
+Once the MOF files are generated, the next step is to package them into a format that Azure Policy can use.  
+
+The New-GuestConfigurationPackage cmdlet is used to create a Guest Configuration package from a compiled .mof file. This package includes:  
+
+* The .mof file (defining the desired system state),
+* Metadata,
+* Any required DSC resources.
+
+The resulting .zip file is ready to be published and assigned as a custom policy in Azure. Once assigned, Azure Policy uses this package to audit or enforce configuration compliance on Azure or Arc-enabled machines.  
+
+Run the following scripts to generate the packages:  
 
 ```powershell
   ./linux-package.ps1   # It will generate ./NginxInstall.zip
   ./windows-package.ps1 # It will generate ./WindowsFeatures.zip
 ```
+Each script packages the corresponding MOF and resources into a ZIP file, preparing it for policy definition and assignment.  
 
-### Upload configurations to Azure Storage
-The package must be published.
+### Upload Configuration to Azure Storage
+Once the configuration packages (.zip files) are created, they must be uploaded to an Azure Storage Account. These packages will be referenced by Azure Policy during assignment and evaluation.  
 
 ```bash
  az storage blob upload --account-name $STORAGE_ACCOUNT_NAME --container-name windowsmachineconfiguration --file ./scripts/NginxInstall.zip --auth-mode login  --overwrite
 
  az storage blob upload --account-name $STORAGE_ACCOUNT_NAME --container-name windowsmachineconfiguration --file ./scripts/WindowsFeatures.zip --auth-mode login  --overwrite
  
+# After uploading, you can construct the URLs to reference these packages in your policy definitions:
 URL_LX_CONTENT="https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/windowsmachineconfiguration/NginxInstall.zip"
 echo $URL_LX_CONTENT
 
 URL_WIN_CONTENT="https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/windowsmachineconfiguration/WindowsFeatures.zip"
 echo $URL_WIN_CONTENT
-```
-### Generate Policies
-On linux-policy.ps1, change the ContentUri for the content of $URL_LX_CONTENT and ManagedIdentityResourceId by $POLICY_USER_ASSIGNED_IDENTITY  
-On windows-policy.ps1, change the ContentUri for the content of $URL_WIN_CONTENT and ManagedIdentityResourceId by $POLICY_USER_ASSIGNED_IDENTITY  
+```  
+
+### Generate and Deploy Policies
+Before generating the policy definitions, make sure to update the following placeholders in the scripts:  
+
+In linux-policy.ps1, replace:  
+* ContentUri with the value of $URL_LX_CONTENT
+* ManagedIdentityResourceId with $POLICY_DOWNLOAD_USER_ASSIGNED_IDENTITY  
+
+In windows-policy.ps1, replace:
+* ContentUri with the value of $URL_WIN_CONTENT
+* ManagedIdentityResourceId with $POLICY_DOWNLOAD_USER_ASSIGNED_IDENTITY  
+
+These values ensure that the policy correctly references the uploaded configuration package and uses the appropriate managed identity for access.  
 
 ```powershell
    # Generate Policy Definition
-  ./linux-policy.ps1   # It will generate the policy definition at .\policies\auditIfNotExists\NginxInstall_DeployIfNotExists.json
-  ./windows-policy.ps1 # It will generate the policy definition at .\policies\auditIfNotExists\WindowsFeatures_DeployIfNotExists.json
+  ./linux-policy.ps1   # Outputs: .\policies\auditIfNotExists\NginxInstall_DeployIfNotExists.json
+  ./windows-policy.ps1 # Outputs: .\policies\auditIfNotExists\WindowsFeatures_DeployIfNotExists.json
 
-  # Deploy Policies
+  # Deploy Policies. Use the Azure CLI to create the policy definitions
   New-AzPolicyDefinition -Name 'nginx-install' -Policy ".\policies\auditIfNotExists\NginxInstall_DeployIfNotExists.json"
   New-AzPolicyDefinition -Name 'IIS-install' -Policy ".\policies\auditIfNotExists\WindowsFeatures_DeployIfNotExists.json"
 ```
+These commands register the custom policies in your Azure environment, making them available for assignment to resource scopes such as subscriptions or resource groups.  
 
 ### Assign Policies
-Assign the policy to work aganst any virtual machine in our resoruce group. 
 
-The Guest Configuration Resource Contributor role is needed to be assigned on the User Assigned Identitty, it allows the identity to:
-* Write guest configuration assignments.  
-* Read and report compliance data from virtual machines.  
-* Deploy the Guest Configuration extension if needed.  
+Once the policy definitions are created, the next step is to assign them to a scope—typically a resource group—so they can evaluate and enforce configuration compliance on virtual machines.  
 
-Contributor Role (optional but common): Grants broad permissions including the ability to create and manage resources, which may be necessary depending on what the policy does.  
+In this example, we assign the policies to all virtual machines within the resource group rg-machine-configuration-eastus.  
 
-This is critical because Azure Policy uses this identity to enforce and monitor the guest configuration on target machines. Without this role, the policy assignment may succeed, but the guest configuration won't be applied or reported correctly.
+The User-Assigned Managed Identity used in the policy assignment must have the following roles:  
+
+* Guest Configuration Resource Contributor (required):
+  * Write guest configuration assignments.
+  * Read and report compliance data from virtual machines.
+  * Deploy the Guest Configuration extension if needed.
+* Contributor (optional but common):
+  Grants broader permissions, including the ability to create and manage resources. This may be necessary depending on the policy’s behavior.
+
+⚠️ Without the proper roles, the policy assignment may succeed, but the guest configuration will not be enforced or reported correctly.
 
 ```powershell
 $ResourceGroup = Get-AzResourceGroup -Name rg-machine-configuration-eastus
-$UserAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName rg-machine-configuration-eastus -Name 'identity-eastus'
+$UserAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName rg-machine-configuration-eastus -Name 'id-policy-assigment-eastus'
 
 $policyDefinitionNginxInstall = Get-AzPolicyDefinition -Name 'nginx-install'
 New-AzPolicyAssignment -Name 'nginx-install' -DisplayName "nginx-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionNginxInstall -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
@@ -131,40 +185,45 @@ cd..
 
 ## Deploy sample
 
-Run the following command to initiate the deployment. If you would like to adjust the number of virtual machines deployed, update the *windowsVMCount* and *linuxVMCount* values.  
+Run the following command to initiate the deployment. You can customize the number of virtual machines by modifying the windowsVMCount and linuxVMCount parameters in the Bicep template.  
 
-To apply policies using Azure Machine Configuration, the virtual machine must have the Guest Configuration extension installed and be enabled with a system-assigned managed identity, which allows it to authenticate and interact securely with the configuration service to download and enforce policy assignments.  
-
-To successfully download the Desired State Configuration (DSC), the virtual machine must be assigned the policy user-assigned managed identity that has the Storage Blob Data Reader role.
+To apply policies using Azure Machine Configuration, each virtual machine must meet the following requirements:  
+* Guest Configuration extension must be installed.
+* System-assigned managed identity must be enabled to allow secure authentication with the configuration service.
+* The VM must be assigned the user-assigned managed identity used in the policy, which must have the Storage Blob Data Reader role.This allows the VM to download the Desired State Configuration (DSC) package from Azure Storage.
 
 ```bash
-az deployment group create --resource-group rg-machine-configuration-eastus -f ./bicep/main.bicep -p policyUserAssignedIdentityId=$POLICY_USER_ASSIGNED_IDENTITY
+az deployment group create --resource-group rg-machine-configuration-eastus -f ./bicep/main.bicep -p policyUserAssignedIdentityId=$POLICY_DOWNLOAD_USER_ASSIGNED_IDENTITY
 ```
 ## Check Policy download
-The solution has Azure Bastion deployed. You can log in to the Azure VM and inspect the Guest Extension.
 
-Here where are the [client Guest Configuration log](https://learn.microsoft.com/azure/governance/machine-configuration/overview#client-log-files) file for more details.  
+To verify that the guest configuration policy has been successfully downloaded and applied, you can inspect the virtual machine using Azure Bastion, which is deployed as part of this solution. Use Azure Bastion to securely connect to the virtual machine without exposing public IPs.
+
+Here where the [client Guest Configuration log](https://learn.microsoft.com/azure/governance/machine-configuration/overview#client-log-files) files are for more details.  
 
 Within the GuestConfig/Configuration folder, you should find the downloaded policies.   
 
 ## Monitoring 
-Each virtual machine includes visibility into the Azure Policies applied to it, along with its current compliance status, enabling users to track and manage configuration adherence effectively.  
+Azure provides built-in visibility into policy compliance at both the virtual machine and policy levels, enabling you to track and manage configuration adherence effectively.  
 
-![Image of Azure Policies compliant on a VM as seen in the Azure portal.](./images/VMPolicies.png)  
+Each virtual machine displays the Azure Policies applied to it, along with its current compliance status. This allows you to verify whether the guest configuration has been successfully enforced. The policies could take some time to be evaluated and remediated.
+![Image of Azure Policies compliant on a Windows VM as seen in the Azure portal.](./images/VMPolicies.png)  
+![Image of Azure Policies compliant on a Linux VM as seen in the Azure portal.](./images/VMPoliciesLinux.png)  
 
-It is possible view the general compliant situation on Policies  
+You can also view the overall compliance status from the Azure Policy blade. This view provides a summary of all policy definitions and their assignments, helping you assess compliance across your environment. 
 
 ![Image of Azure Policies compliant on Policy View as seen in the Azure portal.](./images/ComplianceFromPolicies.png)  
 
-In this view is possible to see our Policies definition and assigments  
+You can inspect the details of your custom policy definitions and their corresponding assignments.
 
 ![Image of Azure Policies Definition.](./images/PolicyDefinition.png)   
 ![Image of Azure Policies Assigment.](./images/PolicyAssigment.png)  
 
 
-It could take hours to detect the issue, remediate and be complaint. After that you could check using the VM public ip and call it in a browser.  
+Once compliance is confirmed, you can test the result by accessing the virtual machine using its public IP address—for example, by opening a browser and navigating to the expected service endpoint. 
 
-![Checking Compliant situation](./images/Checking.png)  
+![Checking Windows Compliant situation](./images/Checking.png)  
+![Checking Linux Compliant situation](./images/CheckingLinux.png)  
 
 
 ## Solution deployment parameters
@@ -179,12 +238,14 @@ It could take hours to detect the issue, remediate and be complaint. After that 
 | location | string | Deployment location. | resourceGroup().location |
 
 ## Clean Up
+Once you're done testing or demonstrating the solution, you can remove all deployed resources to avoid unnecessary costs and maintain a clean environment.
 
 ```bash
+# This command deletes the entire resource group and all associated resources, including virtual machines, identities, storage accounts, and Azure Bastion
 az group delete -n rg-machine-configuration-eastus  -y
 
+# Remove the custom policy definitions created for the guest configuration
 az policy definition delete --name nginx-install
-
 az policy definition delete --name IIS-install
 
 ```

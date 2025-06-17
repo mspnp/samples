@@ -99,47 +99,47 @@ resource blobContributorUploadStorage 'Microsoft.Authorization/roleAssignments@2
   }
 }
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
-  name: 'identity-${location}'
+resource policyAssigmentUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
+  name: 'id-policy-assigment-${location}'
   location: location
 }
 
-resource policyUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
-  name: 'id-policy-${location}'
+resource policyDownloadUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
+  name: 'id-policy-download-${location}'
   location: location
 }
 
 resource contributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(userAssignedIdentity.id, 'contributor-role')
+  name: guid(policyAssigmentUserAssignedIdentity.id, 'contributor-role')
   scope: resourceGroup()
   properties: {
     roleDefinitionId: contributorRole.id
-    principalId: userAssignedIdentity.properties.principalId
+    principalId: policyAssigmentUserAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
 resource guestConfigRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(userAssignedIdentity.id, 'guest-config-role')
+  name: guid(policyAssigmentUserAssignedIdentity.id, 'guest-config-role')
   scope: resourceGroup()
   properties: {
     roleDefinitionId: guestConfigurationResourceContributorRole.id
-    principalId: userAssignedIdentity.properties.principalId
+    principalId: policyAssigmentUserAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
 resource storageBlobDataReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(policyUserAssignedIdentity.id, 'storageBlobDataReaderRole')
+  name: guid(policyDownloadUserAssignedIdentity.id, 'storageBlobDataReaderRole')
   scope: storageAccount::blobContainers::uploadsContainer
   properties: {
     roleDefinitionId: storageBlobDataReaderRole.id
-    principalId: policyUserAssignedIdentity.properties.principalId
+    principalId: policyDownloadUserAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
 output storageAccountName string = storageAccount.name
 output containerName string = 'windowsmachineconfiguration'
-output userAssignedIdentityId string = userAssignedIdentity.id 
-output policyUserAssignedIdentityId string = policyUserAssignedIdentity.id
+output policyAssigmentUserAssignedIdentityId string = policyAssigmentUserAssignedIdentity.id
+output policyDownloadUserAssignedIdentityId string = policyDownloadUserAssignedIdentity.id
