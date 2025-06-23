@@ -12,8 +12,8 @@ param adminUserName string = 'user-admin'
 @description('The admin password for both the Windows and Linux virtual machines.')
 param adminPassword string
 
-// @description('The email address configured in the Action Group for receiving non-compliance notifications.')
-// param emailAddress string
+@description('The email address configured in the Action Group for receiving non-compliance notifications.')
+param emailAddress string
 
 @description('The number of Azure Windows VMs to be deployed as web servers, configured via Desired State Configuration to install IIS.')
 @minValue(0)
@@ -32,10 +32,20 @@ param policyUserAssignedIdentityId string
 /*** VARIABLES ***/
 
 var logAnalyticsName = 'log-${uniqueString(resourceGroup().id)}-${location}'
-var alertQuery = 'AzureDiagnostics\n| where Category == "DscNodeStatus"\n| where ResultType == "Failed"'
+var rawAlertQuery = '''
+arg("").PolicyResources
+| where resourceGroup == 'resourceGroupName'
+| where type == 'microsoft.policyinsights/policystates'
+| extend complianceState = properties.complianceState
+| where complianceState == 'NonCompliant'
+| extend policyAssignmentName = properties.policyAssignmentName
+| where policyAssignmentName == 'nginx-install-assigment' or policyAssignmentName == 'IIS-install-assigment'
+| extend resourceId = properties.resourceId
+| project resourceId
+'''
 var windowsVMName = 'vm-win-${location}'
 var linuxVMname = 'vm-linux-${location}'
-
+var alertQuery = replace(rawAlertQuery, 'resourceGroupName', resourceGroup().name)
 /*** RESOURCES ***/
 
 @description('This Log Analytics workspace stores logs from the regional automation account and the virtual network.')
@@ -62,56 +72,62 @@ resource la 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   }
 }
 
-// @description('The Log Analytics workspace scheduled query rule that trigger alerts based on Virtual Machines with Non-Compliant DSC status.')
-// resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
-//   name: 'la-nonCompliantDsc'
-//   location: location
-//   properties: {
-//     severity: 3
-//     enabled: true
-//     evaluationFrequency: 'PT5M'
-//     scopes: [
-//       la.id
-//     ]
-//     windowSize: 'PT5M'
-//     criteria: {
-//       allOf: [
-//         {
-//           query: alertQuery
-//           timeAggregation: 'Count'
-//           operator: 'GreaterThan'
-//           threshold: 0
-//           failingPeriods: {
-//             numberOfEvaluationPeriods: 1
-//             minFailingPeriodsToAlert: 1
-//           }
-//         }
-//       ]
-//     }
-//     actions: {
-//       actionGroups: [
-//         ag_email.id
-//       ]
-//     }
-//   }
-// }
+@description('The Log Analytics workspace scheduled query rule that trigger alerts based on Virtual Machines with Non-Compliant DSC status.')
+resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-preview' = {
+  name: 'la-nonCompliantDsc'
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    severity: 3
+    enabled: true
+    evaluationFrequency: 'PT5M'
+    scopes: [
+      la.id
+    ]
+    windowSize: 'PT5M'
+    criteria: {
+      allOf: [
+        {
+          query: alertQuery
+          timeAggregation: 'Count'
+          operator: 'GreaterThan'
+          threshold: 0
+          failingPeriods: {
+            numberOfEvaluationPeriods: 1
+            minFailingPeriodsToAlert: 1
+          }
+        }
+      ]
+    }
+    actions: {
+      actionGroups: [
+        ag_email.id
+      ]
+    }
+  }
+  dependsOn: [
+    la::la_savedSearches
+  ]
+}
 
-// @description('The Action Group responsible for sending email notifications when Non-Compliant DSC alerts are triggered.')
-// resource ag_email 'microsoft.insights/actionGroups@2024-10-01-preview' = {
-//   name: 'ag-email'
-//   location: 'Global'
-//   properties: {
-//     groupShortName: 'emailService'
-//     enabled: true
-//     emailReceivers: [
-//       {
-//         name: 'emailAction'
-//         emailAddress: emailAddress
-//         useCommonAlertSchema: false
-//       }
-//     ]
-//   }
-// }
+@description('The Action Group responsible for sending email notifications when Non-Compliant DSC alerts are triggered.')
+resource ag_email 'microsoft.insights/actionGroups@2024-10-01-preview' = {
+  name: 'ag-email'
+  location: 'Global'
+  properties: {
+    groupShortName: 'emailService'
+    enabled: true
+    emailReceivers: [
+      {
+        name: 'emailAction'
+        emailAddress: emailAddress
+        useCommonAlertSchema: false
+      }
+    ]
+  }
+}
 
 @description('Network creation')
 module network './modules/network.bicep' = {

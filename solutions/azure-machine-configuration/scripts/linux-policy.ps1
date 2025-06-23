@@ -1,7 +1,7 @@
 $myguid = [guid]::NewGuid()
 $PolicyConfig      = @{
   PolicyId      = $myguid 
-  ContentUri    = 'https://<st_name>.blob.core.windows.net/windowsmachineconfiguration/NginxInstall.zip'
+  ContentUri    = 'https://<st_name>.blob.core.windows.net/azuremachineconfiguration/NginxInstall.zip'
   DisplayName   = 'Enable Nginx on Linux VMs'
   Description   = 'Enable Nginx on Linux VMs'
   Path          = './policies/auditIfNotExists'
