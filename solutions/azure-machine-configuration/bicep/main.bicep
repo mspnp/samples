@@ -109,6 +109,8 @@ resource la_nonCompliantDsc 'microsoft.insights/scheduledqueryrules@2024-01-01-p
   }
   dependsOn: [
     la::la_savedSearches
+    vm_windows
+    vm_linux
   ]
 }
 
@@ -303,3 +305,5 @@ resource vm_guestConfigExtensionLinux 'Microsoft.Compute/virtualMachines/extensi
     }
   }
 ]
+
+output alertSystemObjectId string = la_nonCompliantDsc.identity.principalId

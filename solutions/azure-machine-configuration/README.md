@@ -17,7 +17,7 @@ The main difference between Azure Machine Configuration and Azure Automation Sta
 
 ## Deploy bases
 
-  Before you begin, ensure you have the Azure Command-Line Interface (CLI) installed.
+  Before you begin, ensure you have the Azure Command-Line Interface (CLI) installed. You also need permissions to assign roles at the subscription level.
 
   Clone this repository:
 
@@ -180,10 +180,10 @@ $ResourceGroup = Get-AzResourceGroup -Name rg-machine-configuration-eastus
 $UserAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName rg-machine-configuration-eastus -Name 'id-policy-assigment-eastus'
 
 $policyDefinitionNginxInstall = Get-AzPolicyDefinition -Name 'nginx-install'
-New-AzPolicyAssignment -Name 'nginx-install' -DisplayName "nginx-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionNginxInstall -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
+New-AzPolicyAssignment -Name 'nginx-install-assigment' -DisplayName "nginx-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionNginxInstall -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
 
 $policyDefinitionWin = Get-AzPolicyDefinition -Name 'IIS-install'
-New-AzPolicyAssignment -Name 'IIS-install' -DisplayName "IIS-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionWin -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
+New-AzPolicyAssignment -Name 'IIS-install-assigment' -DisplayName "IIS-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionWin -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
 
 # Go back to root folder
 cd ..
@@ -201,6 +201,33 @@ To apply policies using Azure Machine Configuration, each virtual machine must m
 ```bash
 az deployment group create --resource-group rg-machine-configuration-eastus -f ./bicep/main.bicep -p policyUserAssignedIdentityId=$POLICY_DOWNLOAD_USER_ASSIGNED_IDENTITY
 ```
+
+To query policy compliance data using Azure Resource Graph, the identity executing the query must have the Reader role assigned at the subscription level. This is because Azure Resource Graph aggregates and exposes resource and compliance information across the entire subscription, and accessing this data requires read permissions. Assigning the Reader role ensures the identity can retrieve policy states, compliance results, and other metadata necessary for auditing and reporting, without granting permissions to modify resources.
+The Bicep template defines an alert based on an Azure Graph Resource query. In order to execute that query, it needs to have the Reader role at the subscription level.
+
+```bash
+ALERT_SYSTEM_OBJECT_ID=$(az deployment group show --resource-group rg-machine-configuration-eastus --name main --query "properties.outputs.alertSystemObjectId.value" --output tsv)
+SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+az role assignment create --assignee $ALERT_SYSTEM_OBJECT_ID --role Reader --scope /subscriptions/$SUBSCRIPTION_ID
+```
+
+## Create Remediation Tasks
+
+After assigning the policies, you can create remediation tasks to proactively trigger policy compliance evaluation and remediation on existing resources. Remediation tasks help ensure that non-compliant resources are brought into compliance more quickly, rather than waiting for the next scheduled policy evaluation cycle.
+
+To create remediation tasks for the two policy assignments, use the following commands:
+
+```powershell
+# Get the policy assignments
+$nginxPolicyAssignment = Get-AzPolicyAssignment -Name 'nginx-install-assigment' -Scope $ResourceGroup.ResourceId
+$windowsPolicyAssignment = Get-AzPolicyAssignment -Name 'IIS-install-assigment' -Scope $ResourceGroup.ResourceId
+
+# Create remediation tasks for each policy assignment
+Start-AzPolicyRemediation -Name 'nginx-remediation' -PolicyAssignmentId $nginxPolicyAssignment.Id -ResourceGroupName 'rg-machine-configuration-eastus'
+Start-AzPolicyRemediation -Name 'iis-remediation' -PolicyAssignmentId $windowsPolicyAssignment.Id -ResourceGroupName 'rg-machine-configuration-eastus'
+```
+
+Remediation tasks instruct Azure Policy to immediately scan the targeted resources and, if necessary, deploy the Guest Configuration extension or apply the configuration package to bring resources into compliance. This accelerates the application of your policies, ensuring that configuration changes are enforced without delay.
 
 ## Check Policy downloaded
 
@@ -232,6 +259,30 @@ Once compliance is confirmed, you can test the result by accessing the virtual m
 
 ![Checking Windows Compliant situation](./images/Checking.png)  
 ![Checking Linux Compliant situation](./images/CheckingLinux.png)  
+
+If compliance is not detected, an alert will be raised and you will receive an email. 
+
+![Alert](./images/AlertEmail.png)  
+
+### Querying Policy Compliance with Azure Resource Graph
+
+Azure Policy compliance data can be queried using [Azure Resource Graph](https://learn.microsoft.com/azure/governance/policy/samples/resource-graph-samples), which enables you to explore and analyze policy states at scale across your environment. The [Resource Graph Explorer](https://learn.microsoft.com/azure/governance/resource-graph/first-query-portal) in the Azure portal provides an interactive interface to run Kusto Query Language (KQL) queries against your Azure resources, including policy assignments, compliance results, and non-compliant resources. This allows you to quickly identify compliance issues, generate reports, and gain insights into your policy landscape.
+
+When creating alerts based on Resource Graph queries, it's important to note that these alerts are managed through a Log Analytics workspace. To run Resource Graph queries from within a Log Analytics workspace, you must use the `arg("")` function. This function allows you to embed an Azure Resource Graph query inside the Log Analytics query editor, enabling cross-resource querying and integration with Azure Monitor alerts. Without `arg("")`, the Log Analytics workspace cannot directly access Resource Graph data. Therefore, to create an alert that monitors policy compliance using Resource Graph, you need to have a Log Analytics workspace and structure your query using `arg("")` to retrieve the relevant compliance information.
+
+For example, in the Log Analytics workspace query editor, you can use:
+
+```kusto
+  arg("").PolicyResources
+  | where resourceGroup == 'rg-machine-configuration-eastus'
+  | where type == 'microsoft.policyinsights/policystates'
+  | extend complianceState = properties.complianceState
+  | extend policyAssignmentName = properties.policyAssignmentName
+  | where policyAssignmentName == 'nginx-install-assigment' or policyAssignmentName == 'IIS-install-assigment'
+  | extend resourceId = properties.resourceId
+  | project policyAssignmentName, complianceState, resourceId
+```
+You can also create alerts based on Resource Graph queries to proactively monitor policy compliance. By following the guidance in [Resource Graph alert samples](https://learn.microsoft.com/azure/governance/resource-graph/samples/alerts-samples), you can define a query that identifies non-compliant resources and configure an Azure Monitor alert to trigger when the query returns results. This enables automated notifications or remediation actions whenever policy violations are detected, helping you maintain compliance and respond quickly to configuration drift.
 
 ## Solution deployment parameters
 
