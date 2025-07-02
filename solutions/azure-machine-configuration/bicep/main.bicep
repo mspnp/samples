@@ -139,7 +139,7 @@ module network './modules/network.bicep' = {
   }
 }
 
-@description('Create Network Interfaces and Public Ips for Windows VMS')
+@description('Create Network Interfaces and Public IPs for Windows VMs')
 module windowsVMNetworkResources './modules/vmNetworkResources.bicep' = {
   params: {
     subnetId: network.outputs.subnetId
