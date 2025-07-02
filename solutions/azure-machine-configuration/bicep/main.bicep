@@ -256,7 +256,7 @@ resource vm_linux 'Microsoft.Compute/virtualMachines@2024-11-01' = [
           patchSettings: {
             //Machines should be configured to periodically check for missing system updates
             assessmentMode: 'AutomaticByPlatform'
-            patchMode: 'AutomaticByPlatform '
+            patchMode: 'AutomaticByPlatform'
           }
           disablePasswordAuthentication: false
           provisionVMAgent: true
