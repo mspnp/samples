@@ -222,7 +222,7 @@ resource vm_guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/exten
   }
 ]
 
-@description('Create Network Interfaces and Public Ips for Linux VMS')
+@description('Create Network Interfaces and Public IPs for Linux VMs')
 module linuxVMNetworkResources './modules/vmNetworkResources.bicep' = {
   params: {
     subnetId: network.outputs.subnetId
