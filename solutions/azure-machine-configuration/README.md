@@ -171,7 +171,7 @@ The User-Assigned Managed Identity used in the policy assignment must have the f
   * Read and report compliance data from virtual machines.
   * Deploy the Guest Configuration extension if needed.
 * Contributor (optional but common):
-  Grants broader permissions, including the ability to create and manage resources. This may be necessary depending on the policy’s behavior.
+  * Grants broader permissions, including the ability to create and manage resources. This may be necessary depending on the policy’s behavior.
 
 > ⚠️ **Warning:** Without the proper roles, the policy assignment may succeed, but the guest configuration will not be enforced or reported correctly.
 
