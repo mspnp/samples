@@ -177,13 +177,13 @@ The User-Assigned Managed Identity used in the policy assignment must have the f
 
 ```powershell
 $ResourceGroup = Get-AzResourceGroup -Name rg-machine-configuration-eastus
-$UserAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName rg-machine-configuration-eastus -Name 'id-policy-assigment-eastus'
+$UserAssignedIdentity = Get-AzUserAssignedIdentity -ResourceGroupName rg-machine-configuration-eastus -Name 'id-policy-assignment-eastus'
 
 $policyDefinitionNginxInstall = Get-AzPolicyDefinition -Name 'nginx-install'
-New-AzPolicyAssignment -Name 'nginx-install-assigment' -DisplayName "nginx-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionNginxInstall -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
+New-AzPolicyAssignment -Name 'nginx-install-assignment' -DisplayName "nginx-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionNginxInstall -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
 
 $policyDefinitionWin = Get-AzPolicyDefinition -Name 'IIS-install'
-New-AzPolicyAssignment -Name 'IIS-install-assigment' -DisplayName "IIS-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionWin -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
+New-AzPolicyAssignment -Name 'IIS-install-assignment' -DisplayName "IIS-install Assignment" -Scope $ResourceGroup.ResourceId  -PolicyDefinition $policyDefinitionWin -Location 'eastus' -IdentityType 'UserAssigned' -IdentityId $UserAssignedIdentity.Id
 
 # Go back to root folder
 cd ..
@@ -219,8 +219,8 @@ To create remediation tasks for the two policy assignments, use the following co
 
 ```powershell
 # Get the policy assignments
-$nginxPolicyAssignment = Get-AzPolicyAssignment -Name 'nginx-install-assigment' -Scope $ResourceGroup.ResourceId
-$windowsPolicyAssignment = Get-AzPolicyAssignment -Name 'IIS-install-assigment' -Scope $ResourceGroup.ResourceId
+$nginxPolicyAssignment = Get-AzPolicyAssignment -Name 'nginx-install-assignment' -Scope $ResourceGroup.ResourceId
+$windowsPolicyAssignment = Get-AzPolicyAssignment -Name 'IIS-install-assignment' -Scope $ResourceGroup.ResourceId
 
 # Create remediation tasks for each policy assignment
 Start-AzPolicyRemediation -Name 'nginx-remediation' -PolicyAssignmentId $nginxPolicyAssignment.Id -ResourceGroupName 'rg-machine-configuration-eastus'
@@ -253,7 +253,7 @@ You can also view the overall compliance status from the Azure Policy blade. Thi
 You can inspect the details of your custom policy definitions and their corresponding assignments.
 
 ![Image of Azure Policies Definition.](./images/PolicyDefinition.png)   
-![Image of Azure Policies Assignment.](./images/PolicyAssigment.png)  
+![Image of Azure Policies Assignment.](./images/PolicyAssignment.png)  
 
 Once compliance is confirmed, you can test the result by accessing the virtual machine using its public IP address—for example, by opening a browser and navigating to the expected service endpoint. 
 
@@ -278,7 +278,7 @@ For example, in the Log Analytics workspace query editor, you can use:
   | where type == 'microsoft.policyinsights/policystates'
   | extend complianceState = properties.complianceState
   | extend policyAssignmentName = properties.policyAssignmentName
-  | where policyAssignmentName == 'nginx-install-assigment' or policyAssignmentName == 'IIS-install-assigment'
+  | where policyAssignmentName == 'nginx-install-assignment' or policyAssignmentName == 'IIS-install-assignment'
   | extend resourceId = properties.resourceId
   | project policyAssignmentName, complianceState, resourceId
 ```

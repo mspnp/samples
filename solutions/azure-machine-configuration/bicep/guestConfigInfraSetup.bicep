@@ -99,8 +99,8 @@ resource blobContributorUploadStorage 'Microsoft.Authorization/roleAssignments@2
   }
 }
 
-resource policyAssigmentUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
-  name: 'id-policy-assigment-${location}'
+resource policyAssignmentUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
+  name: 'id-policy-assignment-${location}'
   location: location
 }
 
@@ -110,21 +110,21 @@ resource policyDownloadUserAssignedIdentity 'Microsoft.ManagedIdentity/userAssig
 }
 
 resource contributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(policyAssigmentUserAssignedIdentity.id, 'contributor-role')
+  name: guid(policyAssignmentUserAssignedIdentity.id, 'contributor-role')
   scope: resourceGroup()
   properties: {
     roleDefinitionId: contributorRole.id
-    principalId: policyAssigmentUserAssignedIdentity.properties.principalId
+    principalId: policyAssignmentUserAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
 resource guestConfigRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(policyAssigmentUserAssignedIdentity.id, 'guest-config-role')
+  name: guid(policyAssignmentUserAssignedIdentity.id, 'guest-config-role')
   scope: resourceGroup()
   properties: {
     roleDefinitionId: guestConfigurationResourceContributorRole.id
-    principalId: policyAssigmentUserAssignedIdentity.properties.principalId
+    principalId: policyAssignmentUserAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -141,5 +141,5 @@ resource storageBlobDataReaderRoleAssignment 'Microsoft.Authorization/roleAssign
 
 output storageAccountName string = storageAccount.name
 output containerName string = 'azuremachineconfiguration'
-output policyAssigmentUserAssignedIdentityId string = policyAssigmentUserAssignedIdentity.id
+output policyAssignmentUserAssignedIdentityId string = policyAssignmentUserAssignedIdentity.id
 output policyDownloadUserAssignedIdentityId string = policyDownloadUserAssignedIdentity.id

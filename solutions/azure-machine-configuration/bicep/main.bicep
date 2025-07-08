@@ -39,7 +39,7 @@ arg("").PolicyResources
 | extend complianceState = properties.complianceState
 | where complianceState == 'NonCompliant'
 | extend policyAssignmentName = properties.policyAssignmentName
-| where policyAssignmentName == 'nginx-install-assigment' or policyAssignmentName == 'IIS-install-assigment'
+| where policyAssignmentName == 'nginx-install-assignment' or policyAssignmentName == 'IIS-install-assignment'
 | extend resourceId = properties.resourceId
 | project resourceId
 '''
