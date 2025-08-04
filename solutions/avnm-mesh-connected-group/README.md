@@ -51,8 +51,8 @@ az deployment sub create --template-file main.bicep -n avnm-mesh-connected-group
 
 | Parameter                    | Type   | Description                                                                                                       | Default                    |
 | ---------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `location`                   | string | Deployment location. Location must support availability zones.                                                    | `resourceGroup().location` |
-| `deployVirtualMachines`      | bool   | If true, deploys one basic Linux virtual machine to spoke one and one basic Windows virtual machine to spoke two. | `false`                    |
+| `resourceGroupName`          | string | The resource group name where the AVNM and VNET resources will be created                                         |  null                      |
+| `location`                   | string | Deployment location. Location must support availability zones.                                                    | `deployment().location`    |
 | `networkGroupMembershipType` | string | Specify either 'static' or 'dynamic' network group membership. Default: 'static'                                  | `false`                    |
 
 ## Clean up
