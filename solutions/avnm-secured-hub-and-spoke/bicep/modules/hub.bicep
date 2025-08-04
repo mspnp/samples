@@ -61,18 +61,21 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'AzureFirewallSubnet'
         properties: {
           addressPrefix: '10.0.3.0/26'
+          defaultOutboundAccess: false
         }
       }
       {
         name: 'AzureFirewallManagementSubnet'
         properties: {
           addressPrefix: '10.0.3.64/26'
+          defaultOutboundAccess: false
         }
       }
       {
         name: 'default'
         properties: {
           addressPrefix: '10.0.3.128/25'
+          defaultOutboundAccess: false
         }
       }
     ]
