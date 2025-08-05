@@ -244,7 +244,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'AzureBastionSubnet'
         properties: {
           addressPrefix: '10.0.1.0/26'
-          defaultOutboundAccess: false
+          defaultOutboundAccess: true
           networkSecurityGroup: {
             id: nsgBastionSubnet.id
           }
