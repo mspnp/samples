@@ -37,6 +37,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'default'
         properties: {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22', '.1.0/24')
+          defaultOutboundAccess: false
           routeTable: {
             id: routeTableId
           }
