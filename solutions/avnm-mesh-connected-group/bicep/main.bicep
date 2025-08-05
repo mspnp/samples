@@ -20,7 +20,7 @@ param location string = deployment().location
 param networkGroupMembershipType string = 'static'
 
 /*** RESOURCE GROUP ***/
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2024-07-01' = {
   name: resourceGroupName
   location: location
 }
@@ -28,7 +28,7 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
 /*** RESOURCES (HUB) ***/
 
 module hub 'modules/hub.bicep' = {
-  name: 'vnet-hub'
+  name: 'vnet-hub-${location}'
   scope: resourceGroup
   params: {
   }
@@ -36,7 +36,7 @@ module hub 'modules/hub.bicep' = {
 
 /*** RESOURCES (SPOKE A) ***/
 module spokeA 'modules/spoke.bicep' = {
-  name: 'spoke001'
+  name: 'spoke001-${location}'
   scope: resourceGroup
   params: {
     spokeName: 'spoke001'
@@ -46,7 +46,7 @@ module spokeA 'modules/spoke.bicep' = {
 
 /*** RESOURCES (SPOKE B) ***/
 module spokeB 'modules/spoke.bicep' = {
-  name: 'spoke002'
+  name: 'spoke002-${location}'
   scope: resourceGroup
   params: {
     spokeName: 'spoke002'
@@ -56,7 +56,7 @@ module spokeB 'modules/spoke.bicep' = {
 
 /*** RESOURCES (SPOKE C) ***/
 module spokeC 'modules/spoke.bicep' = {
-  name: 'spoke003'
+  name: 'spoke003-${location}'
   scope: resourceGroup
   params: {
     spokeName: 'spoke003'
@@ -66,7 +66,7 @@ module spokeC 'modules/spoke.bicep' = {
 
 /*** RESOURCES (SPOKE D) - this VNET is left out of the Connected Group ***/
 module spokeD 'modules/spoke.bicep' = {
-  name: 'spoke004'
+  name: 'spoke004-${location}'
   scope: resourceGroup
   params: {
     spokeName: 'spoke004'
@@ -76,7 +76,7 @@ module spokeD 'modules/spoke.bicep' = {
 
 /*** Dynamic Membership Policy ***/
 module policy 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType == 'dynamic') {
-  name: 'policy'
+  name: 'policy-${location}'
   scope: subscription()
   params: {
     networkGroupId: avnm.outputs.networkGroupId
@@ -86,7 +86,7 @@ module policy 'modules/dynMemberPolicy.bicep' = if (networkGroupMembershipType =
 
 /*** AZURE VIRTUAL NETWORK MANAGER RESOURCES ***/
 module avnm 'modules/avnm.bicep' = {
-  name: 'avnm'
+  name: 'avnm-${location}'
   scope: resourceGroup
   params: {
     hubVnetId: hub.outputs.hubVnetId
@@ -105,7 +105,7 @@ module avnm 'modules/avnm.bicep' = {
 // This DeploymentScript resource executes a PowerShell script which calls the /commit endpoint and monitors the status of the deployment.
 //
 module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' = {
-  name: 'ds-${location}-connectivityconfigs'
+  name: 'ds-connectivityconfigs-${location}'
   scope: resourceGroup
   dependsOn: [
     policy
@@ -116,7 +116,7 @@ module deploymentScriptConnectivityConfigs 'modules/avnmDeploymentScript.bicep' 
     configurationId: avnm.outputs.connectivityConfigurationId
     configType: 'Connectivity'
     networkManagerName: avnm.outputs.networkManagerName
-    deploymentScriptName: 'ds-${location}-connectivityconfigs'
+    deploymentScriptName: 'ds-connectivityconfigs-${location}'
   }
 }
 

@@ -11,7 +11,7 @@ var groupedVNETs = [
 ]
 
 @description('This is the Azure Virtual Network Manager which will be used to implement the connected group for inter-vnet connectivity.')
-resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
+resource networkManager 'Microsoft.Network/networkManagers@2024-07-01' = {
   name: 'vnm-learn-prod-${location}-001'
   location: location
   properties: {
@@ -28,7 +28,7 @@ resource networkManager 'Microsoft.Network/networkManagers@2022-09-01' = {
 }
 
 @description('This is the static network group for all VNETs')
-resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'static') {
+resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@2024-07-01' = if (networkGroupMembershipType == 'static') {
   name: 'ng-learn-prod-${location}-static001'
   parent: networkManager
   properties: {
@@ -36,7 +36,7 @@ resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@202
   }
 
   // add spoke vnets A, B, and C to the static network group
-  resource staticMemberSpoke 'staticMembers@2022-09-01' = [for spokeMember in spokeNetworkGroupMembers: if (contains(groupedVNETs,last(split(spokeMember,'/')))) {
+  resource staticMemberSpoke 'staticMembers@2024-07-01' = [for spokeMember in spokeNetworkGroupMembers: if (contains(groupedVNETs,last(split(spokeMember,'/')))) {
     name: 'sm-${(last(split(spokeMember, '/')))}'
     properties: {
       resourceId: spokeMember
@@ -44,7 +44,7 @@ resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@202
   }]
 
   // add hub to mesh
-  resource staticMemberHub 'staticMembers@2022-09-01' = {
+  resource staticMemberHub 'staticMembers@2024-07-01' = {
     name: 'sm-${(toLower(last(split(hubVnetId, '/'))))}'
     properties: {
       resourceId: hubVnetId
@@ -53,7 +53,7 @@ resource networkGroupStatic 'Microsoft.Network/networkManagers/networkGroups@202
 }
 
 @description('This is the dynamic group for all VNETs.')
-resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@2022-09-01' = if (networkGroupMembershipType == 'dynamic') {
+resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@2024-07-01' = if (networkGroupMembershipType == 'dynamic') {
   name: 'ng-learn-prod-${location}-dynamic001'
   parent: networkManager
   properties: {
@@ -71,7 +71,7 @@ resource networkGroupDynamic 'Microsoft.Network/networkManagers/networkGroups@20
 // Default   Active   0.0.0.0/0                    Internet
 // ...
 @description('This connectivity configuration defines the connectivity between VNETs using Direct Connection. The hub will be part of the mesh, but gateway routes from the hub will not propagate to spokes.')
-resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-09-01' = {
+resource connectivityConfigurationMesh 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-07-01' = {
   name: 'cc-learn-prod-${location}-mesh001'
   parent: networkManager
   properties: {

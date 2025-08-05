@@ -1,7 +1,7 @@
 param location string = resourceGroup().location
 
 @description('The regional hub network.')
-resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+resource vnetHub 'Microsoft.Network/virtualNetworks@2024-07-01' = {
   name: 'vnet-learn-prod-${location}-hub001'
   location: location
   // add tag to include hub vnet in the connected group mesh only when connectivity topology is 'mesh'
@@ -19,30 +19,35 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2022-01-01' = {
         name: 'AzureBastionSubnet'
         properties: {
           addressPrefix: '10.0.1.0/26'
+          defaultOutboundAccess: false
         }
       }
       {
         name: 'GatewaySubnet'
         properties: {
-          addressPrefix: '10.0.2.0/27'
+          addressPrefix: '10.0.2.0/27'          
+          defaultOutboundAccess: false
         }
       }
       {
         name: 'AzureFirewallSubnet'
         properties: {
-          addressPrefix: '10.0.3.0/26'
+          addressPrefix: '10.0.3.0/26'          
+          defaultOutboundAccess: false
         }
       }
       {
         name: 'AzureFirewallManagementSubnet'
         properties: {
-          addressPrefix: '10.0.3.64/26'
+          addressPrefix: '10.0.3.64/26'          
+          defaultOutboundAccess: false
         }
       }
       {
         name: 'default'
         properties: {
-          addressPrefix: '10.0.3.128/25'
+          addressPrefix: '10.0.3.128/25'          
+          defaultOutboundAccess: false
         }
       }
     ]
