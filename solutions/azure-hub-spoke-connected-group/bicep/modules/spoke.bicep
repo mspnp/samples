@@ -32,6 +32,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'snet-resources'
         properties: {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22','.0.0/24')
+          defaultOutboundAccess: false
           privateEndpointNetworkPolicies: 'Disabled'
           privateLinkServiceNetworkPolicies: 'Disabled'
           networkSecurityGroup: {
@@ -46,6 +47,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: 'snet-privatelinkendpoints'
         properties: {
           addressPrefix: replace(spokeVnetPrefix, '.0.0/22','.1.0/26')
+          defaultOutboundAccess: false
           privateEndpointNetworkPolicies: 'Enabled'
           privateLinkServiceNetworkPolicies: 'Enabled'
           networkSecurityGroup: {
