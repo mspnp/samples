@@ -210,6 +210,7 @@ resource hubNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: vpnGateway.subnetName
         properties: {
           addressPrefix: vpnGateway.subnetPrefix
+          defaultOutboundAccess: false
           routeTable: {
             id: gatewayRoutes_table.id
           }
@@ -219,6 +220,7 @@ resource hubNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: azureFirewall.subnetName
         properties: {
           addressPrefix: azureFirewall.subnetPrefix
+          defaultOutboundAccess: false
         }
       }
       {
@@ -303,6 +305,7 @@ resource spokeNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
         name: spokeNetwork.subnetName
         properties: {
           addressPrefix: spokeNetwork.addressPrefix
+          defaultOutboundAccess: false
           networkSecurityGroup: {
             id: spokeNetwork_subnetNsg.id
           }
