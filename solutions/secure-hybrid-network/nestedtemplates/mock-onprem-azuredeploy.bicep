@@ -42,12 +42,14 @@ resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01'
       {
         name: mocOnpremNetwork.subnetName
         properties: {
+          defaultOutboundAccess: false
           addressPrefix: mocOnpremNetwork.subnetPrefix
         }
       }
       {
         name: mocOnpremGateway.subnetName
         properties: {
+          defaultOutboundAccess: false
           addressPrefix: mocOnpremGateway.subnetPrefix
         }
       }
