@@ -22,7 +22,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     }
   }
   properties: {
-    azPowerShellVersion: '8.3'
+    azPowerShellVersion: '11.0'
     retentionInterval: 'PT1H'
     timeout: 'PT1H'
     arguments: '-networkManagerName "${networkManagerName}" -targetLocations ${location} -configIds ${configurationIds} -subscriptionId ${subscription().subscriptionId} -configType ${configType} -resourceGroupName ${resourceGroup().name}'

@@ -207,9 +207,7 @@ resource nsgPrivateLinkEndpointsSubnet 'Microsoft.Network/networkSecurityGroups@
 /*** RESOURCES (SPOKE ONE) ***/
 module spokenonprod1 'modules/spoke.bicep' = {
   name: 'spokenonprod1'
-  dependsOn: [
-    hub // hub vnets must be deployed before spoke vnets for nsg rules
-  ]
+  // hub vnets must be deployed before spoke vnets for nsg rules. Implicit dependency.
   scope: resourceGroup()
   params: {
     location: location
@@ -228,9 +226,7 @@ module spokenonprod1 'modules/spoke.bicep' = {
 /*** RESOURCES (SPOKE TWO) ***/
 module spokenonprod2 'modules/spoke.bicep' = {
   name: 'spokenonprod2'
-  dependsOn: [
-    hub // hub vnets must be deployed before spoke vnets for nsg rules
-  ]
+  // hub vnets must be deployed before spoke vnets for nsg rules. Implicit dependency.
   scope: resourceGroup()
   params: {
     location: location
@@ -249,9 +245,7 @@ module spokenonprod2 'modules/spoke.bicep' = {
 /*** RESOURCES (SPOKE THREE) ***/
 module spokeprod1 'modules/spoke.bicep' = {
   name: 'spokeprod1'
-  dependsOn: [
-    hub // hub vnets must be deployed before spoke vnets for nsg rules
-  ]
+  // hub vnets must be deployed before spoke vnets for nsg rules. Implicit dependency.
   scope: resourceGroup()
   params: {
     location: location
@@ -270,9 +264,7 @@ module spokeprod1 'modules/spoke.bicep' = {
 /*** RESOURCES (SPOKE FOUR) ***/
 module spokeprod2 'modules/spoke.bicep' = {
   name: 'spokeprod2'
-  dependsOn: [
-    hub // hub vnets must be deployed before spoke vnets for nsg rules
-  ]
+  // hub vnets must be deployed before spoke vnets for nsg rules. Implicit dependency.
   scope: resourceGroup()
   params: {
     location: location
