@@ -1241,7 +1241,7 @@ resource vmSpokeTwoWindows 'Microsoft.Compute/virtualMachines@2023-03-01' = if (
       imageReference: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        sku: '2022-datacenter-azure-edition'
+        sku: '2025-datacenter-azure-edition'
         version: 'latest'
       }
       dataDisks: []
@@ -1271,8 +1271,8 @@ resource vmSpokeTwoWindows 'Microsoft.Compute/virtualMachines@2023-03-01' = if (
         enableAutomaticUpdates: true
         provisionVMAgent: true
         patchSettings: {
-          patchMode: 'AutomaticByOS'
-          assessmentMode: 'ImageDefault'
+          patchMode: 'AutomaticByPlatform'
+          assessmentMode: 'AutomaticByPlatform'
         }
       }
     }
