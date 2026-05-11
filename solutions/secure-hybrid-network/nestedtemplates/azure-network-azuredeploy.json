@@ -100,8 +100,6 @@
         "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
-        "nicNameWeb": "nic-web-server",
-        "vmNameWeb": "vm-web-server",
         "windowsOSVersion": "2022-datacenter-g2"
     },
     "resources": [
@@ -732,101 +730,6 @@
                     }
                 }
             ]
-        },
-        {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(variables('nicNameWeb'), copyIndex())]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
-                "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name)]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
-                            },
-                            "loadBalancerBackendAddressPools": [
-                                {
-                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').backendName)]"
-                                }
-                            ]
-                        }
-                    }
-                ]
-            },
-            "copy": {
-                "name": "niccopy",
-                "count": "[parameters('windowsVMCount')]"
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
-            "name": "[concat(variables('vmNameWeb'), copyIndex())]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat(variables('nicNameWeb'), copyIndex())]"
-            ],
-            "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[parameters('vmSize')]"
-                },
-                "osProfile": {
-                    "computerName": "[concat(variables('vmNameWeb'), copyIndex())]",
-                    "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]"
-                },
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "MicrosoftWindowsServer",
-                        "offer": "WindowsServer",
-                        "sku": "[variables('windowsOSVersion')]",
-                        "version": "latest"
-                    },
-                    "osDisk": {
-                        "createOption": "FromImage"
-                    }
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicNameWeb'), copyIndex()))]"
-                        }
-                    ]
-                }
-            },
-            "resources": [
-                {
-
-                    "type": "extensions",
-                    "apiVersion": "2019-12-01",
-                    "name": "installIIS",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vmNameWeb'), copyIndex()))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.7",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "commandToExecute": "powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools"
-                        }
-                    }
-
-                }
-            ],
-            "copy": {
-                "name": "vmcopy",
-                "count": "[parameters('windowsVMCount')]"
-            }
         },
         {
             "comments": "Route / force tunnel from spokes to Azure firewall",

@@ -54,8 +54,6 @@ param internalLoadBalancer object = {
 param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
-var nicNameWebName = 'nic-web-server'
-var vmNameWebName = 'vm-web-server'
 var windowsOSVersion = '2016-Datacenter'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
@@ -666,110 +664,6 @@ resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/
     nextHopIpAddress: reference(azureFirewallResource.id, '2020-05-01').ipConfigurations[0].properties.privateIpAddress
   }
 }
-
-resource nicNameWeb 'Microsoft.Network/networkInterfaces@2024-05-01' = [for i in range(0, windowsVMCount): {
-  name: '${nicNameWebName}${i}'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', spokeNetworkResource.name, spokeNetwork.subnetName)
-          }
-          loadBalancerBackendAddressPools: [
-            {
-              id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', internalLoadBalancer.name, internalLoadBalancer.backendName)
-            }
-          ]
-        }
-      }
-    ]
-  }
-  dependsOn:[
-    internalLoadBalancerResource]
-}]
-
-resource vmNameWeb 'Microsoft.Compute/virtualMachines@2024-11-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWebName}${i}'
-  location: location
-  identity: {
-    // It is required by the Guest Configuration extension.
-    type: 'SystemAssigned'
-  }
-  properties: {
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: '${vmNameWebName}${i}'
-      adminUsername: adminUserName
-      adminPassword: adminPassword
-      windowsConfiguration: {
-        enableAutomaticUpdates: true
-        patchSettings: {
-          //Machines should be configured to periodically check for missing system updates
-          assessmentMode: 'AutomaticByPlatform'
-          patchMode: 'AutomaticByPlatform'
-        }
-      }
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: windowsOSVersion
-        version: 'latest'
-      }
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: nicNameWeb[i].id
-        }
-      ]
-    }
-    securityProfile: {
-      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
-      encryptionAtHost: false
-    }
-  }}]
-
-resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [for i in range(0, windowsVMCount): {
-  parent: vmNameWeb [i]
-  name: 'installIIS'
-  location: location
-  properties: {
-    publisher: 'Microsoft.Compute'
-    type: 'CustomScriptExtension'
-    typeHandlerVersion: '1.7'
-    autoUpgradeMinorVersion: true
-    settings: {
-      commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
-    }
-  }
-}]
-
-resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [for i in range(0, windowsVMCount): {
-    parent: vmNameWeb[i]
-    name: 'AzurePolicyforWindows${vmNameWeb[i].name}'
-    location: location
-    properties: {
-      publisher: 'Microsoft.GuestConfiguration'
-      type: 'ConfigurationforWindows'
-      typeHandlerVersion: '1.0'
-      autoUpgradeMinorVersion: true
-      enableAutomaticUpgrade: true
-      settings: {}
-      protectedSettings: {}
-    }
-  }
-]
 
 output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetwork string = hubNetwork.addressPrefix
