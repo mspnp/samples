@@ -4,6 +4,10 @@ param spokeNetworkAddressPrefix string
 param gatewayIpAddress string
 param mocOnpremGatewayName string
 param localNetworkGateway string = 'local-gateway-moc-prem'
+
+@secure()
+param sharedKey string
+
 param location string  = resourceGroup().location
 
 resource localNetworkGateway_resource 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
@@ -39,7 +43,7 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
     connectionType: 'IPsec'
     connectionProtocol: 'IKEv2'
     routingWeight: 100
-    sharedKey: '123secret'
+    sharedKey: sharedKey
     enableBgp: false
     useLocalAzureIpAddress: false
     usePolicyBasedTrafficSelectors: false

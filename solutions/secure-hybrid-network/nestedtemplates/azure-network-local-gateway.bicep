@@ -3,6 +3,10 @@ param gatewayIpAddress string
 param azureCloudVnetPrefix string
 param azureNetworkGatewayName string
 param localNetworkGatewayName string = 'local-gateway-azure-network'
+
+@secure()
+param sharedKey string
+
 param location string  = resourceGroup().location
 
 resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
@@ -37,7 +41,7 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
     connectionType: 'IPsec'
     connectionProtocol: 'IKEv2'
     routingWeight: 100
-    sharedKey: '123secret'
+    sharedKey: sharedKey
     enableBgp: false
     useLocalAzureIpAddress: false
     usePolicyBasedTrafficSelectors: false
