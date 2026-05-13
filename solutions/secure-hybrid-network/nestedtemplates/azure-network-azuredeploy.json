@@ -98,6 +98,7 @@
     },
     "variables": {
         "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+        "vmssName": "vmss-web-server",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
         "windowsOSVersion": "2022-datacenter-g2"
@@ -730,6 +731,109 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "2024-11-01",
+            "name": "[variables('vmssName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
+                "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name)]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "sku": {
+                "name": "[parameters('vmSize')]",
+                "tier": "Standard",
+                "capacity": "[parameters('windowsVMCount')]"
+            },
+            "properties": {
+                "orchestrationMode": "Uniform",
+                "overprovision": false,
+                "upgradePolicy": {
+                    "mode": "Manual"
+                },
+                "virtualMachineProfile": {
+                    "osProfile": {
+                        "computerNamePrefix": "websvr",
+                        "adminUsername": "[parameters('adminUsername')]",
+                        "adminPassword": "[parameters('adminPassword')]",
+                        "windowsConfiguration": {
+                            "enableAutomaticUpdates": true
+                        }
+                    },
+                    "storageProfile": {
+                        "imageReference": {
+                            "publisher": "MicrosoftWindowsServer",
+                            "offer": "WindowsServer",
+                            "sku": "[variables('windowsOSVersion')]",
+                            "version": "latest"
+                        },
+                        "osDisk": {
+                            "createOption": "FromImage"
+                        }
+                    },
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": "[concat(variables('vmssName'), '-nic')]",
+                                "properties": {
+                                    "primary": true,
+                                    "ipConfigurations": [
+                                        {
+                                            "name": "ipconfig",
+                                            "properties": {
+                                                "primary": true,
+                                                "subnet": {
+                                                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
+                                                },
+                                                "loadBalancerBackendAddressPools": [
+                                                    {
+                                                        "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').backendName)]"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "securityProfile": {
+                        "encryptionAtHost": false
+                    },
+                    "extensionProfile": {
+                        "extensions": [
+                            {
+                                "name": "installIIS",
+                                "properties": {
+                                    "publisher": "Microsoft.Compute",
+                                    "type": "CustomScriptExtension",
+                                    "typeHandlerVersion": "1.7",
+                                    "autoUpgradeMinorVersion": true,
+                                    "settings": {
+                                        "commandToExecute": "powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "AzurePolicyforWindows",
+                                "properties": {
+                                    "publisher": "Microsoft.GuestConfiguration",
+                                    "type": "ConfigurationforWindows",
+                                    "typeHandlerVersion": "1.0",
+                                    "autoUpgradeMinorVersion": true,
+                                    "enableAutomaticUpgrade": true,
+                                    "settings": {},
+                                    "protectedSettings": {}
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
         },
         {
             "comments": "Route / force tunnel from spokes to Azure firewall",

@@ -54,6 +54,7 @@ param internalLoadBalancer object = {
 param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
+var vmssName = 'vmss-web-server'
 var windowsOSVersion = '2016-Datacenter'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
@@ -663,6 +664,111 @@ resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/
     nextHopType: 'VirtualAppliance'
     nextHopIpAddress: reference(azureFirewallResource.id, '2020-05-01').ipConfigurations[0].properties.privateIpAddress
   }
+}
+
+resource vmssWeb 'Microsoft.Compute/virtualMachineScaleSets@2024-11-01' = {
+  name: vmssName
+  location: location
+  identity: {
+    // Required by the Guest Configuration extension.
+    type: 'SystemAssigned'
+  }
+  sku: {
+    name: vmSize
+    tier: 'Standard'
+    capacity: windowsVMCount
+  }
+  properties: {
+    orchestrationMode: 'Uniform'
+    overprovision: false
+    // Manual upgrade policy keeps instance upgrades explicit. Use 'Rolling' with a
+    // health probe for automated rollouts in production workloads.
+    upgradePolicy: {
+      mode: 'Manual'
+    }
+    virtualMachineProfile: {
+      osProfile: {
+        computerNamePrefix: 'websvr'
+        adminUsername: adminUserName
+        adminPassword: adminPassword
+        windowsConfiguration: {
+          enableAutomaticUpdates: true
+        }
+      }
+      storageProfile: {
+        imageReference: {
+          publisher: 'MicrosoftWindowsServer'
+          offer: 'WindowsServer'
+          sku: windowsOSVersion
+          version: 'latest'
+        }
+        osDisk: {
+          createOption: 'FromImage'
+        }
+      }
+      networkProfile: {
+        networkInterfaceConfigurations: [
+          {
+            name: '${vmssName}-nic'
+            properties: {
+              primary: true
+              ipConfigurations: [
+                {
+                  name: 'ipconfig'
+                  properties: {
+                    primary: true
+                    subnet: {
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets', spokeNetworkResource.name, spokeNetwork.subnetName)
+                    }
+                    loadBalancerBackendAddressPools: [
+                      {
+                        id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', internalLoadBalancer.name, internalLoadBalancer.backendName)
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+      securityProfile: {
+        // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+        encryptionAtHost: false
+      }
+      extensionProfile: {
+        extensions: [
+          {
+            name: 'installIIS'
+            properties: {
+              publisher: 'Microsoft.Compute'
+              type: 'CustomScriptExtension'
+              typeHandlerVersion: '1.7'
+              autoUpgradeMinorVersion: true
+              settings: {
+                commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
+              }
+            }
+          }
+          {
+            name: 'AzurePolicyforWindows'
+            properties: {
+              publisher: 'Microsoft.GuestConfiguration'
+              type: 'ConfigurationforWindows'
+              typeHandlerVersion: '1.0'
+              autoUpgradeMinorVersion: true
+              enableAutomaticUpgrade: true
+              settings: {}
+              protectedSettings: {}
+            }
+          }
+        ]
+      }
+    }
+  }
+  dependsOn: [
+    internalLoadBalancerResource
+  ]
 }
 
 output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
