@@ -579,8 +579,9 @@ resource azureFirewallResource_Microsoft_Insights_default_logAnalyticsWorkspace 
   }
 }
 
-resource spokeNetwork_subnetNsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'Microsoft.Network/networkSecurityGroups/providers/diagnosticSettings@2021-05-01-preview' = {
-  name: '${spokeNetwork.subnetNsgName}/Microsoft.Insights/default${logAnalyticsWorkspaceName}'
+resource spokeNetwork_subnetNsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: spokeNetwork_subnetNsg
+  name: logAnalyticsWorkspaceName
   properties: {
     workspaceId: logAnalyticsWorkspace.id
     logs: [
@@ -594,10 +595,6 @@ resource spokeNetwork_subnetNsgName_Microsoft_Insights_default_logAnalyticsWorks
       }
     ]
   }
-  dependsOn: [
-    spokeNetwork_subnetNsg
-
-  ]
 }
 
 resource internalLoadBalancerResource 'Microsoft.Network/loadBalancers@2024-05-01' = {
