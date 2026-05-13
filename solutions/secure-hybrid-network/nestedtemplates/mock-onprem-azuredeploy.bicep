@@ -21,13 +21,13 @@ param bastionHost object = {
   publicIPAddressName: 'pip-bastion'
   nsgName: 'nsg-hub-bastion'
 }
-param vmSize string = 'Standard_A4_v2'
+param vmSize string = 'Standard_D2s_v3'
 param configureSitetosite bool = true
 param location string  = resourceGroup().location
 
 var nicNameWindowsName = 'nic-windows'
 var vmNameWindowsName = 'vm-windows'
-var windowsOSVersion = '2016-Datacenter'
+var windowsOSVersion = '2025-datacenter-smalldisk-g2'
 
 resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: mocOnpremNetwork.name
@@ -283,11 +283,6 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = {
       adminPassword: adminPassword
       windowsConfiguration: {
         enableAutomaticUpdates: true
-        patchSettings: {
-          //Machines should be configured to periodically check for missing system updates
-          assessmentMode: 'AutomaticByPlatform'
-          patchMode: 'AutomaticByPlatform'
-        }
       }
     }
     storageProfile: {
