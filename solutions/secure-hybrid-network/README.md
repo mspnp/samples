@@ -66,7 +66,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | azureFirewall | object | Object representing the configuration of the Azure Firewall. | name, subnetName, subnetPrefix, publicIPAddressName |
 | spokeRoutes | object | Object representing user-defined routes for the spoke subnet. | tableName, routeNameFirewall |
 | gatewayRoutes | object | Object representing user-defined routes for the gateway network. | tableName, routeNameFirewall |
-| internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, fontendName, probeName |
+| internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, frontendName, probeName |
 | location | string | Location to be used for all resources. | rg location |
 
 **nestedtemplates/azure-network-local-gateway.bicep**

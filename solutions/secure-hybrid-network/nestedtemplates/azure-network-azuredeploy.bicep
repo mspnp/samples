@@ -48,7 +48,7 @@ param gatewayRoutes object = {
 param internalLoadBalancer object = {
   name: 'lb-internal'
   backendName: 'lb-backend'
-  fontendName: 'lb-frontend'
+  frontendName: 'lb-frontend'
   probeName: 'lb-probe'
 }
 param location string = resourceGroup().location
@@ -609,7 +609,7 @@ resource internalLoadBalancerResource 'Microsoft.Network/loadBalancers@2024-05-0
   properties: {
     frontendIPConfigurations: [
       {
-        name: internalLoadBalancer.fontendName
+        name: internalLoadBalancer.frontendName
         properties: {
           subnet: {
             id: resourceId('Microsoft.Network/virtualNetworks/subnets', spokeNetworkResource.name, spokeNetwork.subnetName)
@@ -628,7 +628,7 @@ resource internalLoadBalancerResource 'Microsoft.Network/loadBalancers@2024-05-0
         name: internalLoadBalancer.probeName
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', internalLoadBalancer.name, internalLoadBalancer.fontendName)
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', internalLoadBalancer.name, internalLoadBalancer.frontendName)
           }
           frontendPort: 80
           backendPort: 80
