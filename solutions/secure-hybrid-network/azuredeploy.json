@@ -22,6 +22,12 @@
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
+        "sharedKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The shared key used for VPN site-to-site connections."
+            }
+        },
         "resourceGrouplocation": {
             "type": "string",
             "defaultValue": "eastus"
@@ -129,6 +135,9 @@
                     "mocOnpremGatewayName": {
                         "value": "[reference('onPremMock').outputs.mocOnpremGatewayName.value]"
                     },
+                    "sharedKey": {
+                        "value": "[parameters('sharedKey')]"
+                    },
                     "location": {
                         "value": "[parameters('resourceGrouplocation')]"
                     }
@@ -159,6 +168,9 @@
                     },
                     "azureNetworkGatewayName": {
                         "value": "[reference('azureNetwork').outputs.azureGatewayName.value]"
+                    },
+                    "sharedKey": {
+                        "value": "[parameters('sharedKey')]"
                     },
                     "location": {
                         "value": "[parameters('resourceGrouplocation')]"

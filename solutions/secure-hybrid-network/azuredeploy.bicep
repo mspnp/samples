@@ -15,6 +15,10 @@ param adminUserName string
 @secure()
 param adminPassword string
 
+@description('The shared key used for VPN site-to-site connections.')
+@secure()
+param sharedKey string
+
 @description('Azure Virtual Machines, and supporting services region. This defaults to the resource group\'s location for higher reliability.')
 param location string = deployment().location
 
@@ -57,6 +61,7 @@ module mockOnPremLocalGateway 'nestedtemplates/mock-onprem-local-gateway.bicep' 
     azureCloudVnetPrefix: azureNetwork.outputs.mocOnpremNetwork
     spokeNetworkAddressPrefix: azureNetwork.outputs.spokeNetworkAddressPrefix
     mocOnpremGatewayName: onPremMock.outputs.mocOnpremGatewayName
+    sharedKey: sharedKey
   }
 }
 
@@ -67,5 +72,6 @@ module azureNetworkLocalGateway 'nestedtemplates/azure-network-local-gateway.bic
     azureCloudVnetPrefix: onPremMock.outputs.mocOnpremNetworkPrefix
     gatewayIpAddress: onPremMock.outputs.vpnIp
     azureNetworkGatewayName: azureNetwork.outputs.azureGatewayName
+    sharedKey: sharedKey
   }
 }
