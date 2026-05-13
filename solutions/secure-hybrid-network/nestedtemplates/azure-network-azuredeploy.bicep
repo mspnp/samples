@@ -5,7 +5,7 @@ param adminPassword string
 
 @description('The count of Windows virtual machines to create.')
 param webServerInstanceCount int = 2
-param vmSize string = 'Standard_A4_v2'
+param vmSize string = 'Standard_D2s_v3'
 param configureSitetosite bool = true
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -55,7 +55,7 @@ param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
 var vmssName = 'vmss-web-server'
-var windowsOSVersion = '2016-Datacenter'
+var windowsOSVersion = '2025-datacenter-core-smalldisk-g2'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
   name: logAnalyticsWorkspaceName
