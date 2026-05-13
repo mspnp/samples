@@ -105,6 +105,33 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | localNetworkGateway | string | Name of the mock on-prem local network gateway. | local-gateway-moc-prem |
 | location | string | Location to be used for all resources. | rg location |
 
+## Validate deployment
+
+After the deployment completes, verify end-to-end connectivity by accessing the IIS web server from the mock on-premises VM through the VPN tunnel. Traffic flows through the Azure Firewall via a DNAT rule that translates requests to the internal load balancer.
+
+### Option 1: Azure Bastion
+
+Connect to the mock on-premises virtual machine using the included Azure Bastion host, open a web browser, and navigate to the Azure Firewall's private IP address (`http://<firewall-private-ip>`). The firewall translates the request to the application's internal load balancer.
+
+### Option 2: CLI
+
+```azurecli-interactive
+# Get the Azure Firewall private IP (DNAT entry point)
+FW_IP=$(az network firewall show \
+  -g rg-site-to-site-azure-network-eastus2 \
+  -n AzureFirewall \
+  --query "ipConfigurations[0].privateIpAddress" -o tsv)
+
+# From the mock on-prem VM, reach IIS through the VPN tunnel via firewall DNAT
+az vm run-command invoke \
+  -g rg-site-to-site-mock-prem-eastus2 \
+  -n vm-windows \
+  --command-id RunPowerShellScript \
+  --scripts "Invoke-WebRequest -Uri http://$FW_IP -UseBasicParsing | Select-Object -Property StatusCode"
+```
+
+A successful response returns `StatusCode: 200`, confirming the full path: on-prem VM → VPN → hub → firewall (DNAT) → spoke → load balancer → VMSS (IIS).
+
 ## Clean Up
 
 ```azurecli-interactive
