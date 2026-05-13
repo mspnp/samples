@@ -15,7 +15,7 @@ param spokeNetwork object = {
   name: 'vnet-spoke'
   addressPrefix: '10.100.0.0/16'
   subnetName: 'snet-spoke-resources'
-  subnetPrefix: '10.100.0.0/16'
+  subnetPrefix: '10.100.0.0/24'
   subnetNsgName: 'nsg-spoke-resources'
 }
 param vpnGateway object = {
