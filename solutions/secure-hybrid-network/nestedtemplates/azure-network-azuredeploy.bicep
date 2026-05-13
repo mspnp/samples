@@ -533,22 +533,12 @@ resource azureFirewallResource 'Microsoft.Network/azureFirewalls@2024-05-01' = {
           }
           rules: [
             {
-              name: 'all-internet'
-              protocols: [
-                {
-                  protocolType: 'Http'
-                  port: 80
-                }
-                {
-                  protocolType: 'Https'
-                  port: 443
-                }
-              ]
-              targetFqdns: [
-                '*'
+              name: 'windows-update'
+              fqdnTags: [
+                'WindowsUpdate'
               ]
               sourceAddresses: [
-                '*'
+                spokeNetwork.addressPrefix
               ]
             }
           ]
