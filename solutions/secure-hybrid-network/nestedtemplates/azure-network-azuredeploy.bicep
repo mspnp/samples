@@ -317,6 +317,35 @@ resource spokeNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   }
 }
 
+resource hubToSpokePeering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2024-05-01' = {
+  parent: hubNetworkResource
+  name: 'hub-to-spoke'
+  properties: {
+    remoteVirtualNetwork: {
+      id: spokeNetworkResource.id
+    }
+    allowForwardedTraffic: true
+    allowGatewayTransit: true
+    allowVirtualNetworkAccess: true
+  }
+}
+
+resource spokeToHubPeering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2024-05-01' = {
+  parent: spokeNetworkResource
+  name: 'spoke-to-hub'
+  dependsOn: [
+    vpnGatewayResource
+  ]
+  properties: {
+    remoteVirtualNetwork: {
+      id: hubNetworkResource.id
+    }
+    allowForwardedTraffic: true
+    useRemoteGateways: configureSitetosite
+    allowVirtualNetworkAccess: true
+  }
+}
+
 resource bastionHost_nsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: bastionHost_nsg
   name: logAnalyticsWorkspaceName
