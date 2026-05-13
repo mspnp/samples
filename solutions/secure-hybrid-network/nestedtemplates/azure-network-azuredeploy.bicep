@@ -4,7 +4,7 @@ param adminUserName string = 'azureadmin'
 param adminPassword string
 
 @description('The count of Windows virtual machines to create.')
-param windowsVMCount int = 2
+param webServerInstanceCount int = 2
 param vmSize string = 'Standard_A4_v2'
 param configureSitetosite bool = true
 param hubNetwork object = {
@@ -676,7 +676,7 @@ resource vmssWeb 'Microsoft.Compute/virtualMachineScaleSets@2024-11-01' = {
   sku: {
     name: vmSize
     tier: 'Standard'
-    capacity: windowsVMCount
+    capacity: webServerInstanceCount
   }
   properties: {
     orchestrationMode: 'Uniform'
