@@ -82,7 +82,8 @@
                     {
                         "name": "[parameters('bastionHost').subnetName]",
                         "properties": {
-                            "addressPrefix": "[parameters('bastionHost').subnetPrefix]"
+                            "addressPrefix": "[parameters('bastionHost').subnetPrefix]",
+                            "defaultOutboundAccess": false
                         }
                     }
                 ]
