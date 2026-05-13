@@ -27,7 +27,7 @@ param vpnGateway object = {
 param bastionHost object = {
   name: 'AzureBastionHost'
   subnetName: 'AzureBastionSubnet'
-  subnetPrefix: '10.0.1.0/29'
+  subnetPrefix: '10.0.1.0/26'
   publicIPAddressName: 'pip-bastion'
   nsgName: 'nsg-hub-bastion'
 }
