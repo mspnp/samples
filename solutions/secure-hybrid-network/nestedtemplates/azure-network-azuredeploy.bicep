@@ -679,7 +679,7 @@ resource gatewayRoutes_tableName_gatewayRoutes_routeNameFirewall 'Microsoft.Netw
   properties: {
     addressPrefix: spokeNetwork.addressPrefix
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: reference(azureFirewallResource.id, '2020-05-01').ipConfigurations[0].properties.privateIpAddress
+    nextHopIpAddress: azureFirewallResource.properties.ipConfigurations[0].properties.privateIPAddress
   }
 }
 
@@ -689,7 +689,7 @@ resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/
   properties: {
     addressPrefix: '0.0.0.0/0'
     nextHopType: 'VirtualAppliance'
-    nextHopIpAddress: reference(azureFirewallResource.id, '2020-05-01').ipConfigurations[0].properties.privateIpAddress
+    nextHopIpAddress: azureFirewallResource.properties.ipConfigurations[0].properties.privateIPAddress
   }
 }
 
