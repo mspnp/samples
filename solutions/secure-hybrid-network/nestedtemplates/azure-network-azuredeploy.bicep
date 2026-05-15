@@ -800,7 +800,7 @@ resource vmssWeb 'Microsoft.Compute/virtualMachineScaleSets@2024-11-01' = {
   ]
 }
 
-output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
+output vpnIp string = vpnGatewayResource!.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetwork string = hubNetwork.addressPrefix
 output spokeNetworkAddressPrefix string = spokeNetwork.addressPrefix
 output azureGatewayName string = vpnGateway.name

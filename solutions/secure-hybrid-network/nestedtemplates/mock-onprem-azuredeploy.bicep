@@ -329,6 +329,6 @@ resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensio
   }
 }
 
-output vpnIp string = mocOnpremGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
+output vpnIp string = mocOnpremGatewayResource!.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetworkPrefix string = mocOnpremNetwork.addressPrefix
 output mocOnpremGatewayName string = mocOnpremGateway.name

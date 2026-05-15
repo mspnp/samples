@@ -30,9 +30,11 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
   properties: {
     virtualNetworkGateway1: {
       id: resourceId('Microsoft.Network/virtualNetworkGateways', mocOnpremGatewayName)
+      properties: {}
     }
     localNetworkGateway2: {
       id: localNetworkGateway_resource.id
+      properties: {}
     }
     connectionType: 'IPsec'
     connectionProtocol: 'IKEv2'
