@@ -36,8 +36,19 @@ cd samples/solutions/secure-hybrid-network
 Run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
 
 ```azurecli-interactive
-# Resources will be created on deployment region
+# Deploy the base infrastructure: hub, spoke, firewall, VPN, and VMSS workload
 az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep -p mocOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
+```
+
+Now that the on-premises site has joined the network, update the hub firewall with a DNAT rule so it can reach the spoke workloads:
+
+```azurecli-interactive
+# Get the firewall and load balancer private IPs
+FW_IP=$(az network firewall show -g rg-site-to-site-azure-network-eastus2 -n AzureFirewall --query "ipConfigurations[0].privateIPAddress" -o tsv)
+LB_IP=$(az network lb frontend-ip list -g rg-site-to-site-azure-network-eastus2 --lb-name lb-internal --query "[0].privateIPAddress" -o tsv)
+
+# Add DNAT rules for on-premises to spoke traffic
+az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-eastus2 --template-file nestedtemplates/azure-network-azuredeploy-v2.bicep -p firewallName=AzureFirewall firewallPrivateIp=$FW_IP internalLoadBalancerPrivateIp=$LB_IP
 ```
 
 ## Solution deployment parameters
@@ -105,6 +116,15 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 | localNetworkGateway | string | Name of the mock on-prem local network gateway. | local-gateway-moc-prem |
 | location | string | Location to be used for all resources. | rg location |
 
+**nestedtemplates/azure-network-azuredeploy-v2.bicep**
+
+| Parameter | Type | Description | Default |
+|---|---|---|--|
+| firewallName | string | Name of the Azure Firewall. | null |
+| firewallPrivateIp | string | Private IP address of the firewall. | null |
+| internalLoadBalancerPrivateIp | string | Private IP address of the internal load balancer. | null |
+| location | string | Location for the resource. | rg location |
+
 ## Validate deployment
 
 After the deployment completes, verify end-to-end connectivity by accessing the IIS web server from the mock on-premises VM through the VPN tunnel. Traffic flows through the Azure Firewall via a DNAT rule that translates requests to the internal load balancer.
@@ -120,7 +140,7 @@ Connect to the mock on-premises virtual machine using the included Azure Bastion
 FW_IP=$(az network firewall show \
   -g rg-site-to-site-azure-network-eastus2 \
   -n AzureFirewall \
-  --query "ipConfigurations[0].privateIpAddress" -o tsv)
+  --query "ipConfigurations[0].privateIPAddress" -o tsv)
 
 # From the mock on-prem VM, reach IIS through the VPN tunnel via firewall DNAT
 az vm run-command invoke \
