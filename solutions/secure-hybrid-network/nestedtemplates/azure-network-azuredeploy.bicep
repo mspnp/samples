@@ -422,6 +422,7 @@ resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-05
     name: 'Standard'
     tier: 'Regional'
   }
+  zones: pickZones('Microsoft.Network', 'publicIPAddresses', location, 3)
   properties: {
     publicIPAllocationMethod: 'Static'
   }
@@ -446,8 +447,8 @@ resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2024-05-01
       }
     ]
     sku: {
-      name: 'VpnGw2'
-      tier: 'VpnGw2'
+      name: 'VpnGw2AZ'
+      tier: 'VpnGw2AZ'
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'

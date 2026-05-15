@@ -70,6 +70,7 @@ resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2
     name: 'Standard'
     tier: 'Regional'
   }
+  zones: pickZones('Microsoft.Network', 'publicIPAddresses', location, 3)
   properties: {
     publicIPAllocationMethod: 'Static'
   }
@@ -94,8 +95,8 @@ resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2024
       }
     ]
     sku: {
-      name: 'VpnGw2'
-      tier: 'VpnGw2'
+      name: 'VpnGw2AZ'
+      tier: 'VpnGw2AZ'
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
