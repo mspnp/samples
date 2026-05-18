@@ -19,6 +19,9 @@
             "type": "string",
             "defaultValue": "local-gateway-azure-network"
         },
+        "sharedKey": {
+            "type": "securestring"
+        },
         "location": {
             "type": "string"
         }
@@ -60,7 +63,7 @@
                 "connectionType": "IPsec",
                 "connectionProtocol": "IKEv2",
                 "routingWeight": 100,
-                "sharedKey": "123secret",
+                "sharedKey": "[parameters('sharedKey')]",
                 "enableBgp": false,
                 "useLocalAzureIpAddress": false,
                 "usePolicyBasedTrafficSelectors": false,

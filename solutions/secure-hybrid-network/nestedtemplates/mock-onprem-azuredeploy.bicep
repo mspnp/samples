@@ -57,6 +57,7 @@ resource mocOnpremNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01'
         name: bastionHost.subnetName
         properties: {
           addressPrefix: bastionHost.subnetPrefix
+          defaultOutboundAccess: false
         }
       }
     ]
