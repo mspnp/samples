@@ -17,7 +17,7 @@ param mocOnpremGateway object = {
 param bastionHost object = {
   name: 'AzureBastionHost'
   subnetName: 'AzureBastionSubnet'
-  subnetPrefix: '192.168.254.0/27'
+  subnetPrefix: '192.168.254.0/26'
   publicIPAddressName: 'pip-bastion'
   nsgName: 'nsg-hub-bastion'
 }
