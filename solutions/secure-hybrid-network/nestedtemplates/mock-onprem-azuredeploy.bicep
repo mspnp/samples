@@ -70,6 +70,7 @@ resource mocOnpremGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2
     name: 'Standard'
     tier: 'Regional'
   }
+  zones: pickZones('Microsoft.Network', 'publicIPAddresses', location, 3)
   properties: {
     publicIPAllocationMethod: 'Static'
   }
@@ -94,8 +95,8 @@ resource mocOnpremGatewayResource 'Microsoft.Network/virtualNetworkGateways@2024
       }
     ]
     sku: {
-      name: 'VpnGw2'
-      tier: 'VpnGw2'
+      name: 'VpnGw2AZ'
+      tier: 'VpnGw2AZ'
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
@@ -329,6 +330,6 @@ resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensio
   }
 }
 
-output vpnIp string = mocOnpremGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
+output vpnIp string = mocOnpremGatewayResource!.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetworkPrefix string = mocOnpremNetwork.addressPrefix
 output mocOnpremGatewayName string = mocOnpremGateway.name
