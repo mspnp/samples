@@ -85,7 +85,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
-| adminUserName | string | The admin user name for the virtual machine. | azureadmin |
+| adminUserName | string | The admin user name for the virtual machine. | null |
 | adminPassword | securestring | The admin password for the virtual machine. | null |
 | mocOnpremNetwork | object | Object representing the configuration of the mock on-prem network. | name, addressPrefix, mgmt, subnetPrefix |
 | mocOnpremGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
