@@ -3,7 +3,7 @@ targetScope = 'subscription'
 /*** PARAMETERS ***/
 
 @description('The name of the moc on-prem resource group.')
-param mocOnPremResourceGroup string
+param mockOnPremResourceGroup string
 
 @description('The name of the Azure network resource group.')
 param azureNetworkResourceGroup string
@@ -25,8 +25,8 @@ param location string = deployment().location
 
 /*** RESOURCES ***/
 
-resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
-  name: mocOnPremResourceGroup
+resource mockOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+  name: mockOnPremResourceGroup
   location: location
 }
 
@@ -37,7 +37,7 @@ resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@
 
 module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
   name: 'onPremMock'
-  scope: mocOnPremResourceGroup_resource
+  scope: mockOnPremResourceGroup_resource
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
@@ -55,7 +55,7 @@ module azureNetwork 'nestedtemplates/azure-network-azuredeploy.bicep' = {
 
 module mockOnPremLocalGateway 'nestedtemplates/mock-onprem-local-gateway.bicep' = {
   name: 'mockOnPremLocalGateway'
-  scope: mocOnPremResourceGroup_resource
+  scope: mockOnPremResourceGroup_resource
   params: {
     gatewayIpAddress: azureNetwork.outputs.vpnIp
     azureCloudVnetPrefix: azureNetwork.outputs.mocOnpremNetwork

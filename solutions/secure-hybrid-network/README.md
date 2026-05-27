@@ -37,7 +37,7 @@ Run the following commands to initiate the deployment. When prompted, enter valu
 
 ```azurecli-interactive
 # Resources will be created on deployment region
-az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep -p mocOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
+az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep -p mockOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
 ```
 
 ## Solution deployment parameters
@@ -46,7 +46,7 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
-| mocOnPremResourceGroup | string | The name of the mock on-prem resource group. | null |
+| mockOnPremResourceGroup | string | The name of the mock on-prem resource group. | null |
 | azureNetworkResourceGroup | string | The name of the Azure network resource group. | null |
 | adminUserName | string | The admin user name for the virtual machines. | null |
 | adminPassword | securestring | The admin password for the virtual machines. | null |
