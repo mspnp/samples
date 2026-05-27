@@ -33,11 +33,11 @@ git clone https://github.com/mspnp/samples.git
 cd samples/solutions/secure-hybrid-network
 ```
 
-Run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
+Run the following commands to initiate the deployment. When prompted, enter values for an admin username, password, and VPN shared key. These values are used to log into the included virtual machines and establish the site-to-site VPN connection.
 
 ```azurecli-interactive
 # Deploy the base infrastructure: hub, spoke, firewall, VPN, and VMSS workload
-az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep -p mocOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
+az deployment sub create -n secure-hybrid-network --location eastus2 --template-file azuredeploy.bicep -p mockOnPremResourceGroup=rg-site-to-site-mock-prem-eastus2 azureNetworkResourceGroup=rg-site-to-site-azure-network-eastus2
 ```
 
 Now that the on-premises site has joined the network, update the hub firewall with a DNAT rule so it can reach the spoke workloads:
@@ -57,17 +57,18 @@ az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-east
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
-| mocOnPremResourceGroup | string | The name of the moc on-prem resource group. | null |
+| mockOnPremResourceGroup | string | The name of the mock on-prem resource group. | null |
 | azureNetworkResourceGroup | string | The name of the Azure network resource group. | null |
-| adminUserName | string | The admin user name for the Azure SQL instance. | null |
-| adminPassword | securestring | The admin password for the Azure SQL instance. | null |
+| adminUserName | string | The admin user name for the virtual machines. | null |
+| adminPassword | securestring | The admin password for the virtual machines. | null |
+| sharedKey | securestring | The shared key used for VPN site-to-site connections. | null |
 
 **nestedtemplates/azure-network-azuredeploy.bicep**
 
 | Parameter | Type | Description | Default and properties |
 |---|---|---|--|
-| adminUserName | string | The admin user name for the Azure SQL instance. | null |
-| adminPassword | securestring | The admin password for the Azure SQL instance. | null |
+| adminUserName | string | The admin user name for the virtual machines. | azureadmin |
+| adminPassword | securestring | The admin password for the virtual machines. | null |
 | vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | hubNetwork | object | Object representing the configuration of the hub network. | name, addressPrefix |
@@ -77,7 +78,7 @@ az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-east
 | azureFirewall | object | Object representing the configuration of the Azure Firewall. | name, subnetName, subnetPrefix, publicIPAddressName |
 | spokeRoutes | object | Object representing user-defined routes for the spoke subnet. | tableName, routeNameFirewall |
 | gatewayRoutes | object | Object representing user-defined routes for the gateway network. | tableName, routeNameFirewall |
-| internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, fontendName, probeName |
+| internalLoadBalancer | object | Object representing the configuration of the application load balancer. | name, backendName, frontendName, probeName |
 | location | string | Location to be used for all resources. | rg location |
 
 **nestedtemplates/azure-network-local-gateway.bicep**
@@ -86,20 +87,21 @@ az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-east
 |---|---|---|--|
 | connectionName | string | Name of the Azure connection resource. | hub-to-mock-prem |
 | gatewayIpAddress | string | Public IP address of the mock on-prem virtual network gateway. | null |
-| azureCloudVnetPrefix | string | Subnet prefix of the management subnet found in the hub network. | null |
+| azureCloudVnetPrefix | string | Address prefix of the hub network. | null |
 | azureNetworkGatewayName | string | Name of the Azure virtual network gateway. | null |
-| localNetworkGatewayName | string |  Name of the Azure local network gateway. | local-gateway-azure-network |
+| localNetworkGatewayName | string | Name of the Azure local network gateway. | local-gateway-azure-network |
+| sharedKey | securestring | The shared key for the VPN connection. | null |
 
 **nestedtemplates/mock-onprem-azuredeploy.bicep**
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
-| adminUserName | string | The admin user name for the Azure SQL instance. | null |
-| adminPassword | securestring | The admin password for the Azure SQL instance. | null |
+| adminUserName | string | The admin user name for the virtual machine. | null |
+| adminPassword | securestring | The admin password for the virtual machine. | null |
 | mocOnpremNetwork | object | Object representing the configuration of the mock on-prem network. | name, addressPrefix, mgmt, subnetPrefix |
 | mocOnpremGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
 | bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
-| vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
+| vmSize | string | Size of the virtual machine. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | location | string | Location to be used for all resources. | rg location |
 
@@ -107,12 +109,13 @@ az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-east
 
 | Parameter | Type | Description | Default |
 |---|---|---|--|
-| connectionName | string | Name of the mock on-prem connection resource. | hub-to-mock-prem |
-| azureCloudVnetPrefix | string | Subnet prefix of the management subnet found in the hub network. | hub-to-mock-prem |
-| spokeNetworkAddressPrefix | string | Subnet prefix of the resource subnet found in the spoke network. | hub-to-mock-prem |
+| connectionName | string | Name of the mock on-prem connection resource. | mock-prem-to-hub |
+| azureCloudVnetPrefix | string | Address prefix of the hub network. | null |
+| spokeNetworkAddressPrefix | string | Address prefix of the spoke network. | null |
 | gatewayIpAddress | string | Public IP address of the Azure virtual network gateway. | null |
-| mocOnpremGatewayName | string | Name of the mock on-prem local network gateway.  | null |
+| mocOnpremGatewayName | string | Name of the mock on-prem virtual network gateway. | null |
 | localNetworkGateway | string | Name of the mock on-prem local network gateway. | local-gateway-moc-prem |
+| sharedKey | securestring | The shared key for the VPN connection. | null |
 | location | string | Location to be used for all resources. | rg location |
 
 **nestedtemplates/azure-network-azuredeploy-v2.bicep**

@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "mocOnPremResourceGroup": {
+        "mockOnPremResourceGroup": {
             "type": "string",
             "defaultValue": "site-to-site-mock-prem"
         },
@@ -22,15 +22,21 @@
                 "description": "The admin password for both the Windows and Linux virtual machines."
             }
         },
+        "sharedKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The shared key used for VPN site-to-site connections."
+            }
+        },
         "resourceGrouplocation": {
             "type": "string",
             "defaultValue": "eastus"
         }
     },
     "variables": {
-        "mocOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
+        "mockOnPremTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-azuredeploy.json')]",
         "azureVirtualNetworkTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-azuredeploy.json')]",
-        "mocOnPremLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-local-gateway.json')]",
+        "mockOnPremLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/mock-onprem-local-gateway.json')]",
         "azureVirtualNetworkLocalGatewayTemplate": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/azure-network-local-gateway.json')]"
 
     },
@@ -38,7 +44,7 @@
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "name": "[parameters('mocOnPremResourceGroup')]",
+            "name": "[parameters('mockOnPremResourceGroup')]",
             "location": "[parameters('resourceGrouplocation')]"
         },
         {
@@ -51,14 +57,14 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "name": "onPremMock",
-            "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
+            "resourceGroup": "[parameters('mockOnPremResourceGroup')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mocOnPremResourceGroup'))]"
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('mockOnPremResourceGroup'))]"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('mocOnPremTemplate')]",
+                    "uri": "[variables('mockOnPremTemplate')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -105,7 +111,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "name": "mockOnPremLocalGateway",
-            "resourceGroup": "[parameters('mocOnPremResourceGroup')]",
+            "resourceGroup": "[parameters('mockOnPremResourceGroup')]",
             "dependsOn": [
                 "azureNetwork",
                 "onPremMock"
@@ -113,7 +119,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('mocOnPremLocalGatewayTemplate')]",
+                    "uri": "[variables('mockOnPremLocalGatewayTemplate')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -128,6 +134,9 @@
                     },
                     "mocOnpremGatewayName": {
                         "value": "[reference('onPremMock').outputs.mocOnpremGatewayName.value]"
+                    },
+                    "sharedKey": {
+                        "value": "[parameters('sharedKey')]"
                     },
                     "location": {
                         "value": "[parameters('resourceGrouplocation')]"
@@ -159,6 +168,9 @@
                     },
                     "azureNetworkGatewayName": {
                         "value": "[reference('azureNetwork').outputs.azureGatewayName.value]"
+                    },
+                    "sharedKey": {
+                        "value": "[parameters('sharedKey')]"
                     },
                     "location": {
                         "value": "[parameters('resourceGrouplocation')]"
