@@ -88,7 +88,7 @@
             "defaultValue": {
                 "name": "lb-internal",
                 "backendName": "lb-backend",
-                "fontendName": "lb-frontend",
+                "frontendName": "lb-frontend",
                 "probeName": "lb-probe"
             }
         },
@@ -155,6 +155,7 @@
                         "name": "[parameters('bastionHost').subnetName]",
                         "properties": {
                             "addressPrefix": "[parameters('bastionHost').subnetPrefix]",
+                            "defaultOutboundAccess": false,
                             "networkSecurityGroup": {
                                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('bastionHost').nsgName)]"
                             }
@@ -904,7 +905,7 @@
             "properties": {
                 "frontendIPConfigurations": [
                     {
-                        "name": "[parameters('internalLoadBalancer').fontendName]",
+                        "name": "[parameters('internalLoadBalancer').frontendName]",
                         "properties": {
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
@@ -923,7 +924,7 @@
                         "name": "[parameters('internalLoadBalancer').probeName]",
                         "properties": {
                             "frontendIPConfiguration": {
-                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').fontendName)]"
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').frontendName)]"
                             },
                             "frontendPort": 80,
                             "backendPort": 80,

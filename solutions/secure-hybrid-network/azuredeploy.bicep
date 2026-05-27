@@ -3,7 +3,7 @@ targetScope = 'subscription'
 /*** PARAMETERS ***/
 
 @description('The name of the moc on-prem resource group.')
-param mocOnPremResourceGroup string
+param mockOnPremResourceGroup string
 
 @description('The name of the Azure network resource group.')
 param azureNetworkResourceGroup string
@@ -15,14 +15,18 @@ param adminUserName string
 @secure()
 param adminPassword string
 
+@description('The shared key used for VPN site-to-site connections.')
+@secure()
+param sharedKey string
+
 @description('Azure Virtual Machines, and supporting services region. This defaults to the resource group\'s location for higher reliability.')
 param location string = deployment().location
 
 
 /*** RESOURCES ***/
 
-resource mocOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
-  name: mocOnPremResourceGroup
+resource mockOnPremResourceGroup_resource 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+  name: mockOnPremResourceGroup
   location: location
 }
 
@@ -33,7 +37,7 @@ resource azureNetworkResourceGroup_resource 'Microsoft.Resources/resourceGroups@
 
 module onPremMock 'nestedtemplates/mock-onprem-azuredeploy.bicep' = {
   name: 'onPremMock'
-  scope: mocOnPremResourceGroup_resource
+  scope: mockOnPremResourceGroup_resource
   params: {
     adminUserName: adminUserName
     adminPassword: adminPassword
@@ -51,12 +55,13 @@ module azureNetwork 'nestedtemplates/azure-network-azuredeploy.bicep' = {
 
 module mockOnPremLocalGateway 'nestedtemplates/mock-onprem-local-gateway.bicep' = {
   name: 'mockOnPremLocalGateway'
-  scope: mocOnPremResourceGroup_resource
+  scope: mockOnPremResourceGroup_resource
   params: {
     gatewayIpAddress: azureNetwork.outputs.vpnIp
     azureCloudVnetPrefix: azureNetwork.outputs.mocOnpremNetwork
     spokeNetworkAddressPrefix: azureNetwork.outputs.spokeNetworkAddressPrefix
     mocOnpremGatewayName: onPremMock.outputs.mocOnpremGatewayName
+    sharedKey: sharedKey
   }
 }
 
@@ -67,5 +72,6 @@ module azureNetworkLocalGateway 'nestedtemplates/azure-network-local-gateway.bic
     azureCloudVnetPrefix: onPremMock.outputs.mocOnpremNetworkPrefix
     gatewayIpAddress: onPremMock.outputs.vpnIp
     azureNetworkGatewayName: azureNetwork.outputs.azureGatewayName
+    sharedKey: sharedKey
   }
 }
