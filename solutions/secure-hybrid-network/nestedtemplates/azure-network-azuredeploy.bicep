@@ -4,7 +4,7 @@ param adminUserName string = 'azureadmin'
 param adminPassword string
 
 @description('The count of Windows virtual machines to create.')
-param windowsVMCount int = 2
+param webServerInstanceCount int = 2
 param vmSize string = 'Standard_A4_v2'
 param configureSitetosite bool = true
 param hubNetwork object = {
@@ -54,8 +54,7 @@ param internalLoadBalancer object = {
 param location string = resourceGroup().location
 
 var logAnalyticsWorkspaceName = 'la-${uniqueString(subscription().subscriptionId, resourceGroup().id)}'
-var nicNameWebName = 'nic-web-server'
-var vmNameWebName = 'vm-web-server'
+var vmssName = 'vmss-web-server'
 var windowsOSVersion = '2016-Datacenter'
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
@@ -318,6 +317,35 @@ resource spokeNetworkResource 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   }
 }
 
+resource hubToSpokePeering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2024-05-01' = {
+  parent: hubNetworkResource
+  name: 'hub-to-spoke'
+  properties: {
+    remoteVirtualNetwork: {
+      id: spokeNetworkResource.id
+    }
+    allowForwardedTraffic: true
+    allowGatewayTransit: true
+    allowVirtualNetworkAccess: true
+  }
+}
+
+resource spokeToHubPeering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2024-05-01' = {
+  parent: spokeNetworkResource
+  name: 'spoke-to-hub'
+  dependsOn: [
+    vpnGatewayResource
+  ]
+  properties: {
+    remoteVirtualNetwork: {
+      id: hubNetworkResource.id
+    }
+    allowForwardedTraffic: true
+    useRemoteGateways: configureSitetosite
+    allowVirtualNetworkAccess: true
+  }
+}
+
 resource bastionHost_nsgName_Microsoft_Insights_default_logAnalyticsWorkspace 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: bastionHost_nsg
   name: logAnalyticsWorkspaceName
@@ -394,6 +422,7 @@ resource vpnGateway_publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-05
     name: 'Standard'
     tier: 'Regional'
   }
+  zones: pickZones('Microsoft.Network', 'publicIPAddresses', location, 3)
   properties: {
     publicIPAllocationMethod: 'Static'
   }
@@ -418,8 +447,8 @@ resource vpnGatewayResource 'Microsoft.Network/virtualNetworkGateways@2024-05-01
       }
     ]
     sku: {
-      name: 'VpnGw2'
-      tier: 'VpnGw2'
+      name: 'VpnGw2AZ'
+      tier: 'VpnGw2AZ'
     }
     gatewayType: 'Vpn'
     vpnType: 'RouteBased'
@@ -667,111 +696,112 @@ resource spokeRoutes_tableName_spokeRoutes_routeNameFirewall 'Microsoft.Network/
   }
 }
 
-resource nicNameWeb 'Microsoft.Network/networkInterfaces@2024-05-01' = [for i in range(0, windowsVMCount): {
-  name: '${nicNameWebName}${i}'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', spokeNetworkResource.name, spokeNetwork.subnetName)
-          }
-          loadBalancerBackendAddressPools: [
-            {
-              id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', internalLoadBalancer.name, internalLoadBalancer.backendName)
-            }
-          ]
-        }
-      }
-    ]
-  }
-  dependsOn:[
-    internalLoadBalancerResource]
-}]
-
-resource vmNameWeb 'Microsoft.Compute/virtualMachines@2024-11-01' = [for i in range(0, windowsVMCount): {
-  name: '${vmNameWebName}${i}'
+resource vmssWeb 'Microsoft.Compute/virtualMachineScaleSets@2024-11-01' = {
+  name: vmssName
   location: location
   identity: {
-    // It is required by the Guest Configuration extension.
+    // Required by the Guest Configuration extension.
     type: 'SystemAssigned'
   }
+  sku: {
+    name: vmSize
+    tier: 'Standard'
+    capacity: webServerInstanceCount
+  }
   properties: {
-    hardwareProfile: {
-      vmSize: vmSize
+    orchestrationMode: 'Uniform'
+    overprovision: false
+    // Manual upgrade policy keeps instance upgrades explicit. Use 'Rolling' with a
+    // health probe for automated rollouts in production workloads.
+    upgradePolicy: {
+      mode: 'Manual'
     }
-    osProfile: {
-      computerName: '${vmNameWebName}${i}'
-      adminUsername: adminUserName
-      adminPassword: adminPassword
-      windowsConfiguration: {
-        enableAutomaticUpdates: true
-        patchSettings: {
-          //Machines should be configured to periodically check for missing system updates
-          assessmentMode: 'AutomaticByPlatform'
-          patchMode: 'AutomaticByPlatform'
+    virtualMachineProfile: {
+      osProfile: {
+        computerNamePrefix: 'websvr'
+        adminUsername: adminUserName
+        adminPassword: adminPassword
+        windowsConfiguration: {
+          enableAutomaticUpdates: true
         }
       }
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: windowsOSVersion
-        version: 'latest'
-      }
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: nicNameWeb[i].id
+      storageProfile: {
+        imageReference: {
+          publisher: 'MicrosoftWindowsServer'
+          offer: 'WindowsServer'
+          sku: windowsOSVersion
+          version: 'latest'
         }
-      ]
-    }
-    securityProfile: {
-      // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
-      encryptionAtHost: false
-    }
-  }}]
-
-resource vmNameWeb_installIIS 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [for i in range(0, windowsVMCount): {
-  parent: vmNameWeb [i]
-  name: 'installIIS'
-  location: location
-  properties: {
-    publisher: 'Microsoft.Compute'
-    type: 'CustomScriptExtension'
-    typeHandlerVersion: '1.7'
-    autoUpgradeMinorVersion: true
-    settings: {
-      commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
+        osDisk: {
+          createOption: 'FromImage'
+        }
+      }
+      networkProfile: {
+        networkInterfaceConfigurations: [
+          {
+            name: '${vmssName}-nic'
+            properties: {
+              primary: true
+              ipConfigurations: [
+                {
+                  name: 'ipconfig'
+                  properties: {
+                    primary: true
+                    subnet: {
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets', spokeNetworkResource.name, spokeNetwork.subnetName)
+                    }
+                    loadBalancerBackendAddressPools: [
+                      {
+                        id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', internalLoadBalancer.name, internalLoadBalancer.backendName)
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+      securityProfile: {
+        // We recommend enabling encryption at host for virtual machines and virtual machine scale sets to harden security.
+        encryptionAtHost: false
+      }
+      extensionProfile: {
+        extensions: [
+          {
+            name: 'installIIS'
+            properties: {
+              publisher: 'Microsoft.Compute'
+              type: 'CustomScriptExtension'
+              typeHandlerVersion: '1.7'
+              autoUpgradeMinorVersion: true
+              settings: {
+                commandToExecute: 'powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools'
+              }
+            }
+          }
+          {
+            name: 'AzurePolicyforWindows'
+            properties: {
+              publisher: 'Microsoft.GuestConfiguration'
+              type: 'ConfigurationforWindows'
+              typeHandlerVersion: '1.0'
+              autoUpgradeMinorVersion: true
+              enableAutomaticUpgrade: true
+              settings: {}
+              protectedSettings: {}
+            }
+          }
+        ]
+      }
     }
   }
-}]
+  dependsOn: [
+    internalLoadBalancerResource
+  ]
+}
 
-resource guestConfigExtensionWindows 'Microsoft.Compute/virtualMachines/extensions@2024-11-01' = [for i in range(0, windowsVMCount): {
-    parent: vmNameWeb[i]
-    name: 'AzurePolicyforWindows${vmNameWeb[i].name}'
-    location: location
-    properties: {
-      publisher: 'Microsoft.GuestConfiguration'
-      type: 'ConfigurationforWindows'
-      typeHandlerVersion: '1.0'
-      autoUpgradeMinorVersion: true
-      enableAutomaticUpgrade: true
-      settings: {}
-      protectedSettings: {}
-    }
-  }
-]
-
-output vpnIp string = vpnGatewayResource.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
+output vpnIp string = vpnGatewayResource!.properties.bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]
 output mocOnpremNetwork string = hubNetwork.addressPrefix
 output spokeNetworkAddressPrefix string = spokeNetwork.addressPrefix
 output azureGatewayName string = vpnGateway.name

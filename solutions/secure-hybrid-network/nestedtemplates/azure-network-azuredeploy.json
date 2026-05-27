@@ -9,7 +9,7 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "windowsVMCount": {
+        "webServerInstanceCount": {
             "type": "int",
             "defaultValue": 2,
             "metadata": {
@@ -18,7 +18,7 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_DS1_v2"
+            "defaultValue": "Standard_A4_v2"
         },
         "configureSitetosite": {
             "type": "bool",
@@ -98,10 +98,9 @@
     },
     "variables": {
         "logAnalyticsWorkspace": "[concat('la-', uniqueString(subscription().subscriptionId, resourceGroup().id))]",
+        "vmssName": "vmss-web-server",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
-        "nicNameWeb": "nic-web-server",
-        "vmNameWeb": "vm-web-server",
         "windowsOSVersion": "2022-datacenter-g2"
     },
     "resources": [
@@ -488,9 +487,17 @@
             "comments": "Public IP address for VPN Gateway",
             "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('vpnGateway').publicIPAddressName]",
             "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "1",
+                "2",
+                "3"
+            ],
             "properties": {
                 "publicIPAllocationMethod": "Static"
             }
@@ -522,8 +529,8 @@
                     }
                 ],
                 "sku": {
-                    "name": "VpnGw2",
-                    "tier": "VpnGw2"
+                    "name": "VpnGw2AZ",
+                    "tier": "VpnGw2AZ"
                 },
                 "gatewayType": "Vpn",
                 "vpnType": "RouteBased",
@@ -734,98 +741,106 @@
             ]
         },
         {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2020-05-01",
-            "name": "[concat(variables('nicNameWeb'), copyIndex())]",
+            "type": "Microsoft.Compute/virtualMachineScaleSets",
+            "apiVersion": "2024-11-01",
+            "name": "[variables('vmssName')]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('spokeNetwork').name)]",
                 "[resourceId('Microsoft.Network/loadBalancers', parameters('internalLoadBalancer').name)]"
             ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
-                            },
-                            "loadBalancerBackendAddressPools": [
-                                {
-                                    "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').backendName)]"
-                                }
-                            ]
-                        }
-                    }
-                ]
+            "identity": {
+                "type": "SystemAssigned"
             },
-            "copy": {
-                "name": "niccopy",
-                "count": "[parameters('windowsVMCount')]"
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2019-07-01",
-            "name": "[concat(variables('vmNameWeb'), copyIndex())]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat(variables('nicNameWeb'), copyIndex())]"
-            ],
+            "sku": {
+                "name": "[parameters('vmSize')]",
+                "tier": "Standard",
+                "capacity": "[parameters('webServerInstanceCount')]"
+            },
             "properties": {
-                "hardwareProfile": {
-                    "vmSize": "[parameters('vmSize')]"
+                "orchestrationMode": "Uniform",
+                "overprovision": false,
+                "upgradePolicy": {
+                    "mode": "Manual"
                 },
-                "osProfile": {
-                    "computerName": "[concat(variables('vmNameWeb'), copyIndex())]",
-                    "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]"
-                },
-                "storageProfile": {
-                    "imageReference": {
-                        "publisher": "MicrosoftWindowsServer",
-                        "offer": "WindowsServer",
-                        "sku": "[variables('windowsOSVersion')]",
-                        "version": "latest"
+                "virtualMachineProfile": {
+                    "osProfile": {
+                        "computerNamePrefix": "websvr",
+                        "adminUsername": "[parameters('adminUsername')]",
+                        "adminPassword": "[parameters('adminPassword')]",
+                        "windowsConfiguration": {
+                            "enableAutomaticUpdates": true
+                        }
                     },
-                    "osDisk": {
-                        "createOption": "FromImage"
-                    }
-                },
-                "networkProfile": {
-                    "networkInterfaces": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicNameWeb'), copyIndex()))]"
+                    "storageProfile": {
+                        "imageReference": {
+                            "publisher": "MicrosoftWindowsServer",
+                            "offer": "WindowsServer",
+                            "sku": "[variables('windowsOSVersion')]",
+                            "version": "latest"
+                        },
+                        "osDisk": {
+                            "createOption": "FromImage"
                         }
-                    ]
-                }
-            },
-            "resources": [
-                {
-
-                    "type": "extensions",
-                    "apiVersion": "2019-12-01",
-                    "name": "installIIS",
-                    "location": "[parameters('location')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vmNameWeb'), copyIndex()))]"
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.7",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "commandToExecute": "powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools"
-                        }
+                    },
+                    "networkProfile": {
+                        "networkInterfaceConfigurations": [
+                            {
+                                "name": "[concat(variables('vmssName'), '-nic')]",
+                                "properties": {
+                                    "primary": true,
+                                    "ipConfigurations": [
+                                        {
+                                            "name": "ipconfig",
+                                            "properties": {
+                                                "primary": true,
+                                                "subnet": {
+                                                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('spokeNetwork').name, parameters('spokeNetwork').subnetName)]"
+                                                },
+                                                "loadBalancerBackendAddressPools": [
+                                                    {
+                                                        "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('internalLoadBalancer').name, parameters('internalLoadBalancer').backendName)]"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "securityProfile": {
+                        "encryptionAtHost": false
+                    },
+                    "extensionProfile": {
+                        "extensions": [
+                            {
+                                "name": "installIIS",
+                                "properties": {
+                                    "publisher": "Microsoft.Compute",
+                                    "type": "CustomScriptExtension",
+                                    "typeHandlerVersion": "1.7",
+                                    "autoUpgradeMinorVersion": true,
+                                    "settings": {
+                                        "commandToExecute": "powershell.exe Install-WindowsFeature -name Web-Server -IncludeManagementTools"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "AzurePolicyforWindows",
+                                "properties": {
+                                    "publisher": "Microsoft.GuestConfiguration",
+                                    "type": "ConfigurationforWindows",
+                                    "typeHandlerVersion": "1.0",
+                                    "autoUpgradeMinorVersion": true,
+                                    "enableAutomaticUpgrade": true,
+                                    "settings": {},
+                                    "protectedSettings": {}
+                                }
+                            }
+                        ]
                     }
-
                 }
-            ],
-            "copy": {
-                "name": "vmcopy",
-                "count": "[parameters('windowsVMCount')]"
             }
         },
         {

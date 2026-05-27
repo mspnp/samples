@@ -28,9 +28,11 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
   properties: {
     virtualNetworkGateway1: {
       id: resourceId('Microsoft.Network/virtualNetworkGateways', azureNetworkGatewayName)
+      properties: {}
     }
     localNetworkGateway2: {
       id: localNetworkGateway.id
+      properties: {}
     }
     connectionType: 'IPsec'
     connectionProtocol: 'IKEv2'
