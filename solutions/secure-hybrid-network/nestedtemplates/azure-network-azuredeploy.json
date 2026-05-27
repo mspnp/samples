@@ -9,7 +9,7 @@
         "adminPassword": {
             "type": "securestring"
         },
-        "windowsVMCount": {
+        "webServerInstanceCount": {
             "type": "int",
             "defaultValue": 2,
             "metadata": {
@@ -487,9 +487,17 @@
             "comments": "Public IP address for VPN Gateway",
             "condition": "[parameters('configureSitetosite')]",
             "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-11-01",
+            "apiVersion": "2024-05-01",
             "name": "[parameters('vpnGateway').publicIPAddressName]",
             "location": "[parameters('location')]",
+            "sku": {
+                "name": "Standard"
+            },
+            "zones": [
+                "1",
+                "2",
+                "3"
+            ],
             "properties": {
                 "publicIPAllocationMethod": "Static"
             }
@@ -521,8 +529,8 @@
                     }
                 ],
                 "sku": {
-                    "name": "VpnGw2",
-                    "tier": "VpnGw2"
+                    "name": "VpnGw2AZ",
+                    "tier": "VpnGw2AZ"
                 },
                 "gatewayType": "Vpn",
                 "vpnType": "RouteBased",
@@ -747,7 +755,7 @@
             "sku": {
                 "name": "[parameters('vmSize')]",
                 "tier": "Standard",
-                "capacity": "[parameters('windowsVMCount')]"
+                "capacity": "[parameters('webServerInstanceCount')]"
             },
             "properties": {
                 "orchestrationMode": "Uniform",
