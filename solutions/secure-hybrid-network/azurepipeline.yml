@@ -99,7 +99,7 @@ stages:
                 uriTemplate=$(artifactsLocationTemplate)
                 deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
                 artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-                az deployment sub validate --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name validate-$(Build.BuildId)
+                az deployment sub validate --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) sharedKey=$(sharedKey) --name validate-$(Build.BuildId)
 
           - task: AzureCLI@2
             displayName: Deploy template
@@ -111,7 +111,7 @@ stages:
                 uriTemplate=$(artifactsLocationTemplate)
                 deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
                 artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-                az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+                az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) sharedKey=$(sharedKey) --name deploy-$(Build.BuildId)
 
           - task: AzureCLI@2
             displayName: Deploy template again
@@ -123,7 +123,7 @@ stages:
                 uriTemplate=$(artifactsLocationTemplate)
                 deployUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}azuredeploy.json"
                 artifactUri="${uriTemplate/REPLACEREF/$(Build.SourceVersion)}"
-                az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) --name deploy-$(Build.BuildId)
+                az deployment sub create --template-uri $deployUri --location eastus --parameters resourceGrouplocation=$(location) mocOnPremResourceGroup=$(mock-on-prem-resource-group-name) azureNetworkResourceGroup=$(azure-network-resource-group-name) adminUserName=$(adminUserName) adminPassword=$(adminPassword) sharedKey=$(sharedKey) --name deploy-$(Build.BuildId)
 
   # Clean up deployment
   - stage: cleanupResourceGroupBasic
