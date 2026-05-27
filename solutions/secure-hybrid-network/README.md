@@ -57,7 +57,6 @@ az deployment sub create -n secure-hybrid-network --location eastus2 --template-
 |---|---|---|--|
 | adminUserName | string | The admin user name for the Azure SQL instance. | null |
 | adminPassword | securestring | The admin password for the Azure SQL instance. | null |
-| webServerInstanceCount | int | The number of VMSS instances running IIS. | 2 |
 | vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | hubNetwork | object | Object representing the configuration of the hub network. | name, addressPrefix |
