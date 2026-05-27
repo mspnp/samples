@@ -61,17 +61,39 @@ resource firewallDnat 'Microsoft.Network/azureFirewalls@2024-05-01' = {
           }
           rules: [
             {
-              name: 'windows-update'
+              name: 'all-internet'
               protocols: [
+                {
+                  protocolType: 'Http'
+                  port: 80
+                }
                 {
                   protocolType: 'Https'
                   port: 443
                 }
               ]
               targetFqdns: [
-                '*.update.microsoft.com'
-                '*.windowsupdate.com'
-                '*.download.windowsupdate.com'
+                '*'
+              ]
+              sourceAddresses: [
+                '*'
+              ]
+            }
+          ]
+        }
+      }
+      {
+        name: 'spoke-windows-update'
+        properties: {
+          priority: 200
+          action: {
+            type: 'Allow'
+          }
+          rules: [
+            {
+              name: 'windows-update'
+              fqdnTags: [
+                'WindowsUpdate'
               ]
               sourceAddresses: [
                 spokeAddressPrefix
