@@ -33,7 +33,7 @@ git clone https://github.com/mspnp/samples.git
 cd samples/solutions/secure-hybrid-network
 ```
 
-Run the following commands to initiate the deployment. When prompted, enter values for an admin username and password. These values are used to log into the included virtual machines.
+Run the following commands to initiate the deployment. When prompted, enter values for an admin username, password, and VPN shared key. These values are used to log into the included virtual machines and establish the site-to-site VPN connection.
 
 ```azurecli-interactive
 # Resources will be created on deployment region
