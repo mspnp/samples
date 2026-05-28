@@ -15,7 +15,7 @@ param spokeNetwork object = {
   name: 'vnet-spoke'
   addressPrefix: '10.100.0.0/16'
   subnetName: 'snet-spoke-resources'
-  subnetPrefix: '10.100.0.0/16'
+  subnetPrefix: '10.100.0.0/24'
   subnetNsgName: 'nsg-spoke-resources'
 }
 param vpnGateway object = {
@@ -27,7 +27,7 @@ param vpnGateway object = {
 param bastionHost object = {
   name: 'AzureBastionHost'
   subnetName: 'AzureBastionSubnet'
-  subnetPrefix: '10.0.1.0/29'
+  subnetPrefix: '10.0.1.0/26'
   publicIPAddressName: 'pip-bastion'
   nsgName: 'nsg-hub-bastion'
 }
