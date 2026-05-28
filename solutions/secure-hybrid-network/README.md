@@ -69,7 +69,7 @@ az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-east
 |---|---|---|--|
 | adminUserName | string | The admin user name for the virtual machines. | azureadmin |
 | adminPassword | securestring | The admin password for the virtual machines. | null |
-| vmSize | string | Size of the load-balanced virtual machines. | Standard_A4_v2 |
+| vmSize | string | Size of the load-balanced virtual machines. | Standard_D2s_v3 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | hubNetwork | object | Object representing the configuration of the hub network. | name, addressPrefix |
 | spokeNetwork | object | Object representing the configuration of the spoke network. | name, addressPrefix, subnetName, subnetPrefix, subnetNsgName |
@@ -101,7 +101,7 @@ az deployment group create -n firewallDnat -g rg-site-to-site-azure-network-east
 | mocOnpremNetwork | object | Object representing the configuration of the mock on-prem network. | name, addressPrefix, mgmt, subnetPrefix |
 | mocOnpremGateway | object | Object representing the configuration of the VPN gateway. | name, subnetName, subnetPrefix, publicIPAddressName |
 | bastionHost | object | Object representing the configuration of the Bastion host. | name, subnetName, subnetPrefix, publicIPAddressName, nsgName |
-| vmSize | string | Size of the virtual machine. | Standard_A4_v2 |
+| vmSize | string | Size of the virtual machine. | Standard_D2s_v3 |
 | configureSitetosite | bool | Condition for configuring a site-to-site VPN connection. | true |
 | location | string | Location to be used for all resources. | rg location |
 
