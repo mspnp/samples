@@ -327,7 +327,14 @@
                 "osProfile": {
                     "computerName": "[variables('vmNameWindows')]",
                     "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]"
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "assessmentMode": "AutomaticByPlatform",
+                            "patchMode": "AutomaticByPlatform"
+                        }
+                    }
                 },
                 "storageProfile": {
                     "imageReference": {

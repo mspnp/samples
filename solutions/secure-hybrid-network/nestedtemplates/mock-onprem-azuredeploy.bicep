@@ -283,6 +283,10 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2024-11-01' = {
       adminPassword: adminPassword
       windowsConfiguration: {
         enableAutomaticUpdates: true
+        patchSettings: {
+          assessmentMode: 'AutomaticByPlatform'
+          patchMode: 'AutomaticByPlatform'
+        }
       }
     }
     storageProfile: {
