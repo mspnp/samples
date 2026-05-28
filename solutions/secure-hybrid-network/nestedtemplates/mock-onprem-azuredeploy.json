@@ -38,7 +38,7 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_DS1_v2"
+            "defaultValue": "Standard_D2s_v3"
         },
         "configureSitetosite": {
             "type": "bool",
@@ -51,7 +51,7 @@
     "variables": {
         "nicNameWindows": "nic-windows",
         "vmNameWindows": "vm-windows",
-        "windowsOSVersion": "2016-Datacenter"
+        "windowsOSVersion": "2025-datacenter-smalldisk-g2"
     },
     "resources": [
         {
@@ -327,7 +327,14 @@
                 "osProfile": {
                     "computerName": "[variables('vmNameWindows')]",
                     "adminUsername": "[parameters('adminUsername')]",
-                    "adminPassword": "[parameters('adminPassword')]"
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "assessmentMode": "AutomaticByPlatform",
+                            "patchMode": "AutomaticByPlatform"
+                        }
+                    }
                 },
                 "storageProfile": {
                     "imageReference": {

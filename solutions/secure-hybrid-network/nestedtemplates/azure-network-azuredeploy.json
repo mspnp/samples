@@ -18,7 +18,7 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_A4_v2"
+            "defaultValue": "Standard_D2s_v3"
         },
         "configureSitetosite": {
             "type": "bool",
@@ -101,7 +101,7 @@
         "vmssName": "vmss-web-server",
         "peering-name-hub-to-spoke": "hub-to-spoke",
         "peering-name-spoke-to-hub": "spoke-to-hub",
-        "windowsOSVersion": "2022-datacenter-g2"
+        "windowsOSVersion": "2025-datacenter-core-smalldisk-g2"
     },
     "resources": [
         {
