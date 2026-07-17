@@ -87,7 +87,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 az deployment group create \
     --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
-    --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword='<choose-a-strong-password>'
+    --parameters deployVirtualMachines=true adminUsername=azureadmin
 ```
 
 **Deploy with VPN gateway**
@@ -112,7 +112,7 @@ Run the following command to initiate the deployment with a Linux VM deployed to
 az deployment group create \
     --resource-group rg-hub-spoke-eastus \
     --template-file main.bicep \
-    --parameters deployVirtualMachines=true adminUsername=azureadmin adminPassword='<choose-a-strong-password>' deployVpnGateway=true
+    --parameters deployVirtualMachines=true adminUsername=azureadmin deployVpnGateway=true
 ```
 
 ## Solution deployment parameters
